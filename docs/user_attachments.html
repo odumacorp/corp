@@ -1,0 +1,12 @@
+{% extends '_partials/base.html' %}
+{% block content %}
+<h2>Attachments by {{ user.get_full_name|default:user.username }}</h2>
+<ul>
+    {% for attachment in attachments %}
+        <li><a href="{{ attachment.file.url }}" download>{{ attachment.file.name|cut:"attachments/" }}</a></li>
+    {% empty %}
+        <li>No attachments found.</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+{% endblock %}

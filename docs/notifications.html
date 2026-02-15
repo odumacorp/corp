@@ -1,0 +1,57 @@
+{% extends '_partials/base.html' %}
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <script src="pages_scripts.js"></script>
+</head>
+<body>
+    {% block content %}
+    <div id="navbar"></div>
+    
+    <!-- Connected Innovators -->
+    <div class="container mt-5">
+        <h2 class="mb-4">Connected Innovators</h2>
+        <ul>
+            {% for notification in connected_notifications %}
+                <li>{{ notification.message }} <small class="text-muted">({{ notification.created_at }})</small></li>
+            {% empty %}
+                <li>No connections yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Message Notifications -->
+    <div class="container mt-5">
+        <h2 class="mb-4">Messages</h2>
+        <ul>
+            {% for notification in message_notifications %}
+                <li>{{ notification.message }} <small class="text-muted">({{ notification.created_at }})</small></li>
+            {% empty %}
+                <li>No new messages.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Other Notifications -->
+    <div class="container mt-5">
+        <h2 class="mb-4">Other Notifications</h2>
+        <ul>
+            {% for notification in other_notifications %}
+                <li>{{ notification.message }} <small class="text-muted">({{ notification.created_at }})</small></li>
+            {% empty %}
+                <li>No other notifications.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% endblock content %}
+</body>
+
+<div id="footer"></div>
+</html>

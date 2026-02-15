@@ -1,0 +1,23 @@
+{% extends '_partials/base.html'  %}
+
+{% block content %}
+    <h2>Search Results for "{{ query }}"</h2>
+
+    {% if results %}
+        <ul>
+            {% for result in results %}
+                <li>
+                    <a href="#">
+                        {% if result.title %}
+                            {{ result.title }}
+                        {% elif result.name %}
+                            {{ result.name }}
+                        {% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No results found.</p>
+    {% endif %}
+{% endblock %}

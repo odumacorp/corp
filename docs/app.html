@@ -1,0 +1,838 @@
+{% extends '_partials/base.html'  %} 
+
+{% load static %} 
+
+{% block title %}Welcome to OdumaCorp{% endblock %}
+
+{% block content %}
+
+    <!-- sections -->
+    <div>
+        <h3 class="mt-4">Welcome to your app, {{ user.get_full_name }}</h3>
+    </div>
+    <section class="container">
+        
+        <!-- mid-section -->
+        <section id="mid">
+            <!-- left-side -->
+            <div class="left section">
+                <div class="user-section">
+                    {% if profile.profile_pics %}
+                        <img src="{{ profile.profile_pics.url }}" 
+                            alt="Profile Image" 
+                            class="rounded-circle" 
+                            width="100" height="auto">
+                    {% else %}
+                        <p>No profile picture available</p>
+                    {% endif %}
+                    <div>
+                        <div class="user-name">
+                            <p>
+                                {% if user.is_authenticated %}
+                                    <p><strong>Name:</strong> {{ user.get_full_name|default:"Not Provided" }}</p>
+                                {% else %}
+                                    <p>Name: Not logged in</p>
+                                {% endif %}
+
+                            <a href="{% url 'profile_view' id=user.id %}">
+                                <button class="btn btn-primary btn-sm" name="edit_profile">Edit</button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="user-about">
+                    <span>ABOUT: </span>{{ profile.bio|default:"No bio available."|truncatewords:20 }}
+                </div>
+            
+                <div class="user-info">
+                    <ul>
+                        <li>Profile views: {{ profile_views|default:"0" }}</li>
+                        <!-- <li>Connections: {{ connections_count|default:"0" }}</li> -->
+                        <li>Inventions: {{ inventions_count|default:"0" }}</li>
+                        <li>Patents: {{ patents_count|default:"0" }}</li>
+                        <li>Groups: {{ groups_count|default:"0" }}</li>
+                        <li>Pages: {{ pages_count|default:"0" }}</li>
+                        <li>Events: {{ events_count|default:"0" }}</li>
+                    </ul>
+                </div>
+            
+                <div class="more-user-info">
+                    <p><strong>Company:</strong> {{ profile.company|default:"Not specified" }}</p>
+                    <p><strong>Industry:</strong> {{ profile.industry|default:"Not specified" }}</p>
+                </div>
+            </div>
+            <!-- Post Submission Form -->
+            <div class="post-section card">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- Default placeholder text for textarea -->
+                    <textarea name="content" placeholder="Share your thoughts...">{% if request.POST.content %}{{ request.POST.content }}{% else %}Default post content...{% endif %}</textarea>
+                    <span>Industry:</span>
+                    <select name="industry" id="industry">
+                        <option value="IT" selected>IT</option>
+                        <option value="Medicine">Medicine</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Business">Business</option>
+                        <option value="Arts">Arts</option>
+                        <option value="Agriculture">Agriculture</option>
+                    </select>
+            
+                    <!-- File input with a label for better UX -->
+                    <label for="attachment">Attach a file:</label>
+                    <input type="file" name="attachment">
+            
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+            <!-- center-part -->
+            {% for post in posts %}
+            <div class="idea-section card">
+                <div class="top">
+                    <span>
+                        <button>...</button>
+                        <button>X</button>
+                    </span>
+                </div>
+                <div class="idea-info">
+                    <table>
+                        <tr>
+                            <td>Connected 
+                                <span id="status">
+                                    {% if users %}
+                                        {% for user in users %}
+                                            <div class="user">
+                                                <p>{{ user.username|default:"Unknown User" }}</p>
+                                                {% if user in request.user.following.all %}
+                                                    <span class="following-dot"></span>
+                                                {% else %}
+                                                    <button class="not-following-button">Not Following</button>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <!-- Sample User -->
+                                        <div class="user">
+                                            <p>SampleUser123</p>
+                                            <span class="following-dot"></span>
+                                        </div>
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <p><strong>{{ post.user.get_full_name|default:"John Doe" }}</strong></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p><strong>Industry:</strong> {{ post.industry|default:"Technology" }}</p>
+                            </td>
+                            <td>
+                                <p>{{ post.created_at|timesince|default:"5 minutes" }} ago</p>
+                            </td>
+                        </tr>
+                    </table>
+            
+                    <div class="idea-body">
+                        <span>{{ post.title|default:"Innovative AI Project" }}</span>
+                        <div class="idea-def">
+                            <p>{{ post.content|default:"This is a sample idea description that demonstrates how artificial intelligence is changing the world." }}</p>
+                        </div>
+                        <div class="interest-section">
+                            <span>Interests #{{ post.interest_count|default:"5" }}</span>
+                            <span>Views #{{ post.view_count|default:"120" }}</span>
+                            <span>Repost #{{ post.repost_count|default:"3" }}</span>
+                            <span>Likes #{{ post.like_count|default:"45" }}</span>
+                        </div>
+                    </div>
+            
+                    <div class="idea-media-section">
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}" class="post-image">
+                        {% else %}
+                            <!-- Sample Image -->
+                            <img src="https://via.placeholder.com/400x200" class="post-image" alt="Sample Image">
+                        {% endif %}
+                    </div>
+            
+                    <div class="action-area">
+                        <div class="idea-action1 small-card">
+                            <div class="area">
+                                <span>Collaborations #{{ post.collaboration_count|default:"2" }}</span>
+                                <span>Proposal #{{ post.proposal_count|default:"1" }}</span>
+                                <span>Patent</span>
+                            </div>
+                        </div>
+            
+                        <!-- Comments Section -->
+                        <div class="comment-section small-card">
+                            <span>Comments # [Auto Scroll]</span>
+                            {% if post.comments.all %}
+                                {% for comment in post.comments.all %}
+                                    <p><strong>{{ comment.user.username|default:"Anonymous" }}</strong>: {{ comment.content|default:"No comment content." }}</p>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Sample Comment -->
+                                <p><strong>Commenter123</strong>: "This is an amazing idea! Can't wait to see more."</p>
+                            {% endif %}
+            
+                            <!-- Comment Form -->
+                            <form method="POST" action="{% url 'add_comment' post.id %}">
+                                {% csrf_token %}
+                                <input type="text" name="content" placeholder="Write a comment...">
+                                <button type="submit">Make Comment</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            {% empty %}
+                <p>No posts available.</p>
+            {% endfor %}
+            <div class="center section">
+                <!-- posts below -->
+                <!-- Display Posts -->
+                
+
+<!-- #### -->
+
+
+                <!-- ###3 -->
+                <div class="idea-container">
+                    {% if all_innovators_with_projects %}
+                        {% for entry in all_innovators_with_projects %}
+                            {% for project in entry.projects %}
+                            <div class="idea-section card mb-4">
+                                <div class="top d-flex justify-content-between">
+                                    <span><strong>{{ entry.innovator.get_full_name }}</strong></span>
+                                    
+                                    {% if entry.innovator.id not in connected_user_ids %}
+                                        <form method="POST" action="{% url 'connect_user' entry.innovator.id %}">
+                                            {% csrf_token %}
+                                            <button class="btn btn-sm btn-outline-primary">Connect</button>
+                                        </form>
+                                    {% else %}
+                                        <span class="badge bg-success">Connected</span>
+                                    {% endif %}
+                                </div>
+                
+                                <div class="idea-info">
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <div class="user d-flex align-items-center">
+                                                    {% if entry.innovator.userprofile.profile_pics %}
+                                                        <img src="{{ entry.innovator.userprofile.profile_pics.url }}" alt="Profile" class="rounded-circle me-2" width="30" height="30">
+                                                    {% endif %}
+                                                    <span class="following-dot"></span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <p><strong>Industry:</strong> {{ entry.innovator.userprofile.industry }}</p>
+                                            </td>
+                                            <td>
+                                                <p>{{ project.created_at|timesince }} ago</p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                
+                                    <div class="idea-body">
+                                        <h5>{{ project.title }}</h5>
+                                        <div class="idea-def">
+                                            <p>{{ project.description }}</p>
+                                        </div>
+                                        <div class="interest-section">
+                                            <span>Views: #{{ project.views|default:"0" }}</span>
+                                            <span>Likes: #{{ project.likes|default:"0" }}</span>
+                                        </div>
+                                    </div>
+                
+                                    <div class="idea-media-section">
+                                        {% if project.project_image %}
+                                            <img src="{{ project.project_image.url }}" class="post-image img-fluid w-50" alt="Project Image">
+                                        {% else %}
+                                            <img src="{% static 'images/bg2.jpg' %}" class="post-image img-fluid w-50" alt="Default Image">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        <p>No innovators or projects to display.</p>
+                    {% endif %}
+                </div>
+                
+                <!-- ####3 -->
+                <h3 class="mt-4">Featured Innovators and Projects</h3>
+                {% for innovator in innovators %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5>{{ innovator.get_full_name }}</h5>
+                            <p><strong>Industry:</strong> {{ innovator.userprofile.industry }}</p>
+                            {% if innovator.first_project %}
+                                <h6 class="mt-3">Featured Project</h6>
+                                <p><strong>{{ innovator.first_project.title }}</strong></p>
+                                <p>{{ innovator.first_project.description|truncatewords:30 }}</p>
+                            {% else %}
+                                <p class="text-muted">No projects yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+                
+                
+                
+                <!-- ################ -->
+                
+                
+                <!-- ######3 -->
+                
+                
+
+                <!-- #####  Dynamic-->
+                <div class="idea-container">
+                    {% for project in projects %}
+                    <div class="idea-section card">
+                        <div class="top">
+                            <span>
+                                <button>...</button>
+                                <button>X</button>
+                            </span>
+                        </div>
+                        <div class="idea-info">
+                            <table>
+                                <tr>
+                                    <td>Connected 
+                                        <span id="status">
+                                            <div class="user">
+                                                <p>{{ project.user.username }}</p>
+                                                <span class="following-dot"></span>
+                                            </div>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <p><strong>{{ project.user.get_full_name }}</strong></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <p><strong>Industry:</strong> {{ project.industry }}</p>
+                                    </td>
+                                    <td>
+                                        <p>{{ project.created_at|timesince }} ago</p>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <div class="idea-body">
+                                <span>{{ project.title }}</span>
+                                <div class="idea-def">
+                                    <p>{{ project.description }}</p>
+                                </div>
+                                <div class="interest-section">
+                                    <span>Interests #{{ project.interests.count }}</span>
+                                    <span>Views #{{ project.views }}</span>
+                                    <span>Repost #{{ project.reposts }}</span>
+                                    <span>Likes #{{ project.likes }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="idea-media-section">
+                                {% if project.image %}
+                                    <img src="{{ project.image.url }}" class="post-image img-fluid w-50" alt="Project Image">
+                                {% else %}
+                                    <img src="{% static 'images/bg2.jpg' %}" class="post-image img-fluid w-50" alt="Default Image">
+                                {% endif %}
+                            </div>
+                            
+                            <div class="action-area">
+                                <div class="idea-action1 small-card">
+                                    <div class="area">
+                                        <span>Collaborations #{{ project.collaborations.count }}</span>
+                                        <span>Proposal #{{ project.proposals.count }}</span>
+                                        <span>Patent</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="comment-section small-card">
+                                    <span>Comments #{{ project.comments.count }}</span>
+                                    {% for comment in project.comments.all|slice:":1" %}
+                                        <p><strong>{{ comment.user.username }}</strong>: "{{ comment.content }}"</p>
+                                    {% endfor %}
+                                    <form method="POST" action="{% url 'add_comment' project.id %}">
+                                        {% csrf_token %}
+                                        <input type="text" name="content" placeholder="Write a comment...">
+                                        <button type="submit">Make Comment</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <!-- ddddjsdjskdf -->
+                 <p>new:----<span>></span></p>
+                 <p>Entries: {{ all_innovators_with_projects|length }}</p>
+
+
+
+
+                 
+<div class="idea-container">
+    {% for entry in all_innovators_with_projects %}
+        {% for project in entry.projects %}
+            <div class="idea-section card">
+                <div class="top">
+                    <span>
+                        <button>...</button>
+                        <button>X</button>
+                    </span>
+                </div>
+                <div class="idea-info">
+                    <table>
+                        <tr>
+                            <td>Connected
+                                <span id="status">
+                                    <div class="user">
+                                        <p>{{ entry.innovator.username }}</p>
+                                        <span class="following-dot"></span>
+                                    </div>
+                                </span>
+                            </td>
+                            <td>
+                                <p><strong>{{ entry.innovator.get_full_name }}</strong></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p><strong>Industry:</strong> {{ entry.innovator.userprofile.industry }}</p>
+                            </td>
+                            <td>
+                                <p>{{ project.created_at|timesince }} ago</p>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="idea-body">
+                        <span>{{ project.title }}</span>
+                        <div class="idea-def">
+                            <p>{{ project.description }}</p>
+                        </div>
+                        <div class="interest-section">
+                            <span>Interests #{{ project.interests.count }}</span>
+                            <span>Views #{{ project.views }}</span>
+                            <span>Repost #{{ project.reposts }}</span>
+                            <span>Likes #{{ project.likes }}</span>
+                        </div>
+                    </div>
+
+                    <div class="idea-media-section">
+                        {% if project.image %}
+                            <img src="{{ project.image.url }}" class="post-image img-fluid w-50" alt="Project Image">
+                        {% else %}
+                            <img src="{% static 'images/bg2.jpg' %}" class="post-image img-fluid w-50" alt="Default Image">
+                        {% endif %}
+                    </div>
+
+                    <div class="action-area">
+                        <div class="idea-action1 small-card">
+                            <div class="area">
+                                <span>Collaborations #{{ project.collaborations.count }}</span>
+                                <span>Proposal #{{ project.proposals.count }}</span>
+                                <span>Patent</span>
+                            </div>
+                        </div>
+
+                        <div class="comment-section small-card">
+                            <span>Comments #{{ project.comments.count }}</span>
+                            {% for comment in project.comments.all|slice:":1" %}
+                                <p><strong>{{ comment.user.username }}</strong>: "{{ comment.content }}"</p>
+                            {% endfor %}
+                            <form method="POST" action="{% url 'add_comment' project.id %}">
+                                {% csrf_token %}
+                                <input type="text" name="content" placeholder="Write a comment...">
+                                <button type="submit">Make Comment</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+<p>hhhhh</p>
+
+
+<p>kkk</p>
+<p>Entries: {{ all_innovators_with_projects|length }}</p>
+
+{% for entry in all_innovators_with_projects %}
+
+  {{ entry.innovator.username }}
+  {% for project in entry.projects %}
+    <p>Title:</p>{{ project.title }}
+  {% endfor %}
+{% endfor %}
+
+<p>Entries: {{ all_innovators_with_projects|length }}</p>
+
+<div id="idea-container">
+    {% for entry in all_innovators_with_projects %}
+        {% for project in entry.projects %}
+            <div class="idea-section card" data-project-id="{{ project.id }}">
+                <div class="top d-flex justify-content-end">
+                    <button>...</button>
+                    <button>X</button>
+                </div>
+
+                <div class="idea-info">
+                    <table class="table table-borderless mb-2">
+                        <tr>
+                            <td>
+                                Connected
+                                <div class="user d-flex align-items-center">
+                                    <p class="mb-0">{{ entry.innovator.username }}</p>
+                                    <span class="following-dot ms-2"></span>
+                                </div>
+                            </td>
+                            <td>
+                                <p class="fw-bold mb-0">{{ entry.innovator.get_full_name }}</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p><strong>Industry:</strong> {{ entry.innovator.userprofile.industry }}</p>
+                            </td>
+                            <td>
+                                <p class="text-muted">{{ project.created_at|timesince }} ago</p>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="idea-body mb-3">
+                        <h5>{{ project.title }}</h5>
+                        <div class="idea-def">
+                            <p>{{ project.description }}</p>
+                        </div>
+                        <div class="interest-section d-flex gap-3 mt-2">
+                            <span>Interests #{{ project.interests.count }}</span>
+                            <span>Views #{{ project.views }}</span>
+                            <span>Repost #{{ project.reposts }}</span>
+                            <span>Likes #{{ project.likes }}</span>
+                        </div>
+                    </div>
+
+                    <div class="idea-media-section mb-3">
+                        <img src="{% if project.image %}{{ project.image.url }}{% else %}{% static 'images/bg2.jpg' %}{% endif %}"
+                             class="post-image img-fluid w-50" alt="Project Image">
+                    </div>
+
+                    <div class="action-area">
+                        <div class="idea-action1 small-card mb-2">
+                            <div class="area d-flex gap-3">
+                                <span>Collaborations #{{ project.collaborations.count }}</span>
+                                <span>Proposal #{{ project.proposals.count }}</span>
+                                <span>Patent</span>
+                            </div>
+                        </div>
+
+                        <div class="comment-section small-card">
+                            <span>Comments #{{ project.comments.count }}</span>
+                            {% with project.comments.all|first as comment %}
+                                {% if comment %}
+                                    <p><strong>{{ comment.user.username }}</strong>: "{{ comment.content }}"</p>
+                                {% endif %}
+                            {% endwith %}
+                            <form method="POST" action="{% url 'add_comment' project.id %}">
+                                {% csrf_token %}
+                                <input type="text" name="content" placeholder="Write a comment..." class="form-control mt-2 mb-2">
+                                <button type="submit" class="btn btn-sm btn-primary">Comment</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Button to trigger AJAX load more -->
+    <div class="text-center mt-4">
+        <button id="load-more-projects" class="btn btn-outline-secondary" data-next-page="2">Load More Projects</button>
+    </div>
+</div>
+
+
+
+<p>jjjj</p>
+
+<div class="idea-container">
+    {% if all_innovators_with_projects %}
+        {% for entry in all_innovators_with_projects %}
+            {% for project in entry.projects %}
+                <div class="idea-section card">
+                    <!-- Full card content with project data -->
+                    <!-- (same as your current structure) -->
+                </div>
+            {% endfor %}
+        {% endfor %}
+    {% else %}
+        <!-- Placeholder project card to show structure -->
+        <div class="idea-section card">
+            <div class="top">
+                <span>
+                    <button>...</button>
+                    <button>X</button>
+                </span>
+            </div>
+            <div class="idea-info">
+                <table>
+                    <tr>
+                        <td>Connected
+                            <span id="status">
+                             
+                                <div class="user">
+                                    <span class="following-dot"></span>
+                                    <p>@username</p>
+                                </div>
+                            </span>
+                        </td>
+                        <td>
+                            <p><strong>Full Name</strong></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p><strong>Industry:</strong> Industry Name</p>
+                        </td>
+                        <td>
+                            <p>Just now</p>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="idea-body">
+                    <span>Project Title</span>
+                    <div class="idea-def">
+                        <p>This is a placeholder project description to show structure before data loads.</p>
+                    </div>
+                    <div class="interest-section">
+                        <span>Interests #0</span>
+                        <span>Views #0</span>
+                        <span>Repost #0</span>
+                        <span>Likes #0</span>
+                    </div>
+                </div>
+
+                <div class="idea-media-section">
+                    <img src="{% static 'images/bg2.jpg' %}" class="post-image img-fluid w-50" alt="Default Image">
+                </div>
+
+                <div class="action-area">
+                    <div class="idea-action1 small-card">
+                        <div class="area">
+                            <span>Collaborations #0</span>
+                            <span>Proposal #0</span>
+                            <span>Patent</span>
+                        </div>
+                    </div>
+
+                    <div class="comment-section small-card">
+                        <span>Comments #0</span>
+                        <p><strong>@commenter</strong>: "Example comment."</p>
+                        <form>
+                            <input type="text" placeholder="Write a comment...">
+                            <button type="submit" disabled>Make Comment</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+
+<div id="loading" style="text-align:center; display:none;">
+    <p>Loading projects...</p>
+</div>
+                
+<!-- #### -->
+                <div class="that-viewed">
+                    <h3>Who viewed your Profile</h3>
+                    <div class="title-container">
+                        <div class="tile">
+                            {% if recent_viewers %}
+                                {% for view in recent_viewers %}
+                                <div class="viewer-card">
+                                 
+                                    <img src="{{ view.viewer.profile.image.url}}" onerror="this.onerror=null; this.src='{% static 'images/bg2.jpg' %}'" alt="Profile Picture6">
+                                    
+                                    <span>
+                                        <strong>{{ view.viewer.first_name|default:"John" }} {{ view.viewer.last_name|default:"Doe" }}</strong>
+                                    </span>
+                
+                                    <div class="tiles-about">
+                                        <p>{{ view.viewer.profile.bio|truncatewords:10|default:"Entrepreneur interested in tech and startups." }}</p>
+                                    </div>
+                
+                                    <button>
+                                        <a href="{% url 'profile_view' view.viewer.username %}" class="connect-btn">Connect +</a>
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Auto-Generated Sample Viewer -->
+                                <div class="viewer-card">
+                                    <img src="{{ view.viewer.profile.image.url }}" 
+                                    onerror="this.onerror=null; this.src='{% static 'images/bg2.jpg' %}'" 
+                                    alt="Profile Picture6" 
+                                    style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+                               
+                                    <span><strong>Jane Smith</strong></span>
+                                    <div class="tiles-about">
+                                        <p>Innovative thinker exploring AI and entrepreneurship.</p>
+                                    </div>
+                                    <button>
+                                        <a href="#" class="connect-btn">Connect +</a>
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <!--  ###########-->
+                        
+                        <!-- ########## -->
+                        {% for view in recent_viewers|slice:":3" %}
+                        <div class="tile">
+                            <div class="viewer-card">
+                                <img src="{{ view.viewer.profile.image.url }}" 
+                                    onerror="this.onerror=null; this.src='{% static 'images/bg2.jpg' %}'" 
+                                    alt="Profile Picture6" 
+                                    style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+
+                                <span>
+                                    <strong>{{ view.viewer.first_name|default:"John" }} {{ view.viewer.last_name|default:"Doe" }}</strong>
+                                </span>
+                                <div class="tiles-about">
+                                    <p>{{ view.viewer.profile.bio|truncatewords:10|default:"Entrepreneur interested in tech and startups." }}</p>
+                                </div>
+                                <button>
+                                    <a href="{% url 'profile_view' view.viewer.username %}" class="connect-btn">Connect +</a>
+                                </button>
+                            </div>
+                        </div>
+                        {% empty %}
+                            {% for i in "123" %}  {# Generates 3 sample viewers #}
+                                <div class="tile">
+                                    <div class="viewer-card">
+                                        <img src="{{ view.viewer.profile.image.url }}" 
+                                        onerror="this.onerror=null; this.src='{% static 'images/bg2.jpg' %}'" 
+                                        alt="Profile Picture6" 
+                                        style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+                                                                           <span><strong>Sample User {{ i }}</strong></span>
+                                        <div class="tiles-about">
+                                            <p>Innovative thinker exploring AI and entrepreneurship.</p>
+                                        </div>
+                                        <button>
+                                            <a href="#" class="connect-btn">Connect +</a>
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+
+                    </div>
+                </div>
+                
+                
+                <div class="suggestions-section card">
+                    {% include '_partials/suggestions.html' %}
+                </div>
+                
+
+                <!-- old -->
+                
+
+            </div>
+            <div class="right section">
+                <span>Proposals</span>
+                <hr>
+                <div class="proposal-section">
+                    {% for proposal in proposals %}
+                    <div class="tile">
+                        <div class="info">
+                            <img src="{{ proposal.image.url }}" alt="Proposal Image" class="proposal-image">
+                            
+                            <strong>{{ proposal.investor.get_full_name }}</strong>
+
+                        </div>
+                        <div class="titles-about">
+                            <p><strong>About:</strong> {{ proposal.about|truncatewords:15 }}</p>
+    
+                        </div>
+                        <div class="interest-section">
+                            <span>Interests: {{ proposal.interests }}</span>
+                            <span>Views: {{ proposal.views }}</span>
+                            <span>Reposts: {{ proposal.reposts }}</span>
+                            <span>Likes: {{ proposal.likes }}</span>
+                        </div>
+                        <div class="action-section">
+                            <button class="btn btn-primary">Reply</button>
+                            <button class="btn btn-secondary">Attach</button>
+                            <select class="status-dropdown">
+                                <option value="on-hold">On-hold</option>
+                                <option value="accept">Accept</option>
+                                <option value="counter">Counter</option>
+                                <option value="request-details">Request details</option>
+                            </select>
+    
+                        </div>
+                    </div>
+                    {% empty %}
+                        <p>No proposals available.</p>
+                    {% endfor %}
+                    
+                </div>
+                
+                <span>Proposals</span>
+                <hr>
+                <div class="proposal-section">
+                    <div class="tile">
+                        <div class="info">
+                            <img src="{% static 'images/iamger5.jpg' %}" alt="profile-icon" srcset="">
+                            <span>Investor 1</span>
+                        </div>
+                        <div class="titles-about"><span>About:</span>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Provident, culpa.
+                        </div>
+                        <div class="interest-section">
+                            <span>Interests #</span>
+                            <span>Views #</span>
+                            <span>Repost #</span>
+                            <span>Likes #</span>
+                        </div>
+                        <div class="action-section">
+                            <button type="button">Reply</button>
+                            <button type="button">Attach</button>
+                            <select name="" id="">
+                                <option value="On Hold">On Hold</option>
+                                <option value="Accept">Accept</option>
+                                <option value="Counter">Counter</option>
+                                <option value="Request details">Request details</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+
+<div id="footer"></div>
+
+</body>
+
+
+</html>
+
+{%endblock content%}

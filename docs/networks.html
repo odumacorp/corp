@@ -1,0 +1,45 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block content %}
+<h2>My Network</h2>
+<div class="container mt-5">
+    {% if connections %}
+        <ul class="list-group mt-3">
+            {% for connection in connections %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <!-- Profile Picture with Default -->
+                        {% if connection.userprofile.profile_pics %}
+                            <img src="{{ connection.userprofile.profile_pics.url }}" alt="Profile Picture" class="rounded-circle me-3" width="50" height="50">
+                        {% else %}
+                            <img src="{% static 'default-avatar.png' %}" alt="Default Avatar" class="rounded-circle me-3" width="50" height="50">
+                        {% endif %}
+        
+                        <!-- Connection Details with Defaults -->
+                        <div>
+                            <strong>{{ connection.get_full_name|default:"No Name" }}</strong><br>
+                            <small>{{ connection.username|default:"No Username" }}</small><br>
+                            <span class="badge bg-secondary">
+                                {{ connection.userprofile.connected_users.count|default:0 }} Connections
+                            </span>
+                        </div>
+                    </div>
+        
+                    <!-- Disconnect Form -->
+                    <form method="POST" action="{% url 'disconnect_user' connection.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Disconnect</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No connections yet. Go to the Innovators or Investors page and click "Connect" to start building your network.</p>
+    {% endif %}
+    <!-- Debugging Fallback Message -->
+    <p>Connections: {{ connections }}</p>
+</div>
+
+<script src="{% static 'pages_scripts.js' %}"></script>
+{% endblock %}

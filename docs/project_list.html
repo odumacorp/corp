@@ -1,0 +1,79 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block content %}
+<div>
+  <form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="q" class="form-control" placeholder="Search by title or description" value="{{ current_query }}">
+    </div>
+    <div class="col-md-3">
+        <select name="industry" class="form-select">
+            <option value="">All Industries</option>
+            {% for ind in industries %}
+            <option value="{{ ind }}" {% if ind == current_industry %}selected{% endif %}>{{ ind|title }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="user" class="form-select">
+            <option value="">All Users</option>
+            {% for u in users %}
+            <option value="{{ u.id }}" {% if u.id|stringformat:"s" == current_user %}selected{% endif %}>{{ u.get_full_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+  </form>
+</div>
+
+<h2 class="mb-4">All Registered Projects</h2>
+<p>Total projects found: {{ page_obj.paginator.count }}</p>
+
+<div class="container mt-5">
+    <!-- Loop through the projects and display them -->
+    <div class="row">
+        {% for project in page_obj.object_list %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ project.title }}</h5>
+                    <p class="card-text"><strong>Description:</strong> {{ project.description|truncatewords:20 }}</p>
+                    <p class="card-text"><strong>Industry:</strong> {{ project.industry|title }}</p>
+                    <p class="card-text"><strong>Created by:</strong> {{ project.user.get_full_name }}</p>
+                    <a href="{% url 'project_detail' project.id %}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if current_query %}q={{ current_query }}&{% endif %}{% if current_industry %}industry={{ current_industry }}&{% endif %}{% if current_user %}user={{ current_user }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+            {% for num in paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item"><a class="page-link" href="?{% if current_query %}q={{ current_query }}&{% endif %}{% if current_industry %}industry={{ current_industry }}&{% endif %}{% if current_user %}user={{ current_user }}&{% endif %}page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if current_query %}q={{ current_query }}&{% endif %}{% if current_industry %}industry={{ current_industry }}&{% endif %}{% if current_user %}user={{ current_user }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,9 @@
+.env
+media/
+*.sqlite3
+
+
+# .env
+# *.env
+# media/
+# db.sqlite3

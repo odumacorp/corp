@@ -1,0 +1,35 @@
+{% extends '_partials/base.html'  %} 
+
+{% load static %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events and News</title>
+    <script src="pages_scripts.js"></script>
+</head>
+<body>
+    {% block content%}
+    <div id="navbar"></div>
+        <!-- Upcoming Events -->
+        <h5 class="mt-4">Upcoming Events</h5>
+        {% if events %}
+            <ul class="list-group">
+                {% for event in events %}
+                    <li class="list-group-item">
+                        <strong>{{ event.name }}</strong> - {{ event.location }} <br>
+                        <small class="text-muted">Date: {{ event.date|date:"M d, Y" }}</small>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No upcoming events.</p>
+        {% endif %}
+
+    {%endblock content%}
+</body>
+<div id="footer"></div>
+
+</html>
+

@@ -1,0 +1,15 @@
+{% extends "_partials/base.html" %}
+
+{% block content %}
+<h2>Add Attachment to Project: {{ project.title }}</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    
+    <button type="submit" class="btn btn-primary">Add Attachment</button>
+</form>
+
+<a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+
+{% endblock %}

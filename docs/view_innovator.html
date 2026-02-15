@@ -1,0 +1,57 @@
+{% extends "_partials/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Innovator Profile</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4>{{ innovator.get_full_name }}</h4>
+            <p>Email: {{ innovator.email }}</p>
+
+            <div class="d-flex gap-2">
+                <a href="{% url 'send_message' project.user.id %}" class="btn btn-outline-secondary btn-sm">
+                    Message
+                </a>
+                
+                <!-- Connect / Unfollow button -->
+                {% if innovator.id in my_connections %}
+                <form action="{% url 'unfollow_user' innovator.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger">Unfollow</button>
+                </form>
+                {% else %}
+                <form action="{% url 'connect_user' innovator.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Connect</button>
+                </form>
+                {% endif %}
+
+                <!-- Message Button (Placeholder) -->
+                <a href="{% url 'send_message' innovator.id %}" class="btn btn-success">Message</a>
+            </div>
+        </div>
+    </div>
+
+    <h3>Projects by {{ innovator.get_full_name }}</h3>
+    <div class="row">
+        {% for project in projects %}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                {% if project.image %}
+                <img src="{{ project.image.url }}" class="card-img-top" alt="{{ project.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ project.title }}</h5>
+                    <p class="card-text"><strong>Industry:</strong> {{ project.get_industry_display }}</p>
+                    <p class="card-text"><strong>Description:</strong> {{ project.description|default:"No description." }}</p>
+                    <p class="card-text text-muted">Created on {{ project.created_at|date:"M d, Y H:i" }}</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>This innovator has no projects yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

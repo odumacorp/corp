@@ -1,0 +1,18 @@
+{% extends '_partials/base.html' %}
+{% block content%}
+<!-- <h2>Sent Messages</h2> -->
+<ul>
+  {% for msg in messages %}
+    <li>
+      <strong>To:</strong> {{ msg.recipient.username }}<br>
+      <strong>Message:</strong> {{ msg.content }}<br>
+      <small>{{ msg.timestamp }}</small>
+    </li>
+  {% empty %}
+    <li>No sent messages.</li>
+  {% endfor %}
+</ul>
+<button class="btn btn-secondary my-3" onclick="window.history.back();">
+    ← Go Back
+</button>
+{% endblock%}

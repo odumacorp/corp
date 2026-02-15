@@ -1,0 +1,88 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+<!-- Industry Filter -->
+<form method="get" class="mb-4">
+    <div class="input-group">
+        <select name="industry" class="form-select" required>
+            <option value="">-- Filter by Industry --</option>
+            {% for value, label in industries %}
+                <option value="{{ value }}" {% if selected_industry == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-outline-primary">Apply</button>
+        <a href="{% url 'investors' %}" class="btn btn-outline-secondary">Reset</a>
+    </div>
+</form>
+<h2 class="mb-4">List of Investors</h2>
+<div class="container mt-5">
+
+
+
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Full Name</th>
+                <th>Industry</th>
+                <th>Connections</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for investor in investors %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+
+
+                <td>
+                    <a href="{% url 'profile_view' investor.id %}">
+                        {{ investor.get_full_name|default:investor.username }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'investors' %}?industry={{ investor.userprofile.industry }}">
+                        {{ investor.userprofile.get_industry_display|default:"Not Specified" }}
+                    </a>
+                </td>
+
+
+                <td>{{ investor.userprofile.connected_users.count }}</td>
+                <td>
+                    <!-- Connect / Disconnect Button -->
+                    {% if user != investor %}
+                        {% if user.userprofile not in investor.userprofile.connected_users.all %}
+                            <form method="POST" action="{% url 'connect_investor' investor.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary btn-sm">Connect</button>
+                            </form>
+                        {% else %}
+                            <form method="POST" action="{% url 'connect_investor' investor.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Disconnect</button>
+                            </form>
+                        {% endif %}
+                        
+                        <!-- Message Button -->
+                        <form method="POST" action="{% url 'message_investor' investor.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-info btn-sm">Message</button>
+                        </form>
+                    {% else %}
+                        <span class="text-muted">You</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No investors found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

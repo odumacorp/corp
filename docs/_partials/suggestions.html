@@ -1,0 +1,169 @@
+
+
+<div class="suggestions-section card">
+    <div class="top-section">
+        <div class="left-section">
+            <span class="head">
+                <h3>Node Suggestions</h3>
+            </span>
+            <div class="tile-container">
+                <div class="tile">
+                    {% if node_suggestions %}
+                        {% for user in node_suggestions %}
+                            <div class="suggestion-card">
+                                <img src="{{ user.profile.image.url }}" alt="Profile" class="icon">
+                                <span>
+                                    <p><strong>{{ user.first_name }} {{ user.last_name }}</strong></p>
+                                </span>
+                                <div class="tiles-about">
+                                    <p>{{ user.profile.bio|truncatewords:10 }}</p>
+                                </div>
+                                <button>
+                                    <a href="{% url 'profile_view' user.username %}" class="connect-btn">Connect +</a>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Default sample -->
+                        <div class="suggestion-card">
+                            <img src="" alt="Profile" class="icon">
+                            <span>
+                                <p><strong>John Doe</strong></p>
+                            </span>
+                            <div class="tiles-about">
+                                <p>Innovator in AI and blockchain.</p>
+                            </div>
+                            <button>
+                                <a href="#" class="connect-btn">Connect +</a>
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-section">
+            <span class="head">
+                <h3>Companies to Look At</h3>
+            </span>
+            <div class="tile-container">
+                {% if companies %}
+                    {% for company in companies %}
+                
+                        <div class="tile">
+                            <img src="{{ company.logo.url }}" alt="Company Logo" class="icon">
+                            
+                            <div>
+                                <span>
+                                    <p><strong>{{ company.name }}</strong></p>
+                                </span>
+                                <div class="titles-about">
+                                    <p>{{ company.description|truncatewords:10 }}</p>
+                                </div>
+                                <button>
+                                    <a href="#" class="connect-btn">Connect +</a>
+                                </button>
+
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Default sample -->
+                    <div class="tile">
+                        <img src="" alt="Company Logo" class="icon">
+                        <div>
+                            <span>
+                                <p><strong>Oduma Tech</strong></p>
+                            </span>
+                            <div class="titles-about">
+                                <p>Leading innovation in African startups.</p>
+                            </div>
+                            <button>
+                                <a href="#" class="connect-btn">Connect +</a>
+                            </button>
+
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-section">
+        <div class="left-section">
+            <span class="head">
+                <h3>Nodes in Your Community</h3>
+            </span>
+            <div class="tile-container">
+                {% if community_nodes %}
+                    {% for user in community_nodes %}
+                        <div class="tile">
+                            <img src="{{ user.profile.image.url }}" alt="Profile" class="icon">
+                            <span>
+                                <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+                            </span>
+                            <div class="titles-about">
+                                <p>{{ user.profile.bio|truncatewords:10 }}</p>
+                            </div>
+                            <button>
+                                <a href="{% url 'profile_view' user.username %}" class="connect-btn">Connect +</a>
+                            </button>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Default sample -->
+                    <div class="tile">
+                        <img src="" alt="Profile" class="icon">
+                        <span>
+                            <strong>Emily Johnson Tea</strong>
+                        </span>
+                        <div class="titles-about">
+                            <p>Focused on AI-driven education solutions.</p>
+                        </div>
+                        <button>
+                            <a href="#" class="connect-btn">Connect +</a>
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="right-section">
+            <span class="head">
+                <h3>Based on Your Profile</h3>
+            </span>
+            <div class="tile-container">
+                {% if profile_based_companies %}
+                    {% for company in profile_based_companies %}
+                        <div class="tile">
+                            <img src="{{ company.logo.url }}" alt="Company Logo">
+                            <div>
+                                <strong>{{ company.name }}</strong>
+                                <div class="titles-about">
+                                    <p>{{ company.description|truncatewords:10 }}</p>
+                                </div>
+                                <button>
+                                    <a href="#" class="connect-btn">Connect +</a>
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Default sample -->
+                    <div class="tile">
+                        <img src="" alt="Company Logo">
+                        <div>
+                            <strong>HealthTech Innovations</strong>
+                            <div class="titles-about">
+                                <p>Advancing medical technology.</p>
+                            </div>
+                            <button>
+                                <a href="#" class="connect-btn">Connect +</a>
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

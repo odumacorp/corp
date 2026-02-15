@@ -1,0 +1,16 @@
+{% extends '_partials/base.html' %}
+{% block content %}
+<h3>Your Posts</h3>
+{% if user_posts %}
+    <ul>
+    {% for post in user_posts %}
+        <li>
+            <strong>{{ post.industry }}</strong> - {{ post.content }} <br>
+            <small>Posted on {{ post.created_at|date:"M d, Y" }}</small>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>You haven't submitted any posts yet.</p>
+{% endif %}
+{% endblock %}

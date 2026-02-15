@@ -1,0 +1,32 @@
+{% extends '_partials/base.html' %}
+
+{% block title %}Create Post | OdumaCorp{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3>Create a New Idea</h3>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="ideaName">Idea Name</label>
+            <input type="text" class="form-control" id="ideaName" name="idea_name" placeholder="Enter your idea's name">
+        </div>
+        <div class="form-group">
+            <label for="ideaDescription">Description</label>
+            <textarea class="form-control" id="ideaDescription" name="idea_description" rows="4" placeholder="Describe your idea"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="ideaImage">Upload Image</label>
+            <input type="file" class="form-control-file" id="ideaImage" name="idea_image">
+        </div>
+        <div class="form-group">
+            <label for="ideaLink">Related Links</label>
+            <input type="url" class="form-control" id="ideaLink" name="idea_link" placeholder="Add a related link">
+        </div>
+        <div class="form-group">
+            <label for="collaboration">Suggest Collaboration</label>
+            <textarea class="form-control" id="collaboration" name="collaboration" rows="3" placeholder="Suggest how others can collaborate"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Idea</button>
+    </form>
+</div>
+{% endblock %} 

@@ -1,0 +1,105 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+{% block title %}{{ profile.user.username }}'s Profile | OdumaCorp{% endblock %}
+
+
+{% block content %}
+<div class="container">
+
+    <div class="section">
+
+        {% if request.user == profile.user %}
+        <div class="section-profile left sub-section">
+            <div class="user-profile">
+                <!-- Profile Picture -->
+                <div class="user-profile-pic">
+                    <p><strong>Profile Picture:</strong></p>
+                    {% if profile.profile_pics %}
+                    <img src="{{ profile.profile_pics.url }}" alt="Profile Image" class="rounded-circle" width="100" height="auto">
+                    {% else %}
+                    <p>No profile picture provided</p>
+                    {% endif %}
+                </div>
+                <!-- Full Name -->
+                <div class="user-name info">
+                    <p><strong>Name:</strong></p>
+                    <h4>{{ profile.user.get_full_name|default:"Not Provided" }}</h4>
+                </div>
+                <!-- User Type -->
+                <div class="user-type info">
+                    <p><strong>User Type:</strong></p>
+                    <h4>{{ profile.user.user_type|default:"Unknown" }}</h4>
+                </div>
+    
+                {% if profile.user.user_type == 'investor' %}
+                    <!-- Industry -->
+                    <div class="user-industry info">
+                        <p><strong>Industry:</strong></p>
+                        <h4>{{ profile.industry|default:"Not Provided" }}</h4>
+                    </div>
+                    <!-- Company -->
+                    <div class="user-company info">
+                        <p><strong>Company:</strong></p>
+                        <h4>{{ profile.company|default:"Not Provided" }}</h4>
+                    </div>
+                {% endif %}
+                <!-- Username -->
+                <div class="user-username info">
+                    <p><strong>Username:</strong></p>
+                    <h4>{{ profile.user.username|default:"Not Provided" }}</h4>
+                </div>
+        
+                <!-- Email -->
+                <div class="user-email info">
+                    <p><strong>Email:</strong></p>
+                    <h4>{{ profile.user.email|default:"Not Provided" }}</h4>
+                </div>
+                <!-- Phone Number -->
+                <div class="user-phone info">
+                    <p><strong>Phone Number:</strong></p>
+                    <h4>{{ profile.phone_number|default:"Not Provided" }}</h4>
+                </div>
+                <div class="bottom-area">
+                    <!-- Edit Profile Button -->
+                    <div class="user-edit">
+                        <a href="{% url 'edit_profile' %}">
+                            <button class="btn btn-primary btn-sm" name="edit_profile">Edit Profile</button>
+                        </a>
+                    </div>
+                    <div class="user-about">
+                        <span>ABOUT: </span>{{ profile.bio|default:"No bio available."|truncatewords:20 }}
+                    </div>
+                    <!--  -->
+                    <h2>Change Password</h2>
+                    <a href="{% url 'update_password' %}">
+                        <button type="submit" name="update_password" class="btn btn-secondary">Change Password</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="center sub-section">
+            <div class="user-info">
+                <ul>
+                    <li>Connections (Innovators): {{ inventor_connections|default:"0" }}</li>
+                    <li>Connections (Investors): {{ investor_connections|default:"0" }}</li>
+                    <li>Projects: {{ projects_count|default:"0" }}</li>
+                    <li>Patents: {{ patents_count|default:"0" }}</li>
+                    <li>Likes: {{ likes_count|default:"0" }}</li>
+                    <li>Interests: {{ interests_count|default:"0" }}</li>
+                </ul>
+            </div>
+            {% if profile.user.user_type == 'investor' %}
+                <div class="more-user-info">
+                    <p><strong>Company:</strong> {{ profile.company|default:"Not specified" }}</p>
+                    <p><strong>Industry:</strong> {{ profile.industry|default:"Not specified" }}</p>
+                </div>
+            {% endif %}
+        </div>
+
+</div>
+<!-- ##### -->
+
+
+{% endblock  %}

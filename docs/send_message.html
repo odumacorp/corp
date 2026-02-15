@@ -1,0 +1,14 @@
+{% extends '_partials/base.html' %}
+
+{% content block %}
+<h2>Send Message to {{ recipient.username }}</h2>
+<form method="post">
+  {% csrf_token %}
+  <textarea name="content" rows="5" cols="40" placeholder="Write your message..."></textarea><br>
+  <button type="submit">Send</button>
+</form>
+<button class="btn btn-secondary my-3" onclick="window.history.back();">
+    ← Go Back
+  </button>
+
+  {% endblock%}
