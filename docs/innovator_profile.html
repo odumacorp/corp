@@ -1,0 +1,23 @@
+{% extends '_partials/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div>
+        <h2>{{ innovator.get_full_name }}'s Profile</h2>
+        <p>Email: {{ innovator.email }}</p>
+        <h3 class="mt-4">Projects by {{ innovator.get_full_name }}</h3>
+    </div>
+
+    <div>
+        <ul>
+          {% for project in projects %}
+            <li>
+              <strong>{{ project.title }}</strong>: {{ project.description|truncatewords:20 }}
+            </li>
+          {% empty %}
+            <li>No projects found.</li>
+          {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

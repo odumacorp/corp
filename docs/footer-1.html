@@ -1,0 +1,19 @@
+
+
+<!-- <link rel="stylesheet" href="Styles/styles.css"> -->
+<footer class="footer">
+
+ <!-- <p>&copy; 2025 Oduma Corp. All rights reserved.</p> -->
+  <div id="time_date"></div>
+
+ </footer>
+
+ <script>
+     fetch("footer.php") // The PHP file to load
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById("time_date").innerHTML = data;
+    })
+ </script>
+
+

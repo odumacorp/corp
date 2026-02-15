@@ -1,0 +1,14 @@
+{% extends "_partials/base.html" %}
+{% load static %}
+
+{% block content %}
+<h2>Send Message to {{ recipient.get_full_name }}</h2>
+<div class="container mt-5">
+    <form method="POST" class="mt-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Send Message</button>
+        <a href="{% url 'view_innovator' recipient.id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

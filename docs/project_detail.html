@@ -1,0 +1,48 @@
+{% extends '_partials/base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h2>{{ project.title }}</h2>
+  <p><strong>Industry:</strong> {{ project.get_industry_display }}</p>
+  <p>{{ project.description }}</p>
+
+  <div class="row mt-4">
+    {% for img in images %}
+    <div class="col-md-4 mb-3">
+      <img src="{{ img.image.url }}" class="img-fluid rounded shadow-sm" />
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if project.website_link %}
+  <a href="{{ project.website_link }}" target="_blank" class="btn btn-outline-primary mt-3">Visit Project Website</a>
+  {% endif %}
+</div>
+
+
+<body>
+  <h1>{{ post.title }}</h1>
+  <p><strong>User:</strong> {{ post.user.username }}</p>
+  <p><strong>Industry:</strong> {{ post.get_industry_display }}</p>
+  <p><strong>Content:</strong> {{ post.content }}</p>
+  <p><strong>Website Link:</strong> {% if post.website_link %} <a href="{{ post.website_link }}" target="_blank">{{ post.website_link }}</a> {% else %} No Link {% endif %}</p>
+
+  {% if post.image %}
+      <img src="{{ post.image.url }}" alt="Post Image" style="max-width: 300px;">
+  {% else %}
+      <p>No Image</p>
+  {% endif %}
+
+  {% if post.attachments.all %}
+      <h3>Attachments:</h3>
+      <ul>
+          {% for attachment in post.attachments.all %}
+              <li><a href="{{ attachment.file.url }}" download>{{ attachment.file.name|cut:"attachments/" }}</a></li>
+          {% endfor %}
+      </ul>
+  {% else %}
+      <p>No Attachments</p>
+  {% endif %}
+
+  <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+</body>
+{% endblock %}

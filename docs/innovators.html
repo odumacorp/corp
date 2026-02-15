@@ -1,0 +1,215 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block content %}
+<header>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</header>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<h2 class="mb-4">List of Innovators</h2>
+
+<div class="container mt-5">
+
+
+  {% for innovator in innovators %}
+  {% if request.user != innovator %}
+    <div class="innovator-card mb-4">
+      <div>
+        <h3><strong>Name:</strong> {{ innovator.get_full_name|default:"Not Provided" }} - {{ innovator.projects.first.title }}</h3>
+        <p><strong>Email:</strong> {{ innovator.email|default:"Not Provided" }}</p>
+
+        <!-- Message Button -->
+        <form method="POST" action="{% url 'message_innovator' innovator.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-info">Message Innovator</button>
+        </form>
+
+        <!-- View Profile Button -->
+        <a href="{% url 'profile_view' id=innovator.id %}" class="btn btn-secondary mt-1">View Profile</a>
+
+        <!-- Connect / Disconnect Button -->
+        {% with request.user.userprofile as current_profile %}
+          {% with innovator.userprofile as target_profile %}
+            {% if current_profile not in target_profile.connected_users.all %}
+              <form method="POST" action="{% url 'connect_innovator' innovator.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary mt-1">Connect with Innovator</button>
+              </form>
+            {% else %}
+              <form method="POST" action="{% url 'connect_innovator' innovator.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger mt-1">Disconnect</button>
+              </form>
+            {% endif %}
+          {% endwith %}
+        {% endwith %}
+      </div>
+
+      {% if innovator.projects.first %}
+        <div class="mt-3">
+          <h4>Project: {{ innovator.projects.first.title }}</h4>
+          <p><strong>Description:</strong> {{ innovator.projects.first.description }}</p>
+          <p><strong>Industry:</strong> {{ innovator.projects.first.industry }}</p>
+          <p><strong>Created At:</strong> {{ innovator.projects.first.created_at }}</p>
+
+          {% if innovator.projects.first.get_main_image_url %}
+            <img src="{{ innovator.projects.first.get_main_image_url }}" alt="Main Project Image" style="max-width: 150px;">
+          {% else %}
+            <p>No main image available</p>
+          {% endif %}
+
+          <!-- Like and Rating: only if not self -->
+          {% if request.user != innovator %}
+            <button class="btn btn-warning" id="like-btn-{{ innovator.projects.first.id }}" data-project-id="{{ innovator.projects.first.id }}">
+              {% if request.user in innovator.projects.first.liked_by.all %}
+                <i class="fas fa-heart"></i> Liked
+              {% else %}
+                <i class="far fa-heart"></i> Like Project
+              {% endif %}
+            </button>
+
+            <span id="like-status-{{ innovator.projects.first.id }}">
+              {% if request.user in innovator.projects.first.liked_by.all %}
+                <span class="text-success">Liked!</span>
+              {% else %}
+                <span class="text-muted">Not liked yet</span>
+              {% endif %}
+            </span>
+
+            <!-- Rating stars -->
+            <div class="rating-container" data-project-id="{{ innovator.projects.first.id }}">
+              <div class="stars">
+                <span class="star" data-rating="1">&#9733;</span>
+                <span class="star" data-rating="2">&#9733;</span>
+                <span class="star" data-rating="3">&#9733;</span>
+                <span class="star" data-rating="4">&#9733;</span>
+                <span class="star" data-rating="5">&#9733;</span>
+              </div>
+              <div class="rating-message">
+                {% if innovator.projects.first.rating %}
+                  <p>Current Rating: {{ innovator.projects.first.rating }} Stars</p>
+                {% else %}
+                  <p>Rating: Not rated yet</p>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %} <!-- End if not self -->
+
+        </div>
+      {% else %}
+        <p>No project details available for this innovator.</p>
+      {% endif %}
+    </div>
+  {% endif %}
+{% empty %}
+  <p>No innovators found.</p>
+{% endfor %}
+
+</div>
+
+
+<!-- CSS to Style the Stars -->
+<style>
+  .star {
+      font-size: 2em;
+      cursor: pointer;
+      color: #ddd; /* Default color */
+  }
+
+  .star.rated {
+      color: gold; /* Color when rated */
+  }
+
+  .stars {
+      display: flex;
+  }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const likeButtons = document.querySelectorAll('[id^="like-btn-"]');
+
+    likeButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        const projectId = this.getAttribute('data-project-id');
+        const statusSpan = document.getElementById(`like-status-${projectId}`);
+
+        fetch(`/like_project/${projectId}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify({ 'project_id': projectId })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.liked) {
+            this.innerHTML = '<i class="fas fa-heart"></i> Liked';
+            statusSpan.innerHTML = '<span class="text-success">Liked!</span>';
+          } else {
+            this.innerHTML = '<i class="far fa-heart"></i> Like Project';
+            statusSpan.innerHTML = '<span class="text-muted">Not liked yet</span>';
+          }
+        })
+        .catch(error => console.error('Error:', error));
+      });
+    });
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      const ratingContainers = document.querySelectorAll('.rating-container');
+  
+      ratingContainers.forEach(container => {
+          const stars = container.querySelectorAll('.star');
+          const ratingMessage = container.querySelector('.rating-message');
+          const projectId = container.getAttribute('data-project-id');
+  
+          stars.forEach(star => {
+              star.addEventListener('mouseover', () => {
+                  const rating = parseInt(star.getAttribute('data-rating'));
+                  highlightStars(stars, rating);
+              });
+  
+              star.addEventListener('mouseout', () => {
+                  const current = ratingMessage.textContent.match(/Current Rating: (\d+)/);
+                  const currentRating = current ? parseInt(current[1]) : 0;
+                  highlightStars(stars, currentRating);
+              });
+  
+              star.addEventListener('click', () => {
+                  const rating = parseInt(star.getAttribute('data-rating'));
+  
+                  fetch(`/rate_project/${projectId}/`, {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRFToken': '{{ csrf_token }}'
+                      },
+                      body: JSON.stringify({ 'rating': rating })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.rating) {
+                          ratingMessage.innerHTML = `<p>Current Rating: ${data.rating} Stars</p>`;
+                          highlightStars(stars, data.rating);
+                      }
+                  })
+                  .catch(error => console.error('Rating error:', error));
+              });
+          });
+  
+          function highlightStars(stars, rating) {
+              stars.forEach(star => {
+                  const val = parseInt(star.getAttribute('data-rating'));
+                  star.classList.toggle('rated', val <= rating);
+              });
+          }
+      });
+  });
+  </script>
+  
+
+
+{% endblock %}

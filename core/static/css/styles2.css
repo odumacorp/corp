@@ -1,0 +1,500 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f8ff;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+body #register .card div {
+  background-color: #007acc;
+  display: flex;
+}
+body #register .card div:last-child input {
+  background-color: unset;
+  border: unset;
+  color: inherit;
+  font-size: inherit;
+  padding: unset;
+  height: unset;
+  width: unset;
+  margin: unset;
+}
+body dialog::backdrop {
+  background: linear-gradient(rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.6));
+}
+body dialog {
+  width: -moz-fit-content;
+  width: fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+  min-width: 40%;
+  min-height: 70%;
+  border: none;
+  justify-content: center;
+  align-content: center;
+  justify-self: center;
+  align-self: center;
+  background: linear-gradient(rgba(230, 230, 230, 0.78), rgba(219, 23, 23, 0.83));
+  border-radius: 10px;
+  box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, 0.3);
+}
+body dialog .card {
+  display: flex;
+  justify-self: center;
+  align-self: center;
+}
+body dialog .card form {
+  padding: 30px;
+  width: 100%;
+  background-color: aquamarine;
+}
+body dialog .card form p:first-of-type {
+  font-size: 40px;
+  padding: 10px 0;
+}
+body dialog .card form label {
+  font-size: 20px;
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+body dialog .card form input {
+  margin: 10px 0;
+  height: 30px;
+  width: 100%;
+  padding: 10px;
+}
+body dialog .card form button {
+  margin-right: 20px;
+}
+body dialog .card form button input {
+  background-color: unset;
+  border: unset;
+  color: inherit;
+  font-size: inherit;
+  padding: unset;
+  height: unset;
+  width: unset;
+  margin: unset;
+}
+body dialog .card form button button:nth-of-type(2) {
+  background-color: #e6f7ff;
+  color: black;
+}
+body .header {
+  color: white;
+  text-align: center;
+  height: 100vh;
+  background-repeat: no-repeat;
+  background-size: cover;
+  padding: 0 0;
+  position: relative;
+  width: 100%;
+  display: flex;
+  overflow: hidden;
+}
+body .header .video-section {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  display: flex;
+}
+body .header .video-section video {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  -o-object-fit: cover;
+     object-fit: cover;
+  z-index: -1;
+  transform: translateZ(-1px) scale(1);
+}
+body .header .video-section .hero-section {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  top: 0;
+  background-color: rgba(0, 0, 0, 0.866);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+body .header .video-section .hero-section .main-logo {
+  background: unset;
+  width: auto;
+  height: 18%;
+  top: 10%;
+}
+body .header .video-section .hero-section .heading {
+  position: relative;
+  height: -moz-fit-content;
+  height: fit-content;
+  margin-top: 5px;
+  padding: 10px 0;
+  gap: 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+body .header .video-section .hero-section .heading h1 {
+  font-size: 4.5vw;
+  margin-bottom: 0px;
+  color: rgba(224, 233, 233, 0.87);
+}
+body .header .video-section .hero-section .heading h2 {
+  width: -moz-fit-content;
+  width: fit-content;
+  font-size: 3.5vw;
+  padding: 10px;
+  word-spacing: 10px;
+}
+body .header .video-section .hero-section .cta-button {
+  padding: 10px 30px;
+  font-size: 1.8vw;
+  cursor: pointer;
+  margin: 10px 0;
+  text-decoration: none;
+  transition: ease-in-out;
+}
+body .header .video-section .hero-section .cta-button:hover, body .header .video-section .hero-section .cta-button:focus {
+  animation: bounce 1s infinite;
+}
+@keyframes bounce {
+  0% {
+    transform: translateY(0px);
+  }
+  100% {
+    transform: translateY(-5px);
+    filter: brightness(2);
+  }
+}
+body .header .video-section .hero-section .mission-vision {
+  max-width: 1800px;
+  width: 80vw;
+  padding: 40px;
+  margin: 0 auto;
+  font-size: 1.8vw;
+  display: flex;
+  flex-direction: column;
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-radius: 2vh;
+  justify-self: center;
+  gap: 20px;
+}
+body .header .video-section .hero-section .mission-vision p {
+  text-align: start;
+  align-items: start;
+  justify-content: left;
+  padding: 0;
+}
+body .main-section {
+  background-color: #d5d5d5;
+  position: relative;
+  height: -moz-fit-content;
+  height: fit-content;
+}
+body .main-section .services-section {
+  width: 100%;
+  padding: 50px 0;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  display: flex;
+}
+body .main-section .services-section h2 {
+  font-size: 8vh;
+  margin-bottom: 20px;
+}
+body .main-section .services-section .services-list {
+  width: -moz-fit-content;
+  width: fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+  margin: 20px auto;
+  list-style: none;
+  padding: 20px 0px;
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+body .main-section .services-section .services-list li {
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  width: 70%;
+  gap: 5px;
+  padding: 10px 0px;
+}
+body .main-section .services-section .services-list li span {
+  font-size: 1.4vw;
+  font-weight: bold;
+  width: 20vw;
+  text-wrap: nowrap;
+  display: flex;
+  justify-content: flex-start;
+  align-items: start;
+}
+body .main-section .services-section .services-list li p {
+  font-size: 1.4vw;
+  display: flex;
+  width: -moz-fit-content;
+  width: fit-content;
+  text-align: left;
+  padding: 0 20px;
+  width: 100%;
+}
+body .main-section .carousel-section {
+  background: #004AAD;
+  color: rgb(255, 255, 255);
+  padding: 0px 0px;
+  min-height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+body .main-section .carousel-section .carousel {
+  display: flex;
+  margin: 0 auto;
+  position: relative;
+  justify-content: space-around;
+}
+body .main-section .carousel-section .carousel .carousel-item {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  transition: transform 0.5s ease-in-out;
+  margin-right: unset;
+}
+body .main-section .carousel-section .carousel .carousel-item button {
+  width: unset;
+}
+body .main-section .carousel-section .carousel .carousel-item button:hover, body .main-section .carousel-section .carousel .carousel-item button:focus {
+  box-shadow: unset;
+  transform: scale(1.08);
+}
+body .main-section .carousel-section .carousel .carousel-item img {
+  width: 10vw;
+  height: auto;
+  mix-blend-mode: lighten;
+  border-radius: 2vw;
+}
+body .main-section .carousel-section .carousel .carousel-item h3 {
+  margin-top: 10px;
+  font-size: 3vh;
+}
+body .main-section .carousel-section .carousel .carousel-item p {
+  font-size: 2.5vh;
+  margin-top: 3.5vh;
+}
+body .main-section .testimonial-section {
+  padding: 5px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  height: 50vh;
+}
+body .main-section .testimonial-section h2 {
+  font-size: 2rem;
+  padding: 0px 0;
+}
+body .main-section .testimonial-section .testimonial {
+  margin: 0 0;
+  width: 40vw;
+  text-align: start;
+  background-color: rgba(0, 75, 173, 0.1);
+  box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.425);
+  padding: 15px;
+  border-radius: 5px;
+}
+body .main-section .testimonial-section .testimonial img {
+  width: 100px;
+  border-radius: 10px;
+  float: left;
+  margin-right: 20px;
+}
+body .main-section .testimonial-section .testimonial p {
+  font-size: 1.8vh;
+}
+body .main-section .testimonial-section .testimonial .author {
+  font-weight: bold;
+}
+body .main-section .contact-section {
+  text-align: center;
+  height: -moz-fit-content;
+  height: fit-content;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+}
+body .main-section .contact-section h2 {
+  padding: 10px 0;
+  font-size: 2.4rem;
+}
+body .main-section .contact-section form {
+  border-radius: 20px 20px 0 0px;
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  top: 0;
+  z-index: 3;
+  flex-direction: column;
+  padding: 50px 50px;
+  background: linear-gradient(rgba(201, 201, 201, 0.5), rgba(251, 253, 255, 0.3));
+  -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(3px);
+  box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 0.281);
+}
+body .main-section .contact-section form label {
+  display: flex;
+  font-size: 1.4em;
+  margin-bottom: 5px;
+  justify-self: start;
+}
+body .main-section .contact-section form input, body .main-section .contact-section form textarea {
+  border-radius: 10px;
+  font-size: 16px;
+  padding: 10px;
+  margin-bottom: 10px;
+  outline: unset;
+  border: 1px solid gray;
+  width: 100%;
+  transition: 0.5s;
+  color: rgb(115, 115, 115);
+  resize: vertical;
+}
+body .main-section .contact-section form input:hover, body .main-section .contact-section form textarea:hover {
+  outline: 1px rgba(0, 85, 255, 0.64) solid;
+}
+body .main-section .contact-section form .submit-button {
+  padding: 10px 30px;
+  font-size: 18px;
+  background-color: #007acc;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+body .section-services {
+  display: flex;
+  flex-direction: column;
+  justify-self: center;
+  align-items: center;
+  padding: 20px;
+  width: 90vw;
+  font-family: "Jacques Francois";
+}
+body .section-services h1 {
+  font-size: 3vw;
+}
+body .section-services h3 {
+  align-self: flex-start;
+  margin: 10px 0;
+}
+body .section-services div {
+  display: flex;
+  justify-items: center;
+  align-items: center;
+  grid-template-columns: 50% 50%;
+  margin: 10px 0;
+  padding: 20px 20px;
+}
+body .section-services div:nth-of-type(2) {
+  flex-direction: row-reverse;
+}
+body .section-services div div {
+  font-size: 1.3vw;
+  display: flex;
+  flex-direction: column;
+  padding: 50px;
+  justify-content: center;
+}
+body .section-services div div ul {
+  margin: 0 0 0 10px;
+}
+body .section-services div div p {
+  justify-content: center;
+  align-items: center;
+  text-wrap: wrap;
+}
+body .section-services div img {
+  width: 20vw;
+  -o-object-fit: cover;
+     object-fit: cover;
+  filter: drop-shadow(5px 5px 6px rgba(0, 0, 0, 0.339));
+}
+body .about-section {
+  display: flex;
+  flex-direction: column;
+  justify-self: center;
+  align-items: center;
+  padding: 20px;
+  width: 90vw;
+  font-family: "Jacques Francois";
+}
+body .about-section h1 {
+  font-size: 3vw;
+}
+body .about-section h4 {
+  font-size: 3vw;
+}
+body .about-section div {
+  font-size: 1.3vw;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+}
+body .about-section div .section {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  padding: 20px 20px;
+  width: 100%;
+}
+body .about-section div .section p {
+  padding: 20px 5px;
+  justify-self: start;
+  align-self: start;
+  max-width: 50vw;
+}
+body .about-section div .section img {
+  width: 25vw;
+  height: 25vh;
+  min-height: 10rem;
+  border-radius: 10px;
+  border: 2px solid white;
+  filter: drop-shadow(5px 5px 6px rgba(0, 0, 0, 0.339));
+  flex-grow: inherit;
+  transition: ease-in-out 1.5s;
+}
+body .about-section div .section img:hover, body .about-section div .section img:focus {
+  border: unset;
+  -o-object-fit: fill;
+     object-fit: fill;
+}
+body .about-section div .company-description {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 10px;
+}
+body .about-section div .company-description p {
+  padding: 0;
+  max-width: 100%;
+  text-align: unset;
+}/*# sourceMappingURL=styles2.css.map */

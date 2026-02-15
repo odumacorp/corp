@@ -1,0 +1,98 @@
+{% load static %}
+<head>
+
+<div id="button_scripts"></div>
+<span id="head"></span>
+
+</head>
+<header class="header-section">
+    <div class="nav-bar">
+        <div class="logo-section btn"  >
+                <img onclick="window.location.href='/'" src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="company-icon">
+                <!-- <img src="images/icons8-menu-96.png" alt="" srcset=""> -->
+                <span>Oduma Corp</span>
+            </div>
+            <!-- <div class="menu-btn btn">
+                <img src="{% static 'images/icons8-menu-96.png' %}" alt="" srcset="">
+            </div> -->
+                <nav>
+                    <ul>
+                        <li>
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'app' %}">Home</a>
+                            {% endif %}
+                            <a href="{% url 'investors' %}">Investors</a>
+                            <a href="{% url 'innovators' %}">Innovators</a>
+                            <!-- <a href="{% url 'my_projects' %}">My Project</a> -->
+
+                            {% if request.user.user_type == "investor" %}
+                            {% elif request.user.user_type == "innovator" %}
+                            {% endif %}
+                            
+                            
+                            <a href="{% url 'about' %}">About</a>                            
+                            <a href="{% url 'services' %}">Services</a>
+                            <a href="{% url 'events' %}">News/Events</a>
+                            <a href="{% url 'jobs' %}">Jobs</a>
+                            
+
+                            {% if user.is_authenticated %}
+                                <a class="nav-link" href="{% url 'inbox' %}">Messages</a>
+                            {% endif %}
+                            
+
+                            {% if user.is_authenticated %}
+                                    <a href="{% url 'notifications' %}">Notification</a>
+                            {% endif %}
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'dashboard' %}">Dashboard</a>
+                            {% endif %}
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'networks' %}">My Network</a>
+                            {% endif %}
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'profile_view' id=user.id %}">Profile</a>
+                            {% endif %}
+
+                        </li>
+
+                        
+                    </ul>
+                </nav>
+        </div>
+        <div class="btns">
+            <div class="buttons">
+                {% if user.is_authenticated %}
+                    <button  onclick="window.location.href='{% url 'logout'%}'">Logout</button>
+
+                {% else %}
+                            <button  onclick="window.location.href='{% url 'register'%}'">Register</button>
+                            <button  onclick="window.location.href='{% url 'login'%}'">Login</button>
+                {% endif %}
+                 <button onclick="history.back()">Back</button>
+            </div>
+                    
+        </div>
+        {% if user.is_authenticated %}
+            <!-- buttons -->
+            <div class="actions">
+                {#<button type="button" class="btn" onclick="window.location.href='{% url 'proposals' %}'">Proposals</button>#}
+            </div>
+            {% endif %}
+
+    </div>
+       <!-- search bar -->
+       <div class="search">
+        <div class="in-search">
+
+            <form action="{% url 'search' %}" method="GET" class="search-form">
+                <input type="text" name="q" placeholder="Search..." >
+                <button type="submit">
+                    <img src="{% static 'images/icons8-search-50.png' %}'" alt="search" srcset="">
+                </button>
+            </form>
+        </div>
+     </div>    
+</header>
+
+    

@@ -1,0 +1,99 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ page_title }} | Oduma Platform{% endblock %}</title>
+    <!-- <link rel="stylesheet" href="httpks://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles2.css' %}">
+    <link rel="stylesheet" href="{% static 'css/screen_m.css' %}">
+    <!-- jacques francois font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jacques+Francois&family=Jaldi:wght@400;700&display=swap" rel="stylesheet">
+      
+
+    <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HSYKW9TPFT"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-HSYKW9TPFT');
+  </script>
+       
+  </head>
+<body>    
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+
+  {% if not hide_navbar %}
+  {% include '_partials/navbar.html' %}
+  <header>
+    <h1>{{ page_name }}</h1>  <!-- Dynamic Page Name -->
+  </header>
+
+  {% if user.is_authenticated %}
+  <div class="section d-flex justify-content-around mt-3">
+    <li class="nav-item list-group mx-2">
+      <button>
+        <a class="nav-link {% if page_name == 'Inbox' %}active{% endif %}" href="{% url 'inbox' %}">
+          Inbox {% if unread_count %}<span class="badge bg-danger">{{ unread_count }}</span>{% endif %}
+        </a>
+      </button>
+    </li>
+
+    <li class="nav-item list-group mx-2">
+      <button>
+        <a class="nav-link {% if page_name == 'Sent' %}active{% endif %}" href="{% url 'sent_items' %}">
+          Sent
+        </a>
+      </button>
+
+    </li>
+  </div>
+  {% endif %}
+{% endif %}
+
+  
+  {% block content %}
+  
+  {% endblock content%}
+
+
+
+  <!-- Flash Messages -->
+<div class="container mt-3 flash-message">
+  {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+      </div>
+  {% endfor %}
+</div>
+
+<!-- JavaScript to Auto-Dismiss Messages -->
+<script>
+  setTimeout(function() {
+      let alerts = document.querySelectorAll('.alert');
+      alerts.forEach(alert => {
+          alert.classList.remove('show');
+          alert.classList.add('fade');
+          setTimeout(() => alert.remove(), 500); // Ensures smooth removal after fading
+      });
+  }, 2000); // 2 seconds
+</script>
+
+
+  
+
+    <!-- Main Content -->
+    <!-- <div class="container">
+   
+    </div> -->
+
+</body>
+</html>

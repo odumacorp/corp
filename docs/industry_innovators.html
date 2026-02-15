@@ -1,0 +1,24 @@
+{% extends '_partials/base.html' %}
+
+{% block content %}
+<h2>Innovators in {{ industry|title }} Industry</h2>
+<div class="container mt-5">
+    <div>
+        <ul class="list-group mt-4">
+          {% for user in users %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <a href="{% url 'innovator_profile' user.id %}">
+                {{ user.get_full_name }}
+              </a>
+              <span class="badge bg-primary rounded-pill">
+                {{ user.project_count }} Project{{ user.project_count|pluralize }}
+              </span>
+            </li>
+          {% empty %}
+            <li class="list-group-item">No innovators found in this industry.</li>
+          {% endfor %}
+        </ul>
+
+    </div>
+</div>
+{% endblock %}

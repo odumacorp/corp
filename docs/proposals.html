@@ -1,0 +1,17 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+{% block content %}
+<h3>Investor Proposals</h3>
+{% if proposals %}
+    <ul>
+    {% for proposal in proposals %}
+        <li>
+            <strong>{{ proposal.investor.get_full_name }}</strong> - {{ proposal.about }} <br>
+            <small>Interests: {{ proposal.interests }}</small>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No proposals available.</p>
+{% endif %}
+{% endblock %}
