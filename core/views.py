@@ -75,12 +75,6 @@ def project_list(request):
 from django.shortcuts import render
 from django.views.generic import DetailView
 
-class UserProfileView(DetailView):
-    model = CustomUser
-    template_name = 'user_profile.html'  # Change this to your actual template
-    context_object_name = 'user'
-
-
 ##proposals
 
 ##user posts
@@ -182,17 +176,6 @@ def profile_view(request, id):
 
 ################
 
-def app_view(request):
-    if request.user.is_authenticated:
-        profile = request.user  # Since request.user is already the logged-in CustomUser
-        print(f"Profile: {profile.username}, Full Name: {profile.get_full_name()}, First Name: {profile.first_name}, Last Name: {profile.last_name}")
-    else:
-        profile = None
-        print("No authenticated user.")
-
-    return render(request, 'app.html', {'profile': profile})
-
-
 def home_view(request):
     user = request.user
 
@@ -203,7 +186,7 @@ def home_view(request):
     community_nodes = CustomUser.objects.filter(connections_received__user=user).exclude(id=user.id)[:6]
 
     # Fetch Profile-Based Companies
-    profile_based_companies = Company.objects.filter(industry=user.profile.industry)[:6]
+    profile_based_companies = Company.objects.filter(industry=user.userprofile.industry)[:6]
 
     return render(request, "app.html", {
         # "node_suggestions": node_suggestions,
@@ -230,12 +213,6 @@ def about(request):
 def services(request):
     context = {"page_title": "Services", "page_name": "Services"}
     return render(request, 'services.html', context)
-
-##dashboard.html
-def dashboard(request):
-    context = {"page_title": "Dashboard", "page_name": "Dashboard"}
-#     return render(request, 'dashboard.html', context)
-
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -322,7 +299,7 @@ def add_attachment(request, project_id):
 
 
 def user_project_attachments(request, user_id, project_id):
-    project = get_object_or_404(Project, id=project_id, user_id=user_id)
+    project = get_object_or_404(Project, id=project_id, owner_id=user_id)
     attachments = Attachment.objects.filter(project=project)
     return render(request, 'user_attachments.html', {'attachments': attachments, 'project': project})
 
@@ -335,19 +312,20 @@ def upload_image(request, project_id):
     project = Project.objects.get(id=project_id)
     
     if request.method == 'POST':
-        form = ProjectImageForm(request.POST, request.FILES, project=project)
+        form = ProjectImageForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            image = form.save(commit=False)
+            image.project = project
+            image.save()
             return redirect('project_images', project_id=project.id)
     else:
-        form = ProjectImageForm(project=project)
+        form = ProjectImageForm()
     return render(request, 'upload_image.html', {'form': form, 'project': project})
 
 
 @login_required
 def project_images(request, project_id):
-    project = get_object_or_404(Project, id=project_id, user=request.user)
-    # project = get_object_or_404(Project, id=project_id, owner=request.user)
+    project = get_object_or_404(Project, id=project_id, owner=request.user)
 
     images = project.images.all()
     form = ProjectImageForm()
@@ -419,59 +397,6 @@ def notifications_view(request):
         'other_notifications': other_notifications,
     }
     return render(request, 'notifications.html', context)
-
-
-
-@login_required
-def connect_investor(request, investor_id):
-    investor = get_object_or_404(CustomUser, id=investor_id)
-
-    if request.user != investor:
-        try:
-            investor_profile = investor.userprofile
-            current_user_profile = request.user.userprofile
-            investor_profile.connected_users.add(current_user_profile)
-            investor_profile.save()
-
-
-            # Create a notification for the current user
-            Notification.objects.create(
-                user=request.user,
-                message=f"You are now connected with Investor: {investor.get_full_name() or investor.username}",
-                notification_type='connected'
-            )
-            
-            # Create a notification for the investor
-            Notification.objects.create(
-                user=investor,
-                message=f"{request.user.get_full_name() or request.user.username} has connected with you.",
-                notification_type='connected'
-            )
-
-
-            messages.success(request, f"You are now connected with {investor.get_full_name()}.")
-            
-            # Create a notification for the current user
-            Notification.objects.create(
-                user=request.user,
-                message=f"You are now connected with Investor: {investor.get_full_name() or investor.username}"
-            )
-            
-            # Create a notification for the investor
-            Notification.objects.create(
-                user=investor,
-                message=f"{request.user.get_full_name() or request.user.username} has connected with you."
-            )
-        except AttributeError:
-            messages.error(request, "The investor profile does not exist.")
-    else:
-        messages.warning(request, "You cannot connect with yourself.")
-
-    # Redirect back to the referring page
-    referer = request.META.get('HTTP_REFERER')
-    if referer:
-        return HttpResponseRedirect(referer)
-    return redirect('investors')
 
 
 
@@ -792,7 +717,7 @@ def message_investor(request, investor_id):
         return redirect('start_conversation', user_id=investor.id)  # Example URL name
     
     
-    return redirect('investors_list')
+    return redirect('investors')
 
 ####
 from .forms import MessageForm
@@ -873,11 +798,6 @@ def chat_page(request, conversation_id):
 #     return render(request, 'chat_page.html', {'conversation': conversation, 'messages': messages, 'form': form})
 
 
-
-##contact
-def contact(request):
-    context = {"page_title": "contact", "page_name": "contact"}
-    return render(request, 'contact.html', context)
 
 ##app.html
 def app_view(request):
@@ -970,7 +890,7 @@ def project_detail(request, pk):
 
 def user_attachments(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
-    attachments = Attachment.objects.filter(project__user=user)
+    attachments = Attachment.objects.filter(project__owner=user)
     return render(request, 'user_attachments.html', {
         'user': user,
         'attachments': attachments,
@@ -996,7 +916,7 @@ def filter_by_date(request, date):
 ##profile pic update
 def update_profile(request):
     if request.method == "POST":
-        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.userprofile)
         if form.is_valid():
             form.save()
             messages.success(request, "Profile picture updated successfully!")
@@ -1074,24 +994,6 @@ def delete_project(request, project_id):
         project.delete()
         return redirect('innovators')  # Redirect back to the innovator page
     return render(request, 'confirm_delete.html', {'project': project})
-
-# Edit Project
-def edit_project(request, project_id):
-    project = get_object_or_404(Project, id=project_id)
-    
-    if request.method == "POST":
-        form = ProjectForm(request.POST, request.FILES, instance=project)
-        if form.is_valid():
-            form.save()
-            return redirect('dashboard') # Redirect back to the innovator page
-    else:
-        form = ProjectForm(instance=project)
-
-    context = {
-        'form': form,
-        'project': project,
-    }
-    return render(request, 'dashboard.html', context)
 
 #####Edit from dashboard
 def edit_project(request, project_id):
@@ -1182,7 +1084,6 @@ def search(request):
 
     if query:
         results.extend(Post.objects.filter(Q(title__icontains=query) | Q(content__icontains=query)))
-        results.extend(Post.objects.filter(Q(content__icontains=query))) 
 
     return render(request, 'search_results.html', {'query': query, 'results': results})
 
@@ -1226,18 +1127,14 @@ def contact(request):
 
 ###all users
 
-###investors page view
-def investors_view(request):
-    investors = CustomUser.objects.filter(user_type='investor')
-    return render(request, 'investors.html', {'investors': investors})
 
 
 
 
 def view_innovator(request, user_id):
     innovator = get_object_or_404(CustomUser, pk=user_id)
-    projects = Project.objects.filter(user=innovator)
-    my_connections = request.user.profile.connections.values_list('id', flat=True) 
+    projects = Project.objects.filter(owner=innovator)
+    my_connections = request.user.userprofile.connected_users.values_list('user_id', flat=True) if request.user.is_authenticated else []
 
     context = {
         'innovator': innovator,

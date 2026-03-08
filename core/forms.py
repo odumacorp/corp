@@ -230,13 +230,7 @@ class ProfileEditForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['first_name', 'last_name', 'email', 'phone_number', 'profile_pics','bio', 'industry', 'company']
-
-    class Meta:
-        model = UserProfile
-        # fields = ['profile_pics', 'phone_number', 'bio', 'industry', 'company']
-        fields = ['first_name', 'last_name', 'email', 'phone_number', 'profile_pics','bio', 'industry', 'company']
-
+        fields = ['first_name', 'last_name', 'email', 'phone_number', 'profile_pics', 'bio', 'industry', 'company']
         widgets = {
             'industry': forms.Select(attrs={'class': 'form-control'}),
         }

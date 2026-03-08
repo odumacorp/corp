@@ -97,8 +97,6 @@ urlpatterns = [
     path('filter/user/<int:user_id>/', views.filter_by_user, name='filter_by_user'),
     path('filter/date/<str:date>/', views.filter_by_date, name='filter_by_date'),
 
-    ###investors
-    path('investors/', investors_view, name='investors'),
     ##innovator
     path('innovators/', innovators_view, name='innovators'),
     path('innovator/<int:user_id>/', views.view_innovator, name='view_innovator'),
@@ -113,8 +111,6 @@ urlpatterns = [
 
 
     ##connect with investor
-    path('connect_investor/<int:investor_id>/', views.connect_investor, name='connect_investor'),
-
     path('connect_investor/<int:investor_id>/', views.connect_investor, name='connect_investor'),
     path('message_investor/<int:investor_id>/', views.message_investor, name='message_investor'),
 

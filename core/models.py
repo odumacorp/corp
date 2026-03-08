@@ -85,20 +85,6 @@ class UserProfile(models.Model):
 
     
 
-##Create user signal
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
-@receiver(post_save, sender=CustomUser)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
-
-
-@receiver(post_save, sender=CustomUser)
-def save_user_profile(sender, instance, **kwargs):
-    instance.userprofile.save()
-
 ##intentor page
 
     
@@ -349,8 +335,8 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.title
-    
+        return self.content[:50]
+
 
 ##Who viewed your profile
     

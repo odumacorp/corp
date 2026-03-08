@@ -12,7 +12,7 @@
 3. Run migrations and start
    python manage.py migrate
    python manage.py createsuperuser
-   python manage.py runservert
+   python manage.py runserver
 
 # Using Docker
 docker build -t oduma-connect .
