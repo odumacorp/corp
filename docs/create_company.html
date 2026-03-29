@@ -1,0 +1,525 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Create Company Page | Oduma Connect{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+<style>
+  :root {
+    --blue: #004AAD;
+    --blue-dark: #003490;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --border: rgba(0,0,0,0.1);
+    --card-bg: #fff;
+    --ff-serif: "Jacques Francois", serif;
+    --ff-sans: "Jaldi", sans-serif;
+  }
+
+  .cc-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 16px 64px;
+  }
+
+  .cc-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,74,173,0.12);
+    width: 100%;
+    max-width: 640px;
+    overflow: hidden;
+  }
+
+  /* Progress bar */
+  .cc-progress {
+    background: #eaf0ff;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cc-progress-steps {
+    display: flex;
+    gap: 0;
+    margin-bottom: 10px;
+  }
+  .cc-step-dot {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+  .cc-step-dot::before {
+    content: '';
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    right: -50%;
+    height: 2px;
+    background: #d1d5db;
+    z-index: 0;
+  }
+  .cc-step-dot:last-child::before { display: none; }
+  .cc-step-dot.done::before,
+  .cc-step-dot.active::before { background: var(--blue); }
+  .cc-dot-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #d1d5db;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #9ca3af;
+    z-index: 1;
+    position: relative;
+    transition: all .25s;
+  }
+  .cc-step-dot.done .cc-dot-circle {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: #fff;
+  }
+  .cc-step-dot.active .cc-dot-circle {
+    border-color: var(--blue);
+    color: var(--blue);
+    background: #e8f0fe;
+  }
+  .cc-dot-label {
+    font-family: var(--ff-sans);
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .cc-step-dot.active .cc-dot-label { color: var(--blue); font-weight: 700; }
+  .cc-step-dot.done .cc-dot-label { color: var(--blue); }
+
+  /* Step header */
+  .cc-header {
+    padding: 28px 32px 0;
+  }
+  .cc-step-tag {
+    display: inline-block;
+    background: #e8f0fe;
+    color: var(--blue);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .cc-header h2 {
+    font-family: var(--ff-serif);
+    font-size: 1.55rem;
+    color: var(--text);
+    margin: 0 0 6px;
+  }
+  .cc-header p {
+    font-family: var(--ff-sans);
+    color: var(--muted);
+    font-size: .95rem;
+    margin: 0;
+  }
+
+  /* Form body */
+  .cc-body {
+    padding: 24px 32px 32px;
+  }
+
+  .cc-field {
+    margin-bottom: 20px;
+  }
+  .cc-field label {
+    display: block;
+    font-family: var(--ff-sans);
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .cc-field label span {
+    color: #e53e3e;
+  }
+  .cc-field input,
+  .cc-field textarea,
+  .cc-field select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: var(--ff-sans);
+    font-size: .97rem;
+    color: var(--text);
+    background: #fafafa;
+    transition: border-color .2s;
+    box-sizing: border-box;
+  }
+  .cc-field input:focus,
+  .cc-field textarea:focus,
+  .cc-field select:focus {
+    outline: none;
+    border-color: var(--blue);
+    background: #fff;
+  }
+  .cc-field textarea { resize: vertical; min-height: 90px; }
+  .cc-field .hint {
+    font-size: .78rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Radio cards (for type/size) */
+  .cc-radio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .cc-radio-card input[type=radio] { display: none; }
+  .cc-radio-card label {
+    display: block;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: var(--ff-sans);
+    font-size: .88rem;
+    color: var(--text);
+    text-align: center;
+    transition: all .2s;
+    background: #fafafa;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+  }
+  .cc-radio-card input[type=radio]:checked + label {
+    border-color: var(--blue);
+    background: #e8f0fe;
+    color: var(--blue);
+    font-weight: 700;
+  }
+
+  /* Upload zones */
+  .cc-upload-zone {
+    border: 2px dashed #c7d2fe;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    background: #f5f7ff;
+    transition: border-color .2s;
+    position: relative;
+  }
+  .cc-upload-zone:hover { border-color: var(--blue); }
+  .cc-upload-zone input[type=file] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .cc-upload-zone .cc-upload-icon {
+    font-size: 2rem;
+    color: var(--blue);
+    margin-bottom: 8px;
+  }
+  .cc-upload-zone p {
+    font-family: var(--ff-sans);
+    color: var(--muted);
+    font-size: .88rem;
+    margin: 0;
+  }
+  .cc-upload-zone strong {
+    color: var(--blue);
+  }
+  .cc-upload-preview {
+    margin-top: 10px;
+    max-width: 100%;
+    max-height: 120px;
+    border-radius: 8px;
+    display: none;
+    object-fit: contain;
+  }
+
+  /* Footer / CTA */
+  .cc-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 32px 28px;
+    border-top: 1px solid var(--border);
+    gap: 12px;
+  }
+  .cc-btn {
+    font-family: var(--ff-sans);
+    font-size: .97rem;
+    font-weight: 700;
+    padding: 11px 28px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: all .2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+  .cc-btn-primary {
+    background: var(--blue);
+    color: #fff;
+  }
+  .cc-btn-primary:hover { background: var(--blue-dark); color: #fff; }
+  .cc-btn-outline {
+    background: transparent;
+    color: var(--blue);
+    border: 1.5px solid var(--blue);
+  }
+  .cc-btn-outline:hover { background: #e8f0fe; }
+  .cc-btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+  }
+  .cc-btn-ghost:hover { background: #f3f4f6; color: var(--text); }
+
+  /* Two-col layout */
+  .cc-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 500px) {
+    .cc-two-col { grid-template-columns: 1fr; }
+    .cc-header, .cc-body, .cc-footer { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+
+<div class="cc-wrapper">
+  <div class="cc-card">
+
+    <!-- Progress Steps -->
+    <div class="cc-progress">
+      <div class="cc-progress-steps">
+        {% for s in steps %}
+          {% if forloop.counter0 < step_index %}
+            <div class="cc-step-dot done">
+              <div class="cc-dot-circle"><i class="fi fi-rr-check"></i></div>
+              <span class="cc-dot-label">{{ s|title }}</span>
+            </div>
+          {% elif forloop.counter0 == step_index %}
+            <div class="cc-step-dot active">
+              <div class="cc-dot-circle">{{ forloop.counter }}</div>
+              <span class="cc-dot-label">{{ s|title }}</span>
+            </div>
+          {% else %}
+            <div class="cc-step-dot">
+              <div class="cc-dot-circle">{{ forloop.counter }}</div>
+              <span class="cc-dot-label">{{ s|title }}</span>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if step == 'basics' %}
+    <!-- ── STEP 1: Basics ── -->
+    <div class="cc-header">
+      <span class="cc-step-tag">Step 1 of 4</span>
+      <h2>Company Basics</h2>
+      <p>Tell us the core details about your company.</p>
+    </div>
+    <form method="post" action="/create-company/">
+      {% csrf_token %}
+      <input type="hidden" name="step" value="basics">
+      <div class="cc-body">
+        <div class="cc-field">
+          <label>Company Name <span>*</span></label>
+          <input type="text" name="name" value="{{ draft.name|default:'' }}" placeholder="e.g. Oduma Technologies Ltd." required>
+        </div>
+        <div class="cc-field">
+          <label>Tagline</label>
+          <input type="text" name="tagline" value="{{ draft.tagline|default:'' }}" placeholder="e.g. Connecting Africa's brightest minds">
+          <p class="hint">A short, punchy phrase that captures your company's mission.</p>
+        </div>
+        <div class="cc-field">
+          <label>Industry <span>*</span></label>
+          <select name="industry" required>
+            {% for val, label in industry_choices %}
+              <option value="{{ val }}" {% if draft.industry == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="cc-field">
+          <label>About the Company <span>*</span></label>
+          <textarea name="description" placeholder="Describe what your company does, its mission, and the value it provides…" required>{{ draft.description|default:'' }}</textarea>
+          <p class="hint">Min. 50 characters — help people understand who you are.</p>
+        </div>
+      </div>
+      <div class="cc-footer">
+        <a href="{% url 'my_businesses' %}" class="cc-btn cc-btn-ghost">Cancel</a>
+        <button type="submit" class="cc-btn cc-btn-primary">Next <i class="fi fi-rr-arrow-right"></i></button>
+      </div>
+    </form>
+
+    {% elif step == 'details' %}
+    <!-- ── STEP 2: Details ── -->
+    <div class="cc-header">
+      <span class="cc-step-tag">Step 2 of 4</span>
+      <h2>Company Details</h2>
+      <p>Help us understand your company's structure and scale.</p>
+    </div>
+    <form method="post" action="/create-company/">
+      {% csrf_token %}
+      <input type="hidden" name="step" value="details">
+      <div class="cc-body">
+        <div class="cc-field">
+          <label>Company Type <span>*</span></label>
+          <div class="cc-radio-grid">
+            {% for val, label in company_type_choices %}
+              <div class="cc-radio-card">
+                <input type="radio" name="company_type" id="ct_{{ val }}" value="{{ val }}"
+                  {% if draft.company_type == val or not draft.company_type and val == 'other' %}checked{% endif %}>
+                <label for="ct_{{ val }}">{{ label }}</label>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="cc-field" style="margin-top:20px;">
+          <label>Company Size</label>
+          <div class="cc-radio-grid">
+            {% for val, label in size_choices %}
+              <div class="cc-radio-card">
+                <input type="radio" name="size" id="sz_{{ forloop.counter }}" value="{{ val }}"
+                  {% if draft.size == val %}checked{% endif %}>
+                <label for="sz_{{ forloop.counter }}">{{ label }}</label>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="cc-field" style="margin-top:20px;">
+          <label>Year Founded</label>
+          <input type="number" name="founded_year" value="{{ draft.founded_year|default:'' }}"
+            placeholder="e.g. 2018" min="1800" max="2026">
+        </div>
+      </div>
+      <div class="cc-footer">
+        <a href="/create-company/?step=basics" class="cc-btn cc-btn-outline"><i class="fi fi-rr-arrow-left"></i> Back</a>
+        <button type="submit" class="cc-btn cc-btn-primary">Next <i class="fi fi-rr-arrow-right"></i></button>
+      </div>
+    </form>
+
+    {% elif step == 'contact' %}
+    <!-- ── STEP 3: Contact ── -->
+    <div class="cc-header">
+      <span class="cc-step-tag">Step 3 of 4</span>
+      <h2>Contact &amp; Location</h2>
+      <p>How can people find and reach your company?</p>
+    </div>
+    <form method="post" action="/create-company/">
+      {% csrf_token %}
+      <input type="hidden" name="step" value="contact">
+      <div class="cc-body">
+        <div class="cc-field">
+          <label>Location</label>
+          <input type="text" name="location" value="{{ draft.location|default:'' }}" placeholder="e.g. Lagos, Nigeria">
+        </div>
+        <div class="cc-two-col">
+          <div class="cc-field">
+            <label>Company Email</label>
+            <input type="email" name="email" value="{{ draft.email|default:'' }}" placeholder="contact@yourcompany.com">
+          </div>
+          <div class="cc-field">
+            <label>Phone Number</label>
+            <input type="text" name="phone" value="{{ draft.phone|default:'' }}" placeholder="+234 800 0000 000">
+          </div>
+        </div>
+        <div class="cc-field">
+          <label>Website</label>
+          <input type="url" name="website" value="{{ draft.website|default:'' }}" placeholder="https://yourcompany.com">
+        </div>
+      </div>
+      <div class="cc-footer">
+        <a href="/create-company/?step=details" class="cc-btn cc-btn-outline"><i class="fi fi-rr-arrow-left"></i> Back</a>
+        <button type="submit" class="cc-btn cc-btn-primary">Next <i class="fi fi-rr-arrow-right"></i></button>
+      </div>
+    </form>
+
+    {% elif step == 'media' %}
+    <!-- ── STEP 4: Media ── -->
+    <div class="cc-header">
+      <span class="cc-step-tag">Step 4 of 4</span>
+      <h2>Brand &amp; Media</h2>
+      <p>Upload your company logo and a cover image to complete your page.</p>
+    </div>
+    <form method="post" action="/create-company/" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="step" value="media">
+      <div class="cc-body">
+        <div class="cc-field">
+          <label>Company Logo</label>
+          <div class="cc-upload-zone" id="logoZone">
+            <input type="file" name="logo" accept="image/*" id="logoInput">
+            <div class="cc-upload-icon"><i class="fi fi-rr-picture"></i></div>
+            <p><strong>Click to upload</strong> or drag &amp; drop</p>
+            <p>PNG, JPG, SVG — recommended 400×400 px</p>
+            <img src="" alt="Logo preview" class="cc-upload-preview" id="logoPreview">
+          </div>
+        </div>
+        <div class="cc-field">
+          <label>Cover Image</label>
+          <div class="cc-upload-zone" id="coverZone">
+            <input type="file" name="cover_image" accept="image/*" id="coverInput">
+            <div class="cc-upload-icon"><i class="fi fi-rr-landscape"></i></div>
+            <p><strong>Click to upload</strong> or drag &amp; drop</p>
+            <p>PNG, JPG — recommended 1200×400 px</p>
+            <img src="" alt="Cover preview" class="cc-upload-preview" id="coverPreview">
+          </div>
+        </div>
+        <p style="font-family:var(--ff-sans);font-size:.85rem;color:var(--muted);">
+          <i class="fi fi-rr-info"></i> Both images are optional — you can add them later from your company page.
+        </p>
+      </div>
+      <div class="cc-footer">
+        <a href="/create-company/?step=contact" class="cc-btn cc-btn-outline"><i class="fi fi-rr-arrow-left"></i> Back</a>
+        <button type="submit" class="cc-btn cc-btn-primary"><i class="fi fi-rr-check"></i> Create Company Page</button>
+      </div>
+    </form>
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+function setupPreview(inputId, previewId) {
+  const inp = document.getElementById(inputId);
+  const prev = document.getElementById(previewId);
+  if (!inp || !prev) return;
+  inp.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        prev.src = e.target.result;
+        prev.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+setupPreview('logoInput', 'logoPreview');
+setupPreview('coverInput', 'coverPreview');
+</script>
+{% endblock %}

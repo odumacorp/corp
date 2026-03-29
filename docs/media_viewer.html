@@ -1,0 +1,554 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}{% if name %}{{ name }}{% else %}Media Viewer{% endif %} | Oduma Connect{% endblock %}
+
+{% block content %}
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --mv-bg:        #08080d;
+    --mv-surface:   #14141c;
+    --mv-border:    rgba(255,255,255,0.08);
+    --mv-text:      #f2f2f7;
+    --mv-muted:     rgba(242,242,247,0.42);
+    --mv-blue:      #3d8bff;
+    --mv-topbar-h:  58px;
+    --mv-strip-h:   0px;  /* updated by JS */
+  }
+
+  /* ── Full viewport canvas ── */
+  html, body { height: 100%; overflow: hidden; background: var(--mv-bg); }
+  .mv-page {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    background: var(--mv-bg);
+    font-family: "Jaldi", sans-serif;
+    user-select: none; -webkit-user-select: none;
+    overflow: hidden;
+  }
+
+  /* ══════════════════════════════
+     TOP BAR
+  ══════════════════════════════ */
+  .mv-topbar {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 10px;
+    height: var(--mv-topbar-h);
+    padding: 0 16px;
+    background: rgba(8,8,13,0.96);
+    border-bottom: 1px solid var(--mv-border);
+    z-index: 10;
+  }
+
+  .mv-btn-back {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px; padding: 6px 14px;
+    color: var(--mv-text); font-family: inherit; font-size: 0.88rem;
+    cursor: pointer; text-decoration: none; white-space: nowrap;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .mv-btn-back:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+  .mv-topbar-mid {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .mv-topbar-name {
+    font-size: 0.94rem; font-weight: 700; color: var(--mv-text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    line-height: 1.2;
+  }
+  .mv-topbar-counter {
+    font-size: 0.75rem; color: var(--mv-muted); line-height: 1.2;
+  }
+
+  .mv-btn-dl {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--mv-blue); border: none; border-radius: 8px;
+    padding: 7px 15px; color: #fff;
+    font-family: inherit; font-size: 0.86rem; font-weight: 700;
+    cursor: pointer; text-decoration: none; white-space: nowrap;
+    flex-shrink: 0; transition: opacity 0.15s;
+  }
+  .mv-btn-dl:hover { opacity: 0.82; color: #fff; }
+
+  /* ══════════════════════════════
+     MAIN VIEWING AREA  (topbar → strip)
+  ══════════════════════════════ */
+  .mv-body {
+    flex: 1; position: relative; overflow: hidden;
+    display: flex; align-items: stretch;
+  }
+
+  /* ── Side scroll panels ── */
+  .mv-side {
+    flex-shrink: 0;
+    width: clamp(48px, 8vw, 88px);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 5; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .mv-side::before {                          /* gradient overlay */
+    content: '';
+    position: absolute; inset: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    opacity: 0;
+  }
+  .mv-side-left::before  { background: linear-gradient(to right,  rgba(8,8,13,0.55), transparent); }
+  .mv-side-right::before { background: linear-gradient(to left,   rgba(8,8,13,0.55), transparent); }
+  .mv-side:hover::before { opacity: 1; }
+  .mv-side:hover .mv-side-arrow { background: rgba(255,255,255,0.20); }
+  .mv-side.disabled { opacity: 0.18; cursor: default; pointer-events: none; }
+
+  .mv-side-arrow {
+    width: 46px; height: 80px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.09);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 12px;
+    color: #fff; font-size: 1.5rem;
+    transition: background 0.18s, transform 0.18s;
+    position: relative; z-index: 1;
+  }
+  .mv-side:hover .mv-side-arrow { transform: scale(1.06); }
+  .mv-side:active .mv-side-arrow { transform: scale(0.96); background: rgba(255,255,255,0.28); }
+
+  /* ── Centre stage ── */
+  .mv-stage {
+    flex: 1; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+
+  .mv-item {
+    display: none; width: 100%; height: 100%;
+    align-items: center; justify-content: center;
+  }
+  .mv-item.active { display: flex; }
+
+  /* Image */
+  .mv-image {
+    max-width: 100%; max-height: 100%;
+    object-fit: contain; border-radius: 6px;
+    box-shadow: 0 12px 60px rgba(0,0,0,0.65);
+    cursor: zoom-in; display: block;
+    transition: transform 0.22s ease;
+    will-change: transform;
+  }
+
+  /* Video */
+  .mv-video {
+    max-width: 100%; max-height: 100%;
+    border-radius: 10px;
+    box-shadow: 0 12px 60px rgba(0,0,0,0.65);
+    background: #000;
+  }
+
+  /* Audio */
+  .mv-audio-card {
+    background: var(--mv-surface); border: 1px solid var(--mv-border);
+    border-radius: 18px; padding: clamp(28px,6vw,52px) clamp(20px,5vw,44px);
+    text-align: center; width: min(460px, 90%);
+  }
+  .mv-audio-icon { font-size: clamp(2rem, 6vw, 3.2rem); margin-bottom: 14px; display: block; }
+
+  /* PDF */
+  .mv-pdf { width: 100%; height: 100%; border: none; border-radius: 6px; }
+
+  /* Generic file */
+  .mv-file-card {
+    background: var(--mv-surface); border: 1px solid var(--mv-border);
+    border-radius: 18px; padding: clamp(28px,6vw,52px) clamp(20px,5vw,44px);
+    text-align: center; width: min(420px, 90%);
+  }
+  .mv-file-big-icon { font-size: clamp(2.4rem,7vw,3.8rem); display: block; margin-bottom: 14px; }
+  .mv-file-card-name { font-size: clamp(0.9rem,2.5vw,1.05rem); font-weight: 700; color: var(--mv-text); margin-bottom: 5px; word-break: break-all; }
+  .mv-file-card-ext  { font-size: 0.78rem; color: var(--mv-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 22px; }
+
+  /* Caption overlay */
+  .mv-caption {
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    font-size: 0.83rem; color: rgba(255,255,255,0.55); text-align: center;
+    pointer-events: none; max-width: min(600px, 90%);
+    background: rgba(0,0,0,0.35); border-radius: 8px; padding: 4px 12px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .mv-caption strong { color: #fff; }
+
+  /* Zoom hint */
+  .mv-hint {
+    position: absolute; bottom: 38px; left: 50%; transform: translateX(-50%);
+    font-size: 0.72rem; color: rgba(255,255,255,0.28);
+    pointer-events: none; transition: opacity 0.5s; white-space: nowrap;
+  }
+
+  /* ══════════════════════════════
+     THUMBNAIL STRIP
+  ══════════════════════════════ */
+  .mv-strip {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 14px;
+    background: rgba(8,8,13,0.96);
+    border-top: 1px solid var(--mv-border);
+    overflow-x: auto; scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mv-strip::-webkit-scrollbar { height: 3px; }
+  .mv-strip::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 2px; }
+
+  .mv-thumb {
+    flex-shrink: 0; width: 56px; height: 56px;
+    border-radius: 7px; overflow: hidden; cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.15s, transform 0.15s;
+    background: var(--mv-surface);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mv-thumb.active { border-color: var(--mv-blue); transform: scale(1.1); }
+  .mv-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .mv-thumb-icon { font-size: 1.4rem; color: var(--mv-muted); }
+
+  /* Hide strip & sides when single item */
+  {% if total <= 1 %}
+  .mv-strip { display: none !important; }
+  .mv-side  { display: none !important; }
+  {% endif %}
+
+  /* ══════════════════════════════
+     RESPONSIVE
+  ══════════════════════════════ */
+
+  /* Tablet */
+  @media (max-width: 900px) {
+    .mv-side { width: clamp(40px, 7vw, 60px); }
+    .mv-side-arrow { width: 40px; height: 68px; font-size: 1.3rem; border-radius: 10px; }
+    .mv-thumb { width: 50px; height: 50px; }
+  }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    :root { --mv-topbar-h: 52px; }
+
+    .mv-topbar { padding: 0 10px; gap: 7px; }
+    .mv-topbar-name { font-size: 0.85rem; }
+    .mv-topbar-counter { font-size: 0.7rem; }
+    .mv-btn-back { padding: 5px 10px; font-size: 0.82rem; }
+    .mv-btn-dl   { padding: 5px 11px; font-size: 0.82rem; }
+
+    /* Arrows: slim vertical strip */
+    .mv-side { width: 36px; }
+    .mv-side-arrow {
+      width: 30px; height: 58px; font-size: 1.1rem;
+      border-radius: 8px;
+    }
+
+    .mv-thumb { width: 44px; height: 44px; border-radius: 6px; }
+    .mv-strip { gap: 5px; padding: 7px 10px; }
+  }
+
+  /* Very small phones */
+  @media (max-width: 380px) {
+    .mv-side { width: 30px; }
+    .mv-side-arrow { width: 26px; height: 50px; font-size: 1rem; }
+    .mv-btn-dl span { display: none; }  /* hide "Download" text, keep icon */
+  }
+</style>
+
+<div class="mv-page">
+
+  <!-- ── Top bar ── -->
+  <div class="mv-topbar">
+    {% if back %}
+      <a href="{{ back }}" class="mv-btn-back">&#8592; Back</a>
+    {% else %}
+      <button class="mv-btn-back" onclick="history.back()">&#8592; Back</button>
+    {% endif %}
+
+    <div class="mv-topbar-mid">
+      <div class="mv-topbar-name" id="mv-name">{{ name|default:"Media" }}</div>
+      {% if total > 1 %}
+      <div class="mv-topbar-counter" id="mv-counter">{{ index|add:1 }} / {{ total }}</div>
+      {% endif %}
+    </div>
+
+    <a href="{{ src }}" download id="mv-dl-btn" class="mv-btn-dl">
+      &#8595; <span>Download</span>
+    </a>
+  </div>
+
+  <!-- ── Main body: [left arrow] [stage] [right arrow] ── -->
+  <div class="mv-body">
+
+    {% if total > 1 %}
+    <!-- Left -->
+    <div class="mv-side mv-side-left {% if index == 0 %}disabled{% endif %}"
+         id="mv-prev" onclick="mvGo(mvIndex - 1)" role="button" aria-label="Previous">
+      <div class="mv-side-arrow">&#8592;</div>
+    </div>
+    {% endif %}
+
+    <!-- Stage -->
+    <div class="mv-stage" id="mv-stage">
+      {% for item in gallery %}
+      <div class="mv-item {% if forloop.counter0 == index %}active{% endif %}"
+           data-index="{{ forloop.counter0 }}">
+
+        {% if item.type == 'image' %}
+          <img src="{{ item.src }}"
+               class="mv-image"
+               id="mv-img-{{ forloop.counter0 }}"
+               alt="Photo {{ forloop.counter }}"
+               onclick="toggleZoom(this)"
+               draggable="false">
+
+        {% elif item.type == 'video' %}
+          <video class="mv-video" controls {% if forloop.counter0 == index %}autoplay{% endif %} playsinline>
+            <source src="{{ item.src }}">
+          </video>
+
+        {% elif item.type == 'audio' %}
+          <div class="mv-audio-card">
+            <span class="mv-audio-icon"><i class="fi fi-rr-music"></i></span>
+            <div style="font-size:1rem;font-weight:700;color:var(--mv-text);margin-bottom:14px;">{{ name|default:"Audio" }}</div>
+            <audio controls style="width:100%;" {% if forloop.counter0 == index %}autoplay{% endif %}>
+              <source src="{{ item.src }}">
+            </audio>
+          </div>
+
+        {% elif item.type == 'pdf' %}
+          <iframe src="{{ item.src }}" class="mv-pdf" title="Document"></iframe>
+
+        {% else %}
+          <div class="mv-file-card">
+            <span class="mv-file-big-icon">
+              {% if item.ext == 'pdf' %}<i class="fi fi-rr-document"></i>
+              {% elif item.ext == 'zip' %}<i class="fi fi-rr-file-zip"></i>
+              {% elif item.ext == 'xls' or item.ext == 'xlsx' %}<i class="fi fi-rr-chart-line-up"></i>
+              {% elif item.ext == 'ppt' or item.ext == 'pptx' %}<i class="fi fi-rr-chart-line-up"></i>
+              {% elif item.ext == 'doc' or item.ext == 'docx' %}<i class="fi fi-rr-document"></i>
+              {% else %}<i class="fi fi-rr-document"></i>{% endif %}
+            </span>
+            <div class="mv-file-card-name">{{ name|default:item.src }}</div>
+            <div class="mv-file-card-ext">.{{ item.ext }} file</div>
+            <a href="{{ item.src }}" download class="mv-btn-dl" style="display:inline-flex;">
+              &#8595; Download
+            </a>
+          </div>
+        {% endif %}
+
+      </div>
+      {% endfor %}
+
+      <!-- Caption inside stage -->
+      {% if name or caption %}
+      <div class="mv-caption" id="mv-cap">
+        {% if name %}<strong>{{ name }}</strong>{% endif %}
+        {% if name and caption %} &mdash; {% endif %}
+        {% if caption %}{{ caption }}{% endif %}
+      </div>
+      {% endif %}
+
+      {% if media_type == 'image' %}
+      <div class="mv-hint" id="mv-hint">Click to zoom &nbsp;·&nbsp; scroll to zoom &nbsp;·&nbsp; drag to pan</div>
+      {% endif %}
+    </div>
+
+    {% if total > 1 %}
+    <!-- Right -->
+    <div class="mv-side mv-side-right {% if index == total|add:'-1' %}disabled{% endif %}"
+         id="mv-next" onclick="mvGo(mvIndex + 1)" role="button" aria-label="Next">
+      <div class="mv-side-arrow">&#8594;</div>
+    </div>
+    {% endif %}
+
+  </div><!-- /.mv-body -->
+
+  <!-- ── Thumbnail strip ── -->
+  {% if total > 1 %}
+  <div class="mv-strip" id="mv-strip">
+    {% for item in gallery %}
+    <div class="mv-thumb {% if forloop.counter0 == index %}active{% endif %}"
+         id="mv-thumb-{{ forloop.counter0 }}"
+         onclick="mvGo({{ forloop.counter0 }})"
+         title="{% if item.type == 'image' %}Photo{% else %}File{% endif %} {{ forloop.counter }}">
+      {% if item.type == 'image' %}
+        <img src="{{ item.src }}" alt="">
+      {% elif item.type == 'video' %}
+        <span class="mv-thumb-icon"><i class="fi fi-rr-clapperboard-play"></i></span>
+      {% elif item.type == 'audio' %}
+        <span class="mv-thumb-icon"><i class="fi fi-rr-music"></i></span>
+      {% elif item.type == 'pdf' %}
+        <span class="mv-thumb-icon"><i class="fi fi-rr-document"></i></span>
+      {% else %}
+        <span class="mv-thumb-icon"><i class="fi fi-rr-document"></i></span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div><!-- /.mv-page -->
+
+<script>
+var GALLERY = {{ gallery_json|safe }};
+var mvIndex = {{ index }};
+var mvTotal = {{ total }};
+var mvBack  = "{{ back|escapejs }}";
+
+/* ── Navigate to slide i ── */
+function mvGo(i) {
+  if (i < 0 || i >= mvTotal) return;
+
+  // Pause current media
+  var curItem = document.querySelector('.mv-item.active');
+  if (curItem) {
+    curItem.classList.remove('active');
+    var m = curItem.querySelector('video,audio');
+    if (m) m.pause();
+  }
+  var curThumb = document.querySelector('.mv-thumb.active');
+  if (curThumb) curThumb.classList.remove('active');
+
+  mvIndex = i;
+
+  // Activate new slide
+  var newItem = document.querySelector('.mv-item[data-index="' + i + '"]');
+  if (newItem) newItem.classList.add('active');
+
+  var newThumb = document.getElementById('mv-thumb-' + i);
+  if (newThumb) {
+    newThumb.classList.add('active');
+    newThumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
+
+  // Topbar updates
+  var nameEl   = document.getElementById('mv-name');
+  var ctrEl    = document.getElementById('mv-counter');
+  var dlEl     = document.getElementById('mv-dl-btn');
+  if (nameEl) nameEl.textContent = GALLERY[i].name || ('Photo ' + (i + 1));
+  if (ctrEl)  ctrEl.textContent  = (i + 1) + ' / ' + mvTotal;
+  if (dlEl)   dlEl.href = GALLERY[i].src;
+
+  // Arrow enable/disable
+  var prev = document.getElementById('mv-prev');
+  var next = document.getElementById('mv-next');
+  if (prev) prev.classList.toggle('disabled', i === 0);
+  if (next) next.classList.toggle('disabled', i === mvTotal - 1);
+
+  resetZoom();
+
+  // Autoplay
+  var newMedia = newItem && newItem.querySelector('video,audio');
+  if (newMedia) newMedia.play().catch(function(){});
+}
+
+/* ── Zoom & pan ── */
+var zScale = 1, zTx = 0, zTy = 0, zDrag = false, zLx = 0, zLy = 0;
+
+function activeImg() { return document.querySelector('.mv-item.active .mv-image'); }
+
+function applyZoom() {
+  var img = activeImg(); if (!img) return;
+  img.style.transform = 'translate(' + zTx + 'px,' + zTy + 'px) scale(' + zScale + ')';
+  img.style.cursor    = zScale > 1 ? 'grab' : 'zoom-in';
+}
+
+function resetZoom() {
+  zScale = 1; zTx = 0; zTy = 0;
+  var img = activeImg();
+  if (img) { img.style.transform = ''; img.style.cursor = 'zoom-in'; }
+  var h = document.getElementById('mv-hint');
+  if (h) h.style.opacity = '1';
+}
+
+window.toggleZoom = function(img) {
+  if (zScale > 1) { resetZoom(); return; }
+  zScale = 2.6; zTx = 0; zTy = 0; applyZoom();
+  var h = document.getElementById('mv-hint'); if (h) h.style.opacity = '0';
+};
+
+/* Scroll-wheel zoom */
+document.addEventListener('wheel', function(e) {
+  if (!activeImg()) return;
+  e.preventDefault();
+  zScale = Math.min(5, Math.max(1, zScale + (e.deltaY > 0 ? -0.3 : 0.3)));
+  if (zScale <= 1) { zTx = 0; zTy = 0; }
+  applyZoom();
+}, { passive: false });
+
+/* Mouse drag */
+document.addEventListener('mousedown', function(e) {
+  var img = activeImg();
+  if (!img || zScale <= 1 || e.target !== img) return;
+  zDrag = true; zLx = e.clientX; zLy = e.clientY;
+  img.style.cursor = 'grabbing'; e.preventDefault();
+});
+document.addEventListener('mousemove', function(e) {
+  if (!zDrag) return;
+  zTx += e.clientX - zLx; zTy += e.clientY - zLy;
+  zLx = e.clientX; zLy = e.clientY; applyZoom();
+});
+document.addEventListener('mouseup', function() {
+  zDrag = false;
+  var img = activeImg(); if (img && zScale > 1) img.style.cursor = 'grab';
+});
+
+/* Pinch zoom */
+var pinchDist = null;
+document.addEventListener('touchstart', function(e) {
+  if (e.touches.length === 2)
+    pinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX,
+                           e.touches[0].clientY - e.touches[1].clientY);
+}, { passive: true });
+document.addEventListener('touchmove', function(e) {
+  if (e.touches.length !== 2 || !pinchDist) return;
+  var d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX,
+                     e.touches[0].clientY - e.touches[1].clientY);
+  zScale = Math.min(5, Math.max(1, zScale * (d / pinchDist)));
+  pinchDist = d; applyZoom(); e.preventDefault();
+}, { passive: false });
+document.addEventListener('touchend', function() { pinchDist = null; });
+
+/* ── Swipe navigation ── */
+var swipeX = null, swipeY = null;
+var stage  = document.getElementById('mv-stage');
+if (stage) {
+  stage.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 1 && zScale <= 1) {
+      swipeX = e.touches[0].clientX; swipeY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+  stage.addEventListener('touchend', function(e) {
+    if (swipeX === null || zScale > 1) { swipeX = null; return; }
+    var dx = e.changedTouches[0].clientX - swipeX;
+    var dy = e.changedTouches[0].clientY - swipeY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 44)
+      mvGo(dx < 0 ? mvIndex + 1 : mvIndex - 1);
+    swipeX = null;
+  }, { passive: true });
+}
+
+/* ── Keyboard ── */
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  mvGo(mvIndex + 1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    mvGo(mvIndex - 1);
+  if (e.key === 'Escape') {
+    if (zScale > 1) resetZoom();
+    else if (mvBack) location.href = mvBack; else history.back();
+  }
+  if (e.key === '+' || e.key === '=') { zScale = Math.min(5, zScale + 0.5); applyZoom(); }
+  if (e.key === '-')                  { zScale = Math.max(1, zScale - 0.5); if (zScale<=1){zTx=0;zTy=0;} applyZoom(); }
+});
+
+/* Hide zoom hint after 3 s */
+setTimeout(function() {
+  var h = document.getElementById('mv-hint'); if (h) h.style.opacity = '0';
+}, 3000);
+</script>
+{% endblock %}

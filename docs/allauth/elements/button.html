@@ -1,0 +1,18 @@
+{% load allauth %}
+{% if attrs.href %}
+  {% if 'danger' in attrs.tags or 'delete' in attrs.tags %}
+    <a href="{{ attrs.href }}" class="aa-btn aa-danger">{% slot %}{% endslot %}</a>
+  {% elif 'secondary' in attrs.tags or 'outline' in attrs.tags %}
+    <a href="{{ attrs.href }}" class="aa-btn aa-cancel">{% slot %}{% endslot %}</a>
+  {% else %}
+    <a href="{{ attrs.href }}" class="aa-btn">{% slot %}{% endslot %}</a>
+  {% endif %}
+{% else %}
+  {% if 'danger' in attrs.tags or 'delete' in attrs.tags %}
+    <button{% if attrs.form %} form="{{ attrs.form }}"{% endif %}{% if attrs.id %} id="{{ attrs.id }}"{% endif %}{% if attrs.type %} type="{{ attrs.type }}"{% endif %} class="aa-danger">{% slot %}{% endslot %}</button>
+  {% elif 'link' in attrs.tags or 'cancel' in attrs.tags or 'secondary' in attrs.tags %}
+    <button{% if attrs.form %} form="{{ attrs.form }}"{% endif %}{% if attrs.id %} id="{{ attrs.id }}"{% endif %}{% if attrs.type %} type="{{ attrs.type }}"{% endif %} class="aa-cancel">{% slot %}{% endslot %}</button>
+  {% else %}
+    <button{% if attrs.form %} form="{{ attrs.form }}"{% endif %}{% if attrs.id %} id="{{ attrs.id }}"{% endif %}{% if attrs.name %} name="{{ attrs.name }}"{% endif %}{% if attrs.value %} value="{{ attrs.value }}"{% endif %}{% if attrs.type %} type="{{ attrs.type }}"{% endif %}>{% slot %}{% endslot %}</button>
+  {% endif %}
+{% endif %}

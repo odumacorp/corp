@@ -1,0 +1,282 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block head_title %}OdumaCorp{% endblock %} | OdumaCorp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jacques+Francois&family=Jaldi:wght@400;700&display=swap" rel="stylesheet">
+  {% block extra_head %}{% endblock %}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #004AAD;
+      --blue-dark: #003490;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --ff-serif: "Jacques Francois", serif;
+      --ff-sans: "Jaldi", sans-serif;
+    }
+
+    body {
+      font-family: var(--ff-sans);
+      background: linear-gradient(135deg, #f0f4fb 0%, #e8edf8 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .aa-wrap { width: 100%; max-width: 460px; }
+
+    .aa-logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .aa-logo img { width: 52px; height: 52px; object-fit: contain; }
+
+    .aa-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+      padding: 48px 40px;
+    }
+
+    /* Messages */
+    .aa-alert {
+      background: rgba(231,76,60,0.07);
+      border: 1px solid rgba(231,76,60,0.2);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+      font-size: 0.88rem;
+      color: #c0392b;
+    }
+    .aa-alert.success {
+      background: rgba(39,174,96,0.07);
+      border-color: rgba(39,174,96,0.2);
+      color: #1a7a42;
+    }
+    .aa-alert.info {
+      background: rgba(0,74,173,0.06);
+      border-color: rgba(0,74,173,0.15);
+      color: var(--blue-dark);
+    }
+
+    /* Headings */
+    .aa-card h1 {
+      font-family: var(--ff-serif);
+      font-size: 1.75rem;
+      color: var(--text);
+      text-align: center;
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+    .aa-card h2 {
+      font-family: var(--ff-serif);
+      font-size: 1.05rem;
+      color: var(--text);
+      margin: 0 0 6px;
+    }
+
+    /* Paragraphs */
+    .aa-card > p,
+    .aa-card .aa-body > p {
+      font-family: var(--ff-sans);
+      font-size: 0.95rem;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    /* Form fields rendered by allauth as_p */
+    .aa-card form p {
+      text-align: left;
+      margin-bottom: 18px;
+    }
+    .aa-card label {
+      display: block;
+      font-family: var(--ff-serif);
+      font-size: 0.83rem;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+    .aa-card input[type=text],
+    .aa-card input[type=email],
+    .aa-card input[type=password],
+    .aa-card input[type=number],
+    .aa-card input[type=tel],
+    .aa-card select,
+    .aa-card textarea {
+      width: 100%;
+      padding: 11px 16px;
+      border: 1.5px solid rgba(0,0,0,0.10);
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-family: var(--ff-sans);
+      color: var(--text);
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+    .aa-card input:focus,
+    .aa-card select:focus,
+    .aa-card textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(0,74,173,0.10);
+      background: #fff;
+    }
+    .aa-card input::placeholder { color: #b0b7c3; }
+
+    /* Buttons */
+    .aa-card button,
+    .aa-card a.aa-btn {
+      display: block;
+      width: 100%;
+      padding: 12px 20px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--ff-serif);
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      margin-top: 8px;
+      letter-spacing: 0.3px;
+    }
+    .aa-card button:hover,
+    .aa-card a.aa-btn:hover {
+      background: var(--blue-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,74,173,0.25);
+    }
+
+    /* Cancel / secondary buttons */
+    .aa-card button.aa-cancel,
+    .aa-card a.aa-secondary {
+      background: transparent;
+      color: var(--blue);
+      box-shadow: none;
+      border: 1.5px solid rgba(0,74,173,0.3);
+      transform: none;
+    }
+    .aa-card button.aa-cancel:hover,
+    .aa-card a.aa-secondary:hover {
+      background: rgba(0,74,173,0.05);
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Danger button */
+    .aa-card button.aa-danger { background: #c0392b; }
+    .aa-card button.aa-danger:hover { background: #a93226; }
+
+    /* Divider */
+    .aa-card hr {
+      border: none;
+      height: 1px;
+      background: rgba(0,0,0,0.07);
+      margin: 24px 0;
+    }
+
+    /* Panel (MFA sections) */
+    .aa-panel {
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .aa-panel-title {
+      font-family: var(--ff-serif);
+      font-size: 1rem;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .aa-panel p {
+      text-align: left !important;
+      margin-bottom: 12px !important;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .aa-panel-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .aa-panel-actions button,
+    .aa-panel-actions a.aa-btn {
+      width: auto;
+      padding: 8px 18px;
+      font-size: 0.88rem;
+      margin-top: 0;
+    }
+
+    /* Error lists */
+    .aa-card ul.errorlist {
+      list-style: none;
+      padding: 0;
+      color: #c0392b;
+      font-size: 0.82rem;
+      margin: 4px 0 0;
+    }
+
+    /* Links */
+    .aa-card a {
+      color: var(--blue);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .aa-card a:hover {
+      color: var(--blue-dark);
+      text-decoration: underline;
+    }
+
+    .aa-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 480px) {
+      .aa-card { padding: 36px 24px; }
+      .aa-card h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  {% block body %}
+  <div class="aa-wrap">
+    <div class="aa-logo">
+      <img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="OdumaCorp">
+    </div>
+    <div class="aa-card">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="aa-alert {% if 'success' in message.tags %}success{% elif 'info' in message.tags %}info{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% block content %}{% endblock content %}
+
+      <div class="aa-footer">
+        <a href="{% url 'login' %}">← Back to login</a>
+      </div>
+    </div>
+  </div>
+  {% endblock body %}
+  {% block extra_body %}{% endblock extra_body %}
+</body>
+</html>

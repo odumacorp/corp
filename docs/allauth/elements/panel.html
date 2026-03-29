@@ -1,0 +1,10 @@
+{% load allauth %}
+<div class="aa-panel">
+  <div class="aa-panel-title">{% slot title %}{% endslot %}</div>
+  <div class="aa-panel-body">{% slot body %}{% endslot %}</div>
+  {% if slots.actions %}
+    <div class="aa-panel-actions">
+      {% for action in slots.actions %}{{ action }}{% endfor %}
+    </div>
+  {% endif %}
+</div>

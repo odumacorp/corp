@@ -1,0 +1,966 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Investor Dashboard | Oduma Connect{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --blue:      #004AAD;
+    --blue-dark: #003490;
+    --text:      #1a1a2e;
+    --muted:     #6b7280;
+    --border:    rgba(0,0,0,0.08);
+    --card-bg:   #f9f9f9;
+    --ff-serif:  "Jacques Francois", serif;
+    --ff-sans:   "Jaldi", sans-serif;
+  }
+
+  .idash-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+
+  /* ---- Header ---- */
+  .idash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .idash-title {
+    font-family: var(--ff-serif);
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: var(--text);
+    margin: 0;
+  }
+  .idash-subtitle {
+    font-family: var(--ff-sans);
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin: 4px 0 0;
+  }
+
+  /* ---- Stats Strip ---- */
+  .idash-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+  .idash-stat {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .idash-stat-num {
+    font-family: var(--ff-serif);
+    font-size: 1.8rem;
+    color: var(--blue);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .idash-stat-label {
+    font-family: var(--ff-sans);
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ---- Tabs ---- */
+  .idash-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 28px;
+    overflow-x: auto;
+    padding-bottom: 0;
+    scrollbar-width: none;
+  }
+  .idash-tabs::-webkit-scrollbar { display: none; }
+  .idash-tab {
+    font-family: var(--ff-sans);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--muted);
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+    text-decoration: none;
+  }
+  .idash-tab:hover { color: var(--blue); }
+  .idash-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  /* ---- Tab Panels ---- */
+  .idash-panel { display: none; }
+  .idash-panel.active { display: block; }
+
+  /* ---- Section heading ---- */
+  .idash-section-title {
+    font-family: var(--ff-serif);
+    font-size: 1.05rem;
+    color: var(--text);
+    margin: 0 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .idash-section { margin-bottom: 36px; }
+
+  /* ---- Connection cards ---- */
+  .idash-conn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+  }
+  .idash-conn-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 16px 16px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .idash-conn-card:hover { box-shadow: 0 6px 20px rgba(0,74,173,0.1); transform: translateY(-2px); }
+  .idash-conn-av {
+    width: 58px; height: 58px; border-radius: 50%;
+    object-fit: cover; margin: 0 auto 10px;
+    display: block;
+  }
+  .idash-conn-av-init {
+    width: 58px; height: 58px; border-radius: 50%;
+    background: linear-gradient(135deg,#004AAD,#0062d4);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-family: var(--ff-serif); font-size: 1.1rem;
+    margin: 0 auto 10px;
+  }
+  .idash-conn-name {
+    font-family: var(--ff-serif); font-size: 0.88rem;
+    color: var(--text); text-decoration: none;
+    display: block; margin-bottom: 4px;
+  }
+  .idash-conn-name:hover { color: var(--blue); text-decoration: underline; }
+  .idash-conn-role {
+    font-family: var(--ff-sans); font-size: 0.74rem;
+    color: var(--muted); text-transform: capitalize;
+  }
+  .idash-conn-company {
+    font-family: var(--ff-sans); font-size: 0.74rem;
+    color: var(--muted); margin-top: 2px;
+  }
+
+  /* ---- Post cards (liked / interested) ---- */
+  .idash-post-list { display: flex; flex-direction: column; gap: 12px; }
+  .idash-post-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s;
+  }
+  .idash-post-card:hover { box-shadow: 0 4px 16px rgba(0,74,173,0.09); }
+  .idash-post-av {
+    width: 40px; height: 40px; border-radius: 50%;
+    object-fit: cover; flex-shrink: 0;
+  }
+  .idash-post-av-init {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg,#004AAD,#0062d4);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-family: var(--ff-serif); font-size: 0.88rem;
+  }
+  .idash-post-meta {
+    font-family: var(--ff-sans); font-size: 0.76rem;
+    color: var(--muted); margin-bottom: 4px;
+  }
+  .idash-post-title {
+    font-family: var(--ff-serif); font-size: 0.95rem;
+    color: var(--text); text-decoration: none;
+    display: block; margin-bottom: 4px;
+  }
+  .idash-post-title:hover { color: var(--blue); text-decoration: underline; }
+  .idash-post-excerpt {
+    font-family: var(--ff-sans); font-size: 0.82rem;
+    color: var(--muted); line-height: 1.5;
+  }
+  .idash-badge {
+    display: inline-block;
+    padding: 2px 10px; border-radius: 20px;
+    font-family: var(--ff-sans); font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.4px; text-transform: uppercase;
+  }
+  .idash-badge-blue   { background: rgba(0,74,173,0.1); color: var(--blue); }
+  .idash-badge-green  { background: rgba(16,185,129,0.1); color: #059669; }
+  .idash-badge-yellow { background: rgba(245,158,11,0.12); color: #d97706; }
+  .idash-badge-red    { background: rgba(239,68,68,0.1); color: #dc2626; }
+  .idash-badge-gray   { background: rgba(107,114,128,0.1); color: var(--muted); }
+
+  /* ---- Proposal / collab rows ---- */
+  .idash-row-list { display: flex; flex-direction: column; gap: 10px; }
+  .idash-row-item {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    flex-wrap: wrap;
+  }
+  .idash-row-left { flex: 1; min-width: 0; }
+  .idash-row-label {
+    font-family: var(--ff-serif); font-size: 0.9rem;
+    color: var(--text); text-decoration: none;
+  }
+  .idash-row-label:hover { color: var(--blue); text-decoration: underline; }
+  .idash-row-sub {
+    font-family: var(--ff-sans); font-size: 0.78rem;
+    color: var(--muted); margin-top: 2px;
+  }
+  .idash-amount {
+    font-family: var(--ff-serif); font-size: 0.88rem;
+    color: #059669; white-space: nowrap;
+  }
+
+  /* ---- Pending connection cards ---- */
+  .idash-pending-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .idash-pending-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .idash-pending-av {
+    width: 46px; height: 46px; border-radius: 50%;
+    object-fit: cover; flex-shrink: 0;
+  }
+  .idash-pending-av-init {
+    width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg,#6b7280,#9ca3af);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-family: var(--ff-serif); font-size: 0.95rem;
+  }
+  .idash-pending-name {
+    font-family: var(--ff-serif); font-size: 0.9rem;
+    color: var(--text); text-decoration: none;
+    display: block;
+  }
+  .idash-pending-name:hover { color: var(--blue); text-decoration: underline; }
+  .idash-pending-actions { display: flex; gap: 6px; margin-top: 6px; }
+  .idash-accept-btn, .idash-reject-btn {
+    padding: 4px 12px; border-radius: 8px;
+    font-family: var(--ff-sans); font-size: 0.76rem; font-weight: 700;
+    border: none; cursor: pointer; transition: opacity 0.2s;
+  }
+  .idash-accept-btn { background: var(--blue); color: #fff; }
+  .idash-accept-btn:hover { opacity: 0.85; }
+  .idash-reject-btn { background: #fee2e2; color: #dc2626; }
+  .idash-reject-btn:hover { opacity: 0.85; }
+
+  /* ---- Empty state ---- */
+  .idash-empty {
+    text-align: center;
+    padding: 32px 20px;
+    font-family: var(--ff-sans);
+    font-size: 0.88rem;
+    color: var(--muted);
+    background: #fff;
+    border-radius: 14px;
+    border: 1px dashed var(--border);
+  }
+  .idash-empty i { font-size: 1.4rem; display: block; margin-bottom: 8px; opacity: 0.4; }
+
+  @media (max-width: 600px) {
+    .idash-tabs { gap: 0; }
+    .idash-tab { padding: 10px 14px; font-size: 0.82rem; }
+    .idash-conn-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+
+<div class="idash-wrapper">
+
+  <!-- Header -->
+  <div class="idash-header">
+    <div>
+      <h1 class="idash-title">Investor Dashboard</h1>
+      <p class="idash-subtitle" style="margin-bottom:4px;">Welcome back, {{ user.first_name|default:user.username }}</p>
+      <a href="{% url 'my_profile' %}" style="font-family:var(--ff-sans);font-size:0.84rem;color:var(--blue);text-decoration:none;">
+        <i class="fi fi-rr-user fi-sm"></i> View My Profile
+      </a>
+    </div>
+    <a href="{% url 'app' %}" class="idash-tab" style="border:1.5px solid var(--blue); border-radius:10px; color:var(--blue); padding:9px 20px;">
+      <i class="fi fi-rr-apps fi-sm"></i> Explore Feed
+    </a>
+  </div>
+
+  <!-- Stats Strip -->
+  <div class="idash-stats">
+    <div class="idash-stat">
+      <div class="idash-stat-num">{{ connections_count }}</div>
+      <div class="idash-stat-label">Connections</div>
+    </div>
+    <div class="idash-stat">
+      <div class="idash-stat-num">{{ interested_posts|length }}</div>
+      <div class="idash-stat-label">Interests</div>
+    </div>
+    <div class="idash-stat">
+      <div class="idash-stat-num">{{ liked_posts|length }}</div>
+      <div class="idash-stat-label">Liked Posts</div>
+    </div>
+    <div class="idash-stat">
+      <div class="idash-stat-num">{{ proposals|length }}</div>
+      <div class="idash-stat-label">Proposals</div>
+    </div>
+    <div class="idash-stat">
+      <div class="idash-stat-num">{{ pending_connections|length }}</div>
+      <div class="idash-stat-label">Pending Requests</div>
+    </div>
+    <div class="idash-stat" style="cursor:pointer;" onclick="showTab('meetings',document.querySelector('[onclick*=meetings]'))">
+      <div class="idash-stat-num" style="color:#7c3aed;">{{ dash_meetings|length }}</div>
+      <div class="idash-stat-label">Meetings</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="idash-tabs">
+    <button class="idash-tab active" onclick="showTab('overview',this)">Overview</button>
+    <button class="idash-tab" onclick="showTab('connections',this)">Connections</button>
+    <button class="idash-tab" onclick="showTab('interests',this)">Interested Projects</button>
+    <button class="idash-tab" onclick="showTab('liked',this)">Liked Content</button>
+    <button class="idash-tab" onclick="showTab('proposals',this)">Proposals</button>
+    <button class="idash-tab" onclick="showTab('involvement',this)">Involvement</button>
+    <button class="idash-tab" onclick="showTab('pending',this)">Pending{% if pending_proposals|length or pending_collabs|length or pending_proj_collabs|length or pending_connections|length %} <span style="background:var(--blue);color:#fff;border-radius:20px;padding:0 6px;font-size:0.7rem;">{{ pending_proposals|length|add:pending_collabs|length|add:pending_proj_collabs|length|add:pending_connections|length }}</span>{% endif %}</button>
+    <button class="idash-tab" onclick="showTab('meetings',this)"><i class="fi fi-rr-video-camera fi-sm"></i> Meetings{% if dash_meetings %} <span style="background:#7c3aed;color:#fff;border-radius:20px;padding:0 6px;font-size:0.7rem;">{{ dash_meetings|length }}</span>{% endif %}</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="panel-overview" class="idash-panel active">
+
+    <!-- ── Recommended Projects (promoted) ── -->
+    {% if recommended_projects %}
+    <div class="idash-section" style="background:linear-gradient(135deg,rgba(124,58,237,0.05),rgba(79,70,229,0.03));border:1.5px solid rgba(124,58,237,0.15);border-radius:14px;padding:18px 20px;">
+      <h2 class="idash-section-title" style="margin-bottom:4px;"><i class="fi fi-rr-rocket"></i> Recommended for You</h2>
+      <p style="font-family:var(--ff-sans);font-size:0.78rem;color:var(--muted);margin:0 0 16px;">These projects have been promoted by the community and are highly rated.</p>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        {% for proj in recommended_projects %}
+        <div style="background:#fff;border-radius:10px;border:1px solid rgba(124,58,237,0.12);padding:14px 16px;display:flex;gap:14px;align-items:flex-start;">
+          {% if proj.image %}
+          <img src="{{ proj.image.url }}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px;flex-shrink:0;">
+          {% else %}
+          <div style="width:64px;height:64px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;"><i class="fi fi-rr-bulb"></i></div>
+          {% endif %}
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+              <a href="{% url 'project_detail' proj.pk %}" style="font-family:var(--ff-serif);font-size:0.95rem;font-weight:700;color:var(--text);text-decoration:none;">{{ proj.title|truncatechars:60 }}</a>
+              <span style="font-size:0.68rem;font-weight:700;color:#fff;background:linear-gradient(90deg,#7c3aed,#4f46e5);border-radius:20px;padding:2px 9px;"><i class="fi fi-rr-rocket"></i> {{ proj.promote_count }} boost{{ proj.promote_count|pluralize }}</span>
+            </div>
+            <div style="font-family:var(--ff-sans);font-size:0.78rem;color:var(--muted);margin-bottom:6px;">
+              by <a href="{% url 'profile_view' id=proj.owner.id %}" style="color:var(--blue);">{{ proj.owner.get_full_name|default:proj.owner.username }}</a>
+              &nbsp;·&nbsp; {{ proj.get_industry_display }}
+              {% if proj.avg_rating %}&nbsp;·&nbsp; <i class="fi fi-rr-star"></i> {{ proj.avg_rating|floatformat:1 }}{% endif %}
+            </div>
+            <p style="font-family:var(--ff-sans);font-size:0.82rem;color:#444;margin:0 0 10px;line-height:1.5;">{{ proj.description|truncatewords:25 }}</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <a href="{% url 'project_detail' proj.pk %}" style="padding:5px 14px;background:var(--blue);color:#fff;border-radius:7px;font-family:var(--ff-sans);font-size:0.8rem;font-weight:700;text-decoration:none;">View Project</a>
+              <button onclick="openActionModal('proposal','{% url 'project_send_proposal' proj.pk %}','{{ proj.title|escapejs }}')" style="padding:5px 14px;background:rgba(0,74,173,0.08);color:var(--blue);border:1px solid rgba(0,74,173,0.2);border-radius:7px;font-family:var(--ff-sans);font-size:0.8rem;cursor:pointer;">Send Proposal</button>
+              <button onclick="openActionModal('collab','{% url 'project_collaborate' proj.pk %}','{{ proj.title|escapejs }}')" style="padding:5px 14px;background:rgba(0,74,173,0.05);color:#555;border:1px solid #e0e4ef;border-radius:7px;font-family:var(--ff-sans);font-size:0.8rem;cursor:pointer;">Collaborate</button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="idash-section">
+      <h2 class="idash-section-title">Recent Proposals</h2>
+      {% if proposals %}
+        <div class="idash-row-list">
+          {% for p in proposals|slice:":5" %}
+          <div class="idash-row-item">
+            <div class="idash-row-left">
+              <a href="{% url 'post_detail' p.post.id %}" class="idash-row-label">{{ p.post.title|truncatechars:60 }}</a>
+              <div class="idash-row-sub">by {{ p.post.user.get_full_name|default:p.post.user.username }} · {{ p.created_at|timesince }} ago</div>
+            </div>
+            {% if p.amount %}<span class="idash-amount">${{ p.amount }}</span>{% endif %}
+            <span class="idash-badge {% if p.status == 'accepted' %}idash-badge-green{% elif p.status == 'declined' %}idash-badge-red{% elif p.status == 'countered' %}idash-badge-yellow{% else %}idash-badge-gray{% endif %}">{{ p.get_status_display }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-hand-holding-usd"></i>No proposals sent yet</div>
+      {% endif %}
+    </div>
+
+    <div class="idash-section">
+      <h2 class="idash-section-title">Recently Liked Posts</h2>
+      {% if liked_posts %}
+        <div class="idash-post-list">
+          {% for post in liked_posts|slice:":4" %}
+          <div class="idash-post-card">
+            <a href="{% url 'profile_view' id=post.user.id %}" style="line-height:0;flex-shrink:0;">
+              {% if post.user.userprofile.profile_pics %}
+                <img src="{{ post.user.userprofile.profile_pics.url }}" alt="" class="idash-post-av">
+              {% else %}
+                <div class="idash-post-av-init">{{ post.user.first_name|slice:":1"|upper }}{{ post.user.last_name|slice:":1"|upper }}</div>
+              {% endif %}
+            </a>
+            <div style="flex:1;min-width:0;">
+              <div class="idash-post-meta">{{ post.user.get_full_name|default:post.user.username }} · {{ post.created_at|timesince }} ago</div>
+              <a href="{% url 'post_detail' post.id %}" class="idash-post-title">{{ post.title|truncatechars:70 }}</a>
+              <p class="idash-post-excerpt">{{ post.content|truncatechars:120 }}</p>
+            </div>
+            <span class="idash-badge idash-badge-blue">{{ post.get_industry_display }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-heart"></i>You haven't liked any posts yet</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- CONNECTIONS -->
+  <div id="panel-connections" class="idash-panel">
+    <div class="idash-section">
+      <h2 class="idash-section-title">Investors I'm Connected To <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ connected_investors|length }})</span></h2>
+      {% if connected_investors %}
+        <div class="idash-conn-grid">
+          {% for u in connected_investors %}
+          <div class="idash-conn-card">
+            <a href="{% url 'profile_view' id=u.id %}" style="line-height:0;">
+              {% if u.userprofile.profile_pics %}
+                <img src="{{ u.userprofile.profile_pics.url }}" alt="" class="idash-conn-av">
+              {% else %}
+                <div class="idash-conn-av-init">{{ u.first_name|slice:":1"|upper }}{{ u.last_name|slice:":1"|upper }}</div>
+              {% endif %}
+            </a>
+            <a href="{% url 'profile_view' id=u.id %}" class="idash-conn-name">{{ u.get_full_name|default:u.username }}</a>
+            <div class="idash-conn-role">{{ u.user_type }}</div>
+            {% if u.userprofile.company %}<div class="idash-conn-company">{{ u.userprofile.company }}</div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-users"></i>No investor connections yet. <a href="{% url 'investors' %}" style="color:var(--blue);">Browse investors</a></div>
+      {% endif %}
+    </div>
+
+    <div class="idash-section">
+      <h2 class="idash-section-title">Innovators I'm Connected To <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ connected_innovators|length }})</span></h2>
+      {% if connected_innovators %}
+        <div class="idash-conn-grid">
+          {% for u in connected_innovators %}
+          <div class="idash-conn-card">
+            <a href="{% url 'profile_view' id=u.id %}" style="line-height:0;">
+              {% if u.userprofile.profile_pics %}
+                <img src="{{ u.userprofile.profile_pics.url }}" alt="" class="idash-conn-av">
+              {% else %}
+                <div class="idash-conn-av-init">{{ u.first_name|slice:":1"|upper }}{{ u.last_name|slice:":1"|upper }}</div>
+              {% endif %}
+            </a>
+            <a href="{% url 'profile_view' id=u.id %}" class="idash-conn-name">{{ u.get_full_name|default:u.username }}</a>
+            <div class="idash-conn-role">{{ u.user_type }}</div>
+            {% if u.userprofile.company %}<div class="idash-conn-company">{{ u.userprofile.company }}</div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-bulb"></i>No innovator connections yet. <a href="{% url 'innovators' %}" style="color:var(--blue);">Browse innovators</a></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- INTERESTED PROJECTS -->
+  <div id="panel-interests" class="idash-panel">
+    <div class="idash-section">
+      <h2 class="idash-section-title">Posts I Showed Interest In</h2>
+      {% if interested_posts %}
+        <div class="idash-post-list">
+          {% for post in interested_posts %}
+          <div class="idash-post-card">
+            <a href="{% url 'profile_view' id=post.user.id %}" style="line-height:0;flex-shrink:0;">
+              {% if post.user.userprofile.profile_pics %}
+                <img src="{{ post.user.userprofile.profile_pics.url }}" alt="" class="idash-post-av">
+              {% else %}
+                <div class="idash-post-av-init">{{ post.user.first_name|slice:":1"|upper }}{{ post.user.last_name|slice:":1"|upper }}</div>
+              {% endif %}
+            </a>
+            <div style="flex:1;min-width:0;">
+              <div class="idash-post-meta">
+                <a href="{% url 'profile_view' id=post.user.id %}" style="color:inherit;">{{ post.user.get_full_name|default:post.user.username }}</a>
+                · {{ post.created_at|timesince }} ago
+              </div>
+              <a href="{% url 'post_detail' post.id %}" class="idash-post-title">{{ post.title|truncatechars:80 }}</a>
+              <p class="idash-post-excerpt">{{ post.content|truncatechars:140 }}</p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+                <span class="idash-badge idash-badge-blue">{{ post.get_industry_display }}</span>
+                <span style="font-family:var(--ff-sans);font-size:0.76rem;color:var(--muted);">
+                  <i class="fi fi-rr-heart fi-sm"></i> {{ post.likes.count }}
+                  &nbsp;<i class="fi fi-rr-comment fi-sm"></i> {{ post.comments.count }}
+                </span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-star"></i>You haven't expressed interest in any posts yet. <a href="{% url 'app' %}" style="color:var(--blue);">Explore the feed</a></div>
+      {% endif %}
+    </div>
+
+    <div class="idash-section">
+      <h2 class="idash-section-title">Project Collaborations</h2>
+      {% if project_collabs %}
+        <div class="idash-row-list">
+          {% for pc in project_collabs %}
+          <div class="idash-row-item">
+            <div class="idash-row-left">
+              <a href="{% url 'project_detail' pc.project.pk %}" class="idash-row-label">{{ pc.project.title|truncatechars:60 }}</a>
+              <div class="idash-row-sub">by {{ pc.project.owner.get_full_name|default:pc.project.owner.username }} · {{ pc.created_at|timesince }} ago</div>
+              {% if pc.message %}<div class="idash-row-sub" style="margin-top:4px;font-style:italic;">"{{ pc.message|truncatechars:80 }}"</div>{% endif %}
+            </div>
+            <span class="idash-badge {% if pc.status == 'accepted' %}idash-badge-green{% elif pc.status == 'declined' %}idash-badge-red{% else %}idash-badge-gray{% endif %}">{{ pc.get_status_display }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-briefcase"></i>No project collaborations yet</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- LIKED CONTENT -->
+  <div id="panel-liked" class="idash-panel">
+    <div class="idash-section">
+      <h2 class="idash-section-title">Posts I Liked <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ liked_posts|length }})</span></h2>
+      {% if liked_posts %}
+        <div class="idash-post-list">
+          {% for post in liked_posts %}
+          <div class="idash-post-card">
+            <a href="{% url 'profile_view' id=post.user.id %}" style="line-height:0;flex-shrink:0;">
+              {% if post.user.userprofile.profile_pics %}
+                <img src="{{ post.user.userprofile.profile_pics.url }}" alt="" class="idash-post-av">
+              {% else %}
+                <div class="idash-post-av-init">{{ post.user.first_name|slice:":1"|upper }}{{ post.user.last_name|slice:":1"|upper }}</div>
+              {% endif %}
+            </a>
+            <div style="flex:1;min-width:0;">
+              <div class="idash-post-meta">
+                <a href="{% url 'profile_view' id=post.user.id %}" style="color:inherit;">{{ post.user.get_full_name|default:post.user.username }}</a>
+                · {{ post.created_at|timesince }} ago
+              </div>
+              <a href="{% url 'post_detail' post.id %}" class="idash-post-title">{{ post.title|truncatechars:80 }}</a>
+              <p class="idash-post-excerpt">{{ post.content|truncatechars:140 }}</p>
+            </div>
+            <span class="idash-badge idash-badge-blue">{{ post.get_industry_display }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-heart"></i>You haven't liked any posts yet</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- PROPOSALS -->
+  <div id="panel-proposals" class="idash-panel">
+    <div class="idash-section">
+      <h2 class="idash-section-title">Investment Proposals Sent <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ proposals|length }})</span></h2>
+      {% if proposals %}
+        <div class="idash-row-list">
+          {% for p in proposals %}
+          <div class="idash-row-item">
+            <div class="idash-row-left">
+              <a href="{% url 'post_detail' p.post.id %}" class="idash-row-label">{{ p.post.title|truncatechars:60 }}</a>
+              <div class="idash-row-sub">
+                to <a href="{% url 'profile_view' id=p.post.user.id %}" style="color:inherit;">{{ p.post.user.get_full_name|default:p.post.user.username }}</a>
+                · {{ p.created_at|timesince }} ago
+              </div>
+              {% if p.message %}<div class="idash-row-sub" style="margin-top:4px;font-style:italic;">"{{ p.message|truncatechars:80 }}"</div>{% endif %}
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+              {% if p.amount %}<span class="idash-amount">${{ p.amount }}</span>{% endif %}
+              <span class="idash-badge {% if p.status == 'accepted' %}idash-badge-green{% elif p.status == 'declined' %}idash-badge-red{% elif p.status == 'countered' %}idash-badge-yellow{% else %}idash-badge-gray{% endif %}">{{ p.get_status_display }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-hand-holding-usd"></i>No proposals sent yet. <a href="{% url 'app' %}" style="color:var(--blue);">Browse the feed</a> to find investment opportunities.</div>
+      {% endif %}
+    </div>
+
+    <div class="idash-section">
+      <h2 class="idash-section-title">Patent Requests Sent <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ patent_requests|length }})</span></h2>
+      {% if patent_requests %}
+        <div class="idash-row-list">
+          {% for pr in patent_requests %}
+          <div class="idash-row-item">
+            <div class="idash-row-left">
+              <a href="{% url 'post_detail' pr.post.id %}" class="idash-row-label">{{ pr.post.title|truncatechars:60 }}</a>
+              <div class="idash-row-sub">
+                to <a href="{% url 'profile_view' id=pr.post.user.id %}" style="color:inherit;">{{ pr.post.user.get_full_name|default:pr.post.user.username }}</a>
+                · {{ pr.created_at|timesince }} ago
+              </div>
+            </div>
+            <span class="idash-badge {% if pr.status == 'accepted' %}idash-badge-green{% elif pr.status == 'declined' %}idash-badge-red{% else %}idash-badge-gray{% endif %}">{{ pr.get_status_display }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-document"></i>No patent requests sent yet</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- INVOLVEMENT -->
+  <div id="panel-involvement" class="idash-panel">
+    <div class="idash-section">
+      <h2 class="idash-section-title">Post Collaborations <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ collaborations|length }})</span></h2>
+      {% if collaborations %}
+        <div class="idash-row-list">
+          {% for c in collaborations %}
+          <div class="idash-row-item">
+            <div class="idash-row-left">
+              <a href="{% url 'post_detail' c.post.id %}" class="idash-row-label">{{ c.post.title|truncatechars:60 }}</a>
+              <div class="idash-row-sub">
+                with <a href="{% url 'profile_view' id=c.post.user.id %}" style="color:inherit;">{{ c.post.user.get_full_name|default:c.post.user.username }}</a>
+                · {{ c.created_at|timesince }} ago
+              </div>
+              {% if c.message %}<div class="idash-row-sub" style="margin-top:4px;font-style:italic;">"{{ c.message|truncatechars:80 }}"</div>{% endif %}
+            </div>
+            <span class="idash-badge {% if c.status == 'accepted' %}idash-badge-green{% elif c.status == 'declined' %}idash-badge-red{% else %}idash-badge-gray{% endif %}">{{ c.get_status_display }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-users-alt"></i>No post collaborations yet</div>
+      {% endif %}
+    </div>
+
+    <div class="idash-section">
+      <h2 class="idash-section-title">Project Collaborations <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ project_collabs|length }})</span></h2>
+      {% if project_collabs %}
+        <div class="idash-row-list">
+          {% for pc in project_collabs %}
+          <div class="idash-row-item">
+            <div class="idash-row-left">
+              <a href="{% url 'project_detail' pc.project.pk %}" class="idash-row-label">{{ pc.project.title|truncatechars:60 }}</a>
+              <div class="idash-row-sub">
+                by <a href="{% url 'profile_view' id=pc.project.owner.id %}" style="color:inherit;">{{ pc.project.owner.get_full_name|default:pc.project.owner.username }}</a>
+                · {{ pc.created_at|timesince }} ago
+              </div>
+              {% if pc.message %}<div class="idash-row-sub" style="margin-top:4px;font-style:italic;">"{{ pc.message|truncatechars:80 }}"</div>{% endif %}
+            </div>
+            <span class="idash-badge {% if pc.status == 'accepted' %}idash-badge-green{% elif pc.status == 'declined' %}idash-badge-red{% else %}idash-badge-gray{% endif %}">{{ pc.get_status_display }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-briefcase"></i>No project collaborations yet</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- PENDING -->
+  <div id="panel-pending" class="idash-panel">
+
+    <!-- Pending Connection Requests -->
+    <div class="idash-section">
+      <h2 class="idash-section-title">Incoming Connection Requests <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ pending_connections|length }})</span></h2>
+      {% if pending_connections %}
+        <div class="idash-pending-grid">
+          {% for conn in pending_connections %}
+          <div class="idash-pending-card">
+            <a href="{% url 'profile_view' id=conn.initiator.id %}" style="line-height:0;flex-shrink:0;">
+              {% if conn.initiator.userprofile.profile_pics %}
+                <img src="{{ conn.initiator.userprofile.profile_pics.url }}" alt="" class="idash-pending-av">
+              {% else %}
+                <div class="idash-pending-av-init">{{ conn.initiator.first_name|slice:":1"|upper }}{{ conn.initiator.last_name|slice:":1"|upper }}</div>
+              {% endif %}
+            </a>
+            <div>
+              <a href="{% url 'profile_view' id=conn.initiator.id %}" class="idash-pending-name">{{ conn.initiator.get_full_name|default:conn.initiator.username }}</a>
+              <div style="font-family:var(--ff-sans);font-size:0.74rem;color:var(--muted);">{{ conn.initiator.user_type|capfirst }}</div>
+              <div class="idash-pending-actions">
+                <form method="post" action="{% url 'accept_connection' conn.id %}" style="display:contents;">
+                  {% csrf_token %}
+                  <button type="submit" class="idash-accept-btn">Accept</button>
+                </form>
+                <form method="post" action="{% url 'reject_connection' conn.id %}" style="display:contents;">
+                  {% csrf_token %}
+                  <button type="submit" class="idash-reject-btn">Decline</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-user-add"></i>No pending connection requests</div>
+      {% endif %}
+    </div>
+
+    <!-- Pending Proposals -->
+    <div class="idash-section">
+      <h2 class="idash-section-title">Pending Proposals <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ pending_proposals|length }})</span></h2>
+      {% if pending_proposals %}
+        <div class="idash-row-list">
+          {% for p in pending_proposals %}
+          <div class="idash-row-item">
+            <div class="idash-row-left">
+              <a href="{% url 'post_detail' p.post.id %}" class="idash-row-label">{{ p.post.title|truncatechars:60 }}</a>
+              <div class="idash-row-sub">Sent to {{ p.post.user.get_full_name|default:p.post.user.username }} · {{ p.created_at|timesince }} ago</div>
+            </div>
+            {% if p.amount %}<span class="idash-amount">${{ p.amount }}</span>{% endif %}
+            <span class="idash-badge idash-badge-yellow">Awaiting Response</span>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-hand-holding-usd"></i>No pending proposals</div>
+      {% endif %}
+    </div>
+
+    <!-- Pending Collaborations -->
+    <div class="idash-section">
+      <h2 class="idash-section-title">Pending Collaborations <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ pending_collabs|length|add:pending_proj_collabs|length }})</span></h2>
+      {% if pending_collabs or pending_proj_collabs %}
+        <div class="idash-row-list">
+          {% for c in pending_collabs %}
+          <div class="idash-row-item">
+            <div class="idash-row-left">
+              <a href="{% url 'post_detail' c.post.id %}" class="idash-row-label">{{ c.post.title|truncatechars:60 }}</a>
+              <div class="idash-row-sub">Post collaboration · {{ c.created_at|timesince }} ago</div>
+            </div>
+            <span class="idash-badge idash-badge-yellow">Awaiting Response</span>
+          </div>
+          {% endfor %}
+          {% for pc in pending_proj_collabs %}
+          <div class="idash-row-item">
+            <div class="idash-row-left">
+              <a href="{% url 'project_detail' pc.project.pk %}" class="idash-row-label">{{ pc.project.title|truncatechars:60 }}</a>
+              <div class="idash-row-sub">Project collaboration · {{ pc.created_at|timesince }} ago</div>
+            </div>
+            <span class="idash-badge idash-badge-yellow">Awaiting Response</span>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="idash-empty"><i class="fi fi-rr-users-alt"></i>No pending collaborations</div>
+      {% endif %}
+    </div>
+
+  </div><!-- /pending panel -->
+
+  <!-- MEETINGS -->
+  <div id="panel-meetings" class="idash-panel">
+    <div class="idash-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
+        <h2 class="idash-section-title"><i class="fi fi-rr-video-camera fi-sm"></i> Meetings</h2>
+        <div style="display:flex;gap:10px;">
+          <button onclick="openScheduleMeeting('','')" style="padding:8px 18px;border-radius:8px;border:1.5px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.07);color:#7c3aed;font-size:0.85rem;font-weight:600;cursor:pointer;">
+            <i class="fi fi-rr-video-camera fi-sm"></i> New Meeting
+          </button>
+          <a href="{% url 'meetings_list' %}" style="padding:8px 18px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;color:#555;font-size:0.85rem;font-weight:600;text-decoration:none;">View All</a>
+        </div>
+      </div>
+
+      {% if dash_meetings %}
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+        {% for mtg in dash_meetings %}
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:18px 20px;box-shadow:0 1px 6px rgba(0,0,0,0.05);transition:box-shadow 0.2s,transform 0.2s;"
+             onmouseover="this.style.boxShadow='0 4px 18px rgba(124,58,237,0.10)';this.style.transform='translateY(-2px)'"
+             onmouseout="this.style.boxShadow='0 1px 6px rgba(0,0,0,0.05)';this.style.transform=''">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:38px;height:38px;border-radius:10px;background:rgba(124,58,237,0.1);display:flex;align-items:center;justify-content:center;color:#7c3aed;font-size:1.1rem;flex-shrink:0;">
+                <i class="fi fi-rr-video-camera"></i>
+              </div>
+              <div>
+                <div style="font-weight:600;font-size:0.92rem;color:#111;line-height:1.3;">{{ mtg.title|default:"Untitled Meeting" }}</div>
+                <div style="font-size:0.76rem;color:#888;margin-top:2px;">
+                  {% if mtg.scheduled_at %}{{ mtg.scheduled_at|date:"M j, Y · g:i A" }}{% else %}Instant meeting{% endif %}
+                </div>
+              </div>
+            </div>
+            <span style="font-size:0.72rem;font-weight:600;padding:3px 9px;border-radius:99px;white-space:nowrap;
+              {% if mtg.status == 'active' %}background:#d1fae5;color:#065f46;
+              {% elif mtg.status == 'ended' %}background:#f1f5f9;color:#64748b;
+              {% else %}background:#ede9fe;color:#5b21b6;{% endif %}">
+              {{ mtg.status|capfirst }}
+            </span>
+          </div>
+          <div style="font-size:0.8rem;color:#666;margin-bottom:12px;">
+            <i class="fi fi-rr-users fi-sm"></i>
+            {% for p in mtg.participants.all %}{{ p.get_full_name|default:p.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
+          </div>
+          <div style="display:flex;gap:8px;">
+            <a href="{% url 'join_meeting' mtg.id %}" style="flex:1;text-align:center;padding:7px 12px;border-radius:8px;font-size:0.8rem;font-weight:600;text-decoration:none;
+              {% if mtg.status == 'ended' %}background:#f1f5f9;color:#64748b;{% else %}background:#7c3aed;color:#fff;{% endif %}">
+              {% if mtg.status == 'ended' %}<i class="fi fi-rr-eye fi-sm"></i> Details
+              {% elif mtg.zoom_join_url %}<i class="fi fi-rr-video-camera fi-sm"></i> Join Zoom
+              {% else %}<i class="fi fi-rr-video-camera fi-sm"></i> Open{% endif %}
+            </a>
+            {% if mtg.zoom_join_url and mtg.status != 'ended' %}
+            <button onclick="navigator.clipboard.writeText('{{ mtg.zoom_join_url|escapejs }}');this.textContent='Copied!';" title="Copy join link"
+              style="padding:7px 12px;border-radius:8px;font-size:0.8rem;border:1.5px solid #e5e7eb;background:#fff;color:#666;cursor:pointer;">
+              <i class="fi fi-rr-copy fi-sm"></i>
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="text-align:center;padding:40px 20px;background:#faf5ff;border-radius:14px;border:1.5px dashed rgba(124,58,237,0.2);">
+        <div style="font-size:2rem;margin-bottom:10px;">📹</div>
+        <div style="font-weight:600;color:#5b21b6;margin-bottom:6px;">No meetings yet</div>
+        <div style="font-size:0.85rem;color:#888;margin-bottom:16px;">Schedule a video call with an innovator to get started.</div>
+        <button onclick="openScheduleMeeting('','')" style="padding:9px 22px;border-radius:9px;background:#7c3aed;color:#fff;border:none;font-size:0.875rem;font-weight:600;cursor:pointer;">
+          <i class="fi fi-rr-video-camera fi-sm"></i> Schedule a Meeting
+        </button>
+      </div>
+      {% endif %}
+    </div>
+  </div><!-- /meetings panel -->
+
+</div><!-- /idash-wrapper -->
+
+<script>
+function showTab(name, btn) {
+  document.querySelectorAll('.idash-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.idash-tab').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Activate tab from URL hash
+(function(){
+  var hash = window.location.hash.replace('#','');
+  if (hash) {
+    var panel = document.getElementById('panel-' + hash);
+    if (panel) {
+      document.querySelectorAll('.idash-panel').forEach(function(p){ p.classList.remove('active'); });
+      document.querySelectorAll('.idash-tab').forEach(function(b){ b.classList.remove('active'); });
+      panel.classList.add('active');
+      document.querySelectorAll('.idash-tab').forEach(function(b){
+        if (b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'" + hash + "'") !== -1) {
+          b.classList.add('active');
+        }
+      });
+    }
+  }
+})();
+</script>
+
+<!-- ── Action modal for recommended projects ── -->
+<style>
+  .act-modal-overlay-idash {
+    display: none; position: fixed; inset: 0; z-index: 9100;
+    background: rgba(10,20,60,0.52); align-items: center; justify-content: center; padding: 20px 12px;
+  }
+  .act-modal-overlay-idash.open { display: flex; }
+</style>
+<div class="act-modal-overlay-idash" id="act-modal-overlay" onclick="if(event.target===this)closeActionModal()">
+  <div style="background:#fff;border-radius:18px;width:min(520px,100%);box-shadow:0 24px 80px rgba(0,0,0,0.25);padding:28px 28px 24px;position:relative;">
+    <button onclick="closeActionModal()" style="position:absolute;top:16px;right:18px;width:32px;height:32px;border-radius:50%;border:none;background:#f0f0f0;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#666;">×</button>
+    <div id="am-icon" style="font-size:2rem;margin-bottom:6px;line-height:1;"></div>
+    <h3 id="am-title" style="font-family:'Jacques Francois',serif;font-size:1.15rem;color:#1a1a2e;margin:0 0 4px;"></h3>
+    <p id="am-subtitle" style="font-family:'Jaldi',sans-serif;font-size:0.82rem;color:#888;margin:0 0 16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></p>
+    <div class="quick-chips" id="am-chips" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;"></div>
+    <label id="am-msg-label" style="font-family:'Jaldi',sans-serif;font-size:0.76rem;color:#888;margin-bottom:5px;display:block;"></label>
+    <textarea id="am-msg" rows="4" style="width:100%;border:1px solid #d0d8ef;border-radius:8px;padding:10px 12px;font-family:'Jaldi',sans-serif;font-size:0.88rem;resize:vertical;outline:none;box-sizing:border-box;margin-bottom:10px;background:#f8f9ff;"></textarea>
+    <div id="am-amount-row" style="display:none;">
+      <label style="font-family:'Jaldi',sans-serif;font-size:0.76rem;color:#888;margin-bottom:5px;display:block;">Proposed amount (optional, $)</label>
+      <input type="number" id="am-amt" placeholder="e.g. 5000" style="width:100%;border:1px solid #d0d8ef;border-radius:8px;padding:10px 12px;font-family:'Jaldi',sans-serif;font-size:0.88rem;outline:none;box-sizing:border-box;margin-bottom:10px;background:#f8f9ff;">
+    </div>
+    <button id="am-submit" onclick="submitActionModal()" style="width:100%;padding:11px;background:#004AAD;color:#fff;border:none;border-radius:9px;font-family:'Jaldi',sans-serif;font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:6px;">Send</button>
+    <div id="am-ok" style="text-align:center;font-family:'Jaldi',sans-serif;font-size:0.9rem;color:#16a34a;margin-top:10px;display:none;"></div>
+  </div>
+</div>
+<script>
+var _amUrl = '';
+var AM_CHIPS = {
+  collab:   [['Technical help','I can contribute technical expertise to this project.'],['Marketing',"I'd like to handle marketing and outreach."],['Industry expert','I have industry experience and would love to co-develop this.'],['R&D support','I can help with research and development.']],
+  proposal: [['Express interest','I am interested in funding this project and would like to discuss terms.'],['Seed + mentorship','I can offer seed funding and mentorship to help scale this project.'],['Request meeting',"I'd like to schedule a meeting to learn more before committing."]],
+  patent:   [['Patent attorney','I can connect you with a patent attorney to protect this innovation.'],['Filing guidance','I have experience filing patents and can guide you through the process.'],['Co-ownership offer',"I'd like to co-own this patent in exchange for covering filing costs."]]
+};
+var AM_META = {
+  collab:   {icon:'<i class="fi fi-rr-handshake"></i>',title:'Collaborate',  label:'Describe your collaboration idea:', placeholder:"I'd like to collaborate by…",btn:'Send Request',  ok:'<i class="fi fi-rr-check"></i> Collaboration request sent!',amount:false},
+  proposal: {icon:'<i class="fi fi-rr-clipboard"></i>',title:'Send Proposal',label:'Investment proposal message:',       placeholder:"I'm interested in funding this project…",btn:'Send Proposal',ok:'<i class="fi fi-rr-check"></i> Proposal sent!',amount:true},
+  patent:   {icon:'<i class="fi fi-rr-document"></i>',title:'Help Patent',  label:'Describe your patent support offer:',placeholder:'I can help patent this by…',btn:'Send Offer',   ok:'<i class="fi fi-rr-check"></i> Patent offer sent!',amount:false}
+};
+function openActionModal(type, url, subtitle) {
+  _amUrl = url;
+  var meta = AM_META[type];
+  document.getElementById('am-icon').textContent = meta.icon;
+  document.getElementById('am-title').textContent = meta.title;
+  document.getElementById('am-subtitle').textContent = subtitle || '';
+  document.getElementById('am-msg-label').textContent = meta.label;
+  var chipsEl = document.getElementById('am-chips');
+  chipsEl.innerHTML = '';
+  AM_CHIPS[type].forEach(function(c) {
+    var btn = document.createElement('button'); btn.type='button';
+    btn.style.cssText='padding:3px 9px;background:#eef3ff;border:1px solid #c0d0f0;border-radius:12px;font-family:Jaldi,sans-serif;font-size:0.74rem;color:#1040c0;cursor:pointer;';
+    btn.textContent = c[0]; btn.onclick = function(){ document.getElementById('am-msg').value = c[1]; };
+    chipsEl.appendChild(btn);
+  });
+  var msgEl = document.getElementById('am-msg'); msgEl.value=''; msgEl.placeholder=meta.placeholder;
+  document.getElementById('am-amount-row').style.display = meta.amount ? '' : 'none';
+  document.getElementById('am-amt').value = '';
+  var okEl = document.getElementById('am-ok'); okEl.style.display='none'; okEl.textContent=meta.ok;
+  var sb = document.getElementById('am-submit'); sb.textContent=meta.btn; sb.disabled=false;
+  document.getElementById('act-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  msgEl.focus();
+}
+function closeActionModal() {
+  document.getElementById('act-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function submitActionModal() {
+  var msg = document.getElementById('am-msg').value.trim();
+  var amt = document.getElementById('am-amt').value;
+  var body = new FormData();
+  body.append('message', msg);
+  body.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  if (amt) body.append('amount', amt);
+  var sb = document.getElementById('am-submit'); sb.disabled=true; sb.textContent='Sending…';
+  fetch(_amUrl, {method:'POST', body:body, headers:{'X-Requested-With':'XMLHttpRequest'}})
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if (data.ok) { document.getElementById('am-ok').style.display='block'; setTimeout(closeActionModal, 1600); }
+    else { sb.disabled=false; sb.textContent=sb.dataset.btn||'Send'; }
+  }).catch(function(){ sb.disabled=false; });
+}
+</script>
+{% include '_partials/footer.html' %}
+{% endblock %}
