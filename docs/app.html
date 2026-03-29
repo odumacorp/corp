@@ -34,9 +34,11 @@
                                     <p>Name: Not logged in</p>
                                 {% endif %}
 
+                            {% if user.id %}
                             <a href="{% url 'profile_view' id=user.id %}">
                                 <button class="btn btn-primary btn-sm" name="edit_profile">Edit</button>
                             </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -679,7 +681,7 @@
                                     </div>
                 
                                     <button>
-                                        <a href="{% url 'profile_view' view.viewer.username %}" class="connect-btn">Connect +</a>
+                                        <a href="{% url 'profile_view' id=view.viewer.id %}" class="connect-btn">Connect +</a>
                                     </button>
                                 </div>
                                 {% endfor %}
@@ -719,7 +721,7 @@
                                     <p>{{ view.viewer.profile.bio|truncatewords:10|default:"Entrepreneur interested in tech and startups." }}</p>
                                 </div>
                                 <button>
-                                    <a href="{% url 'profile_view' view.viewer.username %}" class="connect-btn">Connect +</a>
+                                    <a href="{% url 'profile_view' id=view.viewer.id %}" class="connect-btn">Connect +</a>
                                 </button>
                             </div>
                         </div>
