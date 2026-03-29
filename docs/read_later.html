@@ -1,0 +1,325 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Read Later | Oduma Connect{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+<style>
+  :root {
+    --blue: #004AAD; --blue-dark: #003490;
+    --text: #1a1a2e; --muted: #6b7280;
+    --border: rgba(0,0,0,0.08);
+    --ff-serif: "Jacques Francois", serif;
+    --ff-sans: "Jaldi", sans-serif;
+  }
+
+  .rl-page { max-width: 860px; margin: 0 auto; padding: 32px 16px 72px; }
+
+  .rl-header { margin-bottom: 28px; }
+  .rl-header h1 {
+    font-family: var(--ff-serif); font-size: 1.8rem; color: var(--text); margin: 0 0 4px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .rl-header p { font-family: var(--ff-sans); color: var(--muted); font-size: .95rem; margin: 0; }
+
+  /* Tab bar */
+  .rl-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; border-bottom: 2px solid var(--border); padding-bottom: 0; }
+  .rl-tab {
+    font-family: var(--ff-sans); font-size: .9rem; font-weight: 700;
+    padding: 9px 20px; border-radius: 8px 8px 0 0; border: none; background: none;
+    cursor: pointer; color: var(--muted); position: relative; bottom: -2px;
+    border-bottom: 2px solid transparent; transition: color .15s;
+  }
+  .rl-tab:hover { color: var(--blue); }
+  .rl-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .rl-tab-count {
+    display: inline-block; background: rgba(0,74,173,0.1); color: var(--blue);
+    border-radius: 20px; font-size: .72rem; padding: 1px 7px; margin-left: 4px;
+  }
+
+  /* Section */
+  .rl-section { display: none; }
+  .rl-section.active { display: block; }
+
+  .rl-empty {
+    text-align: center; padding: 56px 24px;
+    font-family: var(--ff-sans); color: var(--muted); font-size: .95rem;
+  }
+  .rl-empty i { font-size: 2.8rem; display: block; margin-bottom: 12px; color: #c7d2fe; }
+
+  /* Cards */
+  .rl-list { display: flex; flex-direction: column; gap: 14px; }
+  .rl-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 16px;
+    display: flex; align-items: stretch; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05); transition: box-shadow .18s;
+  }
+  .rl-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.1); }
+
+  .rl-card-thumb {
+    width: 110px; flex-shrink: 0; background: #e8f0fe;
+    display: flex; align-items: center; justify-content: center; font-size: 2.4rem;
+  }
+  .rl-card-thumb img { width: 110px; height: 100%; object-fit: cover; display: block; }
+
+  .rl-card-body { flex: 1; padding: 16px 18px; min-width: 0; }
+  .rl-card-type {
+    font-family: var(--ff-sans); font-size: .72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 4px;
+  }
+  .rl-card-type.type-project { color: #004AAD; }
+  .rl-card-type.type-post    { color: #059669; }
+  .rl-card-type.type-company { color: #b45309; }
+
+  .rl-card-title {
+    font-family: var(--ff-serif); font-size: 1.05rem; color: var(--text);
+    margin: 0 0 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .rl-card-snippet {
+    font-family: var(--ff-sans); font-size: .84rem; color: var(--muted);
+    margin: 0 0 10px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .rl-card-meta {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    font-family: var(--ff-sans); font-size: .78rem; color: var(--muted);
+  }
+  .rl-badge {
+    background: rgba(0,74,173,0.08); color: var(--blue);
+    border-radius: 20px; padding: 2px 10px; font-size: .72rem; font-weight: 700;
+  }
+
+  .rl-card-actions {
+    display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between;
+    padding: 14px 16px; gap: 10px; flex-shrink: 0;
+  }
+  .rl-view-btn {
+    font-family: var(--ff-sans); font-size: .85rem; font-weight: 700;
+    padding: 7px 18px; border-radius: 50px; background: var(--blue); color: #fff;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    white-space: nowrap; transition: background .15s;
+  }
+  .rl-view-btn:hover { background: var(--blue-dark); color: #fff; }
+  .rl-remove-btn {
+    background: none; border: 1px solid var(--border); border-radius: 50px;
+    font-family: var(--ff-sans); font-size: .78rem; color: var(--muted);
+    padding: 5px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    transition: all .15s; white-space: nowrap;
+  }
+  .rl-remove-btn:hover { border-color: #e53e3e; color: #e53e3e; background: #fff5f5; }
+
+  .rl-saved-date { font-family: var(--ff-sans); font-size: .72rem; color: var(--muted); }
+
+  @media(max-width:560px) {
+    .rl-card-thumb { width: 72px; font-size: 1.8rem; }
+    .rl-card-thumb img { width: 72px; }
+    .rl-card-actions { padding: 10px 10px; }
+  }
+</style>
+
+<div style="background:#f0f4ff; min-height:100vh;">
+<div class="rl-page">
+
+  <div class="rl-header">
+    <h1><i class="fi fi-rr-bookmark"></i> Read Later</h1>
+    <p>{{ items|length }} saved item{{ items|length|pluralize }} — come back to these whenever you're ready.</p>
+  </div>
+
+  {% with projects=items|dictsortreversed:"saved_at" posts=items|dictsortreversed:"saved_at" %}
+
+  <!-- Tabs -->
+  <div class="rl-tabs">
+    <button class="rl-tab active" onclick="rlTab(event,'all')">
+      All <span class="rl-tab-count">{{ items|length }}</span>
+    </button>
+    <button class="rl-tab" onclick="rlTab(event,'projects')">
+      Projects <span class="rl-tab-count" id="rl-proj-count">0</span>
+    </button>
+    <button class="rl-tab" onclick="rlTab(event,'posts')">
+      Posts <span class="rl-tab-count" id="rl-post-count">0</span>
+    </button>
+    <button class="rl-tab" onclick="rlTab(event,'companies')">
+      Businesses <span class="rl-tab-count" id="rl-comp-count">0</span>
+    </button>
+  </div>
+
+  <!-- All -->
+  <div class="rl-section active" id="rl-all">
+    {% if items %}
+    <div class="rl-list">
+      {% for item in items %}
+        {% if item.project %}
+        <div class="rl-card" data-type="project">
+          <div class="rl-card-thumb">
+            {% if item.project.image %}<img src="{{ item.project.image.url }}" alt="">{% else %}<i class="fi fi-rr-bulb"></i>{% endif %}
+          </div>
+          <div class="rl-card-body">
+            <div class="rl-card-type type-project"><i class="fi fi-rr-rocket fi-xs"></i> Project</div>
+            <div class="rl-card-title">{{ item.project.title }}</div>
+            <p class="rl-card-snippet">{{ item.project.description|truncatechars:120 }}</p>
+            <div class="rl-card-meta">
+              <span class="rl-badge">{{ item.project.get_industry_display }}</span>
+              <span>{{ item.project.get_status_display }}</span>
+              <span>·</span>
+              <span>by {{ item.project.owner.get_full_name|default:item.project.owner.username }}</span>
+            </div>
+          </div>
+          <div class="rl-card-actions">
+            <a href="{% url 'project_detail' item.project.pk %}" class="rl-view-btn"><i class="fi fi-rr-arrow-right fi-sm"></i> Read</a>
+            <button class="rl-remove-btn" onclick="removeReadLater('project', {{ item.project.pk }}, this)">
+              <i class="fi fi-rr-trash fi-xs"></i> Remove
+            </button>
+            <span class="rl-saved-date">Saved {{ item.saved_at|timesince }} ago</span>
+          </div>
+        </div>
+        {% elif item.post %}
+        <div class="rl-card" data-type="post">
+          <div class="rl-card-thumb">
+            {% if item.post.image %}<img src="{{ item.post.image.url }}" alt="">{% else %}<i class="fi fi-rr-document"></i>{% endif %}
+          </div>
+          <div class="rl-card-body">
+            <div class="rl-card-type type-post"><i class="fi fi-rr-document fi-xs"></i> Post</div>
+            <div class="rl-card-title">{{ item.post.title }}</div>
+            <p class="rl-card-snippet">{{ item.post.content|striptags|truncatechars:120 }}</p>
+            <div class="rl-card-meta">
+              <span class="rl-badge">{{ item.post.get_industry_display }}</span>
+              <span>·</span>
+              <span>by {{ item.post.user.get_full_name|default:item.post.user.username }}</span>
+            </div>
+          </div>
+          <div class="rl-card-actions">
+            <a href="{% url 'post_detail' item.post.pk %}" class="rl-view-btn"><i class="fi fi-rr-arrow-right fi-sm"></i> Read</a>
+            <button class="rl-remove-btn" onclick="removeReadLater('post', {{ item.post.pk }}, this)">
+              <i class="fi fi-rr-trash fi-xs"></i> Remove
+            </button>
+            <span class="rl-saved-date">Saved {{ item.saved_at|timesince }} ago</span>
+          </div>
+        </div>
+        {% elif item.company %}
+        <div class="rl-card" data-type="company">
+          <div class="rl-card-thumb">
+            {% if item.company.logo %}<img src="{{ item.company.logo.url }}" alt="">
+            {% elif item.company.cover_image %}<img src="{{ item.company.cover_image.url }}" alt="">
+            {% else %}<i class="fi fi-rr-building"></i>{% endif %}
+          </div>
+          <div class="rl-card-body">
+            <div class="rl-card-type type-company"><i class="fi fi-rr-building fi-xs"></i> Business</div>
+            <div class="rl-card-title">{{ item.company.name }}</div>
+            <p class="rl-card-snippet">{{ item.company.tagline|default:item.company.description|truncatechars:120 }}</p>
+            <div class="rl-card-meta">
+              <span class="rl-badge">{{ item.company.get_industry_display }}</span>
+              <span>·</span>
+              <span>{{ item.company.followers.count }} follower{{ item.company.followers.count|pluralize }}</span>
+            </div>
+          </div>
+          <div class="rl-card-actions">
+            <a href="{% url 'company_profile' item.company.pk %}" class="rl-view-btn"><i class="fi fi-rr-arrow-right fi-sm"></i> Read</a>
+            <button class="rl-remove-btn" onclick="removeReadLater('company', {{ item.company.pk }}, this)">
+              <i class="fi fi-rr-trash fi-xs"></i> Remove
+            </button>
+            <span class="rl-saved-date">Saved {{ item.saved_at|timesince }} ago</span>
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="rl-empty">
+      <i class="fi fi-rr-bookmark"></i>
+      <strong>Nothing saved yet</strong><br>
+      Tap the bookmark icon on any project, post, or business to save it here.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Projects only -->
+  <div class="rl-section" id="rl-projects">
+    <div class="rl-list" id="rl-proj-list"></div>
+    <div class="rl-empty" id="rl-proj-empty" style="display:none;">
+      <i class="fi fi-rr-rocket"></i> No projects saved yet.
+    </div>
+  </div>
+
+  <!-- Posts only -->
+  <div class="rl-section" id="rl-posts">
+    <div class="rl-list" id="rl-post-list"></div>
+    <div class="rl-empty" id="rl-post-empty" style="display:none;">
+      <i class="fi fi-rr-document"></i> No posts saved yet.
+    </div>
+  </div>
+
+  <!-- Companies only -->
+  <div class="rl-section" id="rl-companies">
+    <div class="rl-list" id="rl-comp-list"></div>
+    <div class="rl-empty" id="rl-comp-empty" style="display:none;">
+      <i class="fi fi-rr-building"></i> No businesses saved yet.
+    </div>
+  </div>
+
+  {% endwith %}
+</div>
+</div>
+
+<script>
+(function() {
+  /* ── Build filtered lists from the master "all" list ── */
+  var allCards = document.querySelectorAll('#rl-all .rl-card');
+  var projList = document.getElementById('rl-proj-list');
+  var postList = document.getElementById('rl-post-list');
+  var compList = document.getElementById('rl-comp-list');
+
+  var projCount = 0, postCount = 0, compCount = 0;
+
+  allCards.forEach(function(card) {
+    var type = card.dataset.type;
+    var clone = card.cloneNode(true);
+    if (type === 'project') { projList.appendChild(clone); projCount++; }
+    else if (type === 'post') { postList.appendChild(clone); postCount++; }
+    else if (type === 'company') { compList.appendChild(clone); compCount++; }
+  });
+
+  document.getElementById('rl-proj-count').textContent = projCount;
+  document.getElementById('rl-post-count').textContent = postCount;
+  document.getElementById('rl-comp-count').textContent = compCount;
+
+  if (!projCount) document.getElementById('rl-proj-empty').style.display = '';
+  if (!postCount) document.getElementById('rl-post-empty').style.display = '';
+  if (!compCount) document.getElementById('rl-comp-empty').style.display = '';
+
+  /* ── Tab switching ── */
+  window.rlTab = function(e, section) {
+    document.querySelectorAll('.rl-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.rl-section').forEach(function(s) { s.classList.remove('active'); });
+    e.currentTarget.classList.add('active');
+    document.getElementById('rl-' + section).classList.add('active');
+  };
+
+  /* ── Remove item (AJAX) ── */
+  var _csrf = '{{ csrf_token }}';
+  window.removeReadLater = function(type, id, btn) {
+    fetch('{% url "toggle_read_later" %}', {
+      method: 'POST',
+      headers: {'X-CSRFToken': _csrf, 'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'type=' + encodeURIComponent(type) + '&id=' + encodeURIComponent(id),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (!d.saved) {
+        /* Remove the card from ALL tabs that contain it */
+        var cards = document.querySelectorAll('.rl-card');
+        cards.forEach(function(c) {
+          var removeBtn = c.querySelector('.rl-remove-btn');
+          if (removeBtn && removeBtn.getAttribute('onclick') === btn.getAttribute('onclick')) {
+            c.style.transition = 'opacity .25s';
+            c.style.opacity = '0';
+            setTimeout(function() { c.remove(); }, 260);
+          }
+        });
+      }
+    });
+  };
+})();
+</script>
+{% include '_partials/footer.html' %}
+{% endblock %}

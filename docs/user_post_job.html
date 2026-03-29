@@ -1,0 +1,203 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Post a Job | {{ company.name }} | Oduma Connect{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+<style>
+  :root {
+    --blue: #004AAD;
+    --blue-dark: #003490;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --border: rgba(0,0,0,0.10);
+    --ff-serif: "Jacques Francois", serif;
+    --ff-sans: "Jaldi", sans-serif;
+  }
+  .pj-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 16px 64px;
+  }
+  .pj-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,74,173,0.12);
+    width: 100%;
+    max-width: 640px;
+    overflow: hidden;
+  }
+  .pj-top {
+    background: var(--blue);
+    padding: 28px 32px 24px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .pj-company-logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .pj-company-logo img { width:100%; height:100%; object-fit:cover; }
+  .pj-top-info h2 {
+    font-family: var(--ff-serif);
+    font-size: 1.3rem;
+    margin: 0 0 3px;
+  }
+  .pj-top-info p {
+    font-family: var(--ff-sans);
+    font-size: .85rem;
+    opacity: .8;
+    margin: 0;
+  }
+
+  .pj-body { padding: 28px 32px 32px; }
+  .pj-field { margin-bottom: 20px; }
+  .pj-field label {
+    display: block;
+    font-family: var(--ff-sans);
+    font-size: .83rem;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    margin-bottom: 6px;
+  }
+  .pj-field label span { color: #e53e3e; }
+  .pj-field input,
+  .pj-field textarea,
+  .pj-field select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: var(--ff-sans);
+    font-size: .97rem;
+    color: var(--text);
+    background: #fafafa;
+    box-sizing: border-box;
+    transition: border-color .2s;
+  }
+  .pj-field input:focus,
+  .pj-field textarea:focus,
+  .pj-field select:focus {
+    outline: none;
+    border-color: var(--blue);
+    background: #fff;
+  }
+  .pj-field textarea { resize: vertical; min-height: 110px; }
+  .pj-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 480px) { .pj-two-col { grid-template-columns: 1fr; } }
+
+  .pj-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px 24px;
+    border-top: 1px solid var(--border);
+    gap: 12px;
+  }
+  .pj-btn {
+    font-family: var(--ff-sans);
+    font-size: .97rem;
+    font-weight: 700;
+    padding: 11px 28px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all .2s;
+  }
+  .pj-btn-primary { background: var(--blue); color: #fff; }
+  .pj-btn-primary:hover { background: var(--blue-dark); color: #fff; }
+  .pj-btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+  .pj-btn-ghost:hover { background: #f3f4f6; color: var(--text); }
+</style>
+
+<div class="pj-wrapper">
+  <div class="pj-card">
+    <div class="pj-top">
+      <div class="pj-company-logo">
+        {% if company.logo %}
+          <img src="{{ company.logo.url }}" alt="{{ company.name }}">
+        {% else %}
+          <i class="fi fi-rr-building" style="font-size:1.5rem; color:#fff;"></i>
+        {% endif %}
+      </div>
+      <div class="pj-top-info">
+        <h2>Post a Job</h2>
+        <p>Posting on behalf of <strong>{{ company.name }}</strong></p>
+      </div>
+    </div>
+
+    {% if messages %}
+      {% for msg in messages %}
+        <div style="background:{% if msg.tags == 'error' %}#fee2e2{% else %}#d1fae5{% endif %};color:{% if msg.tags == 'error' %}#991b1b{% else %}#065f46{% endif %};padding:12px 28px;font-family:var(--ff-sans);font-size:.9rem;">
+          {{ msg }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" action="{% url 'user_post_job' %}">
+      {% csrf_token %}
+      <div class="pj-body">
+        <div class="pj-field">
+          <label>Job Title <span>*</span></label>
+          <input type="text" name="title" placeholder="e.g. Senior Software Engineer" required>
+        </div>
+        <div class="pj-two-col">
+          <div class="pj-field">
+            <label>Job Type</label>
+            <select name="job_type">
+              {% for val, label in job_type_choices %}
+                <option value="{{ val }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="pj-field">
+            <label>Location</label>
+            <input type="text" name="location" placeholder="e.g. Lagos, Nigeria or Remote">
+          </div>
+        </div>
+        <div class="pj-field">
+          <label>Salary / Compensation</label>
+          <input type="text" name="salary_range" placeholder="e.g. ₦300,000–₦500,000/month or Competitive">
+        </div>
+        <div class="pj-field">
+          <label>Job Description <span>*</span></label>
+          <textarea name="description" placeholder="Describe the role, responsibilities, requirements, and what makes this opportunity great…" required></textarea>
+        </div>
+        <div class="pj-field">
+          <label>Application Link (optional)</label>
+          <input type="url" name="apply_url" placeholder="https://example.com/apply or leave blank">
+          <div style="font-size:.78rem;color:var(--muted);margin-top:4px;">If left blank, applicants will apply through Oduma Connect.</div>
+        </div>
+      </div>
+      <div class="pj-footer">
+        <a href="{% url 'company_profile' company.pk %}" class="pj-btn pj-btn-ghost">Cancel</a>
+        <button type="submit" class="pj-btn pj-btn-primary"><i class="fi fi-rr-paper-plane"></i> Post Job</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

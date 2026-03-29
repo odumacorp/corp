@@ -1,0 +1,822 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}{{ company.name }} | Oduma Connect{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+<style>
+  :root {
+    --blue: #004AAD;
+    --blue-dark: #003490;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --border: rgba(0,0,0,0.08);
+    --ff-serif: "Jacques Francois", serif;
+    --ff-sans: "Jaldi", sans-serif;
+  }
+
+  .cp-page {
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 0 16px 64px;
+  }
+
+  /* Cover */
+  .cp-cover {
+    width: 100%;
+    height: 260px;
+    background: linear-gradient(135deg, #004AAD 0%, #0077ff 100%);
+    overflow: hidden;
+    position: relative;
+  }
+  .cp-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Header card */
+  .cp-header-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,74,173,0.08);
+    padding: 24px 28px 20px;
+    margin-top: -52px;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .cp-logo {
+    width: 90px;
+    height: 90px;
+    border-radius: 14px;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    background: #eaf0ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    margin-top: -44px;
+  }
+  .cp-logo img { width: 100%; height: 100%; object-fit: cover; }
+  .cp-logo-placeholder { font-size: 2.4rem; color: var(--blue); }
+  .cp-header-info { flex: 1; min-width: 200px; }
+  .cp-header-info h1 {
+    font-family: var(--ff-serif);
+    font-size: 1.7rem;
+    color: var(--text);
+    margin: 0 0 4px;
+  }
+  .cp-tagline {
+    font-family: var(--ff-sans);
+    color: var(--muted);
+    font-size: .97rem;
+    margin: 0 0 8px;
+  }
+  .cp-badges { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .cp-badge {
+    background: #eaf0ff;
+    color: var(--blue);
+    font-family: var(--ff-sans);
+    font-size: .78rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .cp-badge.verified {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  .cp-follower-count {
+    font-family: var(--ff-sans);
+    font-size: .88rem;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .cp-header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .cp-btn {
+    font-family: var(--ff-sans);
+    font-size: .9rem;
+    font-weight: 700;
+    padding: 9px 20px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all .2s;
+  }
+  .cp-btn-primary { background: var(--blue); color: #fff; }
+  .cp-btn-primary:hover { background: var(--blue-dark); color: #fff; }
+  .cp-btn-outline { background: transparent; color: var(--blue); border: 1.5px solid var(--blue); }
+  .cp-btn-outline:hover { background: #eaf0ff; }
+  .cp-btn-danger { background: transparent; color: #dc2626; border: 1.5px solid #dc2626; }
+  .cp-btn-danger:hover { background: #fee2e2; }
+  .cp-btn-sm { font-size: .8rem; padding: 5px 13px; }
+
+  /* Tab bar */
+  .cp-tabs {
+    display: flex;
+    gap: 4px;
+    background: #fff;
+    border-radius: 50px;
+    padding: 5px;
+    box-shadow: 0 2px 12px rgba(0,74,173,0.06);
+    margin-top: 20px;
+    width: fit-content;
+  }
+  .cp-tab {
+    font-family: var(--ff-sans);
+    font-size: .9rem;
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all .2s;
+    border: none;
+    background: transparent;
+  }
+  .cp-tab.active {
+    background: var(--blue);
+    color: #fff;
+  }
+  .cp-tab:hover:not(.active) { background: #eaf0ff; color: var(--blue); }
+
+  /* Tab panels */
+  .cp-tab-panel { display: none; }
+  .cp-tab-panel.active { display: block; }
+
+  /* Layout */
+  .cp-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 24px;
+    margin-top: 24px;
+  }
+  @media (max-width: 768px) {
+    .cp-layout { grid-template-columns: 1fr; }
+    .cp-layout-sidebar { order: -1; }
+  }
+
+  /* Sections */
+  .cp-section {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,74,173,0.06);
+    padding: 24px 26px;
+    margin-bottom: 20px;
+  }
+  .cp-section h3 {
+    font-family: var(--ff-serif);
+    font-size: 1.1rem;
+    color: var(--text);
+    margin: 0 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cp-section h3 i { color: var(--blue); }
+  .cp-about-text {
+    font-family: var(--ff-sans);
+    color: var(--text);
+    font-size: .97rem;
+    line-height: 1.7;
+    white-space: pre-line;
+  }
+
+  /* Info list */
+  .cp-info-list { list-style: none; padding: 0; margin: 0; }
+  .cp-info-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--ff-sans);
+    font-size: .92rem;
+    color: var(--text);
+  }
+  .cp-info-list li:last-child { border-bottom: none; }
+  .cp-info-list i { color: var(--blue); width: 18px; text-align: center; flex-shrink: 0; }
+  .cp-info-list a { color: var(--blue); text-decoration: none; }
+  .cp-info-list a:hover { text-decoration: underline; }
+
+  /* Media grid */
+  .cp-media-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 600px) { .cp-media-grid { grid-template-columns: repeat(2, 1fr); } }
+  .cp-media-item {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f0f4ff;
+    aspect-ratio: 1;
+  }
+  .cp-media-item img, .cp-media-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .cp-media-delete {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(220,38,38,0.85);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: .75rem;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .cp-media-item:hover .cp-media-delete { opacity: 1; }
+  .cp-doc-list { list-style: none; padding: 0; margin: 0; }
+  .cp-doc-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--ff-sans);
+    font-size: .92rem;
+    gap: 10px;
+  }
+  .cp-doc-item:last-child { border-bottom: none; }
+  .cp-doc-name { display: flex; align-items: center; gap: 8px; color: var(--text); }
+  .cp-doc-name i { color: var(--blue); }
+
+  /* Update feed */
+  .cp-update-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+  .cp-update-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+  .cp-update-meta {
+    font-family: var(--ff-sans);
+    font-size: .82rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cp-update-content {
+    font-family: var(--ff-sans);
+    font-size: .97rem;
+    color: var(--text);
+    line-height: 1.65;
+    white-space: pre-line;
+    margin: 0 0 10px;
+  }
+  .cp-update-img {
+    width: 100%;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+
+  /* Compose box */
+  .cp-compose {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    background: #f8faff;
+  }
+  .cp-compose textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: var(--ff-sans);
+    font-size: .95rem;
+    resize: vertical;
+    min-height: 80px;
+    box-sizing: border-box;
+    color: var(--text);
+  }
+  .cp-compose textarea:focus { outline: none; border-color: var(--blue); }
+  .cp-compose-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Upload modal */
+  .cp-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .cp-modal-overlay.open { display: flex; }
+  .cp-modal {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px 28px 24px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    position: relative;
+  }
+  .cp-modal h4 {
+    font-family: var(--ff-serif);
+    font-size: 1.15rem;
+    color: var(--text);
+    margin: 0 0 18px;
+  }
+  .cp-modal label {
+    font-family: var(--ff-sans);
+    font-size: .88rem;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 4px;
+    margin-top: 12px;
+  }
+  .cp-modal input[type="text"], .cp-modal textarea, .cp-modal input[type="file"] {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: var(--ff-sans);
+    font-size: .92rem;
+    box-sizing: border-box;
+    color: var(--text);
+  }
+  .cp-modal input:focus, .cp-modal textarea:focus { outline: none; border-color: var(--blue); }
+  .cp-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: var(--muted);
+  }
+
+  /* Jobs list */
+  .cp-job-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    transition: box-shadow .2s;
+  }
+  .cp-job-card:hover { box-shadow: 0 4px 16px rgba(0,74,173,0.1); }
+  .cp-job-title {
+    font-family: var(--ff-sans);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 4px;
+  }
+  .cp-job-meta {
+    font-family: var(--ff-sans);
+    font-size: .82rem;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .cp-job-badge {
+    background: #eaf0ff;
+    color: var(--blue);
+    font-size: .74rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .cp-empty {
+    text-align: center;
+    padding: 32px 0;
+    color: var(--muted);
+    font-family: var(--ff-sans);
+    font-size: .95rem;
+  }
+  .cp-empty i { font-size: 2rem; color: #c7d2fe; display: block; margin-bottom: 8px; }
+
+  /* Video cards */
+  .cp-video-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .cp-video-card video { width: 100%; max-height: 260px; display: block; background: #000; }
+  .cp-video-meta {
+    padding: 8px 12px;
+    font-family: var(--ff-sans);
+    font-size: .85rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+</style>
+
+<div style="background:#f0f4ff; min-height:100vh; padding-bottom:48px;">
+
+  <!-- Cover Image -->
+  <div class="cp-cover">
+    {% if company.cover_image %}
+      <img src="{{ company.cover_image.url }}" alt="{{ company.name }} cover">
+    {% endif %}
+  </div>
+
+  <div class="cp-page">
+    <!-- Header Card -->
+    <div class="cp-header-card">
+      <div class="cp-logo">
+        {% if company.logo %}
+          <img src="{{ company.logo.url }}" alt="{{ company.name }} logo">
+        {% else %}
+          <span class="cp-logo-placeholder"><i class="fi fi-rr-building"></i></span>
+        {% endif %}
+      </div>
+      <div class="cp-header-info">
+        <h1>{{ company.name }}</h1>
+        {% if company.tagline %}<p class="cp-tagline">{{ company.tagline }}</p>{% endif %}
+        <div class="cp-badges">
+          <span class="cp-badge">{{ company.get_industry_display }}</span>
+          <span class="cp-badge">{{ company.get_company_type_display }}</span>
+          {% if company.size %}<span class="cp-badge">{{ company.get_size_display }}</span>{% endif %}
+          {% if company.is_verified %}<span class="cp-badge verified"><i class="fi fi-rr-check"></i> Verified</span>{% endif %}
+        </div>
+        <p class="cp-follower-count"><i class="fi fi-rr-users" style="font-size:.85rem;"></i> <strong id="follower-count">{{ follower_count }}</strong> follower{{ follower_count|pluralize }}</p>
+      </div>
+      <div class="cp-header-actions">
+        {% if is_owner %}
+          <a href="{% url 'company_edit' company.pk %}" class="cp-btn cp-btn-outline"><i class="fi fi-rr-pencil"></i> Edit Page</a>
+          <a href="{% url 'user_post_job' %}" class="cp-btn cp-btn-primary"><i class="fi fi-rr-briefcase"></i> Post a Job</a>
+        {% else %}
+          {% if user.is_authenticated %}
+            <button id="follow-btn" class="cp-btn {% if is_following %}cp-btn-outline{% else %}cp-btn-primary{% endif %}"
+              data-url="{% url 'company_follow' company.pk %}"
+              data-following="{{ is_following|yesno:'true,false' }}">
+              <i class="fi {% if is_following %}fi-rr-check{% else %}fi-rr-plus{% endif %}"></i>
+              <span>{% if is_following %}Following{% else %}Follow{% endif %}</span>
+            </button>
+          {% endif %}
+          {% if company.email %}
+            <a href="mailto:{{ company.email }}" class="cp-btn cp-btn-outline"><i class="fi fi-rr-envelope"></i> Contact</a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="cp-tabs" id="tab-bar">
+      <button class="cp-tab active" data-tab="about">About</button>
+      <button class="cp-tab" data-tab="media">Media</button>
+      <button class="cp-tab" data-tab="updates">Updates</button>
+      <button class="cp-tab" data-tab="jobs">Jobs ({{ jobs.count }})</button>
+    </div>
+
+    <!-- ── About Tab ── -->
+    <div class="cp-tab-panel active" id="tab-about">
+      <div class="cp-layout">
+        <div>
+          <div class="cp-section">
+            <h3><i class="fi fi-rr-info"></i> About</h3>
+            <p class="cp-about-text">{{ company.description }}</p>
+          </div>
+        </div>
+        <div class="cp-layout-sidebar">
+          <div class="cp-section">
+            <h3><i class="fi fi-rr-building"></i> Company Info</h3>
+            <ul class="cp-info-list">
+              {% if company.location %}
+              <li><i class="fi fi-rr-marker"></i> {{ company.location }}</li>
+              {% endif %}
+              {% if company.website %}
+              <li><i class="fi fi-rr-globe"></i> <a href="{{ company.website }}" target="_blank" rel="noopener">{{ company.website }}</a></li>
+              {% endif %}
+              {% if company.email %}
+              <li><i class="fi fi-rr-envelope"></i> <a href="mailto:{{ company.email }}">{{ company.email }}</a></li>
+              {% endif %}
+              {% if company.phone %}
+              <li><i class="fi fi-rr-phone-call"></i> {{ company.phone }}</li>
+              {% endif %}
+              {% if company.founded_year %}
+              <li><i class="fi fi-rr-calendar"></i> Founded {{ company.founded_year }}</li>
+              {% endif %}
+              {% if company.size %}
+              <li><i class="fi fi-rr-users"></i> {{ company.get_size_display }}</li>
+              {% endif %}
+              {% if company.owner %}
+              <li><i class="fi fi-rr-user"></i> <a href="{% url 'profile_view' company.owner.id %}">{{ company.owner.get_full_name|default:company.owner.username }}</a></li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Media Tab ── -->
+    <div class="cp-tab-panel" id="tab-media">
+      <div class="cp-section" style="margin-top:24px;">
+        <h3><i class="fi fi-rr-picture"></i> Media</h3>
+
+        {% if is_owner %}
+        <button class="cp-btn cp-btn-primary cp-btn-sm" onclick="document.getElementById('media-modal').classList.add('open')" style="margin-bottom:20px;">
+          <i class="fi fi-rr-upload"></i> Upload Media
+        </button>
+        {% endif %}
+
+        {% with images=media_items|dictsortreversed:"uploaded_at" %}
+        {% comment %}Split by type{% endcomment %}
+        {% endwith %}
+
+        <!-- Images -->
+        {% if media_items %}
+          {% comment %}Images{% endcomment %}
+          {% with has_images=False %}{% endwith %}
+          <div class="cp-media-grid" id="images-grid">
+            {% for item in media_items %}
+              {% if item.media_type == 'image' %}
+              <div class="cp-media-item">
+                <img src="{{ item.file.url }}" alt="{{ item.title|default:'Image' }}" loading="lazy">
+                {% if item.title %}<span style="position:absolute;bottom:0;left:0;right:0;padding:5px 10px;background:linear-gradient(transparent,rgba(0,0,0,0.58));color:#fff;font-size:0.77rem;font-family:'Jaldi',sans-serif;pointer-events:none;">{{ item.title }}</span>{% endif %}
+                {% if is_owner %}
+                <form method="post" action="{% url 'company_delete_media' company.pk item.pk %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="cp-media-delete" onclick="return confirm('Delete this image?')"><i class="fi fi-rr-trash"></i></button>
+                </form>
+                {% endif %}
+              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <!-- Videos -->
+          {% for item in media_items %}
+            {% if item.media_type == 'video' %}
+            <div class="cp-video-card">
+              <video controls preload="metadata">
+                <source src="{{ item.file.url }}">
+                Your browser does not support video.
+              </video>
+              <div class="cp-video-meta">
+                <span>{{ item.title|default:"Video" }}</span>
+                {% if is_owner %}
+                <form method="post" action="{% url 'company_delete_media' company.pk item.pk %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="cp-btn cp-btn-danger cp-btn-sm" onclick="return confirm('Delete this video?')"><i class="fi fi-rr-trash"></i> Delete</button>
+                </form>
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+          {% endfor %}
+
+          <!-- Documents -->
+          {% for item in media_items %}
+            {% if item.media_type == 'document' %}
+            {% if forloop.first %}
+            <h4 style="font-family:var(--ff-serif); font-size:1rem; color:var(--text); margin:20px 0 10px;">Documents</h4>
+            <ul class="cp-doc-list">
+            {% endif %}
+              <li class="cp-doc-item">
+                <span class="cp-doc-name"><i class="fi fi-rr-document"></i> {{ item.title|default:item.file.name }}</span>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <a href="{{ item.file.url }}" download class="cp-btn cp-btn-outline cp-btn-sm"><i class="fi fi-rr-download"></i> Download</a>
+                  {% if is_owner %}
+                  <form method="post" action="{% url 'company_delete_media' company.pk item.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="cp-btn cp-btn-danger cp-btn-sm" onclick="return confirm('Delete this document?')"><i class="fi fi-rr-trash"></i></button>
+                  </form>
+                  {% endif %}
+                </div>
+              </li>
+            {% if forloop.last %}</ul>{% endif %}
+            {% endif %}
+          {% endfor %}
+
+        {% else %}
+          <div class="cp-empty">
+            <i class="fi fi-rr-picture"></i>
+            No media uploaded yet.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ── Updates Tab ── -->
+    <div class="cp-tab-panel" id="tab-updates">
+      <div class="cp-section" style="margin-top:24px;">
+        <h3><i class="fi fi-rr-megaphone"></i> Updates</h3>
+
+        {% if is_owner %}
+        <div class="cp-compose">
+          <form method="post" action="{% url 'company_post_update' company.pk %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <textarea name="content" placeholder="Share an update about {{ company.name }}…" rows="3"></textarea>
+            <div class="cp-compose-actions">
+              <label style="font-family:var(--ff-sans); font-size:.85rem; color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:6px;">
+                <i class="fi fi-rr-picture" style="color:var(--blue);"></i>
+                Add image
+                <input type="file" name="image" accept="image/*" style="display:none;">
+              </label>
+              <button type="submit" class="cp-btn cp-btn-primary cp-btn-sm"><i class="fi fi-rr-paper-plane"></i> Post Update</button>
+            </div>
+          </form>
+        </div>
+        {% endif %}
+
+        {% if updates %}
+          {% for update in updates %}
+          <div class="cp-update-card">
+            <div class="cp-update-header">
+              <span class="cp-update-meta">
+                <i class="fi fi-rr-clock"></i>
+                {{ update.created_at|date:"N j, Y" }}
+              </span>
+              {% if is_owner %}
+              <form method="post" action="{% url 'company_delete_update' company.pk update.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="cp-btn cp-btn-danger cp-btn-sm" onclick="return confirm('Delete this update?')"><i class="fi fi-rr-trash"></i> Delete</button>
+              </form>
+              {% endif %}
+            </div>
+            <p class="cp-update-content">{{ update.content }}</p>
+            {% if update.image %}
+              <img src="{{ update.image.url }}" alt="Update image" class="cp-update-img">
+            {% endif %}
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="cp-empty">
+            <i class="fi fi-rr-megaphone"></i>
+            No updates yet.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ── Jobs Tab ── -->
+    <div class="cp-tab-panel" id="tab-jobs">
+      <div class="cp-section" style="margin-top:24px;">
+        <h3><i class="fi fi-rr-briefcase"></i> Open Positions ({{ jobs.count }})</h3>
+        {% if is_owner %}
+          <a href="{% url 'user_post_job' %}" class="cp-btn cp-btn-primary cp-btn-sm" style="margin-bottom:16px; display:inline-flex;"><i class="fi fi-rr-plus"></i> Post a Job</a>
+        {% endif %}
+        {% if jobs %}
+          {% for job in jobs %}
+          <div class="cp-job-card">
+            <div>
+              <p class="cp-job-title">{{ job.title }}</p>
+              <div class="cp-job-meta">
+                {% if job.location %}<span><i class="fi fi-rr-marker"></i> {{ job.location }}</span>{% endif %}
+                {% if job.salary_range %}<span><i class="fi fi-rr-coins"></i> {{ job.salary_range }}</span>{% endif %}
+                <span class="cp-job-badge">{{ job.get_job_type_display }}</span>
+              </div>
+            </div>
+            <a href="{% url 'jobs' %}" class="cp-btn cp-btn-outline" style="white-space:nowrap; font-size:.82rem; padding:6px 14px;">View</a>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="cp-empty">
+            <i class="fi fi-rr-briefcase"></i>
+            No open positions at the moment.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div><!-- /.cp-page -->
+</div><!-- /bg -->
+
+<!-- Media Upload Modal -->
+{% if is_owner %}
+<div class="cp-modal-overlay" id="media-modal">
+  <div class="cp-modal">
+    <button class="cp-modal-close" onclick="document.getElementById('media-modal').classList.remove('open')">&times;</button>
+    <h4><i class="fi fi-rr-upload" style="color:var(--blue);"></i> Upload Media</h4>
+    <form method="post" action="{% url 'company_upload_media' company.pk %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <label>File <small>(images, videos, documents)</small></label>
+      <input type="file" name="file" accept="image/*,video/mp4,video/webm,video/quicktime,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" required>
+      <label>Title <small style="font-weight:400;">(optional — used as alt text for SEO)</small></label>
+      <input type="text" name="title" placeholder="e.g. Product demo video, Team photo, Q3 Report">
+      <label>Caption / Description <small style="font-weight:400;">(optional — helps search engines index the content)</small></label>
+      <textarea name="caption" rows="2" placeholder="Brief description of what this file shows or contains…"></textarea>
+      <div style="margin-top:16px; display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" class="cp-btn cp-btn-outline" onclick="document.getElementById('media-modal').classList.remove('open')">Cancel</button>
+        <button type="submit" class="cp-btn cp-btn-primary"><i class="fi fi-rr-cloud-upload"></i> Upload</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<script>
+  // Tab switching with hash support
+  const tabs = document.querySelectorAll('.cp-tab');
+  const panels = document.querySelectorAll('.cp-tab-panel');
+
+  function activateTab(name) {
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    panels.forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const name = tab.dataset.tab;
+      window.location.hash = name;
+      activateTab(name);
+    });
+  });
+
+  // Restore from hash
+  const hash = window.location.hash.replace('#', '');
+  if (hash && ['about', 'media', 'updates', 'jobs'].includes(hash)) {
+    activateTab(hash);
+  }
+
+  // Follow / Unfollow AJAX
+  const followBtn = document.getElementById('follow-btn');
+  if (followBtn) {
+    followBtn.addEventListener('click', function() {
+      const url = this.dataset.url;
+      const csrfToken = document.cookie.match(/csrftoken=([^;]+)/);
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken ? csrfToken[1] : '',
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(r => r.json())
+      .then(data => {
+        const icon = this.querySelector('i');
+        const label = this.querySelector('span');
+        const countEl = document.getElementById('follower-count');
+        if (data.following) {
+          this.classList.remove('cp-btn-primary');
+          this.classList.add('cp-btn-outline');
+          icon.className = 'fi fi-rr-check';
+          label.textContent = 'Following';
+        } else {
+          this.classList.add('cp-btn-primary');
+          this.classList.remove('cp-btn-outline');
+          icon.className = 'fi fi-rr-plus';
+          label.textContent = 'Follow';
+        }
+        if (countEl) {
+          countEl.textContent = data.count;
+          const pluralEl = countEl.nextSibling;
+          if (pluralEl) pluralEl.textContent = ' follower' + (data.count !== 1 ? 's' : '');
+        }
+      });
+    });
+  }
+</script>
+{% include '_partials/footer.html' %}
+{% endblock %}

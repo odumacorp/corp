@@ -1,0 +1,4 @@
+{% load allauth %}
+<div class="aa-alert {% if 'success' in attrs.tags %}success{% elif 'info' in attrs.tags %}info{% endif %}">
+  {% slot message %}{% endslot %}
+</div>

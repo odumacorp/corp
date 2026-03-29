@@ -1,0 +1,651 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}FAQ — Oduma Connect{% endblock %}
+
+{% block content %}
+<style>
+:root {
+  --blue: #004AAD;
+  --ff-sans: "Jaldi", sans-serif;
+  --border: #e5e7eb;
+}
+
+.faq-wrap {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+/* Hero */
+.faq-hero {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.faq-hero-icon {
+  width: 64px; height: 64px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.8rem;
+  margin-bottom: 16px;
+}
+.faq-hero h1 {
+  font-family: "Jacques Francois", serif;
+  font-size: 2rem;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+.faq-hero p {
+  font-size: 1rem;
+  color: #64748b;
+  max-width: 500px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+}
+
+/* Search */
+.faq-search-wrap {
+  position: relative;
+  max-width: 480px;
+  margin: 0 auto 12px;
+}
+.faq-search-wrap i {
+  position: absolute;
+  left: 16px; top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8; font-size: 0.95rem;
+}
+#faq-search {
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: var(--ff-sans);
+  font-size: 0.95rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+#faq-search:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,74,173,0.08); }
+#faq-no-results {
+  display: none;
+  text-align: center;
+  padding: 32px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+/* Category filter chips */
+.faq-cats {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center;
+  margin-bottom: 36px;
+}
+.faq-cat-chip {
+  padding: 6px 16px;
+  border-radius: 99px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  color: #475569;
+  font-size: 0.82rem;
+  font-family: var(--ff-sans);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.faq-cat-chip:hover, .faq-cat-chip.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+/* Section */
+.faq-section { margin-bottom: 40px; }
+.faq-section-title {
+  display: flex; align-items: center; gap: 10px;
+  font-family: "Jacques Francois", serif;
+  font-size: 1.1rem;
+  color: #0f172a;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f1f5f9;
+}
+.faq-section-icon {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+
+/* Accordion item */
+.faq-item {
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  background: #fff;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.faq-item:hover { border-color: #c7d7f0; }
+.faq-item.open { border-color: #93c5fd; box-shadow: 0 2px 12px rgba(0,74,173,0.08); }
+
+.faq-q {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 16px 18px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1e293b;
+  line-height: 1.4;
+}
+.faq-q:hover { background: #f8fafc; }
+.faq-item.open .faq-q { background: #eff6ff; color: var(--blue); }
+.faq-q-icon {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: #64748b;
+  transition: transform 0.25s, background 0.15s;
+}
+.faq-item.open .faq-q-icon {
+  transform: rotate(180deg);
+  background: var(--blue);
+  color: #fff;
+}
+
+.faq-a {
+  display: none;
+  padding: 0 18px 16px;
+  font-size: 0.875rem;
+  color: #475569;
+  line-height: 1.7;
+  border-top: 1px solid #f1f5f9;
+}
+.faq-item.open .faq-a { display: block; }
+.faq-a a { color: var(--blue); text-decoration: none; font-weight: 600; }
+.faq-a a:hover { text-decoration: underline; }
+.faq-a ul { margin: 8px 0 0 18px; padding: 0; }
+.faq-a li { margin-bottom: 4px; }
+
+/* Still need help */
+.faq-help-card {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 1.5px solid #bfdbfe;
+  border-radius: 16px;
+  padding: 28px 32px;
+  text-align: center;
+  margin-top: 48px;
+}
+.faq-help-card h3 { font-family: "Jacques Francois", serif; font-size: 1.2rem; color: #0f172a; margin-bottom: 8px; }
+.faq-help-card p { font-size: 0.875rem; color: #64748b; margin-bottom: 20px; }
+.faq-help-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.faq-help-btn {
+  padding: 10px 24px; border-radius: 10px;
+  font-family: var(--ff-sans); font-size: 0.875rem; font-weight: 700;
+  text-decoration: none; cursor: pointer; border: none;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.faq-help-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.faq-help-btn-primary { background: var(--blue); color: #fff; }
+.faq-help-btn-ghost { background: #fff; color: var(--blue); border: 1.5px solid #bfdbfe; }
+
+@media (max-width: 600px) {
+  .faq-hero h1 { font-size: 1.5rem; }
+  .faq-q { font-size: 0.85rem; }
+  .faq-help-card { padding: 20px 16px; }
+}
+</style>
+
+<div class="faq-wrap">
+
+  <!-- Hero -->
+  <div class="faq-hero">
+    <div class="faq-hero-icon"><i class="fi fi-rr-interrogation"></i></div>
+    <h1>Frequently Asked Questions</h1>
+    <p>Find answers to common questions about Oduma Connect. Can't find what you're looking for? Chat with Odu, our AI assistant.</p>
+    <div class="faq-search-wrap">
+      <i class="fi fi-rr-search fi-sm"></i>
+      <input type="text" id="faq-search" placeholder="Search questions…" oninput="faqSearch()" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- Category chips -->
+  <div class="faq-cats" id="faq-cats">
+    <button class="faq-cat-chip active" data-cat="all" onclick="faqCat(this,'all')">All</button>
+    <button class="faq-cat-chip" data-cat="getting-started" onclick="faqCat(this,'getting-started')">Getting Started</button>
+    <button class="faq-cat-chip" data-cat="account" onclick="faqCat(this,'account')">Account</button>
+    <button class="faq-cat-chip" data-cat="messaging" onclick="faqCat(this,'messaging')">Messaging</button>
+    <button class="faq-cat-chip" data-cat="meetings" onclick="faqCat(this,'meetings')">Meetings</button>
+    <button class="faq-cat-chip" data-cat="innovators" onclick="faqCat(this,'innovators')">For Innovators</button>
+    <button class="faq-cat-chip" data-cat="investors" onclick="faqCat(this,'investors')">For Investors</button>
+    <button class="faq-cat-chip" data-cat="connections" onclick="faqCat(this,'connections')">Connections</button>
+  </div>
+
+  <div id="faq-no-results">
+    <i class="fi fi-rr-search" style="font-size:2rem;display:block;margin-bottom:8px;"></i>
+    No questions match your search. Try different keywords.
+  </div>
+
+  <!-- ── Getting Started ── -->
+  <div class="faq-section" data-cat="getting-started">
+    <div class="faq-section-title">
+      <div class="faq-section-icon" style="background:#eff6ff;color:#004AAD;"><i class="fi fi-rr-rocket"></i></div>
+      Getting Started
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        What is Oduma Connect?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Oduma Connect is Africa's innovation and investment platform. It connects <strong>innovators</strong> — people with ideas, inventions, and projects — with <strong>investors</strong> who are looking for opportunities to fund and collaborate. Users can share projects, exchange messages, attend virtual meetings, and build professional networks.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I create an account?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Click <a href="{% url 'register' %}">Register</a> on the homepage or login page. Fill in your name, email, password, and select your role — <strong>Innovator</strong> or <strong>Investor</strong>. Your username is auto-generated from your name. After registering you'll land on the main feed, and a guided tour will start automatically to help you get around.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I navigate the platform?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Use the top navigation bar to access main sections. On mobile and tablet, tap the <strong>menu icon</strong> to open the sidebar drawer which lists all pages. Key sections include:
+        <ul>
+          <li><strong>Feed (/app/)</strong> — Posts and updates</li>
+          <li><strong>Innovators</strong> — Browse innovator profiles</li>
+          <li><strong>Investors</strong> — Browse investor profiles</li>
+          <li><strong>Inbox</strong> — Direct messages</li>
+          <li><strong>Dashboard</strong> — Manage your projects or investments</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Is there a guided tour of the platform?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Yes! New users get an automatic tour right after registering. You can also restart it anytime by going to the <strong>sidebar menu → Platform Tour</strong>, or by clicking the purple <i class="fi fi-rr-map fi-xs"></i> map button that appears in the bottom-right corner after scrolling down on any page.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Can I use Oduma Connect on my phone or tablet?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Yes. The platform is fully responsive and works on all screen sizes. On phones and tablets, the navigation moves into a slide-out sidebar drawer accessible from the menu icon in the top-left corner.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Account ── -->
+  <div class="faq-section" data-cat="account">
+    <div class="faq-section-title">
+      <div class="faq-section-icon" style="background:#f0fdf4;color:#059669;"><i class="fi fi-rr-user"></i></div>
+      Account &amp; Profile
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I edit my profile?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Go to <a href="{% url 'edit_profile' %}">Edit Profile</a> from the sidebar menu or by visiting <strong>/edit-profile/</strong>. You can update your name, bio, industry, company, profile photo, and contact information. A complete profile significantly increases your visibility to other users.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        What is my username and can I change it?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Your username is auto-generated from your first and last name when you register (e.g. <strong>john.doe</strong>). You can see it in your profile. At this time, usernames cannot be changed manually — contact support via the feedback button if you need assistance.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I upload a profile photo?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Visit <a href="{% url 'edit_profile' %}">Edit Profile</a> and click the profile picture area to upload a new photo. Supported formats are JPG, PNG, and GIF. Your photo appears on your profile, posts, messages, and search results.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        What are the different user roles?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        There are two main roles:
+        <ul>
+          <li><strong>Innovator</strong> — Creates and showcases projects, patents, and inventions. Can receive investment proposals and collaborate with investors.</li>
+          <li><strong>Investor</strong> — Browses projects, sends investment proposals, expresses interest, and collaborates with innovators.</li>
+        </ul>
+        Your role determines which dashboard you see and which actions are available to you.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Messaging ── -->
+  <div class="faq-section" data-cat="messaging">
+    <div class="faq-section-title">
+      <div class="faq-section-icon" style="background:#fff7ed;color:#d97706;"><i class="fi fi-rr-comment-alt"></i></div>
+      Messaging
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I send a message to someone?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        You can start a conversation in several ways:
+        <ul>
+          <li>Visit someone's <strong>profile</strong> and click the <strong>Message</strong> button.</li>
+          <li>Click <strong>Message</strong> on an innovator or investor card in the browse pages.</li>
+          <li>From the <a href="{% url 'inbox' %}">Inbox</a>, use the <strong>New Message</strong> panel to search for and message any user.</li>
+        </ul>
+        All conversations are stored in your Inbox.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Where do I find my messages?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        All your conversations are in the <a href="{% url 'inbox' %}">Inbox</a>. You can access it from the top navigation bar (the envelope icon with an unread badge) or from the sidebar menu. Unread messages are highlighted and counted in the badge.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Can I see if my message was read?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Yes. In the chat window, your sent messages show a <strong>single grey checkmark</strong> (✓) when delivered and a <strong>double green checkmark</strong> (✓✓) when the other person has read the message.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Does the chat update in real time?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        The chat polls for new messages every <strong>4 seconds</strong> automatically. New messages from the other person will appear without you needing to refresh the page.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Meetings ── -->
+  <div class="faq-section" data-cat="meetings">
+    <div class="faq-section-title">
+      <div class="faq-section-icon" style="background:#faf5ff;color:#7c3aed;"><i class="fi fi-rr-video-camera"></i></div>
+      Video Meetings
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I schedule a video meeting?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        You can schedule a meeting from multiple places:
+        <ul>
+          <li>Click <strong>Schedule Call</strong> on any user's profile page.</li>
+          <li>Click the <strong>Call</strong> button on an innovator or investor card.</li>
+          <li>Click the <strong>video camera icon</strong> inside any chat conversation.</li>
+          <li>Go to <a href="{% url 'meetings_list' %}">Meetings</a> and click <strong>New Meeting</strong>.</li>
+        </ul>
+        A modal will appear letting you choose an Instant Call or schedule for a specific date and time.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do video meetings work?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Meetings are powered by <strong>Zoom</strong>. When a meeting is created, a Zoom room is automatically generated. The meeting host receives a <strong>Start (Host)</strong> link and participants receive a <strong>Join</strong> link. Clicking either button opens Zoom in a new tab or the Zoom app. The other participant also receives a notification with the join link.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Where can I find my upcoming and past meetings?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Visit <a href="{% url 'meetings_list' %}">Meetings</a> from the navigation. Your dashboard also has a <strong>Meetings tab</strong> showing your recent meetings with status, participants, and quick join links.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Are meetings recorded?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Cloud recording is enabled by default on all meetings. After the meeting ends, the recording becomes available through the meeting details page. Click <strong>Check Recordings</strong> to view, play, or download the recorded session.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── For Innovators ── -->
+  <div class="faq-section" data-cat="innovators">
+    <div class="faq-section-title">
+      <div class="faq-section-icon" style="background:#eff6ff;color:#004AAD;"><i class="fi fi-rr-bulb"></i></div>
+      For Innovators
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I add a project?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Go to your <a href="{% url 'dashboard' %}">Dashboard</a> and click <strong>+ Add New Project</strong>. Fill in the title, description, industry, and status. You can also add photos and documents. Projects appear on your profile and in the feed where investors can find them.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do investors find my project?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Your projects appear in the main feed, on your public profile, and in the <strong>Recommended for You</strong> section of investor dashboards. Projects with more likes, ratings, and interested users get ranked higher in recommendations. Make sure your project description is detailed and your profile is complete.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I respond to an investment proposal?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        When an investor sends a proposal, you'll receive a notification. Go to <a href="{% url 'notifications' %}">Notifications</a> to view it, or check <a href="{% url 'proposals_list' %}">Proposals</a> for a full list. Click <strong>Reply</strong> to open a direct chat with the investor. After replying, you can hide the notification using the <strong>Hide</strong> button.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        What project statuses are available?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Projects can have the following statuses: <strong>Draft</strong> (work in progress, not yet ready), <strong>In Progress</strong> (actively being developed), and <strong>Completed</strong>. You can filter your dashboard by status and update it as your project evolves.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── For Investors ── -->
+  <div class="faq-section" data-cat="investors">
+    <div class="faq-section-title">
+      <div class="faq-section-icon" style="background:#fefce8;color:#d97706;"><i class="fi fi-rr-sack-dollar"></i></div>
+      For Investors
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I find projects to invest in?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Browse the main <a href="{% url 'app' %}">Feed</a> for posts and projects. Your <a href="{% url 'investor_dashboard' %}">Investor Dashboard</a> shows a <strong>Recommended for You</strong> section with promoted projects ranked by engagement. You can also browse <a href="{% url 'innovators' %}">Innovators</a> and view their project portfolios directly.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I send an investment proposal?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        On any project post in the feed, click the <strong>Send Proposal</strong> or <strong>Collaborate</strong> button. Fill in your message, proposed amount, and terms. The innovator will be notified and can reply via chat. You can track all your proposals from the <a href="{% url 'investor_dashboard' %}">Investor Dashboard → Proposals tab</a>.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I track my proposals and interactions?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Your <a href="{% url 'investor_dashboard' %}">Investor Dashboard</a> has dedicated tabs for <strong>Proposals</strong>, <strong>Involvement</strong> (collaborations and patent requests), <strong>Interested Projects</strong>, and <strong>Pending</strong> items. The <strong>Meetings tab</strong> shows all your scheduled and past video calls.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Connections ── -->
+  <div class="faq-section" data-cat="connections">
+    <div class="faq-section-title">
+      <div class="faq-section-icon" style="background:#f0fdf4;color:#16a34a;"><i class="fi fi-rr-users"></i></div>
+      Connections &amp; Network
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I connect with someone?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Visit any user's profile and click <strong>+ Connect</strong>. They will receive a connection request notification. Once they accept, you'll both appear in each other's network. You can also see pending requests in your <a href="{% url 'notifications' %}">Notifications</a>.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Where do I manage my connections?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        Go to <a href="{% url 'networks' %}">My Network</a> from the sidebar menu. Here you can see all your connections, pending requests, and people you may know. You can also disconnect from users from their profile page.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Do I need to be connected to message someone?
+        <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
+      </div>
+      <div class="faq-a">
+        No. You can message any user on the platform directly without needing to be connected first. Connections are for building your visible network — messaging is open to everyone.
+      </div>
+    </div>
+  </div>
+
+  <!-- Still need help -->
+  <div class="faq-help-card">
+    <h3>Still have questions?</h3>
+    <p>Our AI assistant Odu can answer platform questions instantly. Or reach out to the team directly.</p>
+    <div class="faq-help-btns">
+      <button class="faq-help-btn faq-help-btn-primary" onclick="if(window.OcTour)OcTour.start()">
+        <i class="fi fi-rr-map fi-sm"></i> Take the Tour
+      </button>
+      <a href="{% url 'index' %}#contact" class="faq-help-btn faq-help-btn-ghost">
+        <i class="fi fi-rr-envelope fi-sm"></i> Contact Us
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleFaq(qEl) {
+  var item = qEl.closest('.faq-item');
+  var isOpen = item.classList.contains('open');
+  // Close all open items in the same section
+  item.closest('.faq-section').querySelectorAll('.faq-item.open').forEach(function(el) {
+    el.classList.remove('open');
+  });
+  if (!isOpen) item.classList.add('open');
+}
+
+function faqSearch() {
+  var q = document.getElementById('faq-search').value.toLowerCase().trim();
+  var items = document.querySelectorAll('.faq-item');
+  var sections = document.querySelectorAll('.faq-section');
+  var anyVisible = false;
+
+  sections.forEach(function(sec) {
+    var secVisible = false;
+    sec.querySelectorAll('.faq-item').forEach(function(item) {
+      var text = item.textContent.toLowerCase();
+      var match = !q || text.includes(q);
+      item.style.display = match ? '' : 'none';
+      if (match) secVisible = true;
+    });
+    sec.style.display = secVisible ? '' : 'none';
+    if (secVisible) anyVisible = true;
+  });
+
+  document.getElementById('faq-no-results').style.display = anyVisible ? 'none' : 'block';
+}
+
+var _activeCat = 'all';
+function faqCat(btn, cat) {
+  _activeCat = cat;
+  document.querySelectorAll('.faq-cat-chip').forEach(function(c) { c.classList.remove('active'); });
+  btn.classList.add('active');
+
+  document.querySelectorAll('.faq-section').forEach(function(sec) {
+    if (cat === 'all' || sec.dataset.cat === cat) {
+      sec.style.display = '';
+    } else {
+      sec.style.display = 'none';
+    }
+  });
+  document.getElementById('faq-search').value = '';
+  document.getElementById('faq-no-results').style.display = 'none';
+}
+</script>
+{% include '_partials/footer.html' %}
+{% endblock %}

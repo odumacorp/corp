@@ -1,0 +1,680 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Privacy Policy &amp; Platform Agreement — Oduma Connect{% endblock %}
+
+{% block content %}
+<style>
+:root {
+  --blue: #004AAD;
+  --ff-sans: "Jaldi", sans-serif;
+  --border: #e5e7eb;
+}
+
+/* Layout */
+.pp-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 100px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .pp-layout { grid-template-columns: 1fr; }
+  .pp-toc { display: none; }
+}
+
+/* Sticky TOC */
+.pp-toc {
+  position: sticky;
+  top: 80px;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  font-size: 0.83rem;
+}
+.pp-toc-title {
+  font-family: "Jacques Francois", serif;
+  font-size: 0.85rem;
+  color: #0f172a;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.pp-toc a {
+  display: block;
+  color: #64748b;
+  text-decoration: none;
+  padding: 5px 0 5px 10px;
+  border-left: 2px solid transparent;
+  font-family: var(--ff-sans);
+  transition: color 0.15s, border-color 0.15s;
+  line-height: 1.4;
+}
+.pp-toc a:hover, .pp-toc a.active {
+  color: var(--blue);
+  border-left-color: var(--blue);
+}
+.pp-toc a.sub { padding-left: 22px; font-size: 0.78rem; }
+
+/* Main content */
+.pp-content {}
+
+/* Hero */
+.pp-hero {
+  background: linear-gradient(135deg, #0a0f2c 0%, #003080 100%);
+  border-radius: 20px;
+  padding: 40px 36px;
+  color: #fff;
+  margin-bottom: 40px;
+  position: relative;
+  overflow: hidden;
+}
+.pp-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='28'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+  pointer-events: none;
+}
+.pp-hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 99px;
+  padding: 5px 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  color: rgba(255,255,255,0.9);
+}
+.pp-hero h1 {
+  font-family: "Jacques Francois", serif;
+  font-size: 1.9rem;
+  color: #fff;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+.pp-hero p {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.65;
+  max-width: 580px;
+  margin-bottom: 20px;
+}
+.pp-hero-meta {
+  display: flex; gap: 24px; flex-wrap: wrap;
+  font-size: 0.78rem; color: rgba(255,255,255,0.55);
+}
+.pp-hero-meta span { display: flex; align-items: center; gap: 6px; }
+
+/* Alert box */
+.pp-alert {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 16px 18px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.pp-alert-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+.pp-alert.blue { background: #eff6ff; border: 1.5px solid #bfdbfe; color: #1e40af; }
+.pp-alert.amber { background: #fffbeb; border: 1.5px solid #fde68a; color: #92400e; }
+.pp-alert.green { background: #f0fdf4; border: 1.5px solid #bbf7d0; color: #14532d; }
+
+/* Section */
+.pp-section {
+  margin-bottom: 48px;
+  scroll-margin-top: 90px;
+}
+.pp-section-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f1f5f9;
+}
+.pp-section-icon {
+  width: 40px; height: 40px;
+  border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.pp-section-header h2 {
+  font-family: "Jacques Francois", serif;
+  font-size: 1.2rem;
+  color: #0f172a;
+  margin: 0;
+}
+
+/* Contract highlight card */
+.pp-contract-card {
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  border: 1.5px solid;
+  position: relative;
+  overflow: hidden;
+}
+.pp-contract-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  border-radius: 4px 0 0 4px;
+}
+.pp-contract-card.blue   { background: #eff6ff; border-color: #bfdbfe; }
+.pp-contract-card.blue::before { background: #004AAD; }
+.pp-contract-card.purple { background: #faf5ff; border-color: #ddd6fe; }
+.pp-contract-card.purple::before { background: #7c3aed; }
+.pp-contract-card.green  { background: #f0fdf4; border-color: #bbf7d0; }
+.pp-contract-card.green::before { background: #059669; }
+.pp-contract-card.amber  { background: #fffbeb; border-color: #fde68a; }
+.pp-contract-card.amber::before { background: #d97706; }
+.pp-contract-card.dark   { background: #0a0f2c; border-color: #1e3a6e; }
+.pp-contract-card.dark::before { background: #60a5fa; }
+
+.pp-contract-card .cc-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px;
+}
+.pp-contract-card .cc-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+.pp-contract-card.blue   .cc-icon { background: rgba(0,74,173,0.12); color: #004AAD; }
+.pp-contract-card.purple .cc-icon { background: rgba(124,58,237,0.12); color: #7c3aed; }
+.pp-contract-card.green  .cc-icon { background: rgba(5,150,105,0.12); color: #059669; }
+.pp-contract-card.amber  .cc-icon { background: rgba(217,119,6,0.12); color: #d97706; }
+.pp-contract-card.dark   .cc-icon { background: rgba(96,165,250,0.12); color: #60a5fa; }
+
+.pp-contract-card .cc-title {
+  font-weight: 700; font-size: 0.95rem;
+}
+.pp-contract-card.dark .cc-title { color: #fff; }
+.pp-contract-card .cc-body {
+  font-size: 0.875rem; line-height: 1.65; color: #475569;
+}
+.pp-contract-card.dark .cc-body { color: rgba(255,255,255,0.72); }
+.pp-contract-card .cc-body ul { margin: 8px 0 0 18px; padding: 0; }
+.pp-contract-card .cc-body li { margin-bottom: 5px; }
+
+/* Share highlight */
+.pp-share-highlight {
+  background: linear-gradient(135deg, #0a0f2c, #003080);
+  border-radius: 16px;
+  padding: 28px 28px;
+  color: #fff;
+  text-align: center;
+  margin: 24px 0;
+}
+.pp-share-highlight .sh-num {
+  font-family: "Jacques Francois", serif;
+  font-size: 3rem;
+  color: #60a5fa;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.pp-share-highlight .sh-label {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.72);
+  margin-bottom: 12px;
+}
+.pp-share-highlight .sh-note {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.45);
+  max-width: 420px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Body text */
+.pp-body {
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: #374151;
+}
+.pp-body p { margin-bottom: 14px; }
+.pp-body ul, .pp-body ol {
+  margin: 8px 0 14px 20px;
+  padding: 0;
+}
+.pp-body li { margin-bottom: 6px; }
+.pp-body strong { color: #0f172a; }
+.pp-body a { color: var(--blue); text-decoration: none; font-weight: 600; }
+.pp-body a:hover { text-decoration: underline; }
+
+/* Divider */
+.pp-divider {
+  border: none;
+  border-top: 1.5px solid #f1f5f9;
+  margin: 40px 0;
+}
+
+/* Acceptance */
+.pp-acceptance {
+  background: #f8fafc;
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 28px;
+  text-align: center;
+  margin-top: 48px;
+}
+.pp-acceptance h3 {
+  font-family: "Jacques Francois", serif;
+  font-size: 1.15rem;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+.pp-acceptance p {
+  font-size: 0.875rem;
+  color: #64748b;
+  max-width: 520px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+}
+.pp-acceptance-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.pp-acc-btn {
+  padding: 10px 26px; border-radius: 10px;
+  font-family: var(--ff-sans); font-size: 0.875rem; font-weight: 700;
+  text-decoration: none; cursor: pointer; border: none;
+  transition: opacity 0.15s;
+}
+.pp-acc-btn:hover { opacity: 0.85; }
+.pp-acc-btn-primary { background: var(--blue); color: #fff; }
+.pp-acc-btn-ghost { background: #fff; color: #64748b; border: 1.5px solid var(--border); }
+</style>
+
+<div class="pp-layout">
+
+  <!-- Sticky TOC -->
+  <aside class="pp-toc">
+    <div class="pp-toc-title"><i class="fi fi-rr-list fi-sm"></i> Contents</div>
+    <a href="#overview">Overview</a>
+    <a href="#data">Data We Collect</a>
+    <a href="#use">How We Use Your Data</a>
+    <a href="#contracts">Platform Agreements</a>
+    <a class="sub" href="#contract-inv-inn">Investor ↔ Innovator</a>
+    <a class="sub" href="#contract-inv-inv">Investor ↔ Investor</a>
+    <a class="sub" href="#contract-inn-inn">Innovator ↔ Innovator</a>
+    <a class="sub" href="#contract-project">Project Agreements</a>
+    <a class="sub" href="#contract-oduma">Oduma Corp Shares</a>
+    <a href="#sharing">Data Sharing</a>
+    <a href="#rights">Your Rights</a>
+    <a href="#security">Security</a>
+    <a href="#cookies">Cookies</a>
+    <a href="#changes">Policy Changes</a>
+    <a href="#contact">Contact</a>
+  </aside>
+
+  <!-- Main -->
+  <main class="pp-content">
+
+    <!-- Hero -->
+    <div class="pp-hero">
+      <div class="pp-hero-badge"><i class="fi fi-rr-shield-check fi-xs"></i> Legal Document</div>
+      <h1>Privacy Policy &amp; Platform Agreement</h1>
+      <p>This document governs your use of Oduma Connect, the data we collect, how it is used, and the binding contractual framework that applies to all transactions, collaborations, and projects conducted on the platform.</p>
+      <div class="pp-hero-meta">
+        <span><i class="fi fi-rr-calendar fi-xs"></i> Effective: January 1, 2025</span>
+        <span><i class="fi fi-rr-refresh fi-xs"></i> Last updated: March 2025</span>
+        <span><i class="fi fi-rr-building fi-xs"></i> Oduma Corp</span>
+      </div>
+    </div>
+
+    <div class="pp-alert blue">
+      <span class="pp-alert-icon"><i class="fi fi-rr-info"></i></span>
+      <div>By registering on Oduma Connect, you confirm that you have read, understood, and agree to this Privacy Policy and all Platform Agreements contained herein. These terms form a legally binding contract between you and Oduma Corp.</div>
+    </div>
+
+    <!-- Overview -->
+    <section class="pp-section" id="overview">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#eff6ff;color:#004AAD;"><i class="fi fi-rr-eye"></i></div>
+        <h2>Overview</h2>
+      </div>
+      <div class="pp-body">
+        <p>Oduma Connect is operated by <strong>Oduma Corp</strong>, a company dedicated to building Africa's innovation and investment ecosystem. Our platform connects innovators — individuals and teams with ideas, inventions, and projects — with investors who provide capital, expertise, and strategic partnerships.</p>
+        <p>This Privacy Policy explains what personal data we collect, why we collect it, how it is stored and used, and the rights you have over your data. It also establishes the <strong>contractual framework</strong> that governs all business relationships formed on the platform, including the equity and revenue share arrangement with Oduma Corp.</p>
+        <p>We are committed to transparency, data security, and fair business practices. If you have any questions, contact us at <strong>legal@odumacorp.com</strong>.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- Data We Collect -->
+    <section class="pp-section" id="data">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#faf5ff;color:#7c3aed;"><i class="fi fi-rr-database"></i></div>
+        <h2>Data We Collect</h2>
+      </div>
+      <div class="pp-body">
+        <p>We collect the following categories of data when you use Oduma Connect:</p>
+        <ul>
+          <li><strong>Account information</strong> — Full name, email address, username, password (hashed), user role (innovator/investor), phone number, and profile photo.</li>
+          <li><strong>Profile data</strong> — Bio, company name, industry, professional background, and any additional information you voluntarily add to your profile.</li>
+          <li><strong>Project and content data</strong> — Project titles, descriptions, documents, images, posts, comments, likes, and ratings you create or interact with on the platform.</li>
+          <li><strong>Communication data</strong> — Messages, chat history, meeting titles, and scheduled meeting metadata (not the meeting content itself, which is processed by Zoom).</li>
+          <li><strong>Transaction and proposal data</strong> — Investment proposals, collaboration requests, patent requests, agreed terms, and deal records.</li>
+          <li><strong>Usage data</strong> — Pages visited, features used, search queries, clicks, session duration, and device/browser information.</li>
+          <li><strong>Technical data</strong> — IP address, operating system, browser type, and cookies.</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- How We Use Your Data -->
+    <section class="pp-section" id="use">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#f0fdf4;color:#059669;"><i class="fi fi-rr-settings"></i></div>
+        <h2>How We Use Your Data</h2>
+      </div>
+      <div class="pp-body">
+        <p>Your data is used solely to deliver, improve, and protect the Oduma Connect platform. Specifically, we use it to:</p>
+        <ul>
+          <li>Create and manage your account and authenticate your identity.</li>
+          <li>Match innovators with relevant investors and vice versa through recommendations.</li>
+          <li>Facilitate direct messaging, video meetings, and notifications between users.</li>
+          <li>Process and record investment proposals, collaboration agreements, and project milestones.</li>
+          <li>Calculate and enforce equity/revenue share obligations as described in the Platform Agreement below.</li>
+          <li>Improve platform features based on usage patterns and feedback.</li>
+          <li>Send transactional emails (account, notifications) and, with your consent, platform updates.</li>
+          <li>Comply with applicable laws and resolve disputes.</li>
+        </ul>
+        <p>We do <strong>not</strong> sell your personal data to third parties. We do not use your data for targeted advertising outside the platform.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- Platform Agreements / Contracts -->
+    <section class="pp-section" id="contracts">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#fffbeb;color:#d97706;"><i class="fi fi-rr-file-contract-dollar"></i></div>
+        <h2>Platform Agreements &amp; Contractual Framework</h2>
+      </div>
+      <div class="pp-body">
+        <p>Oduma Connect operates under a structured contractual framework that governs all professional and financial relationships formed on the platform. By registering and using the platform, all parties agree to the following binding agreements.</p>
+
+        <div class="pp-alert amber">
+          <span class="pp-alert-icon"><i class="fi fi-rr-triangle-warning"></i></span>
+          <div><strong>Important:</strong> All agreements, proposals, collaborations, and project transactions conducted through Oduma Connect are legally binding and subject to the laws of the applicable jurisdiction. Oduma Corp reserves the right to enforce these agreements and collect its stipulated share upon project completion.</div>
+        </div>
+      </div>
+
+      <!-- Investor ↔ Innovator -->
+      <div id="contract-inv-inn">
+        <div class="pp-contract-card blue" style="margin-bottom:16px;">
+          <div class="cc-header">
+            <div class="cc-icon"><i class="fi fi-rr-handshake"></i></div>
+            <div class="cc-title">Investor ↔ Innovator Agreement</div>
+          </div>
+          <div class="cc-body">
+            <p>When an investor sends a proposal to an innovator and the innovator accepts, a <strong>binding collaboration agreement</strong> is formed between both parties. This agreement includes:</p>
+            <ul>
+              <li>The investment amount, equity percentage, or revenue share terms as specified in the proposal.</li>
+              <li>Milestone-based disbursement schedules agreed upon in direct communication.</li>
+              <li>Intellectual property rights — the innovator retains ownership of their original idea unless explicitly transferred in writing via the platform.</li>
+              <li>Confidentiality obligations — both parties agree not to disclose proprietary project information to third parties without mutual consent.</li>
+              <li>Dispute resolution through Oduma Corp's internal mediation process before escalation to legal proceedings.</li>
+              <li>Oduma Corp's right to a <strong>platform equity share</strong> from the completed project (see Oduma Corp Share below).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Investor ↔ Investor -->
+      <div id="contract-inv-inv">
+        <div class="pp-contract-card purple" style="margin-bottom:16px;">
+          <div class="cc-header">
+            <div class="cc-icon"><i class="fi fi-rr-sack-dollar"></i></div>
+            <div class="cc-title">Investor ↔ Investor Agreement</div>
+          </div>
+          <div class="cc-body">
+            <p>When two or more investors co-invest in a project or form a joint investment partnership on the platform, the following terms apply:</p>
+            <ul>
+              <li>Each investor's contribution, stake, and rights are defined by the terms agreed upon in their shared proposal or collaboration record on the platform.</li>
+              <li>Co-investors agree to share due-diligence responsibilities and cannot individually renegotiate terms with the innovator without the consent of all co-investing parties.</li>
+              <li>In cases of disagreement between co-investors, Oduma Corp serves as a neutral mediator. A mediation fee may apply.</li>
+              <li>Each investor's share of returns is proportional to their documented contribution as recorded on the platform.</li>
+              <li>Oduma Corp's platform equity share is calculated on the total project value, not on individual investor stakes.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Innovator ↔ Innovator -->
+      <div id="contract-inn-inn">
+        <div class="pp-contract-card green" style="margin-bottom:16px;">
+          <div class="cc-header">
+            <div class="cc-icon"><i class="fi fi-rr-bulb"></i></div>
+            <div class="cc-title">Innovator ↔ Innovator Agreement</div>
+          </div>
+          <div class="cc-body">
+            <p>When two innovators collaborate on a joint project, co-invention, or shared business venture through the platform, the following terms govern their relationship:</p>
+            <ul>
+              <li>Ownership of shared intellectual property is split according to the terms both parties agree to in their collaboration record. In the absence of a written agreement, ownership is presumed to be equal (50/50).</li>
+              <li>Both innovators are jointly responsible for delivering on milestones and commitments made to any investors co-attached to the project.</li>
+              <li>Either party may exit the collaboration by providing 30 days written notice via the platform's messaging system. Exit terms, including IP and revenue rights, must be negotiated in good faith.</li>
+              <li>Oduma Corp's platform equity share applies to the total project regardless of the number of collaborating innovators.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project Agreements -->
+      <div id="contract-project">
+        <div class="pp-contract-card amber" style="margin-bottom:16px;">
+          <div class="cc-header">
+            <div class="cc-icon"><i class="fi fi-rr-rocket"></i></div>
+            <div class="cc-title">Project Agreement</div>
+          </div>
+          <div class="cc-body">
+            <p>Every project listed on Oduma Connect is subject to a <strong>Project Agreement</strong> that governs its lifecycle on the platform:</p>
+            <ul>
+              <li>The project owner (innovator) affirms that the project is original, does not infringe on third-party intellectual property, and that all information provided is accurate.</li>
+              <li>Projects listed as "Completed" trigger the calculation and collection of Oduma Corp's equity share.</li>
+              <li>Projects that receive funding, collaboration, or investment through the platform are considered "platform-facilitated" and are subject to Oduma Corp's revenue/equity participation regardless of where final transactions are executed.</li>
+              <li>Attempts to circumvent platform agreements by conducting transactions off-platform after initial contact on Oduma Connect are a breach of these terms and may result in account suspension and legal action.</li>
+              <li>Oduma Corp reserves the right to audit project completion claims and request supporting documentation before releasing any revenue share obligations.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Oduma Corp Shares -->
+      <div id="contract-oduma">
+        <div class="pp-contract-card dark">
+          <div class="cc-header">
+            <div class="cc-icon"><i class="fi fi-rr-building"></i></div>
+            <div class="cc-title" style="color:#fff;">Oduma Corp — Platform Equity &amp; Revenue Share</div>
+          </div>
+          <div class="cc-body">
+            <p>In exchange for providing the infrastructure, matchmaking technology, legal framework, dispute resolution, and ongoing platform support, <strong>Oduma Corp receives a percentage share from every project successfully completed on the platform.</strong></p>
+          </div>
+        </div>
+
+        <div class="pp-share-highlight">
+          <div class="sh-num">5 – 10%</div>
+          <div class="sh-label">Platform Equity Share per Completed Project</div>
+          <div class="sh-note">The exact percentage is determined at the time of project registration based on project type, investment size, and the level of platform facilitation used. The agreed rate is recorded and immutable once a project is marked active with investors.</div>
+        </div>
+
+        <div class="pp-body">
+          <p>Oduma Corp's share entitlement specifically includes:</p>
+          <ul>
+            <li><strong>Equity participation</strong> — A percentage stake in the project's total valuation or registered equity at completion, where applicable.</li>
+            <li><strong>Revenue share</strong> — A percentage of gross revenues generated in the first 24 months post-completion for projects that generate recurring income.</li>
+            <li><strong>Transaction fee</strong> — A one-time platform facilitation fee on the total funding amount raised through the platform.</li>
+          </ul>
+          <p>These shares are <strong>non-negotiable</strong> once agreed at project registration and represent the core of Oduma Corp's sustainable business model. Funds are collected through a secure payment process triggered upon project completion or funding milestone events.</p>
+
+          <div class="pp-alert green" style="margin-top:16px;">
+            <span class="pp-alert-icon"><i class="fi fi-rr-check-circle"></i></span>
+            <div>Oduma Corp's participation is a <strong>silent partnership</strong> — we do not interfere with day-to-day project operations, management decisions, or investor-innovator relationships. Our role is limited to platform facilitation and our contractual equity position.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- Data Sharing -->
+    <section class="pp-section" id="sharing">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#faf5ff;color:#7c3aed;"><i class="fi fi-rr-share"></i></div>
+        <h2>Data Sharing</h2>
+      </div>
+      <div class="pp-body">
+        <p>We do not sell personal data. We share data only in the following circumstances:</p>
+        <ul>
+          <li><strong>With other users</strong> — Your public profile, projects, and posts are visible to other registered users on the platform. Direct messages are private and visible only to the conversation participants.</li>
+          <li><strong>With Zoom</strong> — Meeting titles, participant email addresses, and scheduling data are shared with Zoom to create video meeting rooms. Zoom's own privacy policy governs the handling of meeting content.</li>
+          <li><strong>With service providers</strong> — We use trusted third-party providers for hosting (Render), email delivery, and analytics. These providers are bound by confidentiality agreements.</li>
+          <li><strong>Legal compliance</strong> — We may disclose data to law enforcement or regulatory authorities when required by applicable law or to protect the rights, property, or safety of Oduma Corp, its users, or the public.</li>
+          <li><strong>Business transfers</strong> — In the event of a merger, acquisition, or sale of Oduma Corp, user data may be transferred to the acquiring entity, subject to the same privacy protections.</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- Your Rights -->
+    <section class="pp-section" id="rights">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#f0fdf4;color:#059669;"><i class="fi fi-rr-user-check"></i></div>
+        <h2>Your Rights</h2>
+      </div>
+      <div class="pp-body">
+        <p>You have the following rights regarding your personal data:</p>
+        <ul>
+          <li><strong>Access</strong> — Request a copy of all personal data we hold about you.</li>
+          <li><strong>Correction</strong> — Update or correct inaccurate information through your profile settings or by contacting us.</li>
+          <li><strong>Deletion</strong> — Request deletion of your account and associated data. Note that data related to completed contracts, equity agreements, and financial transactions may be retained for legal and audit purposes.</li>
+          <li><strong>Portability</strong> — Request your data in a structured, machine-readable format.</li>
+          <li><strong>Objection</strong> — Object to the processing of your data for specific purposes, such as marketing communications.</li>
+          <li><strong>Withdrawal of consent</strong> — Where processing is based on consent, you may withdraw it at any time without affecting the lawfulness of prior processing.</li>
+        </ul>
+        <p>To exercise any of these rights, contact <strong>privacy@odumacorp.com</strong>. We will respond within 30 days.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- Security -->
+    <section class="pp-section" id="security">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#eff6ff;color:#004AAD;"><i class="fi fi-rr-lock"></i></div>
+        <h2>Security</h2>
+      </div>
+      <div class="pp-body">
+        <p>We implement industry-standard security measures to protect your data:</p>
+        <ul>
+          <li>All passwords are stored using strong cryptographic hashing (never in plain text).</li>
+          <li>Data in transit is encrypted using HTTPS/TLS.</li>
+          <li>Access to production systems is restricted to authorised personnel only.</li>
+          <li>Regular security reviews are conducted to identify and address vulnerabilities.</li>
+        </ul>
+        <p>Despite these measures, no system is completely secure. In the event of a data breach that affects your personal data, we will notify you within 72 hours as required by applicable data protection regulations.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- Cookies -->
+    <section class="pp-section" id="cookies">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#fff7ed;color:#d97706;"><i class="fi fi-rr-cookie"></i></div>
+        <h2>Cookies</h2>
+      </div>
+      <div class="pp-body">
+        <p>We use cookies and similar technologies to:</p>
+        <ul>
+          <li>Keep you logged in across sessions (session cookies).</li>
+          <li>Store CSRF tokens to protect against cross-site request forgery.</li>
+          <li>Remember your preferences and settings.</li>
+          <li>Analyse platform usage to improve features (analytics cookies).</li>
+        </ul>
+        <p>You can disable cookies in your browser settings, but doing so may prevent certain features from working correctly. We do not use third-party advertising cookies.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- Policy Changes -->
+    <section class="pp-section" id="changes">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#f1f5f9;color:#64748b;"><i class="fi fi-rr-refresh"></i></div>
+        <h2>Changes to This Policy</h2>
+      </div>
+      <div class="pp-body">
+        <p>Oduma Corp may update this Privacy Policy and Platform Agreement from time to time. When we make material changes, we will:</p>
+        <ul>
+          <li>Update the "Last updated" date at the top of this page.</li>
+          <li>Send a notification to your registered email address.</li>
+          <li>Display a prominent notice on the platform for at least 14 days.</li>
+        </ul>
+        <p>Your continued use of Oduma Connect after the effective date of any changes constitutes your acceptance of the updated terms. If you do not agree with the changes, you must stop using the platform and may request account deletion.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- Contact -->
+    <section class="pp-section" id="contact">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#eff6ff;color:#004AAD;"><i class="fi fi-rr-envelope"></i></div>
+        <h2>Contact &amp; Legal</h2>
+      </div>
+      <div class="pp-body">
+        <p>For questions about this Privacy Policy, data requests, or platform agreements, contact Oduma Corp:</p>
+        <ul>
+          <li><strong>Privacy &amp; Data:</strong> privacy@odumacorp.com</li>
+          <li><strong>Legal &amp; Contracts:</strong> legal@odumacorp.com</li>
+          <li><strong>General:</strong> <a href="{% url 'index' %}#contact">Contact form on homepage</a></li>
+        </ul>
+        <p>Oduma Corp is the data controller for all personal data processed on Oduma Connect.</p>
+      </div>
+    </section>
+
+    <!-- Acceptance -->
+    <div class="pp-acceptance">
+      <h3>You agree by using Oduma Connect</h3>
+      <p>By creating an account and using the platform, you have agreed to this Privacy Policy and all Platform Agreements. If you have questions before accepting, please contact our legal team.</p>
+      <div class="pp-acceptance-btns">
+        <a href="{% url 'app' %}" class="pp-acc-btn pp-acc-btn-primary"><i class="fi fi-rr-check fi-sm"></i> I understand — Back to App</a>
+        <a href="{% url 'faq' %}" class="pp-acc-btn pp-acc-btn-ghost"><i class="fi fi-rr-interrogation fi-sm"></i> Read the FAQ</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// Highlight active TOC link on scroll
+(function () {
+  var links = document.querySelectorAll('.pp-toc a');
+  var sections = document.querySelectorAll('.pp-section, [id^="contract-"]');
+
+  function onScroll() {
+    var scrollY = window.scrollY + 100;
+    var current = '';
+    sections.forEach(function (s) {
+      if (s.id && s.offsetTop <= scrollY) current = s.id;
+    });
+    links.forEach(function (a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+{% include '_partials/footer.html' %}
+{% endblock %}

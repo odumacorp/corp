@@ -1,0 +1,542 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }} | Oduma Connect{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --blue:      #004AAD;
+    --blue-dark: #003490;
+    --text:      #1a1a2e;
+    --muted:     #6b7280;
+    --border:    rgba(0,0,0,0.08);
+    --card-bg:   #f9f9f9;
+    --ff-serif:  "Jacques Francois", serif;
+    --ff-sans:   "Jaldi", sans-serif;
+  }
+
+  .pdt-wrapper {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  /* Breadcrumb */
+  .pdt-breadcrumb {
+    display: flex; align-items: center; gap: 6px;
+    font-family: var(--ff-sans); font-size: 0.82rem;
+    color: var(--muted); margin-bottom: 22px; flex-wrap: wrap;
+  }
+  .pdt-breadcrumb a { color: var(--blue); text-decoration: none; }
+  .pdt-breadcrumb a:hover { text-decoration: underline; }
+
+  /* Main card */
+  .pdt-card {
+    background: #fff;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  /* Post image */
+  .pdt-cover {
+    width: 100%; max-height: 420px;
+    object-fit: cover; display: block;
+  }
+
+  .pdt-body { padding: 30px 32px 28px; }
+  @media (max-width: 540px) { .pdt-body { padding: 20px 18px 20px; } }
+
+  /* Author row */
+  .pdt-author-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  }
+  .pdt-av {
+    width: 44px; height: 44px; border-radius: 50%;
+    object-fit: cover; flex-shrink: 0;
+  }
+  .pdt-av-init {
+    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg,#004AAD,#0062d4);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-family: var(--ff-serif); font-size: 1rem;
+  }
+  .pdt-author-name {
+    font-family: var(--ff-serif); font-size: 0.95rem;
+    color: var(--text); text-decoration: none;
+  }
+  .pdt-author-name:hover { color: var(--blue); text-decoration: underline; }
+  .pdt-author-meta {
+    font-family: var(--ff-sans); font-size: 0.78rem; color: var(--muted); margin-top: 2px;
+  }
+
+  /* Industry badge */
+  .pdt-badge {
+    display: inline-block;
+    background: rgba(0,74,173,0.08); color: var(--blue);
+    font-family: var(--ff-sans); font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    padding: 3px 12px; border-radius: 20px; margin-bottom: 14px;
+  }
+
+  /* Title */
+  .pdt-title {
+    font-family: var(--ff-serif);
+    font-size: clamp(1.3rem, 3vw, 1.75rem);
+    color: var(--text); margin: 0 0 18px; line-height: 1.3;
+  }
+
+  /* Content */
+  .pdt-content {
+    font-family: var(--ff-sans); font-size: 0.95rem;
+    color: #2d2d2d; line-height: 1.8; white-space: pre-wrap;
+    margin-bottom: 24px;
+  }
+
+  /* Engagement bar */
+  .pdt-eng-row {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+  .pdt-eng-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 16px; border-radius: 20px;
+    font-family: var(--ff-sans); font-size: 0.84rem;
+    border: 1.5px solid var(--border); background: #fff;
+    color: var(--muted); cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .pdt-eng-btn:hover, .pdt-eng-btn.active {
+    background: rgba(0,74,173,0.07); color: var(--blue); border-color: var(--blue);
+  }
+  .pdt-eng-btn form { display: contents; }
+
+  /* Comments section */
+  .pdt-comments { background: #fff; border-radius: 18px; border: 1px solid var(--border); box-shadow: 0 2px 12px rgba(0,0,0,0.05); overflow: hidden; }
+  .pdt-comments-header {
+    padding: 18px 28px 14px; border-bottom: 1px solid var(--border);
+    font-family: var(--ff-serif); font-size: 1rem; color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* Scrollable comment list */
+  .pdt-comment-scroll {
+    max-height: 560px; overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: #d0d5e8 transparent;
+  }
+  .pdt-comment-scroll::-webkit-scrollbar { width: 5px; }
+  .pdt-comment-scroll::-webkit-scrollbar-thumb { background: #d0d5e8; border-radius: 4px; }
+
+  /* Comment compose */
+  .pdt-compose {
+    display: flex; gap: 12px; padding: 16px 24px;
+    border-bottom: 1px solid var(--border); align-items: flex-start;
+  }
+  .pdt-compose-av, .pdt-c-av {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; object-fit: cover;
+  }
+  .pdt-compose-av-init, .pdt-c-av-init {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg,#004AAD,#0062d4);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-family: var(--ff-serif); font-size: 0.85rem;
+  }
+  .pdt-c-av-init { background: linear-gradient(135deg,#6b7280,#9ca3af); font-size: 0.8rem; }
+  .pdt-compose-input {
+    flex: 1; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 9px 13px; font-family: var(--ff-sans); font-size: 0.88rem;
+    color: var(--text); resize: none; min-height: 56px;
+    background: #fafafa; transition: border-color 0.2s; box-sizing: border-box;
+  }
+  .pdt-compose-input:focus { border-color: var(--blue); background: #fff; outline: none; }
+  .pdt-compose-submit {
+    padding: 6px 18px; background: var(--blue); color: #fff; border: none;
+    border-radius: 8px; font-family: var(--ff-sans); font-size: 0.84rem;
+    cursor: pointer; transition: background 0.15s; white-space: nowrap;
+  }
+  .pdt-compose-submit:hover { background: var(--blue-dark); }
+
+  /* Comment item */
+  .pdt-comment { padding: 14px 24px 10px; border-bottom: 1px solid var(--border); }
+  .pdt-comment:last-child { border-bottom: none; }
+  .pdt-comment-row { display: flex; gap: 11px; }
+  .pdt-c-name {
+    font-family: var(--ff-serif); font-size: 0.88rem; color: var(--text); text-decoration: none;
+  }
+  .pdt-c-name:hover { color: var(--blue); text-decoration: underline; }
+  .pdt-c-time { font-family: var(--ff-sans); font-size: 0.73rem; color: var(--muted); margin-left: 7px; }
+  .pdt-c-edited { font-family: var(--ff-sans); font-size: 0.7rem; color: #aaa; margin-left: 5px; }
+  .pdt-c-text { font-family: var(--ff-sans); font-size: 0.88rem; color: #2d2d2d; margin: 4px 0 8px; line-height: 1.6; }
+
+  /* Comment action row */
+  .pdt-c-actions { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
+  .pdt-c-act {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 12px; border: none; background: transparent;
+    font-family: var(--ff-sans); font-size: 0.76rem; color: var(--muted);
+    cursor: pointer; transition: background 0.12s, color 0.12s; text-decoration: none;
+  }
+  .pdt-c-act:hover { background: #f0f4ff; color: var(--blue); }
+  .pdt-c-act.liked { color: #dc2626; }
+  .pdt-c-act.danger:hover { background: #fff0f0; color: #dc2626; }
+
+  /* Inline reply / edit forms */
+  .pdt-c-subform { margin: 8px 0 4px 47px; display: none; }
+  .pdt-c-subform.open { display: flex; gap: 8px; align-items: flex-start; }
+  .pdt-c-subform textarea {
+    flex: 1; border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 7px 11px; font-family: var(--ff-sans); font-size: 0.85rem;
+    resize: none; min-height: 50px; background: #fafafa;
+    transition: border-color 0.2s; box-sizing: border-box;
+  }
+  .pdt-c-subform textarea:focus { border-color: var(--blue); background: #fff; outline: none; }
+  .pdt-c-subform button {
+    padding: 6px 14px; background: var(--blue); color: #fff; border: none;
+    border-radius: 7px; font-family: var(--ff-sans); font-size: 0.82rem;
+    cursor: pointer; white-space: nowrap;
+  }
+  .pdt-c-subform button.cancel {
+    background: #f0f0f0; color: var(--muted);
+  }
+
+  /* Replies */
+  .pdt-replies { margin-left: 47px; border-left: 2px solid #e8edf8; padding-left: 12px; margin-top: 6px; }
+  .pdt-reply { padding: 8px 0; border-bottom: 1px solid #f0f4ff; }
+  .pdt-reply:last-child { border-bottom: none; }
+
+  .pdt-empty-comments {
+    padding: 32px; text-align: center;
+    font-family: var(--ff-sans); font-size: 0.88rem; color: var(--muted);
+  }
+</style>
+
+<div class="pdt-wrapper">
+
+  <!-- Breadcrumb -->
+  <div class="pdt-breadcrumb">
+    <a href="{% url 'app' %}">Feed</a>
+    <span>›</span>
+    <span>{{ post.title|truncatechars:50 }}</span>
+  </div>
+
+  <!-- Main card -->
+  <div class="pdt-card">
+    {% if post.image %}
+      <img src="{{ post.image.url }}" alt="{{ post.title }}" class="pdt-cover">
+    {% endif %}
+    {% with imgs=post.extra_images.all %}{% with total=imgs|length %}
+    {% if total %}
+    <div class="ig-grid g{% if total == 1 %}1{% elif total == 2 %}2{% elif total == 3 %}3{% elif total == 4 %}4{% else %}5{% endif %}" style="margin:0 0 8px;">
+      {% for ei in imgs %}{% if forloop.counter <= 5 %}
+      <a href="/view-media/?i={{ forloop.counter0 }}&back={{ request.path }}{% for xei in imgs %}&g={{ xei.image.url }}{% endfor %}"
+         class="ig-cell{% if forloop.counter == 5 and total > 5 %} ig-more-cell{% endif %}">
+        <img src="{{ ei.image.url }}" alt="{{ ei.name|default:'' }}">
+        {% if forloop.counter == 5 and total > 5 %}<span class="ig-more-overlay">+{{ total|add:"-4" }}</span>{% endif %}
+      </a>
+      {% endif %}{% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}{% endwith %}
+    {% if post.user == request.user %}
+    <a href="{% url 'post_media' post.id %}" style="display:inline-flex;align-items:center;gap:5px;font-size:0.78rem;color:#1040c0;text-decoration:none;margin:0 16px 10px;">
+      <i class="fi fi-rr-picture fi-sm"></i> Edit Photos
+    </a>
+    {% endif %}
+
+    <div class="pdt-body">
+
+      <!-- Author -->
+      <div class="pdt-author-row">
+        <a href="{% url 'profile_view' id=post.user.id %}" style="line-height:0;flex-shrink:0;">
+          {% if post.user.userprofile.profile_pics %}
+            <img src="{{ post.user.userprofile.profile_pics.url }}" alt="" class="pdt-av">
+          {% elif post.user.profile_pics %}
+            <img src="{{ post.user.profile_pics.url }}" alt="" class="pdt-av">
+          {% else %}
+            <div class="pdt-av-init">{{ post.user.first_name|slice:":1"|upper }}{{ post.user.last_name|slice:":1"|upper }}</div>
+          {% endif %}
+        </a>
+        <div>
+          <a href="{% url 'profile_view' id=post.user.id %}" class="pdt-author-name">
+            {{ post.user.get_full_name|default:post.user.username }}
+          </a>
+          <div class="pdt-author-meta">
+            {{ post.user.user_type|capfirst }}{% if post.user.userprofile.company %} · {{ post.user.userprofile.company }}{% endif %}
+            &nbsp;·&nbsp; {{ post.created_at|timesince }} ago
+          </div>
+        </div>
+      </div>
+
+      <span class="pdt-badge">{{ post.get_industry_display }}</span>
+      {% if post.post_type %}<span class="pdt-badge" style="background:rgba(16,64,192,0.08);color:#1040c0;">{{ post.get_post_type_display }}</span>{% endif %}
+      <h1 class="pdt-title">{{ post.title }}</h1>
+      <div class="pdt-content">{{ post.content|safe }}</div>
+
+      <!-- Engagement -->
+      <div class="pdt-eng-row">
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'toggle_post_like' post.id %}">
+            {% csrf_token %}
+            <button type="submit" class="pdt-eng-btn {% if user_liked %}active{% endif %}">
+              <i class="fi fi-rr-heart fi-sm"></i> Like <span>{{ post.likes.count }}</span>
+            </button>
+          </form>
+          <form method="post" action="{% url 'toggle_post_interest' post.id %}">
+            {% csrf_token %}
+            <button type="submit" class="pdt-eng-btn {% if user_interested %}active{% endif %}">
+              <i class="fi fi-rr-star fi-sm"></i> Interest <span>{{ post.interests.count }}</span>
+            </button>
+          </form>
+          <form method="post" action="{% url 'toggle_post_repost' post.id %}">
+            {% csrf_token %}
+            <button type="submit" class="pdt-eng-btn {% if user_reposted %}active{% endif %}">
+              <i class="fi fi-rr-refresh fi-sm"></i> Repost <span>{{ post.reposts.count }}</span>
+            </button>
+          </form>
+          {% if user != post.user %}
+          <a href="{% url 'start_post_conversation' post.id %}" class="pdt-eng-btn" style="background:rgba(0,74,173,0.07);color:var(--blue);border-color:var(--blue);">
+            <i class="fi fi-rr-envelope fi-sm"></i> Message about this post
+          </a>
+          {% endif %}
+        {% else %}
+          <span class="pdt-eng-btn"><i class="fi fi-rr-heart fi-sm"></i> {{ post.likes.count }} Likes</span>
+          <span class="pdt-eng-btn"><i class="fi fi-rr-star fi-sm"></i> {{ post.interests.count }} Interests</span>
+          <span class="pdt-eng-btn"><i class="fi fi-rr-refresh fi-sm"></i> {{ post.reposts.count }} Reposts</span>
+        {% endif %}
+        <span class="pdt-eng-btn" style="cursor:default;">
+          <i class="fi fi-rr-comment fi-sm"></i> {{ comments.count }} Comment{{ comments.count|pluralize }}
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Comments -->
+  <div class="pdt-comments" id="comments">
+    <div class="pdt-comments-header">
+      <i class="fi fi-rr-comment fi-sm"></i>
+      Comments
+      <span style="font-size:0.8rem;color:var(--muted);font-family:var(--ff-sans);">{{ post.comments.count }}</span>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="pdt-compose">
+      {% if profile.profile_pics %}
+        <img src="{{ profile.profile_pics.url }}" alt="" class="pdt-compose-av">
+      {% else %}
+        <div class="pdt-compose-av-init">{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}</div>
+      {% endif %}
+      <form method="post" action="{% url 'add_comment' post.id %}" style="flex:1;display:flex;flex-direction:column;gap:7px;">
+        {% csrf_token %}
+        <textarea class="pdt-compose-input" name="content" placeholder="Write a comment…" required
+                  oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+        <div style="display:flex;justify-content:flex-end;">
+          <button type="submit" class="pdt-compose-submit">Post Comment</button>
+        </div>
+      </form>
+    </div>
+    {% endif %}
+
+    <div class="pdt-comment-scroll">
+    {% if comments %}
+      {% for c in comments %}
+      <div class="pdt-comment" id="cmt-{{ c.id }}">
+        <div class="pdt-comment-row">
+          <a href="{% url 'profile_view' id=c.user.id %}" style="line-height:0;flex-shrink:0;">
+            {% if c.user.userprofile.profile_pics %}
+              <img src="{{ c.user.userprofile.profile_pics.url }}" alt="" class="pdt-c-av">
+            {% else %}
+              <div class="pdt-c-av-init">{{ c.user.first_name|slice:":1"|upper }}{{ c.user.last_name|slice:":1"|upper }}</div>
+            {% endif %}
+          </a>
+          <div style="flex:1;min-width:0;">
+            <div>
+              <a href="{% url 'profile_view' id=c.user.id %}" class="pdt-c-name">{{ c.user.get_full_name|default:c.user.username }}</a>
+              <span class="pdt-c-time">{{ c.created_at|timesince }} ago</span>
+              {% if c.updated_at != c.created_at %}<span class="pdt-c-edited">(edited)</span>{% endif %}
+            </div>
+            <p class="pdt-c-text" id="cmt-text-{{ c.id }}">{{ c.content }}</p>
+
+            <!-- Actions -->
+            <div class="pdt-c-actions">
+              {% if user.is_authenticated %}
+              <button class="pdt-c-act {% if c.id in liked_comment_ids %}liked{% endif %}"
+                      onclick="toggleCmtLike(this, {{ c.id }}, 'post')"
+                      data-count="{{ c.likes.count }}">
+                <i class="fi fi-rr-heart fi-sm"></i>
+                <span class="cmt-like-count">{{ c.likes.count }}</span>
+              </button>
+              <button class="pdt-c-act" onclick="toggleReplyForm('reply-form-{{ c.id }}')">
+                <i class="fi fi-rr-comment fi-sm"></i> Reply{% if c.replies.count %} ({{ c.replies.count }}){% endif %}
+              </button>
+              <button class="pdt-c-act" onclick="copyLink('{{ request.build_absolute_uri }}#cmt-{{ c.id }}', this)">
+                <i class="fi fi-rr-share fi-sm"></i> Share
+              </button>
+              {% if c.user == user %}
+              <button class="pdt-c-act" onclick="toggleEditForm('edit-form-{{ c.id }}', '{{ c.content|escapejs }}')">
+                <i class="fi fi-rr-pencil fi-sm"></i> Edit
+              </button>
+              <form method="post" action="{% url 'delete_comment' c.id %}" style="display:inline"
+                    onsubmit="return confirm('Delete this comment?')">
+                {% csrf_token %}
+                <button type="submit" class="pdt-c-act danger"><i class="fi fi-rr-trash fi-sm"></i> Delete</button>
+              </form>
+              {% endif %}
+              {% endif %}
+            </div>
+
+            <!-- Reply form -->
+            <div class="pdt-c-subform" id="reply-form-{{ c.id }}">
+              <form method="post" action="{% url 'add_comment' post.id %}" style="flex:1;display:flex;flex-direction:column;gap:6px;">
+                {% csrf_token %}
+                <input type="hidden" name="parent_id" value="{{ c.id }}">
+                <textarea name="content" placeholder="Write a reply…" required
+                          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                <div style="display:flex;gap:6px;justify-content:flex-end;">
+                  <button type="button" class="cancel" onclick="toggleReplyForm('reply-form-{{ c.id }}')">Cancel</button>
+                  <button type="submit">Reply</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Edit form -->
+            <div class="pdt-c-subform" id="edit-form-{{ c.id }}">
+              <form method="post" action="{% url 'edit_comment' c.id %}" style="flex:1;display:flex;flex-direction:column;gap:6px;">
+                {% csrf_token %}
+                <textarea name="content" id="edit-ta-{{ c.id }}" required
+                          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                <div style="display:flex;gap:6px;justify-content:flex-end;">
+                  <button type="button" class="cancel" onclick="toggleEditForm('edit-form-{{ c.id }}')">Cancel</button>
+                  <button type="submit">Save</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Replies -->
+        {% if c.replies.all %}
+        <div class="pdt-replies">
+          {% for r in c.replies.all %}
+          <div class="pdt-reply" id="cmt-{{ r.id }}">
+            <div class="pdt-comment-row">
+              <a href="{% url 'profile_view' id=r.user.id %}" style="line-height:0;flex-shrink:0;">
+                {% if r.user.userprofile.profile_pics %}
+                  <img src="{{ r.user.userprofile.profile_pics.url }}" alt="" class="pdt-c-av" style="width:28px;height:28px;">
+                {% else %}
+                  <div class="pdt-c-av-init" style="width:28px;height:28px;font-size:0.72rem;">{{ r.user.first_name|slice:":1"|upper }}{{ r.user.last_name|slice:":1"|upper }}</div>
+                {% endif %}
+              </a>
+              <div style="flex:1;min-width:0;">
+                <div>
+                  <a href="{% url 'profile_view' id=r.user.id %}" class="pdt-c-name">{{ r.user.get_full_name|default:r.user.username }}</a>
+                  <span class="pdt-c-time">{{ r.created_at|timesince }} ago</span>
+                  {% if r.updated_at != r.created_at %}<span class="pdt-c-edited">(edited)</span>{% endif %}
+                </div>
+                <p class="pdt-c-text" id="cmt-text-{{ r.id }}">{{ r.content }}</p>
+                <div class="pdt-c-actions">
+                  {% if user.is_authenticated %}
+                  <button class="pdt-c-act {% if r.id in liked_comment_ids %}liked{% endif %}"
+                          onclick="toggleCmtLike(this, {{ r.id }}, 'post')"
+                          data-count="{{ r.likes.count }}">
+                    <i class="fi fi-rr-heart fi-sm"></i>
+                    <span class="cmt-like-count">{{ r.likes.count }}</span>
+                  </button>
+                  <button class="pdt-c-act" onclick="copyLink('{{ request.build_absolute_uri }}#cmt-{{ r.id }}', this)">
+                    <i class="fi fi-rr-share fi-sm"></i> Share
+                  </button>
+                  {% if r.user == user %}
+                  <button class="pdt-c-act" onclick="toggleEditForm('edit-form-{{ r.id }}', '{{ r.content|escapejs }}')">
+                    <i class="fi fi-rr-pencil fi-sm"></i> Edit
+                  </button>
+                  <form method="post" action="{% url 'delete_comment' r.id %}" style="display:inline"
+                        onsubmit="return confirm('Delete this reply?')">
+                    {% csrf_token %}
+                    <button type="submit" class="pdt-c-act danger"><i class="fi fi-rr-trash fi-sm"></i> Delete</button>
+                  </form>
+                  {% endif %}
+                  {% endif %}
+                </div>
+                <!-- Edit form for reply -->
+                <div class="pdt-c-subform" id="edit-form-{{ r.id }}">
+                  <form method="post" action="{% url 'edit_comment' r.id %}" style="flex:1;display:flex;flex-direction:column;gap:6px;">
+                    {% csrf_token %}
+                    <textarea name="content" id="edit-ta-{{ r.id }}" required
+                              oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                    <div style="display:flex;gap:6px;justify-content:flex-end;">
+                      <button type="button" class="cancel" onclick="toggleEditForm('edit-form-{{ r.id }}')">Cancel</button>
+                      <button type="submit">Save</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="pdt-empty-comments">No comments yet. Be the first to comment!</div>
+    {% endif %}
+    </div><!-- /pdt-comment-scroll -->
+  </div>
+
+</div>
+
+<script>
+function toggleReplyForm(id) {
+  var el = document.getElementById(id);
+  el.classList.toggle('open');
+  if (el.classList.contains('open')) el.querySelector('textarea').focus();
+}
+function toggleEditForm(id, currentText) {
+  var el = document.getElementById(id);
+  var ta = el.querySelector('textarea');
+  if (!el.classList.contains('open') && currentText !== undefined) {
+    ta.value = currentText;
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+  }
+  el.classList.toggle('open');
+  if (el.classList.contains('open')) ta.focus();
+}
+function toggleCmtLike(btn, id, type) {
+  var url = type === 'post'
+    ? '/comment/' + id + '/like/'
+    : '/project-comment/' + id + '/like/';
+  var body = new FormData();
+  body.append('csrfmiddlewaretoken', getCsrfToken());
+  fetch(url, { method: 'POST', body: body })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d.ok) return;
+      btn.classList.toggle('liked', d.liked);
+      btn.querySelector('.cmt-like-count').textContent = d.count;
+    });
+}
+function copyLink(url, btn) {
+  navigator.clipboard.writeText(url).then(function(){
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fi fi-rr-check fi-sm"></i> Copied!';
+    setTimeout(function(){ btn.innerHTML = orig; }, 1800);
+  });
+}
+function getCsrfToken() {
+  var name = 'csrftoken';
+  var cookies = document.cookie.split(';');
+  for (var i = 0; i < cookies.length; i++) {
+    var c = cookies[i].trim();
+    if (c.startsWith(name + '=')) return decodeURIComponent(c.slice(name.length + 1));
+  }
+  return '';
+}
+</script>
+{% include '_partials/footer.html' %}
+{% endblock %}

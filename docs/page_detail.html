@@ -1,0 +1,736 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}{{ pg.title }} | OdumaCorp{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --blue: #004AAD;
+    --blue-dark: #003490;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --border: rgba(0,0,0,0.08);
+    --card-bg: #F9F9F9;
+    --ff-serif: "Jacques Francois", serif;
+    --ff-sans: "Jaldi", sans-serif;
+  }
+
+  .pd-wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* Cover */
+  .pd-cover {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, rgba(0,74,173,0.2), rgba(0,74,173,0.06));
+    overflow: hidden;
+    border-radius: 0 0 18px 18px;
+  }
+  .pd-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Header card */
+  .pd-head-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-top: -40px;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .pd-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 14px;
+    border: 3px solid #fff;
+    background: #e8f0fe;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--blue);
+    overflow: hidden;
+  }
+  .pd-logo img { width: 100%; height: 100%; object-fit: cover; }
+  .pd-meta { flex: 1; min-width: 0; }
+  .pd-page-name {
+    font-family: var(--ff-serif);
+    font-size: 1.5rem;
+    color: var(--text);
+    margin: 0 0 2px;
+  }
+  .pd-industry {
+    font-family: var(--ff-sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--blue);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .pd-followers-count {
+    font-family: var(--ff-sans);
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .pd-head-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-left: auto;
+  }
+  .pd-follow-btn {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    padding: 8px 22px;
+    font-family: var(--ff-sans);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pd-follow-btn:hover { background: var(--blue-dark); }
+  .pd-follow-btn.following {
+    background: #fff;
+    color: var(--blue);
+    border: 1.5px solid var(--blue);
+  }
+  .pd-follow-btn.following:hover { background: rgba(0,74,173,0.05); }
+  .pd-back-link {
+    font-family: var(--ff-sans);
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .pd-back-link:hover { color: var(--blue); }
+
+  /* About strip */
+  .pd-about {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-top: 16px;
+    font-family: var(--ff-sans);
+    font-size: 0.88rem;
+    color: var(--muted);
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .pd-about a { color: var(--blue); text-decoration: none; }
+  .pd-about a:hover { text-decoration: underline; }
+
+  /* Post composer */
+  .pd-composer {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-top: 20px;
+  }
+  .pd-composer-title {
+    font-family: var(--ff-serif);
+    font-size: 1rem;
+    color: var(--text);
+    margin: 0 0 12px;
+  }
+  .pd-composer textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 13px;
+    font-family: var(--ff-sans);
+    font-size: 0.9rem;
+    color: var(--text);
+    background: #fafafa;
+    resize: vertical;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .pd-composer textarea:focus { border-color: var(--blue); background: #fff; }
+  .pd-composer-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .pd-composer-file {
+    font-family: var(--ff-sans);
+    font-size: 0.82rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+  .pd-composer-file input { display: none; }
+  .pd-composer-file:hover { color: var(--blue); }
+
+  /* Page post image picker (reuses gd- classes for consistency) */
+  .pd-img-preview-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .pd-img-thumb {
+    position: relative; width: 80px; height: 80px; border-radius: 8px;
+    overflow: hidden; border: 2px solid transparent; cursor: pointer; transition: border-color .15s;
+  }
+  .pd-img-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pd-img-thumb.is-cover { border-color: var(--blue); }
+  .pd-img-thumb .pd-cover-badge {
+    display: none; position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--blue); color: #fff;
+    font-family: var(--ff-sans); font-size: 0.62rem; font-weight: 700;
+    text-align: center; padding: 2px 0;
+  }
+  .pd-img-thumb.is-cover .pd-cover-badge { display: block; }
+  .pd-img-thumb .pd-rm-btn {
+    position: absolute; top: 3px; right: 3px;
+    background: rgba(0,0,0,0.55); color: #fff; border: none;
+    border-radius: 50%; width: 18px; height: 18px; font-size: 0.65rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Post image gallery */
+  .pd-post-gallery { display: grid; gap: 4px; margin-bottom: 10px; }
+  .pd-post-gallery.count-1 { grid-template-columns: 1fr; }
+  .pd-post-gallery.count-2 { grid-template-columns: 1fr 1fr; }
+  .pd-post-gallery.count-3 { grid-template-columns: 1fr 1fr; }
+  .pd-post-gallery.count-3 .pd-gallery-img:first-child { grid-column: 1 / -1; }
+  .pd-post-gallery.count-4 { grid-template-columns: 1fr 1fr; }
+  .pd-post-gallery.count-5 { grid-template-columns: 1fr 1fr 1fr; }
+  .pd-post-gallery.count-5 .pd-gallery-img:nth-child(-n+2) { grid-column: span 1; }
+  .pd-gallery-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 8px; display: block; cursor: pointer; }
+  @media (max-width: 600px) {
+    .pd-post-gallery.count-2,
+    .pd-post-gallery.count-3,
+    .pd-post-gallery.count-4,
+    .pd-post-gallery.count-5 { grid-template-columns: 1fr; }
+    .pd-post-gallery.count-3 .pd-gallery-img:first-child { grid-column: auto; }
+    .pd-post-gallery.count-5 .pd-gallery-img:nth-child(-n+2) { grid-column: auto; }
+  }
+  .pd-post-btn {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 22px;
+    padding: 8px 24px;
+    font-family: var(--ff-sans);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .pd-post-btn:hover { background: var(--blue-dark); }
+
+  /* Feed */
+  .pd-feed { margin-top: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .pd-post-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .pd-post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px 0;
+  }
+  .pd-post-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: #e8f0fe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: var(--blue);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .pd-post-logo img { width: 100%; height: 100%; object-fit: cover; }
+  .pd-post-page-name {
+    font-family: var(--ff-sans);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .pd-post-time {
+    font-size: 0.77rem;
+    color: var(--muted);
+    font-family: var(--ff-sans);
+  }
+  .pd-post-body {
+    padding: 12px 18px;
+    font-family: var(--ff-sans);
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.55;
+    white-space: pre-line;
+  }
+  .pd-post-image { width: 100%; max-height: 380px; object-fit: cover; }
+
+  /* Reaction bar */
+  .pd-reaction-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .pd-react-summary {
+    font-family: var(--ff-sans);
+    font-size: 0.8rem;
+    color: var(--muted);
+    flex: 1;
+  }
+  .pd-react-actions { display: flex; gap: 8px; }
+
+  .pd-react-wrapper { position: relative; }
+  .pd-react-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-family: var(--ff-sans);
+    font-size: 0.82rem;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    white-space: nowrap;
+  }
+  .pd-react-btn:hover,
+  .pd-react-btn.reacted {
+    border-color: var(--blue);
+    color: var(--blue);
+    background: rgba(0,74,173,0.05);
+  }
+  .pd-reaction-picker {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.13);
+    padding: 7px 12px;
+    flex-direction: row;
+    gap: 4px;
+    z-index: 50;
+    white-space: nowrap;
+  }
+  .pd-reaction-picker.open { display: flex; }
+  .pd-react-option {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 3px 5px;
+    border-radius: 8px;
+    transition: transform 0.15s, background 0.15s;
+    line-height: 1;
+  }
+  .pd-react-option:hover { transform: scale(1.25); background: rgba(0,74,173,0.07); }
+  .pd-react-option.selected { outline: 2px solid var(--blue); }
+
+  .pd-share-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-family: var(--ff-sans);
+    font-size: 0.82rem;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: border-color 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .pd-share-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .pd-share-btn.shared { border-color: #059669; color: #059669; }
+
+  .pd-empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--muted);
+    font-family: var(--ff-sans);
+    font-size: 0.9rem;
+  }
+
+  #pdToast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1a1a2e;
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-family: var(--ff-sans);
+    font-size: 0.88rem;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  #pdToast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+
+<!-- Cover -->
+<div class="pd-cover">
+  {% if pg.cover_image %}<img src="{{ pg.cover_image.url }}" alt="">{% endif %}
+</div>
+
+<div class="pd-wrapper">
+  <!-- Breadcrumb -->
+  <nav class="oc-breadcrumb" style="margin-bottom:16px;">
+    <a href="{% url 'app' %}"><i class="fi fi-rr-home fi-sm"></i> Home</a>
+    <span class="oc-bc-sep">›</span>
+    <a href="{% url 'pages_list' %}">Pages</a>
+    <span class="oc-bc-sep">›</span>
+    <span class="oc-bc-current">{{ pg.title }}</span>
+  </nav>
+
+  <!-- Header card -->
+  <div class="pd-head-card">
+    <div class="pd-logo">
+      {% if pg.logo %}<img src="{{ pg.logo.url }}" alt="">{% else %}<i class="fi fi-rr-file-bookmark"></i>{% endif %}
+    </div>
+    <div class="pd-meta">
+      <h1 class="pd-page-name">{{ pg.title }}</h1>
+      <div class="pd-industry">{{ pg.get_industry_display }}</div>
+      <div class="pd-followers-count" id="followerCount">{{ pg.followers.count }} follower{{ pg.followers.count|pluralize }}</div>
+    </div>
+    <div class="pd-head-actions">
+      {% if not is_owner %}
+        <button class="pd-follow-btn {% if is_follower %}following{% endif %}" id="followBtn" onclick="toggleFollow()">
+          {% if is_follower %}<i class="fi fi-rr-check"></i> Following
+          {% else %}<i class="fi fi-rr-plus"></i> Follow{% endif %}
+        </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- About -->
+  {% if pg.description or pg.website %}
+  <div class="pd-about">
+    {% if pg.description %}<span>{{ pg.description }}</span>{% endif %}
+    {% if pg.website %}<a href="{{ pg.website }}" target="_blank" rel="noopener"><i class="fi fi-rr-link"></i> {{ pg.website }}</a>{% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Composer (owner only) -->
+  {% if is_owner %}
+  <div class="pd-composer">
+    <h3 class="pd-composer-title">Share something with your followers</h3>
+    <form method="post" enctype="multipart/form-data" id="pd-post-form">
+      {% csrf_token %}
+      <textarea name="content" placeholder="Write a post for your page…" required></textarea>
+
+      <!-- Image picker -->
+      <div class="pd-img-preview-grid" id="pd-img-preview"></div>
+      <input type="hidden" name="cover_index" id="pd-cover-index" value="0">
+
+      <div class="pd-composer-footer">
+        <label class="pd-composer-file" id="pd-add-img-btn" title="Add up to 5 photos. Click a photo to set it as the cover.">
+          <i class="fi fi-rr-picture"></i> Add photos <span id="pd-img-count" style="font-size:0.75rem;color:var(--muted);">(0/5)</span>
+          <input type="file" name="images" accept="image/*" multiple style="display:none;" id="pd-img-input">
+        </label>
+        <button type="submit" class="pd-post-btn"><i class="fi fi-rr-paper-plane fi-sm"></i> Post</button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+  <!-- Feed -->
+  <div class="pd-feed">
+    {% if posts %}
+      {% for post in posts %}
+      <div class="pd-post-card" id="post-{{ post.id }}">
+        <div class="pd-post-header">
+          <div class="pd-post-logo">
+            {% if pg.logo %}<img src="{{ pg.logo.url }}" alt="">{% else %}<i class="fi fi-rr-file-bookmark"></i>{% endif %}
+          </div>
+          <div>
+            <div class="pd-post-page-name">{{ pg.title }}</div>
+            <div class="pd-post-time">{{ post.created_at|timesince }} ago</div>
+          </div>
+        </div>
+        <div class="pd-post-body">{{ post.content }}</div>
+        {% with imgs=post.post_images.all %}{% with total=imgs|length %}
+        {% if total %}
+        <div class="ig-grid g{% if total == 1 %}1{% elif total == 2 %}2{% elif total == 3 %}3{% elif total == 4 %}4{% else %}5{% endif %}">
+          {% for img in imgs %}{% if forloop.counter <= 5 %}
+          <a href="/view-media/?i={{ forloop.counter0 }}&back={{ request.path }}&name={{ img.name|default:pg.title|urlencode }}{% for gi in imgs %}&g={{ gi.image.url }}{% endfor %}"
+             class="ig-cell{% if forloop.counter == 5 and total > 5 %} ig-more-cell{% endif %}">
+            <img src="{{ img.image.url }}" alt="{{ img.name|default:pg.title }}">
+            {% if forloop.counter == 5 and total > 5 %}<span class="ig-more-overlay">+{{ total|add:"-4" }}</span>{% endif %}
+          </a>
+          {% endif %}{% endfor %}
+        </div>
+        {% elif post.image %}
+        <img src="{{ post.image.url }}" alt="" class="pd-post-image">
+        {% endif %}
+        {% endwith %}{% endwith %}
+        {% if is_owner %}
+        <a href="{% url 'page_post_media' pg.pk post.id %}" style="display:inline-flex;align-items:center;gap:5px;font-size:0.78rem;color:#1040c0;text-decoration:none;margin:4px 0 8px;">
+          <i class="fi fi-rr-picture fi-sm"></i> Edit Photos
+        </a>
+        {% endif %}
+        <div class="pd-reaction-bar">
+          <span class="pd-react-summary" id="react-summary-{{ post.id }}">
+            {% if post.reaction_count %}{{ post.reaction_count }} reaction{{ post.reaction_count|pluralize }}{% endif %}{% if post.reaction_count and post.share_count %} &middot; {% endif %}{% if post.share_count %}{{ post.share_count }} share{{ post.share_count|pluralize }}{% endif %}
+          </span>
+          <div class="pd-react-actions">
+            <div class="pd-react-wrapper">
+              <button class="pd-react-btn" id="reactBtn-{{ post.id }}" onclick="togglePicker({{ post.id }})">
+                <span id="reactLabel-{{ post.id }}"><i class="fi fi-rr-social-network"></i> React</span>
+              </button>
+              <div class="pd-reaction-picker" id="picker-{{ post.id }}">
+                <button class="pd-react-option" data-type="like"        title="Like"        onclick="doReact({{ post.id }},'like',this)"><i class="fi fi-rr-thumbs-up"></i></button>
+                <button class="pd-react-option" data-type="love"        title="Love"        onclick="doReact({{ post.id }},'love',this)"><i class="fi fi-rr-heart"></i></button>
+                <button class="pd-react-option" data-type="insightful"  title="Insightful"  onclick="doReact({{ post.id }},'insightful',this)"><i class="fi fi-rr-bulb"></i></button>
+                <button class="pd-react-option" data-type="celebrate"   title="Celebrate"   onclick="doReact({{ post.id }},'celebrate',this)"><i class="fi fi-rr-party-horn"></i></button>
+                <button class="pd-react-option" data-type="support"     title="Support"     onclick="doReact({{ post.id }},'support',this)"><i class="fi fi-rr-handshake"></i></button>
+              </div>
+            </div>
+            <button class="pd-share-btn" id="shareBtn-{{ post.id }}" onclick="doShare({{ post.id }},this)">
+              <i class="fi fi-rr-share"></i> Share
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="pd-empty">
+      <i class="fi fi-rr-newspaper" style="font-size:2.5rem;opacity:0.25;display:block;margin-bottom:12px;"></i>
+      No posts yet.{% if is_owner %} Share something with your followers above.{% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div id="pdToast"></div>
+
+<script>
+// ---- Page post image picker ----
+(function () {
+  var input   = document.getElementById('pd-img-input');
+  var preview = document.getElementById('pd-img-preview');
+  var coverIn = document.getElementById('pd-cover-index');
+  var addBtn  = document.getElementById('pd-add-img-btn');
+  var counter = document.getElementById('pd-img-count');
+  if (!input) return;
+
+  var files = [];
+
+  function rebuild() {
+    var dt = new DataTransfer();
+    files.forEach(function(f){ dt.items.add(f.file); });
+    input.files = dt.files;
+    if (parseInt(coverIn.value) >= files.length) coverIn.value = 0;
+    if (counter) counter.textContent = '(' + files.length + '/5)';
+    if (addBtn) addBtn.style.display = files.length >= 5 ? 'none' : '';
+  }
+
+  function render() {
+    preview.innerHTML = '';
+    files.forEach(function(f, i) {
+      var isCover = parseInt(coverIn.value) === i;
+      var wrap = document.createElement('div');
+      wrap.className = 'pd-img-thumb' + (isCover ? ' is-cover' : '');
+      wrap.title = 'Click to set as cover';
+      var img = document.createElement('img');
+      img.src = f.objectUrl;
+      var badge = document.createElement('div');
+      badge.className = 'pd-cover-badge';
+      badge.textContent = '<i class="fi fi-rr-star"></i> Cover';
+      var rm = document.createElement('button');
+      rm.type = 'button';
+      rm.className = 'pd-rm-btn';
+      rm.innerHTML = '&times;';
+      rm.onclick = function(e) {
+        e.stopPropagation();
+        URL.revokeObjectURL(f.objectUrl);
+        files.splice(i, 1);
+        rebuild(); render();
+      };
+      wrap.onclick = function() { coverIn.value = i; render(); };
+      wrap.appendChild(img);
+      wrap.appendChild(badge);
+      wrap.appendChild(rm);
+      preview.appendChild(wrap);
+    });
+    rebuild();
+  }
+
+  input.addEventListener('change', function() {
+    var remaining = 5 - files.length;
+    Array.from(this.files).slice(0, remaining).forEach(function(f) {
+      files.push({ file: f, objectUrl: URL.createObjectURL(f) });
+    });
+    this.value = '';
+    render();
+  });
+})();
+
+const CSRF       = '{{ csrf_token }}';
+const PAGE_PK    = {{ pg.pk }};
+const FOLLOW_URL = '{% url "page_follow_toggle" pg.pk %}';
+
+// Initial reaction state from server: { postId: reactionType, ... }
+const USER_REACTIONS = {
+  {% for post_id, reaction in user_reactions.items %}
+  {{ post_id }}: '{{ reaction }}',
+  {% endfor %}
+};
+
+const EMOJI_MAP = { like:'<i class="fi fi-rr-thumbs-up"></i>', love:'<i class="fi fi-rr-heart"></i>', insightful:'<i class="fi fi-rr-bulb"></i>', celebrate:'<i class="fi fi-rr-party-horn"></i>', support:'<i class="fi fi-rr-handshake"></i>' };
+const LABEL_MAP = { like:'Like', love:'Love', insightful:'Insightful', celebrate:'Celebrate', support:'Support' };
+
+// Init button states on load
+document.addEventListener('DOMContentLoaded', () => {
+  for (const [postId, reaction] of Object.entries(USER_REACTIONS)) {
+    const btn = document.getElementById('reactBtn-' + postId);
+    const lbl = document.getElementById('reactLabel-' + postId);
+    const picker = document.getElementById('picker-' + postId);
+    if (!btn) continue;
+    btn.classList.add('reacted');
+    lbl.textContent = (EMOJI_MAP[reaction] || '') + ' ' + (LABEL_MAP[reaction] || reaction);
+    picker.querySelectorAll('.pd-react-option').forEach(o => {
+      o.classList.toggle('selected', o.dataset.type === reaction);
+    });
+  }
+});
+
+function showToast(msg) {
+  const t = document.getElementById('pdToast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+async function toggleFollow() {
+  const btn = document.getElementById('followBtn');
+  const r = await fetch(FOLLOW_URL, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': CSRF, 'X-Requested-With': 'XMLHttpRequest' },
+  });
+  if (!r.ok) return;
+  const d = await r.json();
+  const cnt = document.getElementById('followerCount');
+  cnt.textContent = d.count + ' follower' + (d.count !== 1 ? 's' : '');
+  if (d.following) {
+    btn.innerHTML = '<i class="fi fi-rr-check"></i> Following';
+    btn.classList.add('following');
+    showToast('You are now following this page.');
+  } else {
+    btn.innerHTML = '<i class="fi fi-rr-plus"></i> Follow';
+    btn.classList.remove('following');
+    showToast('Unfollowed.');
+  }
+}
+
+function togglePicker(postId) {
+  const picker = document.getElementById('picker-' + postId);
+  document.querySelectorAll('.pd-reaction-picker').forEach(p => {
+    if (p !== picker) p.classList.remove('open');
+  });
+  picker.classList.toggle('open');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.pd-react-wrapper')) {
+    document.querySelectorAll('.pd-reaction-picker').forEach(p => p.classList.remove('open'));
+  }
+});
+
+async function doReact(postId, reactionType, optBtn) {
+  const fd = new FormData();
+  fd.append('reaction', reactionType);
+  const r = await fetch(`/pages/${PAGE_PK}/posts/${postId}/react/`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': CSRF, 'X-Requested-With': 'XMLHttpRequest' },
+    body: fd,
+  });
+  if (!r.ok) return;
+  const d = await r.json();
+  const btn   = document.getElementById('reactBtn-' + postId);
+  const lbl   = document.getElementById('reactLabel-' + postId);
+  const picker = document.getElementById('picker-' + postId);
+  picker.classList.remove('open');
+
+  if (d.reacted) {
+    btn.classList.add('reacted');
+    lbl.textContent = (EMOJI_MAP[d.my_reaction] || '') + ' ' + (LABEL_MAP[d.my_reaction] || d.my_reaction);
+    USER_REACTIONS[postId] = d.my_reaction;
+    picker.querySelectorAll('.pd-react-option').forEach(o => {
+      o.classList.toggle('selected', o.dataset.type === d.my_reaction);
+    });
+  } else {
+    btn.classList.remove('reacted');
+    lbl.innerHTML = '<i class="fi fi-rr-social-network"></i> React';
+    delete USER_REACTIONS[postId];
+    picker.querySelectorAll('.pd-react-option').forEach(o => o.classList.remove('selected'));
+  }
+
+  // Update summary count
+  const summary = document.getElementById('react-summary-' + postId);
+  const shareMatch = summary.textContent.match(/(\d+) shares?/);
+  const sharePart = shareMatch ? shareMatch[0] : null;
+  const parts = [];
+  if (d.total > 0) parts.push(d.total + ' reaction' + (d.total !== 1 ? 's' : ''));
+  if (sharePart) parts.push(sharePart);
+  summary.textContent = parts.join(' · ');
+}
+
+async function doShare(postId, btn) {
+  const r = await fetch(`/pages/${PAGE_PK}/posts/${postId}/share/`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': CSRF, 'X-Requested-With': 'XMLHttpRequest' },
+  });
+  if (!r.ok) return;
+  const d = await r.json();
+  if (d.already_shared) { showToast('Already shared.'); return; }
+  btn.classList.add('shared');
+  btn.innerHTML = '<i class="fi fi-rr-check"></i> Shared';
+  showToast('Post shared!');
+  if (navigator.share) {
+    navigator.share({ title: document.title, url: window.location.href }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(window.location.href).catch(() => {});
+  }
+}
+</script>
+{% include '_partials/footer.html' %}
+{% endblock %}

@@ -1,0 +1,230 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Edit {{ company.name }} | Oduma Connect{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+<style>
+  :root {
+    --blue: #004AAD;
+    --blue-dark: #003490;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --border: rgba(0,0,0,0.08);
+    --ff-serif: "Jacques Francois", serif;
+    --ff-sans: "Jaldi", sans-serif;
+  }
+  .ce-page {
+    max-width: 760px;
+    margin: 40px auto;
+    padding: 0 16px 64px;
+  }
+  .ce-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,74,173,0.06);
+    padding: 32px 32px 28px;
+  }
+  .ce-card h2 {
+    font-family: var(--ff-serif);
+    font-size: 1.5rem;
+    color: var(--text);
+    margin: 0 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ce-card h2 i { color: var(--blue); }
+  .ce-section-title {
+    font-family: var(--ff-sans);
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--muted);
+    margin: 22px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ce-field { margin-bottom: 16px; }
+  .ce-field label {
+    font-family: var(--ff-sans);
+    font-size: .88rem;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 5px;
+  }
+  .ce-field input, .ce-field select, .ce-field textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: var(--ff-sans);
+    font-size: .97rem;
+    color: var(--text);
+    box-sizing: border-box;
+    background: #fff;
+    transition: border-color .2s;
+  }
+  .ce-field input:focus, .ce-field select:focus, .ce-field textarea:focus {
+    outline: none;
+    border-color: var(--blue);
+  }
+  .ce-field textarea { resize: vertical; min-height: 100px; }
+  .ce-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .ce-row { grid-template-columns: 1fr; } }
+  .ce-media-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .ce-media-preview img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .ce-media-preview span {
+    font-family: var(--ff-sans);
+    font-size: .85rem;
+    color: var(--muted);
+  }
+  .ce-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .ce-btn {
+    font-family: var(--ff-sans);
+    font-size: .93rem;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all .2s;
+  }
+  .ce-btn-primary { background: var(--blue); color: #fff; }
+  .ce-btn-primary:hover { background: var(--blue-dark); color: #fff; }
+  .ce-btn-outline { background: transparent; color: var(--blue); border: 1.5px solid var(--blue); }
+  .ce-btn-outline:hover { background: #eaf0ff; }
+</style>
+
+<div style="background:#f0f4ff; min-height:100vh;">
+<div class="ce-page">
+  <div class="ce-card">
+    <h2><i class="fi fi-rr-pencil"></i> Edit Company Page</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <p class="ce-section-title">Basic Info</p>
+      <div class="ce-field">
+        <label>Company Name *</label>
+        <input type="text" name="name" value="{{ company.name }}" required>
+      </div>
+      <div class="ce-field">
+        <label>Tagline</label>
+        <input type="text" name="tagline" value="{{ company.tagline }}" placeholder="Short one-liner about your company">
+      </div>
+      <div class="ce-field">
+        <label>Description *</label>
+        <textarea name="description">{{ company.description }}</textarea>
+      </div>
+      <div class="ce-row">
+        <div class="ce-field">
+          <label>Industry</label>
+          <select name="industry">
+            {% for val, label in industry_choices %}
+            <option value="{{ val }}" {% if company.industry == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="ce-field">
+          <label>Company Type</label>
+          <select name="company_type">
+            {% for val, label in company_type_choices %}
+            <option value="{{ val }}" {% if company.company_type == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="ce-row">
+        <div class="ce-field">
+          <label>Company Size</label>
+          <select name="size">
+            <option value="">-- Select --</option>
+            {% for val, label in size_choices %}
+            <option value="{{ val }}" {% if company.size == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="ce-field">
+          <label>Founded Year</label>
+          <input type="number" name="founded_year" value="{{ company.founded_year|default:'' }}" placeholder="e.g. 2018" min="1800" max="2100">
+        </div>
+      </div>
+
+      <p class="ce-section-title">Contact & Location</p>
+      <div class="ce-row">
+        <div class="ce-field">
+          <label>Location</label>
+          <input type="text" name="location" value="{{ company.location }}" placeholder="City, Country">
+        </div>
+        <div class="ce-field">
+          <label>Website</label>
+          <input type="url" name="website" value="{{ company.website }}" placeholder="https://example.com">
+        </div>
+      </div>
+      <div class="ce-row">
+        <div class="ce-field">
+          <label>Email</label>
+          <input type="email" name="email" value="{{ company.email }}" placeholder="contact@company.com">
+        </div>
+        <div class="ce-field">
+          <label>Phone</label>
+          <input type="text" name="phone" value="{{ company.phone }}" placeholder="+1 234 567 8900">
+        </div>
+      </div>
+
+      <p class="ce-section-title">Logo &amp; Cover Image</p>
+      <div class="ce-row">
+        <div class="ce-field">
+          <label>Logo</label>
+          {% if company.logo %}
+          <div class="ce-media-preview">
+            <img src="{{ company.logo.url }}" alt="Current logo">
+            <span>Current logo — upload a new file to replace</span>
+          </div>
+          {% endif %}
+          <input type="file" name="logo" accept="image/*">
+        </div>
+        <div class="ce-field">
+          <label>Cover Image</label>
+          {% if company.cover_image %}
+          <div class="ce-media-preview">
+            <img src="{{ company.cover_image.url }}" alt="Current cover" style="width:80px; height:45px; border-radius:6px;">
+            <span>Current cover — upload a new file to replace</span>
+          </div>
+          {% endif %}
+          <input type="file" name="cover_image" accept="image/*">
+        </div>
+      </div>
+
+      <div class="ce-actions">
+        <a href="{% url 'company_profile' company.pk %}" class="ce-btn ce-btn-outline"><i class="fi fi-rr-arrow-left"></i> Cancel</a>
+        <button type="submit" class="ce-btn ce-btn-primary"><i class="fi fi-rr-check"></i> Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+{% endblock %}

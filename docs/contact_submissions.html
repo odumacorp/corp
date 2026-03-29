@@ -1,0 +1,97 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Contact Submissions | Admin | Oduma Connect{% endblock %}
+
+{% block content %}
+<style>
+  .cs-wrapper {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px 60px;
+    font-family: "Jaldi", sans-serif;
+  }
+  .cs-title {
+    font-family: "Jacques Francois", serif;
+    font-size: 1.6rem;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+  }
+  .cs-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  }
+  .cs-table th {
+    background: #004AAD;
+    color: #fff;
+    font-family: "Jacques Francois", serif;
+    font-size: 0.88rem;
+    padding: 12px 14px;
+    text-align: left;
+  }
+  .cs-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.88rem;
+    color: #333;
+    vertical-align: top;
+  }
+  .cs-table tr:last-child td { border-bottom: none; }
+  .cs-table tr:hover td { background: #f7f9fc; }
+  .cs-badge-replied { color: #22c55e; font-weight: 700; }
+  .cs-badge-pending { color: #d97706; font-weight: 700; }
+  .cs-back { display: inline-block; margin-bottom: 18px; color: #004AAD; text-decoration: none; font-size: 0.9rem; }
+  .cs-back:hover { text-decoration: underline; }
+  .cs-empty { padding: 40px; text-align: center; color: #aaa; font-size: 1rem; }
+</style>
+
+<div class="cs-wrapper">
+  <nav class="oc-breadcrumb" style="margin-bottom:16px;">
+    <a href="{% url 'app' %}"><i class="fi fi-rr-home fi-sm"></i> Home</a>
+    <span class="oc-bc-sep">›</span>
+    <a href="{% url 'admin_panel' %}">Admin Panel</a>
+    <span class="oc-bc-sep">›</span>
+    <span class="oc-bc-current">Contact Submissions</span>
+  </nav>
+  <h1 class="cs-title">Contact Submissions</h1>
+
+  {% if submissions %}
+  <table class="cs-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Message</th>
+        <th>Submitted</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sub in submissions %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ sub.name }}</td>
+        <td><a href="mailto:{{ sub.email }}">{{ sub.email }}</a></td>
+        <td>{{ sub.message|truncatewords:30 }}</td>
+        <td>{{ sub.submitted_at|date:"M d, Y H:i" }}</td>
+        <td>
+          {% if sub.is_replied %}
+            <span class="cs-badge-replied">Replied</span>
+          {% else %}
+            <span class="cs-badge-pending">Pending</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="cs-empty">No contact submissions yet.</div>
+  {% endif %}
+</div>
+{% endblock content %}
