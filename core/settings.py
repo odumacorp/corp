@@ -94,8 +94,7 @@ ASGI_APPLICATION = 'core.wsgi.application'
 load_dotenv() 
 
 
-# SECRET_KEY = config('SECRET_KEY')
-SECRET_KEY="REDACTED_SECRET_KEY"
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
@@ -108,39 +107,23 @@ ALLOWED_HOSTS = "127.0.0.1", "localhost", "0.0.0.0", "connect.onrender.com", "co
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-DATABASES = {
-    # postgresql://austin:WPnHyrtaq6mPjwTummEEtz4EMQtN7PON@dpg-cvj2kl6uk2gs73b0vkb0-a.oregon-postgres.render.com/odumaconnectdb
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    #     # 'ENGINE': 'django.db.backends.postgresql',  # Change accordingly
-    #     'NAME': config('DB_NAME'),
-    #     'USER': config('DB_USER'),
-    #     'PASSWORD': config('DB_PASSWORD'),
-    #     'HOST': config('DB_HOST', default="localhost"),
-    #     'PORT': config('DB_PORT', default="5432"),
-    # }
-       'default': {
-        # 'ENGINE': 'django.db.backends.postgresql',
-        # 'NAME': 'odumaconnectdb',
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        # 'USER': 'austin',
-        # 'PASSWORD': 'L@ndM1ne',
-        # 'HOST': 'localhost',
-        # 'PORT': '5432',
+_DATABASE_URL = config('DATABASE_URL', default='')
+
+if _DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(
+            _DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-    #     'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': 'odumaconnectdb',
-    #     'USER': 'austin',
-    #     'PASSWORD': 'WPnHyrtaq6mPjwTummEEtz4EMQtN7PON',
-    #     # 'HOST': 'localhost',
-    #     'HOST': 'odumaconnect.onrender.com',
-    #     # 'HOST': 'postgresql://austin:WPnHyrtaq6mPjwTummEEtz4EMQtN7PON@dpg-cvj2kl6uk2gs73b0vkb0-a/odumaconnectdb',
-    #     'PORT': '5432',
-    # }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = config("EMAIL_HOST")
 EMAIL_PORT = config("EMAIL_PORT", cast=int)
@@ -238,8 +221,8 @@ ACCOUNT_USERNAME_REQUIRED = True
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id': '570681634012-is3lgevnl34ev4okgq7go8uipd7bnu8j.apps.googleusercontent.com',
-            'secret': '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',
+            'client_id': config('GOOGLE_CLIENT_ID', default=''),
+            'secret': config('GOOGLE_CLIENT_SECRET', default=''),
             'key': ''
         }
     }
