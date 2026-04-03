@@ -83,16 +83,14 @@
 {% endblock %}
 
 {% block content %}
+<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="oc-breadcrumbs__list">
+    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% url 'admin_panel' %}" class="oc-breadcrumbs__link">Admin</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Contact Submissions</span></li>
+  </ol>
+</nav>
 <div class="cs-page">
-
-  <!-- Breadcrumb -->
-  <nav style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:#9ca3af;margin-bottom:20px;">
-    <a href="{% url 'app' %}" style="color:#6b7280;text-decoration:none;">Home</a>
-    <span>›</span>
-    <a href="{% url 'admin_panel' %}" style="color:#6b7280;text-decoration:none;">Admin Panel</a>
-    <span>›</span>
-    <span style="color:#0A1628;font-weight:600;">Contact Submissions</span>
-  </nav>
 
   <!-- Page header -->
   <div class="cs-header">

@@ -155,6 +155,8 @@ urlpatterns = [
     path('meetings/', views.meetings_list, name='meetings_list'),
     path('meetings/create/', views.create_meeting, name='create_meeting'),
     path('meetings/<int:meeting_id>/join/', views.join_meeting, name='join_meeting'),
+    path('meetings/<int:meeting_id>/end/', views.end_meeting, name='end_meeting'),
+    path('meetings/<int:meeting_id>/recordings/', views.meeting_recordings, name='meeting_recordings'),
 
     # Investor dashboard + investor actions
     path('investor/dashboard/', views.investor_dashboard, name='investor_dashboard'),

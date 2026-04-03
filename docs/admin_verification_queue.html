@@ -4,6 +4,13 @@
 {% block title %}Verification Queue | Admin Panel{% endblock %}
 
 {% block content %}
+<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="oc-breadcrumbs__list">
+    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% url 'admin_panel' %}" class="oc-breadcrumbs__link">Admin</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Verification Queue</span></li>
+  </ol>
+</nav>
 <div style="max-width:1100px;margin:40px auto;padding:0 24px;">
 
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">

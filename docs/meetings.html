@@ -3,6 +3,12 @@
 {% endblock %}
 
 {% block content %}
+<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="oc-breadcrumbs__list">
+    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Meetings</span></li>
+  </ol>
+</nav>
 <style>
   :root {
     --blue: #004AAD; --blue-dark: #003490;
@@ -131,12 +137,6 @@
 
 <div class="mt-page">
 
-  <nav class="oc-breadcrumb" style="margin-bottom:16px;">
-    <a href="{% url 'app' %}"><i class="fi fi-rr-home fi-sm"></i> Home</a>
-    <span class="oc-bc-sep">›</span>
-    <span class="oc-bc-current">Meetings</span>
-  </nav>
-
   <!-- Header -->
   <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:28px;">
     <div>
@@ -168,7 +168,7 @@
           <i class="fi fi-rr-video-camera"></i>
         </div>
         <div class="mt-card-body">
-          <p class="mt-card-title">{{ m.title|default:"Untitled Meeting" }}</p>
+          <a href="{% url 'join_meeting' m.id %}" class="mt-card-title" style="text-decoration:none;color:inherit;">{{ m.title|default:"Untitled Meeting" }}</a>
           <p class="mt-card-meta">
             Hosted by {{ m.creator.get_full_name|default:m.creator.username }}
             {% if m.scheduled_at %} · Scheduled {{ m.scheduled_at|date:"M d, H:i" }}{% endif %}
@@ -235,7 +235,7 @@
     <div class="mt-card ended">
       <div class="mt-card-icon ended"><i class="fi fi-rr-video-slash"></i></div>
       <div class="mt-card-body">
-        <p class="mt-card-title">{{ m.title|default:"Untitled Meeting" }}</p>
+        <a href="{% url 'join_meeting' m.id %}" class="mt-card-title" style="text-decoration:none;color:inherit;">{{ m.title|default:"Untitled Meeting" }}</a>
         <p class="mt-card-meta">
           Hosted by {{ m.creator.get_full_name|default:m.creator.username }}
           · {{ m.created_at|timesince }} ago
@@ -274,7 +274,9 @@
       <label>Invite a connection</label>
       <select name="other_user_id" id="mt-other-select">
         <option value="">— Start instantly without inviting —</option>
-        {% comment %}Populated dynamically — or list connections{% endcomment %}
+        {% for conn in connections %}
+        <option value="{{ conn.id }}">{{ conn.get_full_name|default:conn.username }}</option>
+        {% endfor %}
       </select>
 
       <label>Schedule for (optional)</label>
@@ -297,14 +299,6 @@
 var CREATE_URL = '{% url "create_meeting" %}';
 var CSRF = '{{ csrf_token }}';
 
-// Load connections into the select
-(function() {
-  fetch('{% url "networks" %}?json=1', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-    .then(function(r) { return r.json(); })
-    .catch(function() { return null; });
-  // Fallback: connections loaded server-side would be ideal;
-  // for now the field is optional and works without selection
-})();
 
 function openScheduleModal() {
   document.getElementById('mt-schedule-overlay').classList.add('open');

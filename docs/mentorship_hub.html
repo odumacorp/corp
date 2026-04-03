@@ -3,6 +3,12 @@
 {% block title %}Mentorship | Oduma Connect{% endblock %}
 
 {% block content %}
+<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="oc-breadcrumbs__list">
+    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Mentorship</span></li>
+  </ol>
+</nav>
 <style>
 .mh-wrap { max-width:1100px; margin:0 auto; padding:36px 24px 64px; }
 .mh-hero { background:linear-gradient(135deg,#0A1628,#0d7a5f); border-radius:16px;

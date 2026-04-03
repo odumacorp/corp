@@ -231,3 +231,8 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')
+
+# Zoom Server-to-Server OAuth
+ZOOM_ACCOUNT_ID    = config('ZOOM_ACCOUNT_ID',    default='')
+ZOOM_CLIENT_ID     = config('ZOOM_CLIENT_ID',     default='')
+ZOOM_CLIENT_SECRET = config('ZOOM_CLIENT_SECRET', default='')

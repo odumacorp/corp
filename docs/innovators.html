@@ -1,215 +1,492 @@
 {% extends '_partials/base.html' %}
 {% load static %}
 
+{% block title %}Innovators | Oduma Connect{% endblock %}
+
 {% block content %}
-<header>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-</header>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-<h2 class="mb-4">List of Innovators</h2>
+<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="oc-breadcrumbs__list">
+    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Innovators</span></li>
+  </ol>
+</nav>
+<style>
+:root {
+  --ink:    #0A1628;
+  --blue:   #1B5EC7;
+  --blue-lt:#e0e8f4;
+  --border: #e4eaf2;
+  --bg:     #f4f6fb;
+  --radius: 14px;
+}
 
-<div class="container mt-5">
+.iv-wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 80px; }
 
+/* ── Hero ───────────────────────────────────────────────────────── */
+.iv-hero {
+  background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 60%, #3b82f6 100%);
+  border-radius: 0 0 20px 20px;
+  padding: 36px 32px 32px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.iv-hero::after {
+  content: '';
+  position: absolute; right: -60px; top: -60px;
+  width: 260px; height: 260px; border-radius: 50%;
+  background: rgba(255,255,255,.06);
+  pointer-events: none;
+}
+.iv-hero-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 800; color: #fff; margin: 0 0 6px;
+}
+.iv-hero-sub { font-size: .9rem; color: rgba(255,255,255,.7); margin: 0 0 22px; }
 
-  {% for innovator in innovators %}
-  {% if request.user != innovator %}
-    <div class="innovator-card mb-4">
-      <div>
-        <h3><strong>Name:</strong> {{ innovator.get_full_name|default:"Not Provided" }} - {{ innovator.projects.first.title }}</h3>
-        <p><strong>Email:</strong> {{ innovator.email|default:"Not Provided" }}</p>
+/* Search */
+.iv-search-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.iv-search-wrap { flex: 1; min-width: 220px; position: relative; }
+.iv-search-wrap svg {
+  position: absolute; left: 14px; top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255,255,255,.5); pointer-events: none;
+}
+.iv-search-input {
+  width: 100%; box-sizing: border-box;
+  padding: 11px 14px 11px 42px;
+  background: rgba(255,255,255,.15);
+  border: 1.5px solid rgba(255,255,255,.25);
+  border-radius: 11px;
+  font-size: .9rem; font-family: inherit; color: #fff; outline: none;
+  transition: border-color .18s, background .18s;
+}
+.iv-search-input::placeholder { color: rgba(255,255,255,.5); }
+.iv-search-input:focus { border-color: rgba(255,255,255,.6); background: rgba(255,255,255,.22); }
+.iv-search-btn {
+  padding: 11px 24px;
+  background: #fff; color: var(--blue);
+  border: none; border-radius: 11px;
+  font-size: .9rem; font-weight: 700;
+  font-family: inherit; cursor: pointer; white-space: nowrap;
+  transition: background .15s;
+}
+.iv-search-btn:hover { background: #f0f5ff; }
 
-        <!-- Message Button -->
-        <form method="POST" action="{% url 'message_innovator' innovator.id %}">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-info">Message Innovator</button>
-        </form>
+/* ── Filter bar ─────────────────────────────────────────────────── */
+.iv-filter-bar {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 22px;
+  box-shadow: 0 1px 4px rgba(10,22,40,.04);
+}
+.iv-filter-label {
+  font-size: .75rem; font-weight: 700;
+  color: #9ca3af; text-transform: uppercase; letter-spacing: .04em;
+  white-space: nowrap;
+}
+.iv-filter-select {
+  padding: 6px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: .82rem; font-family: inherit; color: var(--ink);
+  background: #fafbff; outline: none; cursor: pointer;
+  transition: border-color .15s;
+}
+.iv-filter-select:focus { border-color: var(--blue); }
+.iv-filter-sep { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
+.iv-result-count { margin-left: auto; font-size: .8rem; color: #9ca3af; font-weight: 600; }
 
-        <!-- View Profile Button -->
-        <a href="{% url 'profile_view' id=innovator.id %}" class="btn btn-secondary mt-1">View Profile</a>
+/* ── Grid ───────────────────────────────────────────────────────── */
+.iv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
 
-        <!-- Connect / Disconnect Button -->
-        {% with request.user.userprofile as current_profile %}
-          {% with innovator.userprofile as target_profile %}
-            {% if current_profile not in target_profile.connected_users.all %}
-              <form method="POST" action="{% url 'connect_innovator' innovator.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary mt-1">Connect with Innovator</button>
-              </form>
-            {% else %}
-              <form method="POST" action="{% url 'connect_innovator' innovator.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger mt-1">Disconnect</button>
-              </form>
+/* ── Card ───────────────────────────────────────────────────────── */
+.iv-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: border-color .18s, box-shadow .18s;
+}
+.iv-card:hover {
+  border-color: var(--blue);
+  box-shadow: 0 6px 24px rgba(27,94,199,.12);
+}
+
+/* Card top strip */
+.iv-card-strip {
+  height: 6px;
+  background: linear-gradient(90deg, #1B5EC7, #3b82f6);
+}
+
+/* Profile section */
+.iv-card-profile {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 18px 18px 14px;
+}
+.iv-avatar {
+  width: 54px; height: 54px; border-radius: 50%;
+  object-fit: cover; flex-shrink: 0;
+  border: 2px solid var(--blue-lt);
+}
+.iv-avatar-ph {
+  width: 54px; height: 54px; border-radius: 50%;
+  background: linear-gradient(135deg, #1B5EC7, #3b82f6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+}
+.iv-card-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem; font-weight: 800; color: var(--ink);
+  margin: 0 0 4px; line-height: 1.2;
+}
+.iv-card-meta {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 5px;
+}
+.iv-tag {
+  font-size: .68rem; font-weight: 700; padding: 2px 9px;
+  border-radius: 20px; white-space: nowrap;
+}
+.iv-tag--industry { background: var(--blue-lt); color: var(--blue); }
+.iv-tag--verified { background: #d1fae5; color: #065f46; }
+.iv-tag--company  { background: #f3f4f6; color: #374151; }
+.iv-card-company  { font-size: .78rem; color: #6b7280; }
+
+/* Bio */
+.iv-card-bio {
+  padding: 0 18px 14px;
+  font-size: .82rem; color: #4b5563; line-height: 1.55;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Project teaser */
+.iv-project {
+  margin: 0 18px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 13px;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.iv-project-thumb {
+  width: 44px; height: 44px; border-radius: 7px;
+  object-fit: cover; flex-shrink: 0;
+}
+.iv-project-thumb-ph {
+  width: 44px; height: 44px; border-radius: 7px;
+  background: linear-gradient(135deg, #e0e8f4, #c3d4ec);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.iv-project-title {
+  font-size: .82rem; font-weight: 700; color: var(--ink);
+  margin: 0 0 3px; line-height: 1.2;
+}
+.iv-project-desc {
+  font-size: .74rem; color: #6b7280;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; line-height: 1.4;
+}
+
+/* Like & rating row */
+.iv-card-engage {
+  padding: 0 18px 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.iv-like-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  background: transparent; cursor: pointer;
+  font-size: .78rem; color: #6b7280;
+  font-family: inherit;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.iv-like-btn.liked { border-color: #ef4444; color: #ef4444; background: #fff5f5; }
+.iv-like-btn:hover:not(.liked) { border-color: #ef4444; color: #ef4444; }
+.iv-stars { display: flex; gap: 2px; }
+.iv-star {
+  font-size: 1rem; cursor: pointer; color: #d1d5db;
+  transition: color .1s;
+}
+.iv-star.active { color: #f59e0b; }
+
+/* Action buttons */
+.iv-card-actions {
+  padding: 12px 18px 18px;
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+}
+.iv-btn {
+  flex: 1; min-width: 80px;
+  padding: 8px 12px;
+  border-radius: 9px; border: none;
+  font-size: .78rem; font-weight: 700;
+  font-family: inherit; cursor: pointer; text-align: center;
+  text-decoration: none; display: inline-flex;
+  align-items: center; justify-content: center; gap: 5px;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+.iv-btn--primary { background: var(--blue); color: #fff; }
+.iv-btn--primary:hover { background: #1448a3; color: #fff; }
+.iv-btn--outline {
+  background: transparent; color: var(--blue);
+  border: 1.5px solid var(--blue-lt);
+}
+.iv-btn--outline:hover { background: var(--blue-lt); }
+.iv-btn--ghost {
+  background: #f3f4f6; color: #374151;
+  border: 1.5px solid transparent;
+}
+.iv-btn--ghost:hover { background: #e5e7eb; }
+.iv-btn--danger { background: #fee2e2; color: #dc2626; border: 1.5px solid transparent; }
+.iv-btn--danger:hover { background: #fecaca; }
+
+/* Empty state */
+.iv-empty {
+  text-align: center; padding: 80px 20px;
+  color: #9ca3af;
+}
+.iv-empty-icon { font-size: 3rem; margin-bottom: 12px; }
+.iv-empty h3 { font-family: 'Space Grotesk', sans-serif; color: var(--ink); margin: 0 0 6px; }
+</style>
+
+<div class="iv-wrap">
+
+  <!-- Hero -->
+  <div class="iv-hero">
+    <h1 class="iv-hero-title">Innovators Directory</h1>
+    <p class="iv-hero-sub">Discover Africa's boldest builders — connect, collaborate, and invest.</p>
+    <form method="get" action="">
+      <div class="iv-search-row">
+        <div class="iv-search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" name="q" class="iv-search-input"
+                 placeholder="Search by name, industry…"
+                 value="{{ request.GET.q }}">
+        </div>
+        {% if request.GET.industry %}<input type="hidden" name="industry" value="{{ request.GET.industry }}">{% endif %}
+        <button type="submit" class="iv-search-btn">Search</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Filter bar -->
+  <form method="get" id="iv-filter-form">
+    {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
+    <div class="iv-filter-bar">
+      <span class="iv-filter-label">Industry</span>
+      <select name="industry" class="iv-filter-select" onchange="document.getElementById('iv-filter-form').submit()">
+        <option value="">All Industries</option>
+        <option value="tech"          {% if request.GET.industry == 'tech' %}selected{% endif %}>Technology</option>
+        <option value="finance"       {% if request.GET.industry == 'finance' %}selected{% endif %}>Finance</option>
+        <option value="health"        {% if request.GET.industry == 'health' %}selected{% endif %}>Healthcare</option>
+        <option value="edu"           {% if request.GET.industry == 'edu' %}selected{% endif %}>Education</option>
+        <option value="energy"        {% if request.GET.industry == 'energy' %}selected{% endif %}>Energy</option>
+        <option value="agriculture"   {% if request.GET.industry == 'agriculture' %}selected{% endif %}>Agriculture</option>
+        <option value="manufacturing" {% if request.GET.industry == 'manufacturing' %}selected{% endif %}>Manufacturing</option>
+        <option value="other"         {% if request.GET.industry == 'other' %}selected{% endif %}>Other</option>
+      </select>
+      <div class="iv-filter-sep"></div>
+      <span class="iv-result-count">{{ innovators|length }} innovator{{ innovators|length|pluralize }}</span>
+    </div>
+  </form>
+
+  <!-- Grid -->
+  {% if innovators %}
+  <div class="iv-grid">
+    {% for innovator in innovators %}
+    {% if request.user != innovator %}
+
+    <div class="iv-card">
+      <div class="iv-card-strip"></div>
+
+      <!-- Profile -->
+      <div class="iv-card-profile">
+        {% if innovator.userprofile.profile_pics %}
+          <img src="{{ innovator.userprofile.profile_pics.url }}" alt="{{ innovator.get_full_name }}" class="iv-avatar">
+        {% else %}
+          <div class="iv-avatar-ph">{{ innovator.first_name|first|upper }}</div>
+        {% endif %}
+        <div style="flex:1;min-width:0;">
+          <div class="iv-card-name">{{ innovator.get_full_name|default:innovator.username }}</div>
+          <div class="iv-card-meta">
+            {% if innovator.userprofile.industry %}
+              <span class="iv-tag iv-tag--industry">{{ innovator.userprofile.get_industry_display }}</span>
             {% endif %}
+            {% if innovator.userprofile.verification_status == 'verified' %}
+              <span class="iv-tag iv-tag--verified">✓ Verified</span>
+            {% endif %}
+          </div>
+          {% if innovator.userprofile.company %}
+            <div class="iv-card-company">{{ innovator.userprofile.company }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Bio -->
+      {% if innovator.userprofile.bio %}
+        <div class="iv-card-bio">{{ innovator.userprofile.bio }}</div>
+      {% endif %}
+
+      <!-- Project teaser -->
+      {% if innovator.first_project %}
+      <div class="iv-project">
+        {% if innovator.first_project.get_main_image_url %}
+          <img src="{{ innovator.first_project.get_main_image_url }}" alt="" class="iv-project-thumb">
+        {% else %}
+          <div class="iv-project-thumb-ph">💡</div>
+        {% endif %}
+        <div style="flex:1;min-width:0;">
+          <div class="iv-project-title">{{ innovator.first_project.title }}</div>
+          <div class="iv-project-desc">{{ innovator.first_project.description }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Like & Stars -->
+      {% if request.user.is_authenticated and innovator.first_project %}
+      <div class="iv-card-engage">
+        <button class="iv-like-btn {% if request.user in innovator.first_project.liked_by.all %}liked{% endif %}"
+                id="like-btn-{{ innovator.first_project.id }}"
+                data-project-id="{{ innovator.first_project.id }}">
+          <span>{% if request.user in innovator.first_project.liked_by.all %}♥{% else %}♡{% endif %}</span>
+          <span id="like-label-{{ innovator.first_project.id }}">{% if request.user in innovator.first_project.liked_by.all %}Liked{% else %}Like{% endif %}</span>
+        </button>
+        <div class="iv-stars rating-container" data-project-id="{{ innovator.first_project.id }}">
+          {% for i in "12345" %}
+            <span class="iv-star star {% if innovator.first_project.rating and i|add:0 <= innovator.first_project.rating|add:0 %}active{% endif %}"
+                  data-rating="{{ i }}">★</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Actions -->
+      <div class="iv-card-actions">
+        <a href="{% url 'profile_view' id=innovator.id %}" class="iv-btn iv-btn--ghost">
+          View Profile
+        </a>
+        <form method="POST" action="{% url 'message_innovator' innovator.id %}" style="flex:1;display:flex;">
+          {% csrf_token %}
+          <button type="submit" class="iv-btn iv-btn--outline" style="flex:1;">Message</button>
+        </form>
+        {% with request.user.userprofile as cp %}
+          {% with innovator.userprofile as tp %}
+            <form method="POST" action="{% url 'connect_innovator' innovator.id %}" style="flex:1;display:flex;">
+              {% csrf_token %}
+              {% if cp not in tp.connected_users.all %}
+                <button type="submit" class="iv-btn iv-btn--primary" style="flex:1;">Connect</button>
+              {% else %}
+                <button type="submit" class="iv-btn iv-btn--danger" style="flex:1;">Disconnect</button>
+              {% endif %}
+            </form>
           {% endwith %}
         {% endwith %}
       </div>
-
-      {% if innovator.projects.first %}
-        <div class="mt-3">
-          <h4>Project: {{ innovator.projects.first.title }}</h4>
-          <p><strong>Description:</strong> {{ innovator.projects.first.description }}</p>
-          <p><strong>Industry:</strong> {{ innovator.projects.first.industry }}</p>
-          <p><strong>Created At:</strong> {{ innovator.projects.first.created_at }}</p>
-
-          {% if innovator.projects.first.get_main_image_url %}
-            <img src="{{ innovator.projects.first.get_main_image_url }}" alt="Main Project Image" style="max-width: 150px;">
-          {% else %}
-            <p>No main image available</p>
-          {% endif %}
-
-          <!-- Like and Rating: only if not self -->
-          {% if request.user != innovator %}
-            <button class="btn btn-warning" id="like-btn-{{ innovator.projects.first.id }}" data-project-id="{{ innovator.projects.first.id }}">
-              {% if request.user in innovator.projects.first.liked_by.all %}
-                <i class="fas fa-heart"></i> Liked
-              {% else %}
-                <i class="far fa-heart"></i> Like Project
-              {% endif %}
-            </button>
-
-            <span id="like-status-{{ innovator.projects.first.id }}">
-              {% if request.user in innovator.projects.first.liked_by.all %}
-                <span class="text-success">Liked!</span>
-              {% else %}
-                <span class="text-muted">Not liked yet</span>
-              {% endif %}
-            </span>
-
-            <!-- Rating stars -->
-            <div class="rating-container" data-project-id="{{ innovator.projects.first.id }}">
-              <div class="stars">
-                <span class="star" data-rating="1">&#9733;</span>
-                <span class="star" data-rating="2">&#9733;</span>
-                <span class="star" data-rating="3">&#9733;</span>
-                <span class="star" data-rating="4">&#9733;</span>
-                <span class="star" data-rating="5">&#9733;</span>
-              </div>
-              <div class="rating-message">
-                {% if innovator.projects.first.rating %}
-                  <p>Current Rating: {{ innovator.projects.first.rating }} Stars</p>
-                {% else %}
-                  <p>Rating: Not rated yet</p>
-                {% endif %}
-              </div>
-            </div>
-          {% endif %} <!-- End if not self -->
-
-        </div>
-      {% else %}
-        <p>No project details available for this innovator.</p>
-      {% endif %}
     </div>
+
+    {% endif %}
+    {% empty %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="iv-empty">
+    <div class="iv-empty-icon">🔍</div>
+    <h3>No innovators found</h3>
+    <p>Try adjusting your search or filters.</p>
+  </div>
   {% endif %}
-{% empty %}
-  <p>No innovators found.</p>
-{% endfor %}
 
 </div>
 
-
-<!-- CSS to Style the Stars -->
-<style>
-  .star {
-      font-size: 2em;
-      cursor: pointer;
-      color: #ddd; /* Default color */
-  }
-
-  .star.rated {
-      color: gold; /* Color when rated */
-  }
-
-  .stars {
-      display: flex;
-  }
-</style>
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const likeButtons = document.querySelectorAll('[id^="like-btn-"]');
-
-    likeButtons.forEach(button => {
-      button.addEventListener('click', function () {
-        const projectId = this.getAttribute('data-project-id');
-        const statusSpan = document.getElementById(`like-status-${projectId}`);
-
-        fetch(`/like_project/${projectId}/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-          },
-          body: JSON.stringify({ 'project_id': projectId })
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.liked) {
-            this.innerHTML = '<i class="fas fa-heart"></i> Liked';
-            statusSpan.innerHTML = '<span class="text-success">Liked!</span>';
-          } else {
-            this.innerHTML = '<i class="far fa-heart"></i> Like Project';
-            statusSpan.innerHTML = '<span class="text-muted">Not liked yet</span>';
-          }
-        })
-        .catch(error => console.error('Error:', error));
+document.addEventListener('DOMContentLoaded', function () {
+  // Like buttons
+  document.querySelectorAll('.iv-like-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const id = this.dataset.projectId;
+      fetch(`/like_project/${id}/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: JSON.stringify({ project_id: id })
+      })
+      .then(r => r.json())
+      .then(data => {
+        const label = document.getElementById(`like-label-${id}`);
+        if (data.liked) {
+          this.classList.add('liked');
+          this.querySelector('span').textContent = '♥';
+          label.textContent = 'Liked';
+        } else {
+          this.classList.remove('liked');
+          this.querySelector('span').textContent = '♡';
+          label.textContent = 'Like';
+        }
       });
     });
   });
-</script>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-      const ratingContainers = document.querySelectorAll('.rating-container');
-  
-      ratingContainers.forEach(container => {
-          const stars = container.querySelectorAll('.star');
-          const ratingMessage = container.querySelector('.rating-message');
-          const projectId = container.getAttribute('data-project-id');
-  
-          stars.forEach(star => {
-              star.addEventListener('mouseover', () => {
-                  const rating = parseInt(star.getAttribute('data-rating'));
-                  highlightStars(stars, rating);
-              });
-  
-              star.addEventListener('mouseout', () => {
-                  const current = ratingMessage.textContent.match(/Current Rating: (\d+)/);
-                  const currentRating = current ? parseInt(current[1]) : 0;
-                  highlightStars(stars, currentRating);
-              });
-  
-              star.addEventListener('click', () => {
-                  const rating = parseInt(star.getAttribute('data-rating'));
-  
-                  fetch(`/rate_project/${projectId}/`, {
-                      method: 'POST',
-                      headers: {
-                          'Content-Type': 'application/json',
-                          'X-CSRFToken': '{{ csrf_token }}'
-                      },
-                      body: JSON.stringify({ 'rating': rating })
-                  })
-                  .then(response => response.json())
-                  .then(data => {
-                      if (data.rating) {
-                          ratingMessage.innerHTML = `<p>Current Rating: ${data.rating} Stars</p>`;
-                          highlightStars(stars, data.rating);
-                      }
-                  })
-                  .catch(error => console.error('Rating error:', error));
-              });
-          });
-  
-          function highlightStars(stars, rating) {
-              stars.forEach(star => {
-                  const val = parseInt(star.getAttribute('data-rating'));
-                  star.classList.toggle('rated', val <= rating);
-              });
-          }
+  // Star ratings
+  document.querySelectorAll('.rating-container').forEach(container => {
+    const stars = container.querySelectorAll('.iv-star');
+    const id = container.dataset.projectId;
+
+    stars.forEach(star => {
+      star.addEventListener('mouseover', () => highlight(stars, parseInt(star.dataset.rating)));
+      star.addEventListener('mouseout',  () => {
+        const active = container.querySelectorAll('.iv-star.active').length;
+        highlight(stars, active);
       });
-  });
-  </script>
-  
+      star.addEventListener('click', () => {
+        const rating = parseInt(star.dataset.rating);
+        fetch(`/rate_project/${id}/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+          body: JSON.stringify({ rating })
+        })
+        .then(r => r.json())
+        .then(data => { if (data.rating) highlight(stars, data.rating, true); });
+      });
+    });
 
+    function highlight(stars, n, persist) {
+      stars.forEach(s => {
+        const v = parseInt(s.dataset.rating);
+        if (persist) s.classList.toggle('active', v <= n);
+        else         s.style.color = v <= n ? '#f59e0b' : '';
+      });
+    }
+  });
+
+  // Client-side name filter (instant)
+  const searchInput = document.querySelector('.iv-search-input');
+  if (searchInput && !searchInput.value) {
+    searchInput.addEventListener('input', function () {
+      const q = this.value.toLowerCase();
+      document.querySelectorAll('.iv-card').forEach(card => {
+        const name = card.querySelector('.iv-card-name')?.textContent.toLowerCase() || '';
+        card.style.display = name.includes(q) ? '' : 'none';
+      });
+    });
+  }
+});
+</script>
 
 {% endblock %}

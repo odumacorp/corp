@@ -496,20 +496,20 @@
             </div>
 
             <!-- Match score badge -->
-            {% if proj._match_score is not None %}
+            {% if proj.match_score is not None %}
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
               <span style="font-size:.72rem;color:#6b7280;">Match:</span>
               <div style="flex:1;height:5px;background:#e0e8f4;border-radius:3px;overflow:hidden;">
                 <div style="height:100%;border-radius:3px;transition:width .5s;
-                  width:{{ proj._match_score }}%;
-                  {% if proj._match_score >= 80 %}background:#059669;
-                  {% elif proj._match_score >= 60 %}background:#10b981;
-                  {% elif proj._match_score >= 40 %}background:#1B5EC7;
+                  width:{{ proj.match_score }}%;
+                  {% if proj.match_score >= 80 %}background:#059669;
+                  {% elif proj.match_score >= 60 %}background:#10b981;
+                  {% elif proj.match_score >= 40 %}background:#1B5EC7;
                   {% else %}background:#9ca3af;{% endif %}"></div>
               </div>
               <span style="font-size:.72rem;font-weight:800;
-                {% if proj._match_score >= 80 %}color:#059669;{% elif proj._match_score >= 40 %}color:#1B5EC7;{% else %}color:#9ca3af;{% endif %}">
-                {{ proj._match_score }}%
+                {% if proj.match_score >= 80 %}color:#059669;{% elif proj.match_score >= 40 %}color:#1B5EC7;{% else %}color:#9ca3af;{% endif %}">
+                {{ proj.match_score }}%
               </span>
             </div>
             {% endif %}

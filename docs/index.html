@@ -341,7 +341,7 @@
           <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Access mentorship, training, and consulting services</div>
           <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Track investor interest and engagement analytics</div>
         </div>
-        <a href="{% url 'register' %}" class="lp-panel__cta">Join as Innovator &rarr;</a>
+        {% if user.is_authenticated %}<a href="{% url 'app' %}" class="lp-panel__cta">Go to Dashboard &rarr;</a>{% else %}<a href="{% url 'register' %}" class="lp-panel__cta">Join as Innovator &rarr;</a>{% endif %}
       </div>
       <div class="lp-panel lp-panel--dark">
         <div class="lp-panel__icon">&#128188;</div>
@@ -356,7 +356,7 @@
           <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Save projects and manage your pipeline</div>
           <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Connect with verified, credible innovators</div>
         </div>
-        <a href="{% url 'register' %}" class="lp-panel__cta lp-panel__cta--blue">Join as Investor &rarr;</a>
+        {% if user.is_authenticated %}<a href="{% url 'investor_dashboard' %}" class="lp-panel__cta lp-panel__cta--blue">Go to Dashboard &rarr;</a>{% else %}<a href="{% url 'register' %}" class="lp-panel__cta lp-panel__cta--blue">Join as Investor &rarr;</a>{% endif %}
       </div>
     </div>
   </div>
@@ -412,7 +412,7 @@
         </div>
         <div class="lp-proj-footer">
           <span style="font-size:.78rem;color:#9ca3af;">Sample project</span>
-          <a href="{% url 'register' %}" class="lp-proj-arrow">Join to view &rarr;</a>
+          {% if user.is_authenticated %}<a href="{% url 'project_list' %}" class="lp-proj-arrow">Browse projects &rarr;</a>{% else %}<a href="{% url 'register' %}" class="lp-proj-arrow">Join to view &rarr;</a>{% endif %}
         </div>
       </div>
       <div class="lp-proj-card">
@@ -424,7 +424,7 @@
         </div>
         <div class="lp-proj-footer">
           <span style="font-size:.78rem;color:#9ca3af;">Sample project</span>
-          <a href="{% url 'register' %}" class="lp-proj-arrow">Join to view &rarr;</a>
+          {% if user.is_authenticated %}<a href="{% url 'project_list' %}" class="lp-proj-arrow">Browse projects &rarr;</a>{% else %}<a href="{% url 'register' %}" class="lp-proj-arrow">Join to view &rarr;</a>{% endif %}
         </div>
       </div>
       <div class="lp-proj-card">
@@ -436,12 +436,12 @@
         </div>
         <div class="lp-proj-footer">
           <span style="font-size:.78rem;color:#9ca3af;">Sample project</span>
-          <a href="{% url 'register' %}" class="lp-proj-arrow">Join to view &rarr;</a>
+          {% if user.is_authenticated %}<a href="{% url 'project_list' %}" class="lp-proj-arrow">Browse projects &rarr;</a>{% else %}<a href="{% url 'register' %}" class="lp-proj-arrow">Join to view &rarr;</a>{% endif %}
         </div>
       </div>
     </div>
     <div style="text-align:center;margin-top:32px;">
-      <a href="{% url 'register' %}" class="lp-btn-primary" style="display:inline-flex;">Browse all projects &rarr;</a>
+      <a href="{% url 'project_list' %}" class="lp-btn-primary" style="display:inline-flex;">Browse all projects &rarr;</a>
     </div>
     {% endif %}
   </div>

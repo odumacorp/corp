@@ -197,7 +197,78 @@ p { margin-bottom: 0; }
 }
 
 /* ----------------------------------------------------------
-   4. Cards
+   4. Breadcrumbs & Back Button
+   ---------------------------------------------------------- */
+.oc-breadcrumbs {
+  padding: 10px 20px;
+  background: var(--oc-surface, #fff);
+  border-bottom: 1px solid var(--oc-border, #e4eaf2);
+}
+.oc-breadcrumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.oc-breadcrumbs__item {
+  display: flex;
+  align-items: center;
+  font-size: .78rem;
+}
+.oc-breadcrumbs__link {
+  color: var(--oc-blue, #1B5EC7);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color .15s;
+}
+.oc-breadcrumbs__link:hover { color: var(--oc-blue-dark, #144FA8); text-decoration: underline; }
+.oc-breadcrumbs__sep {
+  margin: 0 6px;
+  color: #9ca3af;
+  font-size: .75rem;
+}
+.oc-breadcrumbs__current {
+  color: #6b7280;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+  display: inline-block;
+}
+
+/* Back button (used on context-dependent pages) */
+.oc-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  margin: 12px 20px;
+  background: var(--oc-surface, #fff);
+  border: 1.5px solid var(--oc-border, #e4eaf2);
+  border-radius: 9px;
+  color: var(--oc-ink, #0A1628);
+  font-size: .82rem;
+  font-weight: 600;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.oc-back-btn:hover {
+  border-color: var(--oc-blue, #1B5EC7);
+  background: var(--oc-primary-xlight, #e8f0fb);
+  color: var(--oc-blue, #1B5EC7);
+}
+.oc-back-btn svg { flex-shrink: 0; }
+
+/* ----------------------------------------------------------
+   5. Cards
    ---------------------------------------------------------- */
 .oc-card {
   background: var(--oc-surface);

@@ -679,6 +679,59 @@
   border-radius: 20px;
   white-space: nowrap;
 }
+
+/* ── Quick-Message Modal ─────────────────────────────────────── */
+.qm-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 1100;
+  background: rgba(10,22,40,.55);
+  align-items: center; justify-content: center;
+}
+.qm-overlay.open { display: flex; }
+.qm-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px 28px 24px;
+  width: 100%; max-width: 440px;
+  box-shadow: 0 12px 48px rgba(10,22,40,.22);
+  position: relative;
+}
+.qm-modal__close {
+  position: absolute; top: 14px; right: 16px;
+  background: #f3f4f6; border: none;
+  width: 30px; height: 30px; border-radius: 50%;
+  font-size: .85rem; cursor: pointer; color: #374151;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.qm-modal__close:hover { background: #e5e7eb; }
+.qm-modal__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem; font-weight: 800;
+  color: #0A1628; margin: 0 0 4px;
+}
+.qm-modal__sub { font-size: .82rem; color: #6b7280; margin: 0 0 14px; }
+.qm-modal__chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+.qm-chip {
+  padding: 5px 12px;
+  border: 1.5px solid #e0e8f4;
+  border-radius: 20px;
+  font-size: .75rem; font-weight: 600;
+  color: #1B5EC7; background: #f4f8ff;
+  cursor: pointer; transition: all .15s;
+}
+.qm-chip:hover, .qm-chip.selected { background: #1B5EC7; color: #fff; border-color: #1B5EC7; }
+#qm-textarea {
+  width: 100%; box-sizing: border-box;
+  border: 1.5px solid #e0e6f0; border-radius: 10px;
+  padding: 10px 14px; font-size: .875rem;
+  font-family: inherit; color: #0A1628;
+  resize: none; outline: none;
+  transition: border-color .18s;
+  min-height: 90px;
+}
+#qm-textarea:focus { border-color: #1B5EC7; }
+.qm-modal__actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; }
 </style>
 
 <div class="ap-wrap">

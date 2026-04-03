@@ -1,6 +1,13 @@
 {% extends "_partials/base.html" %}
 
 {% block content %}
+<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="oc-breadcrumbs__list">
+    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% url 'project_list' %}" class="oc-breadcrumbs__link">Projects</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Add Attachment</span></li>
+  </ol>
+</nav>
 <h2>Add Attachment to Project: {{ project.title }}</h2>
 
 <form method="POST" enctype="multipart/form-data">

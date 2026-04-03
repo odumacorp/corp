@@ -3,6 +3,13 @@
 {% block title %}Request Innovation Support | Oduma Connect{% endblock %}
 
 {% block content %}
+<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="oc-breadcrumbs__list">
+    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% url 'services' %}" class="oc-breadcrumbs__link">Services</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Consulting Request</span></li>
+  </ol>
+</nav>
 <div style="max-width:600px;margin:48px auto;padding:0 24px 64px;">
 
   <a href="{% if project %}{% url 'project_detail' project.pk %}{% else %}{% url 'services' %}{% endif %}"

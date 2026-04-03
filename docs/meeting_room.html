@@ -2,6 +2,10 @@
 {% block title %}{{ meeting.title }} | Oduma Connect{% endblock %}
 
 {% block content %}
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+  Back
+</button>
 <style>
   :root {
     --blue: #004AAD; --blue-dark: #003490;
@@ -173,18 +177,18 @@
 
 <div class="mr-page">
 
-  <nav class="oc-breadcrumb" style="margin-bottom:16px;">
-    <a href="{% url 'app' %}"><i class="fi fi-rr-home fi-sm"></i> Home</a>
-    <span class="oc-bc-sep">›</span>
-    <a href="{% url 'meetings_list' %}">Meetings</a>
-    <span class="oc-bc-sep">›</span>
-    <span class="oc-bc-current">{{ meeting.title|truncatechars:40 }}</span>
+  <nav class="oc-breadcrumbs" aria-label="Breadcrumb" style="background:transparent;border:none;padding:0 0 16px;">
+    <ol class="oc-breadcrumbs__list">
+      <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><a href="{% url 'meetings_list' %}" class="oc-breadcrumbs__link">Meetings</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">{{ meeting.title|truncatechars:40 }}</span></li>
+    </ol>
   </nav>
 
   {% if not meeting.zoom_meeting_id %}
   <div class="mr-no-zoom">
     <i class="fi fi-rr-triangle-warning" style="flex-shrink:0;margin-top:1px;"></i>
-    <span>Zoom credentials are not configured. Add <code>ZOOM_ACCOUNT_ID</code>, <code>ZOOM_CLIENT_ID</code>, and <code>ZOOM_CLIENT_SECRET</code> to your <code>.env</code> file. The meeting was saved but no Zoom room was created.</span>
+    <span>Zoom credentials are not configured. Add <code>ZOOM_ACCOUNT_ID</code>, <code>ZOOM_CLIENT_ID</code>, and <code>ZOOM_CLIENT_SECRET</code> to your <code>settings.ini</code> file and restart the server. The meeting was saved but no Zoom room was created.</span>
   </div>
   {% endif %}
 

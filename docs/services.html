@@ -1,89 +1,290 @@
-{% extends '_partials/base.html'  %} 
-
-{% load static %} 
+{% extends '_partials/base.html' %}
+{% load static %}
+{% block title %}Services | Oduma Connect{% endblock %}
 
 {% block content %}
+<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="oc-breadcrumbs__list">
+    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Services</span></li>
+  </ol>
+</nav>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Services</title>
-    <!-- <link rel="stylesheet" href="Styles/styles2.css"> -->
-    <script src="pages_scripts.js"></script>
+<style>
+:root {
+  --sv-ink:    #0A1628;
+  --sv-blue:   #1B5EC7;
+  --sv-border: #e4eaf2;
+  --sv-bg:     #f4f7fb;
+}
 
-</head>
-<body>
-    <!-- <div id="navbar"></div> -->
-    <section class="section-services">
-        <!-- <h1>Our Services</h1> -->
-        <div id="invention-support" class="inner-section">
-            <img class="image" src="{% static 'images/social-media.png' %}" alt="image1">
-            <div>
-                <h3>Invention Support</h3>
-                <p>
-                    For inventors with cutting-edge ideas that can solve 
-                    real- world issues, Oduma Corp provides both technical 
-                    and financial support.
-                    We help:
-                </p>
-                <ul>
-                    <li>Protect intellectual property and safeguard innovative ideas.</li>
-                    <li>Commercialize inventions and bring ideas to market.</li>
-                    <li>Connect inventors to investors/sponsors who can accelerate
-                        their product development and growth.
-                    </li>
-                </ul>
-            </div>
-        </div>
+.sv-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
 
-        <div id="innovation-consulting" class="inner-section">
-            <img src="{% static 'images/support.png' %}" alt="image2">
-            <div>
-                <h3>Innovation Consulting</h3>
-                <p>
-                    We help organizations and individuals unlock new opportunities 
-                    by guiding and holding their hands throughout every step of the
-                    innovation process - from idea generation, to conceptualization
-                    to market implementation. Our team works with clients to:
-                </p>
-                <ul>
-                    <li>Indentify opportunities and generate breakthrough ideas</li>
-                    <li>Prototype and test solutions to validate their impact</li>
-                    <li>Launch these innovations in the market successfully.</li>
-                    <p>Additionally, we support clients in pitching their solutions
-                        to potential investors, helping them secure the necessary 
-                        funding to bring their ventures to life.
-                    </p>
-                </ul>
-            </div>
-        </div>
+/* Hero */
+.sv-hero {
+  background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 60%, #3b82f6 100%);
+  border-radius: 0 0 24px 24px;
+  padding: 56px 40px 52px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 56px;
+}
+.sv-hero::before, .sv-hero::after {
+  content: ''; position: absolute; border-radius: 50%;
+  background: rgba(255,255,255,.06); pointer-events: none;
+}
+.sv-hero::before { width: 320px; height: 320px; right: -80px; top: -80px; }
+.sv-hero::after  { width: 200px; height: 200px; left: -60px; bottom: -60px; }
+.sv-hero-label {
+  font-size: .72rem; font-weight: 800; letter-spacing: .1em;
+  text-transform: uppercase; color: rgba(255,255,255,.6);
+  margin-bottom: 12px;
+}
+.sv-hero h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800; color: #fff; margin: 0 0 14px;
+  line-height: 1.15;
+}
+.sv-hero p {
+  font-size: 1rem; color: rgba(255,255,255,.8);
+  max-width: 520px; margin: 0 auto 28px; line-height: 1.7;
+}
+.sv-hero-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
 
-        <div id="innovation-training " class="inner-section">
-            <img src="{% static 'images/diagram.png' %}" alt="image3">
-            <div>
-                <h3>Innovation Training</h3>
-                <p>
-                    We offer comprehensive workshops and courses designed to inspire 
-                    innovation and entrepreneurship. Our training covers topics such as:
-                    <ul>
-                        <li>Design thinking and creativity.</li>
-                        <li>Entrepreneurship and intellectual property</li>
-                        <li>Practical skills for turning ideas into commercial products.</li>
-                        <p>
-                            Our trainees also benefit from mentorship opportunities and access 
-                            to an extensive network of innovators and investors.
-                        </p>
-                    </ul>
-                </p>
-            </div>
-        </div>
+/* Section header */
+.sv-section-head {
+  text-align: center; margin-bottom: 40px;
+}
+.sv-eyebrow {
+  font-size: .72rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--sv-blue); margin-bottom: 8px;
+}
+.sv-section-head h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+  font-weight: 800; color: var(--sv-ink); margin: 0;
+}
 
-</section>
-<div id="footer"></div>
-</body>
-</html>
+/* Service cards */
+.sv-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 22px;
+  margin-bottom: 72px;
+}
+.sv-card {
+  background: #fff;
+  border: 1px solid var(--sv-border);
+  border-radius: 18px;
+  padding: 32px 28px;
+  display: flex; flex-direction: column;
+  transition: border-color .18s, box-shadow .18s, transform .18s;
+}
+.sv-card:hover {
+  border-color: var(--sv-blue);
+  box-shadow: 0 8px 32px rgba(27,94,199,.12);
+  transform: translateY(-3px);
+}
+.sv-card-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: linear-gradient(135deg, #e0e8f4, #c3d4ec);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; margin-bottom: 20px; flex-shrink: 0;
+}
+.sv-card-icon--blue   { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+.sv-card-icon--green  { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+.sv-card-icon--purple { background: linear-gradient(135deg, #ede9fe, #ddd6fe); }
+.sv-card h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem; font-weight: 800;
+  color: var(--sv-ink); margin: 0 0 10px;
+}
+.sv-card p {
+  font-size: .875rem; color: #4b5563;
+  line-height: 1.7; margin: 0 0 16px; flex: 1;
+}
+.sv-card ul {
+  margin: 0 0 20px; padding-left: 18px;
+  font-size: .85rem; color: #4b5563; line-height: 1.8;
+}
+.sv-card ul li { margin-bottom: 2px; }
+.sv-card-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: .82rem; font-weight: 700; color: var(--sv-blue);
+  text-decoration: none; margin-top: auto;
+  transition: gap .15s;
+}
+.sv-card-link:hover { gap: 9px; }
 
-{%endblock content%}
+/* How it works */
+.sv-how {
+  background: var(--sv-bg);
+  border-radius: 20px;
+  padding: 52px 40px;
+  margin-bottom: 72px;
+}
+.sv-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 32px;
+  margin-top: 40px;
+}
+.sv-step { text-align: center; }
+.sv-step-num {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--sv-blue); color: #fff;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+}
+.sv-step h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .95rem; font-weight: 800;
+  color: var(--sv-ink); margin: 0 0 6px;
+}
+.sv-step p {
+  font-size: .82rem; color: #6b7280;
+  line-height: 1.6; margin: 0;
+}
 
+/* CTA */
+.sv-cta {
+  background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 100%);
+  border-radius: 20px;
+  padding: 52px 40px;
+  text-align: center;
+}
+.sv-cta h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+  font-weight: 800; color: #fff; margin: 0 0 10px;
+}
+.sv-cta p {
+  font-size: .95rem; color: rgba(255,255,255,.8);
+  max-width: 460px; margin: 0 auto 28px; line-height: 1.7;
+}
+.sv-cta-btns { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.sv-btn-white {
+  padding: 11px 26px;
+  background: #fff; color: var(--sv-blue);
+  border: none; border-radius: 10px;
+  font-size: .9rem; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  text-decoration: none; transition: background .15s;
+}
+.sv-btn-white:hover { background: #f0f5ff; color: var(--sv-blue); }
+.sv-btn-outline-white {
+  padding: 11px 26px;
+  background: transparent; color: #fff;
+  border: 1.5px solid rgba(255,255,255,.45);
+  border-radius: 10px;
+  font-size: .9rem; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  text-decoration: none; transition: all .15s;
+}
+.sv-btn-outline-white:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.7); }
+</style>
+
+<div class="sv-hero">
+  <div class="sv-hero-label">What we offer</div>
+  <h1>Services Built for Africa's Innovators & Investors</h1>
+  <p>From protecting your ideas to connecting you with the right capital — Oduma Connect gives you every tool you need to grow.</p>
+  <div class="sv-hero-actions">
+    {% if user.is_authenticated %}<a href="{% url 'app' %}" class="sv-btn-white">Go to Dashboard</a>{% else %}<a href="{% url 'register' %}" class="sv-btn-white">Get Started Free</a>{% endif %}
+    <a href="{% url 'contact' %}" class="sv-btn-outline-white">Talk to Us</a>
+  </div>
+</div>
+
+<div class="sv-wrap">
+
+  <!-- Service cards -->
+  <div class="sv-section-head">
+    <p class="sv-eyebrow">Our Core Services</p>
+    <h2>Everything you need to innovate and invest</h2>
+  </div>
+
+  <div class="sv-cards">
+
+    <div class="sv-card">
+      <div class="sv-card-icon sv-card-icon--blue">💡</div>
+      <h3>Invention Support</h3>
+      <p>For inventors with cutting-edge ideas that can solve real-world problems, we provide both technical and financial support at every stage.</p>
+      <ul>
+        <li>Protect intellectual property and safeguard innovative ideas</li>
+        <li>Commercialise inventions and bring ideas to market</li>
+        <li>Connect inventors to investors who can accelerate growth</li>
+      </ul>
+      <a href="{% url 'project_list' %}" class="sv-card-link">Explore projects →</a>
+    </div>
+
+    <div class="sv-card">
+      <div class="sv-card-icon sv-card-icon--green">🤝</div>
+      <h3>Innovation Consulting</h3>
+      <p>We guide organisations and individuals through every step of the innovation process — from idea generation to market implementation.</p>
+      <ul>
+        <li>Identify opportunities and generate breakthrough ideas</li>
+        <li>Prototype and test solutions to validate their impact</li>
+        <li>Pitch to investors and secure the funding you need</li>
+      </ul>
+      <a href="{% url 'request_consulting' %}" class="sv-card-link">Request consulting →</a>
+    </div>
+
+    <div class="sv-card">
+      <div class="sv-card-icon sv-card-icon--purple">🎓</div>
+      <h3>Innovation Training</h3>
+      <p>Comprehensive workshops and courses designed to inspire innovation and entrepreneurship across Africa's next generation of builders.</p>
+      <ul>
+        <li>Design thinking and creativity fundamentals</li>
+        <li>Entrepreneurship and intellectual property basics</li>
+        <li>Mentorship and access to a network of innovators</li>
+      </ul>
+      <a href="{% url 'training_hub' %}" class="sv-card-link">Browse courses →</a>
+    </div>
+
+  </div>
+
+  <!-- How it works -->
+  <div class="sv-how">
+    <div class="sv-section-head" style="margin-bottom:0;">
+      <p class="sv-eyebrow">How it works</p>
+      <h2>From sign-up to success in four steps</h2>
+    </div>
+    <div class="sv-steps">
+      <div class="sv-step">
+        <div class="sv-step-num">1</div>
+        <h4>Create Your Profile</h4>
+        <p>Register as an innovator or investor and complete your profile to unlock the right features for your role.</p>
+      </div>
+      <div class="sv-step">
+        <div class="sv-step-num">2</div>
+        <h4>Post or Browse</h4>
+        <p>Innovators share projects; investors explore the deal flow — filtered by industry, stage, and geography.</p>
+      </div>
+      <div class="sv-step">
+        <div class="sv-step-num">3</div>
+        <h4>Connect & Collaborate</h4>
+        <p>Send proposals, request pitches, join groups, and use built-in messaging to work together in real time.</p>
+      </div>
+      <div class="sv-step">
+        <div class="sv-step-num">4</div>
+        <h4>Grow Together</h4>
+        <p>Take training courses, attend events, and leverage our consulting services to scale your venture.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="sv-cta">
+    <h2>Ready to get started?</h2>
+    <p>Join thousands of innovators and investors already building Africa's future on Oduma Connect.</p>
+    <div class="sv-cta-btns">
+      {% if user.is_authenticated %}<a href="{% url 'app' %}" class="sv-btn-white">Go to Dashboard</a>{% else %}<a href="{% url 'register' %}" class="sv-btn-white">Create Free Account</a>{% endif %}
+      <a href="{% url 'contact' %}" class="sv-btn-outline-white">Contact Us</a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -149,9 +149,9 @@ from .models import Interest
 def investors_view(request):
     industry_filter = request.GET.get('industry')
     if industry_filter:
-        investors = CustomUser.objects.filter(user_type='investor', userprofile__industry=industry_filter)
+        investors = CustomUser.objects.filter(user_type='investor', is_active=True, userprofile__industry=industry_filter)
     else:
-        investors = CustomUser.objects.filter(user_type='investor')
+        investors = CustomUser.objects.filter(user_type='investor', is_active=True)
 
     industries = UserProfile.INDUSTRY_CHOICES
 
@@ -679,7 +679,7 @@ def get_projects_data(request):
 
 
 def innovators_view(request):
-    innovators = CustomUser.objects.filter(user_type='innovator').select_related('userprofile')
+    innovators = CustomUser.objects.filter(user_type='innovator', is_active=True).select_related('userprofile')
 
     for innovator in innovators:
         innovator.first_project = innovator.projects.order_by('-created_at').first()  # assumes related_name='projects'
@@ -1815,6 +1815,8 @@ from .forms import CustomUserCreationForm
 from .models import UserProfile
 
 def register(request):
+    if request.user.is_authenticated:
+        return redirect('app')
     context = {"page_title": "App Center"}
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
@@ -1882,8 +1884,10 @@ def register(request):
 
 # User login
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('app')
     form = CustomLoginForm(data=request.POST or None)
-    
+
     if request.method == "POST":
         if form.is_valid():
             user = form.get_user()
@@ -2118,20 +2122,54 @@ def profile_alias(request):
 # --- meetings ---
 @login_required
 def meetings_list(request):
-    from .models import Meeting
+    from .models import Meeting, Connection
     user = request.user
     qs = Meeting.objects.filter(
-        models.Q(creator=user) | models.Q(participants=user)
+        Q(creator=user) | Q(participants=user)
     ).distinct().order_by('-created_at')
     upcoming = qs.exclude(status='ended')
     past     = qs.filter(status='ended')[:20]
-    return render(request, 'meetings.html', {'upcoming': upcoming, 'past': past})
+    accepted = Connection.objects.filter(
+        Q(initiator=user, status='accepted') | Q(target=user, status='accepted')
+    ).select_related('initiator', 'target')
+    connections = [c.target if c.initiator == user else c.initiator for c in accepted if (c.target if c.initiator == user else c.initiator).is_active]
+    return render(request, 'meetings.html', {'upcoming': upcoming, 'past': past, 'connections': connections})
 
 @login_required
 def join_meeting(request, meeting_id):
     from .models import Meeting
     meeting = get_object_or_404(Meeting, pk=meeting_id)
-    return render(request, 'meeting_room.html', {'meeting': meeting})
+    is_host = meeting.creator == request.user
+    return render(request, 'meeting_room.html', {'meeting': meeting, 'is_host': is_host})
+
+@login_required
+def end_meeting(request, meeting_id):
+    from .models import Meeting
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'POST required'}, status=405)
+    meeting = get_object_or_404(Meeting, pk=meeting_id)
+    if meeting.creator != request.user:
+        meeting.participants.remove(request.user)
+    else:
+        meeting.status = 'ended'
+        meeting.save()
+    return JsonResponse({'ok': True})
+
+@login_required
+def meeting_recordings(request, meeting_id):
+    from .models import Meeting
+    from .zoom_api import get_recordings, ZoomConfigError, ZoomAPIError
+    meeting = get_object_or_404(Meeting, pk=meeting_id)
+    if not meeting.zoom_meeting_id:
+        return JsonResponse({'ok': False, 'error': 'No Zoom meeting linked to this session.'})
+    try:
+        files = get_recordings(meeting.zoom_meeting_id)
+        if files:
+            status = files[0].get('status', 'completed') if isinstance(files[0], dict) else 'completed'
+            return JsonResponse({'ok': True, 'status': status, 'files': files})
+        return JsonResponse({'ok': True, 'status': 'none', 'files': []})
+    except (ZoomConfigError, ZoomAPIError) as e:
+        return JsonResponse({'ok': False, 'error': str(e)})
 
 @login_required
 def create_meeting(request):
@@ -2192,7 +2230,7 @@ def investor_dashboard(request):
     accepted = Connection.objects.filter(
         Q(initiator=user, status='accepted') | Q(target=user, status='accepted')
     ).select_related('initiator', 'target', 'initiator__userprofile', 'target__userprofile')
-    connected_users = [c.target if c.initiator == user else c.initiator for c in accepted]
+    connected_users = [c.target if c.initiator == user else c.initiator for c in accepted if (c.target if c.initiator == user else c.initiator).is_active]
     innovators_connected = [u for u in connected_users if getattr(u, 'user_type', '') == 'innovator']
     investors_connected  = [u for u in connected_users if getattr(u, 'user_type', '') == 'investor']
 
@@ -2282,8 +2320,8 @@ def investor_dashboard(request):
     # Also score deal_flow_projects in-place
     from .matching import compute_match_score, score_label as _score_label
     for p in deal_flow_projects:
-        p._match_score = compute_match_score(profile, p)
-        p._match_label, p._match_css = _score_label(p._match_score)
+        p.match_score = compute_match_score(profile, p)
+        p.match_label, p.match_css = _score_label(p.match_score)
 
     # Upcoming events
     from .models import Event as _Event, EventRegistration as _ER

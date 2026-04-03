@@ -1,177 +1,151 @@
+<style>
+.sg-section { margin-bottom: 8px; }
+.sg-section-label {
+  font-size: .68rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .06em; color: #9ca3af;
+  padding: 10px 0 6px; margin: 0;
+}
+.sg-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f4fa;
+}
+.sg-item:last-child { border-bottom: none; }
+.sg-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  object-fit: cover; flex-shrink: 0;
+  border: 1.5px solid #e4eaf2;
+}
+.sg-avatar-ph {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #1B5EC7, #3b82f6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+}
+.sg-avatar-sq {
+  width: 36px; height: 36px; border-radius: 7px;
+  object-fit: cover; flex-shrink: 0;
+  border: 1.5px solid #e4eaf2;
+}
+.sg-avatar-sq-ph {
+  width: 36px; height: 36px; border-radius: 7px;
+  background: linear-gradient(135deg, #e0e8f4, #c3d4ec);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; flex-shrink: 0;
+}
+.sg-info { flex: 1; min-width: 0; }
+.sg-name {
+  font-size: .82rem; font-weight: 700;
+  color: #0A1628; line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sg-sub {
+  font-size: .72rem; color: #6b7280;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sg-btn {
+  padding: 4px 11px;
+  border: 1.5px solid #1B5EC7;
+  border-radius: 7px;
+  background: transparent;
+  color: #1B5EC7;
+  font-size: .72rem; font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.sg-btn:hover { background: #1B5EC7; color: #fff; }
+</style>
 
-
-<div class="suggestions-section card">
-    <div class="top-section">
-        <div class="left-section">
-            <span class="head">
-                <h3>Node Suggestions</h3>
-            </span>
-            <div class="tile-container">
-                <div class="tile">
-                    {% if node_suggestions %}
-                        {% for user in node_suggestions %}
-                            <div class="suggestion-card">
-                                {% if user.userprofile.profile_pics %}
-                                    <img src="{{ user.userprofile.profile_pics.url }}" alt="Profile" class="icon">
-                                {% else %}
-                                    <img src="" alt="Profile" class="icon">
-                                {% endif %}
-                                <span>
-                                    <p><strong>{{ user.first_name }} {{ user.last_name }}</strong></p>
-                                </span>
-                                <div class="tiles-about">
-                                    <p>{{ user.userprofile.bio|truncatewords:10 }}</p>
-                                </div>
-                                <button>
-                                    <a href="{% url 'profile_view' id=user.id %}" class="connect-btn">Connect +</a>
-                                </button>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <!-- Default sample -->
-                        <div class="suggestion-card">
-                            <img src="" alt="Profile" class="icon">
-                            <span>
-                                <p><strong>John Doe</strong></p>
-                            </span>
-                            <div class="tiles-about">
-                                <p>Innovator in AI and blockchain.</p>
-                            </div>
-                            <button>
-                                <a href="#" class="connect-btn">Connect +</a>
-                            </button>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <div class="right-section">
-            <span class="head">
-                <h3>Companies to Look At</h3>
-            </span>
-            <div class="tile-container">
-                {% if companies %}
-                    {% for company in companies %}
-
-                        <div class="tile">
-                            {% if company.logo %}<img src="{{ company.logo.url }}" alt="Company Logo" class="icon">{% endif %}
-                            
-                            <div>
-                                <span>
-                                    <p><strong>{{ company.name }}</strong></p>
-                                </span>
-                                <div class="titles-about">
-                                    <p>{{ company.description|truncatewords:10 }}</p>
-                                </div>
-                                <button>
-                                    <a href="#" class="connect-btn">Connect +</a>
-                                </button>
-
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <!-- Default sample -->
-                    <div class="tile">
-                        <img src="" alt="Company Logo" class="icon">
-                        <div>
-                            <span>
-                                <p><strong>Oduma Tech</strong></p>
-                            </span>
-                            <div class="titles-about">
-                                <p>Leading innovation in African startups.</p>
-                            </div>
-                            <button>
-                                <a href="#" class="connect-btn">Connect +</a>
-                            </button>
-
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+{% if node_suggestions %}
+<div class="sg-section">
+  <p class="sg-section-label">People you may know</p>
+  {% for user in node_suggestions %}
+  <div class="sg-item">
+    {% if user.userprofile.profile_pics %}
+      <img src="{{ user.userprofile.profile_pics.url }}" alt="" class="sg-avatar">
+    {% else %}
+      <div class="sg-avatar-ph">{{ user.first_name|first|upper }}</div>
+    {% endif %}
+    <div class="sg-info">
+      <div class="sg-name">{{ user.get_full_name|default:user.username }}</div>
+      {% if user.userprofile.bio %}
+        <div class="sg-sub">{{ user.userprofile.bio|truncatewords:6 }}</div>
+      {% elif user.userprofile.industry %}
+        <div class="sg-sub">{{ user.userprofile.get_industry_display }}</div>
+      {% endif %}
     </div>
-
-    <div class="bottom-section">
-        <div class="left-section">
-            <span class="head">
-                <h3>Nodes in Your Community</h3>
-            </span>
-            <div class="tile-container">
-                {% if community_nodes %}
-                    {% for user in community_nodes %}
-                        <div class="tile">
-                            {% if user.userprofile.profile_pics %}
-                                <img src="{{ user.userprofile.profile_pics.url }}" alt="Profile" class="icon">
-                            {% else %}
-                                <img src="" alt="Profile" class="icon">
-                            {% endif %}
-                            <span>
-                                <strong>{{ user.first_name }} {{ user.last_name }}</strong>
-                            </span>
-                            <div class="titles-about">
-                                <p>{{ user.userprofile.bio|truncatewords:10 }}</p>
-                            </div>
-                            <button>
-                                <a href="{% url 'profile_view' id=user.id %}" class="connect-btn">Connect +</a>
-                            </button>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <!-- Default sample -->
-                    <div class="tile">
-                        <img src="" alt="Profile" class="icon">
-                        <span>
-                            <strong>Emily Johnson Tea</strong>
-                        </span>
-                        <div class="titles-about">
-                            <p>Focused on AI-driven education solutions.</p>
-                        </div>
-                        <button>
-                            <a href="#" class="connect-btn">Connect +</a>
-                        </button>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="right-section">
-            <span class="head">
-                <h3>Based on Your Profile</h3>
-            </span>
-            <div class="tile-container">
-                {% if profile_based_companies %}
-                    {% for company in profile_based_companies %}
-                        <div class="tile">
-                            {% if company.logo %}<img src="{{ company.logo.url }}" alt="Company Logo">{% endif %}
-                            <div>
-                                <strong>{{ company.name }}</strong>
-                                <div class="titles-about">
-                                    <p>{{ company.description|truncatewords:10 }}</p>
-                                </div>
-                                <button>
-                                    <a href="#" class="connect-btn">Connect +</a>
-                                </button>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <!-- Default sample -->
-                    <div class="tile">
-                        <img src="" alt="Company Logo">
-                        <div>
-                            <strong>HealthTech Innovations</strong>
-                            <div class="titles-about">
-                                <p>Advancing medical technology.</p>
-                            </div>
-                            <button>
-                                <a href="#" class="connect-btn">Connect +</a>
-                            </button>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+    <a href="{% url 'profile_view' id=user.id %}" class="sg-btn">View</a>
+  </div>
+  {% endfor %}
 </div>
+{% endif %}
+
+{% if community_nodes %}
+<div class="sg-section">
+  <p class="sg-section-label">In your community</p>
+  {% for user in community_nodes %}
+  <div class="sg-item">
+    {% if user.userprofile.profile_pics %}
+      <img src="{{ user.userprofile.profile_pics.url }}" alt="" class="sg-avatar">
+    {% else %}
+      <div class="sg-avatar-ph">{{ user.first_name|first|upper }}</div>
+    {% endif %}
+    <div class="sg-info">
+      <div class="sg-name">{{ user.get_full_name|default:user.username }}</div>
+      {% if user.userprofile.bio %}
+        <div class="sg-sub">{{ user.userprofile.bio|truncatewords:6 }}</div>
+      {% endif %}
+    </div>
+    <a href="{% url 'profile_view' id=user.id %}" class="sg-btn">View</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if companies %}
+<div class="sg-section">
+  <p class="sg-section-label">Companies to explore</p>
+  {% for company in companies %}
+  <div class="sg-item">
+    {% if company.logo %}
+      <img src="{{ company.logo.url }}" alt="" class="sg-avatar-sq">
+    {% else %}
+      <div class="sg-avatar-sq-ph">🏢</div>
+    {% endif %}
+    <div class="sg-info">
+      <div class="sg-name">{{ company.name }}</div>
+      {% if company.description %}
+        <div class="sg-sub">{{ company.description|truncatewords:6 }}</div>
+      {% endif %}
+    </div>
+    <a href="{% url 'company_profile' company.id %}" class="sg-btn">View</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if profile_based_companies %}
+<div class="sg-section">
+  <p class="sg-section-label">Based on your profile</p>
+  {% for company in profile_based_companies %}
+  <div class="sg-item">
+    {% if company.logo %}
+      <img src="{{ company.logo.url }}" alt="" class="sg-avatar-sq">
+    {% else %}
+      <div class="sg-avatar-sq-ph">🏢</div>
+    {% endif %}
+    <div class="sg-info">
+      <div class="sg-name">{{ company.name }}</div>
+      {% if company.description %}
+        <div class="sg-sub">{{ company.description|truncatewords:6 }}</div>
+      {% endif %}
+    </div>
+    <a href="{% url 'company_profile' company.id %}" class="sg-btn">View</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

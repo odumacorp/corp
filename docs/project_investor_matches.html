@@ -3,6 +3,14 @@
 {% block title %}Investor Matches — {{ project.title }} | Oduma Connect{% endblock %}
 
 {% block content %}
+<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="oc-breadcrumbs__list">
+    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% url 'project_list' %}" class="oc-breadcrumbs__link">Projects</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% url 'project_detail' project.pk %}" class="oc-breadcrumbs__link">{{ project.title }}</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Investor Matches</span></li>
+  </ol>
+</nav>
 <div style="max-width:800px;margin:40px auto;padding:0 24px 64px;">
   <a href="{% url 'project_detail' project.pk %}" style="font-size:.85rem;color:#1B5EC7;text-decoration:none;display:inline-block;margin-bottom:16px;">← Back to project</a>
 
