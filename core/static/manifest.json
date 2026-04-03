@@ -1,0 +1,21 @@
+{
+  "name": "Oduma Connect",
+  "short_name": "Oduma",
+  "description": "Connecting Africa's boldest innovators with the investors who believe in their vision.",
+  "start_url": "/app/",
+  "display": "standalone",
+  "background_color": "#004AAD",
+  "theme_color": "#004AAD",
+  "icons": [
+    {
+      "src": "/static/images/OdumaCorp-icon-small.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/OdumaCorp-icon-small.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

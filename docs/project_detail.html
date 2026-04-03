@@ -1,48 +1,959 @@
 {% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}{{ project.title }} — Oduma Connect{% endblock %}
+
+{% block meta_description %}{{ project.description|truncatewords:30 }}{% endblock %}
+{% block meta_keywords %}{{ project.keywords }},{{ project.industry }},{{ project.category }},innovation,Africa,Oduma{% endblock %}
+{% block og_title %}{{ project.title }}{% endblock %}
+{% block og_description %}{{ project.description|truncatewords:30 }}{% endblock %}
+{% block og_image %}{% if main_image %}{{ request.scheme }}://{{ request.get_host }}{{ main_image.image.url }}{% endif %}{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-  <h2>{{ project.title }}</h2>
-  <p><strong>Industry:</strong> {{ project.get_industry_display }}</p>
-  <p>{{ project.description }}</p>
+<div class="pd-page">
 
-  <div class="row mt-4">
-    {% for img in images %}
-    <div class="col-md-4 mb-3">
-      <img src="{{ img.image.url }}" class="img-fluid rounded shadow-sm" />
-    </div>
-    {% endfor %}
+  <!-- Breadcrumbs -->
+  <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+    <ol class="oc-breadcrumbs__list">
+      <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><a href="{% url 'project_list' %}" class="oc-breadcrumbs__link">Projects</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">{{ project.title }}</span></li>
+    </ol>
+  </nav>
+
+  <div class="pd-layout">
+
+    <!-- LEFT: main content -->
+    <div class="pd-main">
+
+      <!-- Hero image -->
+      {% if main_image %}
+      <div class="oc-img-wrap pd-hero-img">
+        <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:project.title }}" class="pd-hero-src" />
+        {% if main_image.name %}<span class="oc-img-caption">{{ main_image.name }}</span>{% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Thumbnail gallery -->
+      {% if extra_images %}
+      <div class="pd-gallery">
+        {% for img in extra_images %}
+        <div class="oc-img-wrap pd-thumb">
+          <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:project.title }}" loading="lazy" />
+          {% if img.name %}<span class="oc-img-caption">{{ img.name }}</span>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Video -->
+      {% if project.video %}
+      <div class="pd-video-wrap">
+        <video controls class="pd-video-player">
+          <source src="{{ project.video.url }}" type="video/mp4" />
+          Your browser does not support video.
+        </video>
+        {% if project.video_name %}<p class="pd-video-label">{{ project.video_name }}</p>{% endif %}
+        {% if project.video_description %}<p class="pd-video-desc">{{ project.video_description }}</p>{% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Info card -->
+      <div class="pd-card" style="position:relative;">
+        {% if request.user == project.owner %}
+        <div style="position:absolute;top:14px;right:14px;">
+          <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'"
+                  style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:#6b7280;padding:4px 8px;border-radius:6px;">⋯</button>
+          <div style="display:none;position:absolute;right:0;top:100%;background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:160px;z-index:99;">
+            <a href="{% url 'edit_project' project.pk %}" style="display:block;padding:10px 16px;font-size:.85rem;color:#1a1a2e;text-decoration:none;">✏️ Edit Project</a>
+            <form method="post" action="{% url 'delete_project' project.pk %}" onsubmit="return confirm('Delete this project?')">
+              {% csrf_token %}
+              <button type="submit" style="display:block;width:100%;text-align:left;padding:10px 16px;font-size:.85rem;color:#dc2626;background:none;border:none;cursor:pointer;">🗑 Delete Project</button>
+            </form>
+          </div>
+        </div>
+        {% endif %}
+        <div class="pd-card-head">
+          <h1 class="pd-title">{{ project.title }}</h1>
+          <div class="pd-badges">
+            <span class="oc-badge oc-badge--industry">{{ project.industry }}</span>
+            <span class="oc-badge oc-badge--status-{{ project.status }}">{{ project.get_status_display }}</span>
+            {% if project.category %}<span class="oc-badge oc-badge--cat">{{ project.get_category_display|default:project.category }}</span>{% endif %}
+            <!-- Investment Readiness Badge -->
+            {% with score=project.completeness_score readiness=project.investment_readiness %}
+            <span class="ir-badge ir-badge--{{ readiness.1 }}">{{ readiness.0 }}</span>
+            {% endwith %}
+            <!-- Review Status Badge -->
+            {% if project.review_status != 'draft' %}
+            <span class="oc-review-badge oc-review-badge--{{ project.review_status }}">
+              {% if project.review_status == 'featured' %}★ {% endif %}{{ project.get_review_status_display }}
+            </span>
+            {% endif %}
+            <!-- Owner Verified Badge -->
+            {% with op=project.owner.userprofile %}
+              {% if op.verification_status == 'verified' %}
+                <span class="oc-verified-badge">✓ Verified {{ project.owner.user_type|title }}</span>
+              {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+
+        <!-- ── Investment Readiness Meter ─────────────────────────── -->
+        {% with score=project.completeness_score %}
+        <div class="ir-meter">
+          <div class="ir-meter__head">
+            <span class="ir-meter__label">Investment Profile Completeness</span>
+            <span class="ir-meter__pct">{{ score }}%</span>
+          </div>
+          <div class="ir-meter__bar-bg">
+            <div class="ir-meter__bar-fill {% if score == 100 %}ir-bar--ready{% elif score >= 75 %}ir-bar--strong{% elif score >= 50 %}ir-bar--developing{% else %}ir-bar--early{% endif %}"
+                 style="width:{{ score }}%;"></div>
+          </div>
+          {% if request.user == project.owner and score < 100 %}
+          <p class="ir-meter__hint">Complete all 8 sections below to unlock the <strong>Investment Ready</strong> badge.</p>
+          {% endif %}
+        </div>
+        {% endwith %}
+
+        <!-- ── Pipeline Progress Tracker ─────────────────────── -->
+        <div class="pd-pipeline">
+          <p class="pd-pipeline__label">Innovation Pipeline</p>
+          <div class="pd-pipeline__track">
+            {% with stage=project.pipeline_stage %}
+            <!-- Idea -->
+            <div class="pd-pipeline__step {% if stage == 'idea' %}pd-pipeline__step--active{% elif stage == 'validation' or stage == 'investment' or stage == 'growth' %}pd-pipeline__step--done{% endif %}">
+              <div class="pd-pipeline__dot">
+                {% if stage == 'validation' or stage == 'investment' or stage == 'growth' %}<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                {% else %}<span>1</span>{% endif %}
+              </div>
+              <span class="pd-pipeline__name">Idea</span>
+            </div>
+            <div class="pd-pipeline__connector {% if stage == 'validation' or stage == 'investment' or stage == 'growth' %}pd-pipeline__connector--done{% endif %}"></div>
+            <!-- Validation -->
+            <div class="pd-pipeline__step {% if stage == 'validation' %}pd-pipeline__step--active{% elif stage == 'investment' or stage == 'growth' %}pd-pipeline__step--done{% endif %}">
+              <div class="pd-pipeline__dot">
+                {% if stage == 'investment' or stage == 'growth' %}<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                {% else %}<span>2</span>{% endif %}
+              </div>
+              <span class="pd-pipeline__name">Validation</span>
+            </div>
+            <div class="pd-pipeline__connector {% if stage == 'investment' or stage == 'growth' %}pd-pipeline__connector--done{% endif %}"></div>
+            <!-- Investment -->
+            <div class="pd-pipeline__step {% if stage == 'investment' %}pd-pipeline__step--active{% elif stage == 'growth' %}pd-pipeline__step--done{% endif %}">
+              <div class="pd-pipeline__dot">
+                {% if stage == 'growth' %}<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                {% else %}<span>3</span>{% endif %}
+              </div>
+              <span class="pd-pipeline__name">Investment</span>
+            </div>
+            <div class="pd-pipeline__connector {% if stage == 'growth' %}pd-pipeline__connector--done{% endif %}"></div>
+            <!-- Growth -->
+            <div class="pd-pipeline__step {% if stage == 'growth' %}pd-pipeline__step--active{% endif %}">
+              <div class="pd-pipeline__dot"><span>4</span></div>
+              <span class="pd-pipeline__name">Growth</span>
+            </div>
+            {% endwith %}
+          </div>
+
+          <!-- Stage status + owner action -->
+          {% if request.user == project.owner %}
+          <div class="pd-pipeline__actions">
+            {% if project.stage_status == 'pending_approval' %}
+            <span class="pd-pipeline__status pd-pipeline__status--pending">⏳ Pending admin review</span>
+            {% elif project.stage_status == 'rejected' %}
+            <span class="pd-pipeline__status pd-pipeline__status--rejected">✗ Progression rejected by admin</span>
+            <form method="post" action="{% url 'request_stage_progression' project.pk %}" style="display:inline;margin-left:10px;">
+              {% csrf_token %}
+              <button type="submit" class="oc-btn oc-btn--sm oc-btn--outline">Re-apply for next stage</button>
+            </form>
+            {% elif project.pipeline_stage != 'growth' %}
+            <form method="post" action="{% url 'request_stage_progression' project.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="oc-btn oc-btn--sm oc-btn--primary">Request next stage →</button>
+            </form>
+            {% else %}
+            <span class="pd-pipeline__status pd-pipeline__status--done">🎉 Final stage reached</span>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        <!-- ── /Pipeline Progress Tracker ──────────────────────── -->
+
+        <!-- ── Review Status Bar (owner action) ──────────────── -->
+        {% if request.user == project.owner %}
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:12px 18px;background:#f8fafc;border:1px solid #e0e8f4;border-radius:10px;margin-top:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:.8rem;font-weight:700;color:#374151;">Platform Review:</span>
+            <span class="oc-review-badge oc-review-badge--{{ project.review_status }}">
+              {% if project.review_status == 'featured' %}★ {% endif %}{{ project.get_review_status_display }}
+            </span>
+            {% if project.review_note %}
+            <span style="color:#6b7280;font-size:.78rem;">— {{ project.review_note|truncatechars:80 }}</span>
+            {% endif %}
+          </div>
+          {% if project.review_status == 'draft' or project.review_status == 'rejected' %}
+          <form method="post" action="{% url 'submit_project_for_review' project.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="oc-btn oc-btn--sm oc-btn--primary">Submit for Review</button>
+          </form>
+          {% elif project.review_status == 'under_review' %}
+          <span style="font-size:.8rem;color:#854d0e;">Under review — we'll notify you when done.</span>
+          {% endif %}
+        </div>
+        {% endif %}
+        <!-- ── /Review Status Bar ─────────────────────────────── -->
+
+        {% if is_connected or request.user == project.owner %}
+        <p class="pd-desc">{{ project.description }}</p>
+        {% else %}
+        <p class="pd-desc">{{ project.description|truncatewords:40 }}</p>
+        {% if request.user.is_authenticated %}
+        <div style="background:#f3f4f6;border-radius:10px;padding:14px 18px;margin-top:8px;font-size:.875rem;color:#6b7280;">
+          🔒 Connect with {{ project.owner.first_name }} to view the full project details.
+          <form method="post" action="{% url 'connect_user' project.owner.pk %}" style="display:inline;margin-left:10px;">
+            {% csrf_token %}
+            <button type="submit" class="oc-btn oc-btn--outline" style="font-size:.8rem;padding:4px 12px;">+ Connect</button>
+          </form>
+        </div>
+        {% else %}
+        <div style="background:#f3f4f6;border-radius:10px;padding:14px 18px;margin-top:8px;font-size:.875rem;color:#6b7280;">
+          🔒 <a href="{% url 'login' %}">Log in</a> and connect with {{ project.owner.first_name }} to view full details.
+        </div>
+        {% endif %}
+        {% endif %}
+
+        {% if project.keywords %}
+        <div class="pd-keywords">
+          {% for kw in project.keywords.split %}
+          <span class="oc-tag">{{ kw }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if project.website_link %}
+        <a href="{{ project.website_link }}" target="_blank" rel="noopener" class="oc-btn oc-btn--outline pd-website-btn">
+          Visit Website ↗
+        </a>
+        {% endif %}
+      </div>
+
+      <!-- Action bar -->
+      <div class="pd-actions">
+        {% if request.user.is_authenticated %}
+          {% if request.user != project.owner %}
+            <button class="oc-btn oc-btn--primary" onclick="document.getElementById('collab-modal').style.display='flex'">
+              Collaborate
+            </button>
+            {% if user_type == 'investor' %}
+            <button class="oc-btn oc-btn--secondary" onclick="document.getElementById('proposal-modal').style.display='flex'">
+              Send Proposal
+            </button>
+            {% endif %}
+          {% else %}
+            <!-- Owner actions -->
+            <a href="{% url 'request_consulting_for_project' project.pk %}"
+               style="background:#fef3c7;color:#92400e;border:1.5px solid #f59e0b;padding:8px 18px;border-radius:8px;font-size:.85rem;font-weight:700;text-decoration:none;display:inline-block;">
+              🧠 Request Support
+            </a>
+            <a href="{% url 'project_investor_matches' project.pk %}"
+               style="background:#dcfce7;color:#166534;border:1.5px solid #059669;padding:8px 18px;border-radius:8px;font-size:.85rem;font-weight:700;text-decoration:none;display:inline-block;">
+              🎯 Find Investors
+            </a>
+          {% endif %}
+
+          <button class="oc-save-btn {% if is_saved %}saved{% endif %}"
+                  onclick="ocToggleReadLater('project', {{ project.pk }}, this)"
+                  title="{% if is_saved %}Remove from Read Later{% else %}Save to Read Later{% endif %}">
+            {% if is_saved %}🔖 Saved{% else %}🔖 Read Later{% endif %}
+          </button>
+
+          <button class="oc-share-btn"
+                  onclick="ocShare('{{ project.title|escapejs }}', '{{ request.scheme }}://{{ request.get_host }}{% url 'project_detail' project.pk %}', 'project', {{ project.pk }}, this)">
+            ↑ Share
+          </button>
+
+          <button class="oc-btn oc-btn--ghost"
+                  onclick="ocSaveOffline('{% url 'project_detail' project.pk %}')">
+            ⬇ Save Offline
+          </button>
+        {% endif %}
+      </div>
+
+      <!-- Attachments -->
+      {% if attachments %}
+      <div class="pd-card pd-attachments">
+        <h3 class="pd-section-title">Documents &amp; Files</h3>
+        <ul class="pd-attachment-list">
+          {% for att in attachments %}
+          {% if att.visibility == 'public' or request.user == project.owner or att.visibility == 'connections' and is_connected %}
+          <li class="pd-attachment-item">
+            <div class="pd-att-icon">
+              {% if att.doc_type == 'financial' %}💰
+              {% elif att.doc_type == 'legal' %}⚖️
+              {% elif att.doc_type == 'pitch' %}📊
+              {% elif att.doc_type == 'technical' %}🔧
+              {% else %}📎{% endif %}
+            </div>
+            <div class="pd-att-info">
+              <span class="pd-att-title">{{ att.title|default:att.file.name }}</span>
+              {% if att.description %}<span class="pd-att-desc">{{ att.description }}</span>{% endif %}
+            </div>
+            <span class="pd-att-vis pd-att-vis--{{ att.visibility }}">{{ att.get_visibility_display }}</span>
+            <a href="{% url 'download_attachment' att.pk %}" class="oc-btn oc-btn--ghost pd-att-dl">⬇ Download</a>
+          </li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Owner upload form -->
+      {% if request.user == project.owner %}
+      <div class="pd-card pd-upload-form">
+        <h3 class="pd-section-title">Add Attachment</h3>
+        <form method="post" action="{% url 'add_attachment' project.pk %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="pd-form-row">
+            <input type="text" name="title" placeholder="Title (optional)" class="oc-input" />
+          </div>
+          <div class="pd-form-row">
+            <select name="doc_type" class="oc-select">
+              <option value="general">General</option>
+              <option value="pitch">Pitch Deck</option>
+              <option value="financial">Financial</option>
+              <option value="legal">Legal</option>
+              <option value="technical">Technical</option>
+            </select>
+            <select name="visibility" class="oc-select">
+              <option value="public">Public</option>
+              <option value="connections">Connections Only</option>
+              <option value="private">Private (Only Me)</option>
+            </select>
+          </div>
+          <div class="pd-form-row">
+            <textarea name="description" placeholder="Short description (optional)" class="oc-textarea" rows="2"></textarea>
+          </div>
+          <div class="pd-form-row">
+            <input type="file" name="file" required class="oc-input" />
+          </div>
+          <button type="submit" class="oc-btn oc-btn--primary">Upload</button>
+        </form>
+      </div>
+      {% endif %}
+
+      <!-- ── Pitch Deck Sections ──────────────────────────────────── -->
+      {% if is_connected or request.user == project.owner or request.user.user_type == 'investor' %}
+
+      {% if project.problem_statement or project.solution_overview or project.market_opportunity or project.business_model or project.traction or project.funding_requirement or project.use_of_funds or project.team_overview %}
+      <div class="pd-pitch-deck">
+        <div class="pd-pitch-header">
+          <span class="pd-pitch-eyebrow">Investment Profile</span>
+          <h2 class="pd-pitch-title">Pitch Overview</h2>
+          {% if request.user == project.owner %}
+          <a href="{% url 'edit_project' project.pk %}" class="pd-pitch-edit-link">Edit sections ✏️</a>
+          {% endif %}
+        </div>
+
+        {% if project.problem_statement %}
+        <div class="pd-pitch-section">
+          <div class="pd-pitch-icon pd-pitch-icon--1">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="pd-pitch-body">
+            <h3 class="pd-pitch-name">Problem Statement</h3>
+            <p class="pd-pitch-text">{{ project.problem_statement|linebreaksbr }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if project.solution_overview %}
+        <div class="pd-pitch-section">
+          <div class="pd-pitch-icon pd-pitch-icon--2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+          </div>
+          <div class="pd-pitch-body">
+            <h3 class="pd-pitch-name">Solution Overview</h3>
+            <p class="pd-pitch-text">{{ project.solution_overview|linebreaksbr }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if project.market_opportunity %}
+        <div class="pd-pitch-section">
+          <div class="pd-pitch-icon pd-pitch-icon--3">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+          <div class="pd-pitch-body">
+            <h3 class="pd-pitch-name">Market Opportunity</h3>
+            <p class="pd-pitch-text">{{ project.market_opportunity|linebreaksbr }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if project.business_model %}
+        <div class="pd-pitch-section">
+          <div class="pd-pitch-icon pd-pitch-icon--4">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>
+          </div>
+          <div class="pd-pitch-body">
+            <h3 class="pd-pitch-name">Business Model</h3>
+            <p class="pd-pitch-text">{{ project.business_model|linebreaksbr }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if project.traction %}
+        <div class="pd-pitch-section">
+          <div class="pd-pitch-icon pd-pitch-icon--5">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="pd-pitch-body">
+            <h3 class="pd-pitch-name">Traction &amp; Validation</h3>
+            <p class="pd-pitch-text">{{ project.traction|linebreaksbr }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if project.funding_requirement %}
+        <div class="pd-pitch-section pd-pitch-section--highlight">
+          <div class="pd-pitch-icon pd-pitch-icon--6">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div class="pd-pitch-body">
+            <h3 class="pd-pitch-name">Funding Requirement</h3>
+            <p class="pd-pitch-funding">{{ project.funding_requirement }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if project.use_of_funds %}
+        <div class="pd-pitch-section">
+          <div class="pd-pitch-icon pd-pitch-icon--7">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <div class="pd-pitch-body">
+            <h3 class="pd-pitch-name">Use of Funds</h3>
+            <p class="pd-pitch-text">{{ project.use_of_funds|linebreaksbr }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if project.team_overview %}
+        <div class="pd-pitch-section">
+          <div class="pd-pitch-icon pd-pitch-icon--8">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div class="pd-pitch-body">
+            <h3 class="pd-pitch-name">Team</h3>
+            <p class="pd-pitch-text">{{ project.team_overview|linebreaksbr }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if request.user == project.owner %}
+        {% with score=project.completeness_score %}
+        {% if score < 100 %}
+        <div class="pd-pitch-cta">
+          <p>Your investment profile is <strong>{{ score }}% complete</strong>. Fill in the remaining sections to attract serious investors.</p>
+          <a href="{% url 'edit_project' project.pk %}#pitch-deck" class="oc-btn oc-btn--primary oc-btn--sm">Complete Profile →</a>
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% endif %}
+      </div>
+      {% elif request.user == project.owner %}
+      <div class="pd-pitch-empty">
+        <div class="pd-pitch-empty__icon">📊</div>
+        <h3>Build Your Investment Profile</h3>
+        <p>Add your problem statement, market size, business model, and funding needs to attract serious investors.</p>
+        <a href="{% url 'edit_project' project.pk %}#pitch-deck" class="oc-btn oc-btn--primary">Start Building →</a>
+      </div>
+      {% endif %}
+
+      {% else %}
+      <!-- Investment profile locked for non-connected non-investors -->
+      <div class="pd-card pd-locked-pitch">
+        <div style="text-align:center;padding:24px 16px;">
+          <div style="font-size:2.5rem;margin-bottom:12px;">🔒</div>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;color:#1a1a2e;margin:0 0 8px;">Investment Profile Locked</h3>
+          <p style="color:#6b7280;font-size:.875rem;margin:0 0 16px;">Connect with {{ project.owner.first_name }} or sign in as an investor to view the full pitch deck.</p>
+          {% if request.user.is_authenticated %}
+          <form method="post" action="{% url 'connect_user' project.owner.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="oc-btn oc-btn--primary">+ Connect to unlock</button>
+          </form>
+          {% else %}
+          <a href="{% url 'login' %}" class="oc-btn oc-btn--primary">Log in to view</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+      <!-- ── /Pitch Deck Sections ────────────────────────────────── -->
+
+      <!-- Rating & Comments -->
+      <div class="pd-card pd-ratings">
+        <h3 class="pd-section-title">Rate this Project</h3>
+        {% if request.user.is_authenticated and request.user != project.owner %}
+        <form method="post" action="{% url 'rate_project' project.pk %}">
+          {% csrf_token %}
+          <div class="pd-stars">
+            {% for i in "12345" %}
+            <label>
+              <input type="radio" name="score" value="{{ i }}" {% if user_rating == i|add:0 %}checked{% endif %} />
+              <span class="pd-star">★</span>
+            </label>
+            {% endfor %}
+          </div>
+          <button type="submit" class="oc-btn oc-btn--primary pd-rate-btn">Submit Rating</button>
+        </form>
+        {% endif %}
+        <p class="pd-avg-rating">
+          Average: <strong>{{ avg_rating|floatformat:1 }}/5</strong>
+          ({{ rating_count }} review{{ rating_count|pluralize }})
+        </p>
+      </div>
+
+      <!-- Project Comments (#10) -->
+      <div class="pd-card pd-comments">
+        <h3 class="pd-section-title">Comments</h3>
+        {% if request.user.is_authenticated %}
+        <form method="post" action="{% url 'add_project_comment' project.pk %}" style="display:flex;gap:10px;margin-bottom:18px;">
+          {% csrf_token %}
+          <input type="text" name="content" placeholder="Write a comment…" class="oc-input" style="flex:1;" required />
+          <button type="submit" class="oc-btn oc-btn--primary" style="white-space:nowrap;">Post</button>
+        </form>
+        {% endif %}
+        <div style="max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;">
+          {% for comment in project.project_comments.all %}
+          {% if not comment.parent and not comment.is_hidden %}
+          <div style="border-bottom:1px solid #f3f4f6;padding-bottom:12px;">
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:34px;height:34px;border-radius:50%;background:#004AAD;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:.85rem;">
+                {{ comment.user.first_name|first|upper }}
+              </div>
+              <div style="flex:1;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                  <a href="{% url 'profile_view' id=comment.user.pk %}" style="font-weight:600;font-size:.875rem;color:#1a1a2e;text-decoration:none;">{{ comment.user.get_full_name|default:comment.user.username }}</a>
+                  <span style="font-size:.75rem;color:#9ca3af;">{{ comment.created_at|timesince }} ago</span>
+                  {% if request.user == comment.user %}
+                  <span style="margin-left:auto;">
+                    <form method="post" action="{% url 'delete_comment' comment.pk %}" style="display:inline;" onsubmit="return confirm('Delete this comment?')">
+                      {% csrf_token %}
+                      <input type="hidden" name="redirect_url" value="{{ request.path }}">
+                      <button type="submit" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:.75rem;">Delete</button>
+                    </form>
+                  </span>
+                  {% endif %}
+                </div>
+                <p style="font-size:.875rem;color:#374151;margin:4px 0 8px;">{{ comment.content }}</p>
+                {% if request.user.is_authenticated %}
+                <details style="font-size:.8rem;color:#6b7280;">
+                  <summary style="cursor:pointer;list-style:none;">Reply</summary>
+                  <form method="post" action="{% url 'add_project_comment' project.pk %}" style="display:flex;gap:8px;margin-top:8px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="parent_id" value="{{ comment.pk }}">
+                    <input type="text" name="content" placeholder="Write a reply…" class="oc-input" style="flex:1;font-size:.8rem;" required>
+                    <button type="submit" class="oc-btn oc-btn--primary" style="font-size:.8rem;padding:4px 12px;">Reply</button>
+                  </form>
+                </details>
+                {% endif %}
+                {% for reply in comment.replies.all %}
+                {% if not reply.is_hidden %}
+                <div style="display:flex;gap:8px;margin-top:10px;padding-left:16px;border-left:2px solid #e5e7eb;">
+                  <div style="width:26px;height:26px;border-radius:50%;background:#6b7280;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:.75rem;">
+                    {{ reply.user.first_name|first|upper }}
+                  </div>
+                  <div>
+                    <a href="{% url 'profile_view' id=reply.user.pk %}" style="font-weight:600;font-size:.8rem;color:#1a1a2e;text-decoration:none;">{{ reply.user.get_full_name|default:reply.user.username }}</a>
+                    <span style="font-size:.7rem;color:#9ca3af;margin-left:6px;">{{ reply.created_at|timesince }} ago</span>
+                    <p style="font-size:.8rem;color:#374151;margin:3px 0 0;">{{ reply.content }}</p>
+                  </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          {% empty %}
+          <p style="color:#9ca3af;font-size:.875rem;text-align:center;padding:20px 0;">No comments yet. Be the first!</p>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div><!-- /pd-main -->
+
+    <!-- RIGHT: sidebar -->
+    <aside class="pd-sidebar">
+
+      <!-- Owner card -->
+      <div class="pd-card pd-owner-card">
+        <a href="{% url 'profile_view' id=project.owner.pk %}" class="pd-owner-link">
+          {% if project.owner.userprofile.profile_pics %}
+          <img src="{{ project.owner.userprofile.profile_pics.url }}" alt="{{ project.owner.get_full_name }}" class="pd-owner-avatar" />
+          {% else %}
+          <div class="pd-owner-avatar pd-owner-avatar--placeholder">{{ project.owner.first_name|first }}</div>
+          {% endif %}
+          <div>
+            <strong class="pd-owner-name">{{ project.owner.get_full_name }}</strong>
+            <span class="pd-owner-role">{{ project.owner.user_type|capfirst }}</span>
+          </div>
+        </a>
+        {% if request.user.is_authenticated and request.user != project.owner %}
+        <a href="{% url 'start_conversation' project.owner.pk %}" class="oc-btn oc-btn--outline pd-msg-btn">Message</a>
+        {% endif %}
+      </div>
+
+      <!-- Collaborators (#17) -->
+      {% if collaborators %}
+      <div class="pd-card">
+        <h4 class="pd-stats-title">Collaborators</h4>
+        {% for collab in collaborators %}
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+          <div style="width:30px;height:30px;border-radius:50%;background:#004AAD;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;">
+            {{ collab.from_user.first_name|first|upper }}
+          </div>
+          <a href="{% url 'profile_view' id=collab.from_user.pk %}" style="font-size:.85rem;color:#1a1a2e;text-decoration:none;font-weight:500;">{{ collab.from_user.get_full_name }}</a>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Stats -->
+      <div class="pd-card pd-stats">
+        <h4 class="pd-stats-title">Stats</h4>
+        <div class="pd-stat-row"><span>★ Rating</span><strong>{{ avg_rating|floatformat:1 }}</strong></div>
+        <div class="pd-stat-row"><span>❤️ Likes</span><strong>{{ project.liked_by.count }}</strong></div>
+        <div class="pd-stat-row"><span>📎 Files</span><strong>{{ attachments|length }}</strong></div>
+        <div class="pd-stat-row"><span>📝 Reviews</span><strong>{{ rating_count }}</strong></div>
+
+        <!-- Like button -->
+        {% if request.user.is_authenticated %}
+        <button type="button"
+                class="oc-btn {% if user_liked %}oc-btn--primary{% else %}oc-btn--ghost{% endif %} pd-like-btn"
+                id="pd-like-btn"
+                onclick="pdToggleLike(this)">
+          {% if user_liked %}❤️ Liked{% else %}🤍 Like{% endif %}
+        </button>
+        <script>
+        function pdToggleLike(btn) {
+          fetch('{% url "like_project" project.pk %}', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' }
+          }).then(r => r.json()).then(d => {
+            if (d.liked) {
+              btn.className = btn.className.replace('oc-btn--ghost','oc-btn--primary');
+              btn.textContent = '❤️ Liked';
+            } else {
+              btn.className = btn.className.replace('oc-btn--primary','oc-btn--ghost');
+              btn.textContent = '🤍 Like';
+            }
+          });
+        }
+        </script>
+        {% endif %}
+      </div>
+
+      <!-- Investment Readiness sidebar card -->
+      {% with score=project.completeness_score readiness=project.investment_readiness %}
+      <div class="pd-card pd-ir-card">
+        <h4 class="pd-stats-title">Investment Readiness</h4>
+        <div class="pd-ir-badge-wrap">
+          <span class="ir-badge ir-badge--{{ readiness.1 }} ir-badge--lg">{{ readiness.0 }}</span>
+        </div>
+        <div class="ir-mini-bar-bg">
+          <div class="ir-mini-bar-fill {% if score == 100 %}ir-bar--ready{% elif score >= 75 %}ir-bar--strong{% elif score >= 50 %}ir-bar--developing{% else %}ir-bar--early{% endif %}"
+               style="width:{{ score }}%;"></div>
+        </div>
+        <p class="pd-ir-pct">{{ score }}% of pitch deck complete</p>
+        {% if request.user == project.owner and score < 100 %}
+        <a href="{% url 'edit_project' project.pk %}#pitch-deck" class="oc-btn oc-btn--outline pd-msg-btn" style="font-size:.8rem;margin-top:10px;">Complete Profile</a>
+        {% endif %}
+      </div>
+      {% endwith %}
+
+      <!-- Share shortcuts -->
+      <div class="pd-card pd-share-card">
+        <h4 class="pd-stats-title">Share this project</h4>
+        <p style="font-family:'Jaldi',sans-serif;font-size:0.82rem;color:#6b7280;margin:0 0 12px;">
+          Choose a platform — WhatsApp and Telegram let you pick Group or Individual.
+        </p>
+        <button class="oc-btn oc-btn--primary" style="width:100%;"
+                onclick="ocShare('{{ project.title|escapejs }}', '{{ request.build_absolute_uri }}', 'project', {{ project.pk }}, this)">
+          ↑ Share Project
+        </button>
+      </div>
+
+    </aside><!-- /pd-sidebar -->
+
+  </div><!-- /pd-layout -->
+
+</div><!-- /pd-page -->
+
+<!-- Collaborate modal -->
+<div id="collab-modal" class="pd-modal-overlay" style="display:none">
+  <div class="pd-modal">
+    <button class="pd-modal-close" onclick="document.getElementById('collab-modal').style.display='none'">✕</button>
+    <h3>Collaborate on {{ project.title }}</h3>
+    <form method="post" action="{% url 'project_collaborate' project.pk %}">
+      {% csrf_token %}
+      <div class="pd-form-row">
+        <label class="oc-label">Your Role / Skills</label>
+        <input type="text" name="role" class="oc-input" placeholder="e.g. UI Designer, Backend Dev" required />
+      </div>
+      <div class="pd-form-row">
+        <label class="oc-label">Message to Innovator</label>
+        <textarea name="message" class="oc-textarea" rows="4" placeholder="Why do you want to collaborate?" required></textarea>
+      </div>
+      <button type="submit" class="oc-btn oc-btn--primary">Send Request</button>
+    </form>
   </div>
-
-  {% if project.website_link %}
-  <a href="{{ project.website_link }}" target="_blank" class="btn btn-outline-primary mt-3">Visit Project Website</a>
-  {% endif %}
 </div>
 
+<!-- Proposal modal (investors only) -->
+{% if user_type == 'investor' %}
+<div id="proposal-modal" class="pd-modal-overlay" style="display:none">
+  <div class="pd-modal">
+    <button class="pd-modal-close" onclick="document.getElementById('proposal-modal').style.display='none'">✕</button>
+    <h3>Send Investment Proposal</h3>
+    <form method="post" action="{% url 'project_send_proposal' project.pk %}">
+      {% csrf_token %}
+      <div class="pd-form-row">
+        <label class="oc-label">Proposed Amount (USD)</label>
+        <input type="number" name="amount" class="oc-input" placeholder="e.g. 50000" min="1" required />
+      </div>
+      <div class="pd-form-row">
+        <label class="oc-label">Equity Requested (%)</label>
+        <input type="number" name="equity_percentage" class="oc-input" placeholder="e.g. 10" min="0" max="100" />
+      </div>
+      <div class="pd-form-row">
+        <label class="oc-label">Message</label>
+        <textarea name="message" class="oc-textarea" rows="4" placeholder="Describe your investment thesis..." required></textarea>
+      </div>
+      <p class="pd-proposal-note">By submitting you agree to our <a href="{% url 'privacy_policy' %}">Privacy Policy</a>.</p>
+      <button type="submit" class="oc-btn oc-btn--primary">Submit Proposal</button>
+    </form>
+  </div>
+</div>
+{% endif %}
 
-<body>
-  <h1>{{ post.title }}</h1>
-  <p><strong>User:</strong> {{ post.user.username }}</p>
-  <p><strong>Industry:</strong> {{ post.get_industry_display }}</p>
-  <p><strong>Content:</strong> {{ post.content }}</p>
-  <p><strong>Website Link:</strong> {% if post.website_link %} <a href="{{ post.website_link }}" target="_blank">{{ post.website_link }}</a> {% else %} No Link {% endif %}</p>
+<style>
+.pd-page { max-width: 1200px; margin: 0 auto; padding: 24px 16px 60px; }
+.pd-layout { display: grid; grid-template-columns: 1fr 320px; gap: 28px; margin-top: 16px; }
+@media (max-width: 900px) { .pd-layout { grid-template-columns: 1fr; } }
 
-  {% if post.image %}
-      <img src="{{ post.image.url }}" alt="Post Image" style="max-width: 300px;">
-  {% else %}
-      <p>No Image</p>
-  {% endif %}
+.pd-hero-img { width: 100%; border-radius: 14px; overflow: hidden; max-height: 440px; }
+.pd-hero-src { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  {% if post.attachments.all %}
-      <h3>Attachments:</h3>
-      <ul>
-          {% for attachment in post.attachments.all %}
-              <li><a href="{{ attachment.file.url }}" download>{{ attachment.file.name|cut:"attachments/" }}</a></li>
-          {% endfor %}
-      </ul>
-  {% else %}
-      <p>No Attachments</p>
-  {% endif %}
+.pd-gallery { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.pd-thumb { width: 120px; height: 90px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+.pd-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  <a href="{% url 'dashboard' %}">Back to Dashboard</a>
-</body>
+.pd-video-wrap { margin-top: 18px; }
+.pd-video-player { width: 100%; border-radius: 12px; background: #000; }
+.pd-video-label { font-weight: 600; margin: 6px 0 2px; font-size: 0.9rem; }
+.pd-video-desc { color: #6b7280; font-size: 0.88rem; margin: 0; }
+
+.pd-card { background: #fff; border-radius: 16px; padding: 22px; margin-top: 18px; box-shadow: 0 1px 8px rgba(0,0,0,.06); }
+.pd-card-head { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+.pd-title { font-family: 'Jacques Francois', serif; font-size: 1.6rem; color: #1a1a2e; margin: 0; flex: 1; }
+.pd-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.pd-desc { color: #374151; line-height: 1.7; margin: 0 0 14px; }
+.pd-keywords { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+
+.pd-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+
+.pd-section-title { font-family: 'Jacques Francois', serif; font-size: 1.05rem; color: #1a1a2e; margin: 0 0 14px; }
+
+.pd-attachment-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.pd-attachment-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #f8fafc; border-radius: 10px; }
+.pd-att-icon { font-size: 1.4rem; flex-shrink: 0; }
+.pd-att-info { flex: 1; }
+.pd-att-title { font-weight: 600; display: block; font-size: 0.9rem; }
+.pd-att-desc { color: #6b7280; font-size: 0.82rem; }
+.pd-att-vis { font-size: 0.75rem; padding: 2px 8px; border-radius: 50px; font-weight: 600; }
+.pd-att-vis--public { background: #d1fae5; color: #065f46; }
+.pd-att-vis--connections { background: #dbeafe; color: #1e40af; }
+.pd-att-vis--private { background: #fee2e2; color: #991b1b; }
+.pd-att-dl { padding: 5px 12px !important; font-size: 0.82rem !important; }
+
+.pd-form-row { margin-bottom: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+.pd-form-row > * { flex: 1; min-width: 140px; }
+
+.pd-stars { display: flex; gap: 4px; margin-bottom: 10px; }
+.pd-stars input[type=radio] { display: none; }
+.pd-star { font-size: 1.6rem; color: #d1d5db; cursor: pointer; }
+.pd-stars input:checked ~ label .pd-star,
+.pd-stars label:hover .pd-star,
+.pd-stars label:hover ~ label .pd-star { color: #f59e0b; }
+.pd-avg-rating { margin: 12px 0 0; font-size: 0.9rem; color: #6b7280; }
+.pd-rate-btn { margin-top: 8px; }
+
+.pd-owner-card { display: flex; flex-direction: column; gap: 12px; }
+.pd-owner-link { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.pd-owner-avatar { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; }
+.pd-owner-avatar--placeholder { background: #004AAD; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 700; }
+.pd-owner-name { display: block; font-weight: 700; color: #1a1a2e; font-size: 0.95rem; }
+.pd-owner-role { display: block; color: #6b7280; font-size: 0.82rem; }
+.pd-msg-btn { width: 100%; text-align: center; }
+
+.pd-stats-title { font-size: 0.95rem; font-weight: 700; color: #1a1a2e; margin: 0 0 12px; }
+.pd-stat-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f3f4f6; font-size: 0.9rem; }
+.pd-stat-row:last-of-type { border: none; }
+.pd-like-form { margin-top: 12px; }
+.pd-like-btn { width: 100%; }
+
+.pd-share-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pd-share-platform { display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; text-decoration: none; color: #fff; }
+.pd-share-wa { background: #25d366; }
+.pd-share-tg { background: #0088cc; }
+.pd-share-tw { background: #1d9bf0; }
+.pd-share-li { background: #0077b5; }
+
+/* Modals */
+.pd-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 9000; align-items: center; justify-content: center; }
+.pd-modal { background: #fff; border-radius: 18px; padding: 28px; width: 90%; max-width: 480px; position: relative; max-height: 90vh; overflow-y: auto; }
+.pd-modal-close { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #6b7280; }
+.pd-modal h3 { font-family: 'Jacques Francois', serif; margin: 0 0 18px; font-size: 1.15rem; color: #1a1a2e; }
+.pd-proposal-note { font-size: 0.8rem; color: #9ca3af; margin: 10px 0; }
+
+.pd-website-btn { display: inline-flex; }
+
+/* ── Investment Readiness Badge ─────────────────────────────────── */
+.ir-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: .72rem; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; padding: 4px 12px; border-radius: 20px;
+  white-space: nowrap;
+}
+.ir-badge::before { content: '●'; font-size: .6rem; }
+.ir-badge--ready     { background: #fef3c7; color: #92400e; }
+.ir-badge--ready::before { content: '★'; }
+.ir-badge--strong    { background: #dcfce7; color: #166534; }
+.ir-badge--developing{ background: #dbeafe; color: #1e40af; }
+.ir-badge--early     { background: #fef9c3; color: #854d0e; }
+.ir-badge--starter   { background: #f3f4f6; color: #6b7280; }
+.ir-badge--lg        { font-size: .78rem; padding: 5px 14px; }
+
+/* ── Investment Readiness Meter ──────────────────────────────────── */
+.ir-meter {
+  margin: 16px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid #f0f0f0;
+}
+.ir-meter__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.ir-meter__label { font-size: .78rem; font-weight: 700; color: #6b7280; letter-spacing: .04em; text-transform: uppercase; }
+.ir-meter__pct   { font-size: .85rem; font-weight: 800; color: #1B5EC7; }
+.ir-meter__bar-bg { height: 8px; background: #e5e7eb; border-radius: 6px; overflow: hidden; }
+.ir-meter__bar-fill { height: 100%; border-radius: 6px; transition: width .4s ease; }
+.ir-meter__hint { font-size: .78rem; color: #9ca3af; margin: 6px 0 0; }
+
+.ir-bar--ready     { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.ir-bar--strong    { background: linear-gradient(90deg, #16a34a, #22c55e); }
+.ir-bar--developing{ background: linear-gradient(90deg, #1B5EC7, #3b82f6); }
+.ir-bar--early     { background: linear-gradient(90deg, #d97706, #f59e0b); }
+
+/* Sidebar mini bar */
+.ir-mini-bar-bg { height: 6px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin: 8px 0 4px; }
+.ir-mini-bar-fill { height: 100%; border-radius: 4px; transition: width .4s ease; }
+.pd-ir-badge-wrap { margin-bottom: 6px; }
+.pd-ir-pct { font-size: .78rem; color: #9ca3af; margin: 0; }
+.pd-ir-card .pd-msg-btn { display: block; text-align: center; }
+
+/* ── Pitch Deck Sections ─────────────────────────────────────────── */
+.pd-pitch-deck {
+  background: #fff;
+  border-radius: 16px;
+  margin-top: 18px;
+  box-shadow: 0 1px 8px rgba(0,0,0,.06);
+  overflow: hidden;
+}
+.pd-pitch-header {
+  background: linear-gradient(135deg, #092147 0%, #1B5EC7 100%);
+  padding: 24px 28px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.pd-pitch-eyebrow {
+  font-size: .68rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: rgba(255,255,255,.65);
+  flex-basis: 100%;
+}
+.pd-pitch-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.25rem; font-weight: 800;
+  color: #fff; margin: 0; flex: 1;
+  letter-spacing: -.02em;
+}
+.pd-pitch-edit-link {
+  font-size: .78rem; color: rgba(255,255,255,.75);
+  text-decoration: none; white-space: nowrap;
+}
+.pd-pitch-edit-link:hover { color: #fff; }
+
+.pd-pitch-section {
+  display: flex; gap: 20px;
+  padding: 22px 28px;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background .15s;
+}
+.pd-pitch-section:last-of-type { border-bottom: none; }
+.pd-pitch-section:hover { background: #fafbff; }
+.pd-pitch-section--highlight { background: #f0f7ff; }
+.pd-pitch-section--highlight:hover { background: #e8f2ff; }
+
+.pd-pitch-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px;
+}
+.pd-pitch-icon--1 { background: #fee2e2; color: #dc2626; }
+.pd-pitch-icon--2 { background: #dcfce7; color: #16a34a; }
+.pd-pitch-icon--3 { background: #dbeafe; color: #1d4ed8; }
+.pd-pitch-icon--4 { background: #fef3c7; color: #d97706; }
+.pd-pitch-icon--5 { background: #f0fdf4; color: #15803d; }
+.pd-pitch-icon--6 { background: #1B5EC7; color: #fff; }
+.pd-pitch-icon--7 { background: #ede9fe; color: #7c3aed; }
+.pd-pitch-icon--8 { background: #e0e8ff; color: #3730a3; }
+
+.pd-pitch-body { flex: 1; min-width: 0; }
+.pd-pitch-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .8rem; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: #6b7280; margin: 0 0 8px;
+}
+.pd-pitch-text {
+  font-size: .9rem; color: #374151; line-height: 1.7; margin: 0;
+}
+.pd-pitch-funding {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.6rem; font-weight: 800;
+  color: #1B5EC7; margin: 0; letter-spacing: -.03em;
+}
+
+.pd-pitch-cta {
+  padding: 18px 28px;
+  background: #fafbff;
+  border-top: 1px solid #e0e8f4;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+}
+.pd-pitch-cta p { font-size: .85rem; color: #6b7280; margin: 0; }
+
+.pd-pitch-empty {
+  background: #f8fafc;
+  border: 2px dashed #c3d4ec;
+  border-radius: 16px;
+  margin-top: 18px;
+  padding: 40px 28px;
+  text-align: center;
+}
+.pd-pitch-empty__icon { font-size: 2.5rem; margin-bottom: 12px; }
+.pd-pitch-empty h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem; font-weight: 800; color: #1a1a2e; margin: 0 0 8px;
+}
+.pd-pitch-empty p { font-size: .875rem; color: #6b7280; margin: 0 0 18px; }
+</style>
 {% endblock %}

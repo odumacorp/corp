@@ -1,105 +1,968 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}{{ profile.user.username }}'s Profile | OdumaCorp{% endblock %}
-
+{% block title %}{{ profile.user.get_full_name|default:profile.user.username }} | Oduma Connect{% endblock %}
 
 {% block content %}
-<div class="container">
+<style>
+/* ── Profile Page ───────────────────────────────────────────── */
+:root {
+  --ink: #0A1628;
+  --blue: #1B5EC7;
+  --blue-lt: #e0e8f4;
+  --border: #e4eaf2;
+  --bg: #f4f6fb;
+  --radius: 14px;
+}
 
-    <div class="section">
+.pf-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0 20px 80px; box-sizing: border-box; }
 
+/* ── Back button ─────────────────────────────────────────────── */
+.pf-back-bar {
+  padding: 14px 0 0;
+  display: flex;
+  align-items: center;
+}
+.pf-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 7px 16px;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all .18s;
+  font-family: inherit;
+}
+.pf-back-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: #f0f5ff;
+}
+.pf-back-btn svg { flex-shrink: 0; }
+
+/* ── Cover ───────────────────────────────────────────────────── */
+.pf-cover {
+  height: 190px;
+  background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 55%, #3b82f6 100%);
+  border-radius: 0 0 20px 20px;
+  position: relative;
+  margin-top: 12px;
+}
+
+/* ── Hero card ───────────────────────────────────────────────── */
+.pf-hero {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 0 28px 22px;
+  position: relative;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(10,22,40,.05);
+}
+.pf-avatar-wrap { position: relative; display: inline-block; }
+.pf-avatar, .pf-avatar-init {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,.14);
+  margin-top: -44px;
+  margin-bottom: 10px;
+  display: block;
+  object-fit: cover;
+}
+.pf-avatar-init {
+  background: linear-gradient(135deg, #1B5EC7, #0A1628);
+  color: #fff;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.pf-hero-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; padding-top: 10px;
+}
+.pf-hero-left { flex: 1; min-width: 0; }
+.pf-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.45rem; font-weight: 800; color: var(--ink);
+  margin: 0 0 4px; line-height: 1.2;
+}
+.pf-role-line {
+  font-size: .875rem; color: #6b7280; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.pf-role-chip {
+  background: var(--blue-lt); color: var(--blue);
+  font-size: .72rem; font-weight: 700; padding: 2px 10px;
+  border-radius: 20px; text-transform: uppercase; letter-spacing: .04em;
+}
+.pf-bio {
+  font-size: .875rem; color: #374151; line-height: 1.6;
+  margin-top: 10px; max-width: 600px;
+}
+.pf-hero-actions {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  align-items: flex-start; padding-top: 4px;
+}
+.pf-btn {
+  padding: 9px 22px; border-radius: 9px; font-size: .85rem; font-weight: 700;
+  text-decoration: none; transition: all .18s;
+  display: inline-flex; align-items: center; gap: 6px;
+  cursor: pointer; border: none; font-family: inherit;
+}
+.pf-btn--primary { background: var(--blue); color: #fff; }
+.pf-btn--primary:hover { background: #1448a3; color: #fff; }
+.pf-btn--outline { background: #fff; color: var(--ink); border: 1.5px solid #d1d5db; }
+.pf-btn--outline:hover { border-color: var(--blue); color: var(--blue); }
+.pf-btn--green { background: #f0fdf4; color: #15803d; border: 1.5px solid #bbf7d0; }
+.pf-btn--pending { background: #fefce8; color: #854d0e; border: 1.5px solid #fde68a; cursor: default; }
+
+/* ── Stats strip ─────────────────────────────────────────────── */
+.pf-stats {
+  display: flex; gap: 0;
+  border-top: 1px solid #f0f4fa;
+  margin-top: 20px; flex-wrap: wrap;
+}
+.pf-stat {
+  flex: 1; min-width: 90px; text-align: center;
+  padding: 14px 10px 12px;
+  border-right: 1px solid #f0f4fa;
+  transition: background .15s; cursor: default;
+}
+.pf-stat:last-child { border-right: none; }
+.pf-stat:hover { background: #f9fafb; }
+.pf-stat-val {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.35rem; font-weight: 800; color: var(--ink); line-height: 1; margin-bottom: 4px;
+}
+.pf-stat-label { font-size: .68rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── Tabs ────────────────────────────────────────────────────── */
+.pf-tabs-bar {
+  display: flex; gap: 2px; flex-wrap: wrap;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 5px;
+  margin-bottom: 20px;
+  position: sticky; top: 66px; z-index: 10;
+  box-shadow: 0 2px 8px rgba(10,22,40,.06);
+}
+.pf-tab {
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: .82rem; font-weight: 700;
+  color: #6b7280; cursor: pointer;
+  border: none; background: transparent;
+  font-family: inherit; transition: all .18s;
+  display: flex; align-items: center; gap: 6px;
+}
+.pf-tab:hover { background: #f0f5ff; color: var(--blue); }
+.pf-tab.active { background: var(--blue); color: #fff; }
+.pf-tab-count {
+  background: rgba(255,255,255,.25);
+  font-size: .68rem; padding: 1px 6px; border-radius: 20px;
+}
+.pf-tab:not(.active) .pf-tab-count {
+  background: #e4eaf2; color: #6b7280;
+}
+
+.pf-panel { display: none; width: 100%; min-width: 0; box-sizing: border-box; }
+.pf-panel.active { display: block; }
+
+/* ── Two-col layout ──────────────────────────────────────────── */
+.pf-grid { display: grid; grid-template-columns: 1fr 290px; gap: 20px; align-items: start; }
+@media (max-width: 860px) { .pf-grid { grid-template-columns: 1fr; } }
+
+/* ── Cards ───────────────────────────────────────────────────── */
+.pf-card {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 4px rgba(10,22,40,.04);
+  overflow: hidden; margin-bottom: 16px;
+}
+.pf-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 22px 14px; border-bottom: 1px solid #f0f4fa;
+}
+.pf-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .925rem; font-weight: 800; color: var(--ink); margin: 0;
+}
+.pf-card-link { font-size: .8rem; color: var(--blue); font-weight: 600; text-decoration: none; }
+
+/* ── Post items ──────────────────────────────────────────────── */
+.pf-post-item {
+  padding: 16px 22px; border-bottom: 1px solid #f5f5f5;
+  transition: background .14s;
+}
+.pf-post-item:last-child { border-bottom: none; }
+.pf-post-item:hover { background: #f9fafb; }
+.pf-post-label {
+  font-size: .7rem; font-weight: 700;
+  background: var(--blue-lt); color: var(--blue);
+  padding: 2px 9px; border-radius: 20px; margin-bottom: 6px; display: inline-block;
+}
+.pf-post-title {
+  font-size: .9rem; font-weight: 700; color: var(--ink);
+  text-decoration: none; display: block; margin-bottom: 4px;
+}
+.pf-post-title:hover { color: var(--blue); }
+.pf-post-excerpt { font-size: .8rem; color: #6b7280; line-height: 1.5; }
+.pf-post-meta { font-size: .72rem; color: #9ca3af; margin-top: 6px; }
+
+/* ── Project grid ────────────────────────────────────────────── */
+.pf-proj-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
+  gap: 14px; padding: 18px 22px;
+}
+.pf-proj-card {
+  border: 1px solid var(--border); border-radius: 10px;
+  overflow: hidden; transition: all .18s; text-decoration: none;
+  display: flex; flex-direction: column;
+  background: #fff;
+}
+.pf-proj-card:hover { border-color: var(--blue); box-shadow: 0 4px 16px rgba(27,94,199,.1); }
+.pf-proj-thumb {
+  width: 100%; height: 130px; object-fit: cover; display: block;
+}
+.pf-proj-thumb-ph {
+  width: 100%; height: 130px;
+  background: linear-gradient(135deg, #e0e8f4, #c3d4ec);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.2rem;
+}
+.pf-proj-body { padding: 12px 14px; flex: 1; }
+.pf-proj-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .9rem; font-weight: 800; color: var(--ink); margin: 0 0 4px;
+}
+.pf-proj-desc { font-size: .78rem; color: #6b7280; line-height: 1.5; margin: 0 0 8px; }
+.pf-proj-meta { font-size: .72rem; color: #9ca3af; display: flex; gap: 10px; flex-wrap: wrap; }
+.pf-proj-status {
+  font-size: .68rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 20px; background: #e0fdf4; color: #065f46;
+  display: inline-block; margin-bottom: 4px;
+}
+
+/* ── Group / page tiles ──────────────────────────────────────── */
+.pf-tile-list { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+.pf-tile {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border: 1px solid var(--border);
+  border-radius: 10px; text-decoration: none;
+  transition: all .18s; background: #fff;
+}
+.pf-tile:hover { border-color: var(--blue); background: #f0f5ff; }
+.pf-tile-img {
+  width: 44px; height: 44px; border-radius: 8px;
+  object-fit: cover; flex-shrink: 0;
+}
+.pf-tile-icon {
+  width: 44px; height: 44px; border-radius: 8px;
+  background: var(--blue-lt); color: var(--blue);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
+}
+.pf-tile-info { flex: 1; min-width: 0; }
+.pf-tile-name {
+  font-size: .875rem; font-weight: 700; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pf-tile-sub { font-size: .75rem; color: #9ca3af; margin-top: 2px; }
+.pf-tile-badge {
+  font-size: .68rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 20px; background: var(--blue-lt); color: var(--blue);
+  white-space: nowrap; flex-shrink: 0;
+}
+
+/* ── Patent list ─────────────────────────────────────────────── */
+.pf-patent-item {
+  padding: 14px 22px; border-bottom: 1px solid #f5f5f5;
+  transition: background .14s;
+}
+.pf-patent-item:last-child { border-bottom: none; }
+.pf-patent-item:hover { background: #f9fafb; }
+.pf-patent-name { font-size: .9rem; font-weight: 700; color: var(--ink); margin: 0 0 4px; }
+.pf-patent-desc { font-size: .8rem; color: #6b7280; }
+.pf-patent-date { font-size: .72rem; color: #9ca3af; margin-top: 4px; }
+
+/* ── Info rows ───────────────────────────────────────────────── */
+.pf-info-row {
+  display: flex; align-items: center;
+  padding: 12px 22px; border-bottom: 1px solid #f5f5f5; gap: 10px;
+}
+.pf-info-row:last-child { border-bottom: none; }
+.pf-info-label { font-size: .78rem; color: #9ca3af; font-weight: 600; min-width: 110px; flex-shrink: 0; }
+.pf-info-val { font-size: .875rem; color: #374151; font-weight: 600; flex: 1; word-break: break-word; }
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.pf-empty {
+  text-align: center; padding: 48px 22px; color: #9ca3af;
+}
+.pf-empty-icon { font-size: 2.4rem; margin-bottom: 10px; }
+.pf-empty-text { font-size: .9rem; font-weight: 600; color: #6b7280; }
+.pf-empty-sub { font-size: .8rem; margin-top: 4px; }
+
+/* ── Verification card ───────────────────────────────────────── */
+.pf-verif-card {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 22px; margin-bottom: 16px;
+}
+.pf-verif-card--gradient {
+  background: linear-gradient(135deg, #f0f5ff, #e8f0fd);
+  border-color: #c3d4ec;
+}
+.pf-verif-form-field { margin-bottom: 12px; }
+.pf-verif-form-field label {
+  display: block; font-size: .78rem; font-weight: 700;
+  color: #374151; margin-bottom: 5px;
+}
+.pf-verif-form-field input,
+.pf-verif-form-field textarea {
+  width: 100%; border: 1.5px solid #e0e6f0; border-radius: 8px;
+  padding: 9px 12px; font-size: .85rem; font-family: inherit;
+  color: var(--ink); box-sizing: border-box; transition: border-color .18s; resize: vertical;
+}
+.pf-verif-form-field input:focus,
+.pf-verif-form-field textarea:focus {
+  outline: none; border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(27,94,199,.08);
+}
+
+/* ── Proposal item ───────────────────────────────────────────── */
+.pf-proposal-item {
+  padding: 14px 22px; border-bottom: 1px solid #f5f5f5;
+  transition: background .14s;
+}
+.pf-proposal-item:last-child { border-bottom: none; }
+.pf-proposal-item:hover { background: #f9fafb; }
+.pf-proposal-title { font-size: .9rem; font-weight: 700; color: var(--ink); margin: 0 0 4px; }
+.pf-proposal-meta { font-size: .75rem; color: #9ca3af; }
+.pf-proposal-status {
+  font-size: .68rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 20px; margin-left: 8px;
+}
+.pf-proposal-status--pending { background: #fef9c3; color: #92400e; }
+.pf-proposal-status--accepted { background: #d1fae5; color: #065f46; }
+.pf-proposal-status--rejected { background: #fee2e2; color: #991b1b; }
+</style>
+
+<div class="pf-wrap">
+
+  <!-- Back button -->
+  <div class="pf-back-bar">
+    <button class="pf-back-btn" onclick="history.back()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Back
+    </button>
+  </div>
+
+  <!-- Cover -->
+  <div class="pf-cover"></div>
+
+  <!-- Hero card -->
+  <div class="pf-hero">
+
+    <!-- Avatar -->
+    {% if profile.profile_pics %}
+      <img src="{{ profile.profile_pics.url }}" alt="Avatar" class="pf-avatar">
+    {% else %}
+      <div class="pf-avatar-init">
+        {{ profile.user.first_name|first|upper }}{{ profile.user.last_name|first|upper }}
+      </div>
+    {% endif %}
+
+    <div class="pf-hero-top">
+      <div class="pf-hero-left">
+        <h1 class="pf-name">
+          {{ profile.user.get_full_name|default:profile.user.username }}
+          {% if profile.verification_status == 'verified' %}
+            <span style="font-size:.7rem;vertical-align:middle;margin-left:6px;background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:20px;font-weight:700;">✓ Verified</span>
+          {% endif %}
+        </h1>
+        <div class="pf-role-line">
+          <span class="pf-role-chip">{{ profile.user.user_type|title }}</span>
+          {% if profile.industry %}<span>{{ profile.industry }}</span>{% endif %}
+          {% if profile.company %}· <span>{{ profile.company }}</span>{% endif %}
+        </div>
+        {% if profile.bio %}
+          <p class="pf-bio">{{ profile.bio|truncatewords:50 }}</p>
+        {% endif %}
+      </div>
+
+      <div class="pf-hero-actions">
         {% if request.user == profile.user %}
-        <div class="section-profile left sub-section">
-            <div class="user-profile">
-                <!-- Profile Picture -->
-                <div class="user-profile-pic">
-                    <p><strong>Profile Picture:</strong></p>
-                    {% if profile.profile_pics %}
-                    <img src="{{ profile.profile_pics.url }}" alt="Profile Image" class="rounded-circle" width="100" height="auto">
-                    {% else %}
-                    <p>No profile picture provided</p>
-                    {% endif %}
-                </div>
-                <!-- Full Name -->
-                <div class="user-name info">
-                    <p><strong>Name:</strong></p>
-                    <h4>{{ profile.user.get_full_name|default:"Not Provided" }}</h4>
-                </div>
-                <!-- User Type -->
-                <div class="user-type info">
-                    <p><strong>User Type:</strong></p>
-                    <h4>{{ profile.user.user_type|default:"Unknown" }}</h4>
-                </div>
-    
-                {% if profile.user.user_type == 'investor' %}
-                    <!-- Industry -->
-                    <div class="user-industry info">
-                        <p><strong>Industry:</strong></p>
-                        <h4>{{ profile.industry|default:"Not Provided" }}</h4>
-                    </div>
-                    <!-- Company -->
-                    <div class="user-company info">
-                        <p><strong>Company:</strong></p>
-                        <h4>{{ profile.company|default:"Not Provided" }}</h4>
-                    </div>
-                {% endif %}
-                <!-- Username -->
-                <div class="user-username info">
-                    <p><strong>Username:</strong></p>
-                    <h4>{{ profile.user.username|default:"Not Provided" }}</h4>
-                </div>
-        
-                <!-- Email -->
-                <div class="user-email info">
-                    <p><strong>Email:</strong></p>
-                    <h4>{{ profile.user.email|default:"Not Provided" }}</h4>
-                </div>
-                <!-- Phone Number -->
-                <div class="user-phone info">
-                    <p><strong>Phone Number:</strong></p>
-                    <h4>{{ profile.phone_number|default:"Not Provided" }}</h4>
-                </div>
-                <div class="bottom-area">
-                    <!-- Edit Profile Button -->
-                    <div class="user-edit">
-                        <a href="{% url 'edit_profile' %}">
-                            <button class="btn btn-primary btn-sm" name="edit_profile">Edit Profile</button>
-                        </a>
-                    </div>
-                    <div class="user-about">
-                        <span>ABOUT: </span>{{ profile.bio|default:"No bio available."|truncatewords:20 }}
-                    </div>
-                    <!--  -->
-                    <h2>Change Password</h2>
-                    <a href="{% url 'update_password' %}">
-                        <button type="submit" name="update_password" class="btn btn-secondary">Change Password</button>
-                    </a>
-                </div>
+          <a href="{% url 'edit_profile' %}" class="pf-btn pf-btn--outline">✏️ Edit Profile</a>
+          {% if profile.user.user_type != 'investor' %}
+            <a href="{% url 'innovator_dashboard' %}" class="pf-btn pf-btn--primary">📊 Dashboard</a>
+          {% else %}
+            <a href="{% url 'investor_dashboard' %}" class="pf-btn pf-btn--primary">📊 Dashboard</a>
+          {% endif %}
+        {% elif request.user.is_authenticated %}
+          {% if connection_status == 'accepted' %}
+            <span class="pf-btn pf-btn--green">✓ Connected</span>
+            <a href="{% url 'start_conversation' profile.user.pk %}" class="pf-btn pf-btn--outline">✉️ Message</a>
+          {% elif connection_status == 'pending' %}
+            <span class="pf-btn pf-btn--pending">⏳ Pending</span>
+            <a href="{% url 'start_conversation' profile.user.pk %}" class="pf-btn pf-btn--outline">✉️ Message</a>
+          {% else %}
+            <form method="post" action="{% url 'connect_user' profile.user.pk %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="pf-btn pf-btn--primary">+ Connect</button>
+            </form>
+            <a href="{% url 'start_conversation' profile.user.pk %}" class="pf-btn pf-btn--outline">✉️ Message</a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Stats strip -->
+    <div class="pf-stats">
+      <div class="pf-stat">
+        <div class="pf-stat-val">{{ profile_view_count|default:"0" }}</div>
+        <div class="pf-stat-label">Profile Views</div>
+      </div>
+      <div class="pf-stat">
+        <div class="pf-stat-val">{{ projects_count|default:"0" }}</div>
+        <div class="pf-stat-label">Projects</div>
+      </div>
+      <div class="pf-stat">
+        <div class="pf-stat-val">{{ patents_count|default:"0" }}</div>
+        <div class="pf-stat-label">Patents</div>
+      </div>
+      <div class="pf-stat">
+        <div class="pf-stat-val">{{ posts|length }}</div>
+        <div class="pf-stat-label">Posts</div>
+      </div>
+      <div class="pf-stat">
+        <div class="pf-stat-val">{{ groups|length }}</div>
+        <div class="pf-stat-label">Groups</div>
+      </div>
+      <div class="pf-stat">
+        <div class="pf-stat-val">{{ inventor_connections|default:"0" }}</div>
+        <div class="pf-stat-label">Connections</div>
+      </div>
+      <div class="pf-stat">
+        <div class="pf-stat-val">{{ likes_count|default:"0" }}</div>
+        <div class="pf-stat-label">Likes</div>
+      </div>
+    </div>
+  </div><!-- /pf-hero -->
+
+
+  <!-- ── Tabs bar ─────────────────────────────────────────────── -->
+  <div class="pf-tabs-bar">
+    <button class="pf-tab active" data-tab="overview">
+      Overview
+    </button>
+    <button class="pf-tab" data-tab="projects">
+      Projects <span class="pf-tab-count">{{ projects_count }}</span>
+    </button>
+    <button class="pf-tab" data-tab="posts">
+      Posts <span class="pf-tab-count">{{ posts|length }}</span>
+    </button>
+    <button class="pf-tab" data-tab="groups">
+      Groups <span class="pf-tab-count">{{ groups|length }}</span>
+    </button>
+    <button class="pf-tab" data-tab="pages">
+      Pages <span class="pf-tab-count">{{ owned_pages|length }}</span>
+    </button>
+    {% if patents_count %}
+    <button class="pf-tab" data-tab="patents">
+      Patents <span class="pf-tab-count">{{ patents_count }}</span>
+    </button>
+    {% endif %}
+    {% if companies %}
+    <button class="pf-tab" data-tab="companies">
+      Companies <span class="pf-tab-count">{{ companies|length }}</span>
+    </button>
+    {% endif %}
+    {% if request.user == profile.user %}
+    <button class="pf-tab" data-tab="proposals">
+      Proposals
+    </button>
+    {% endif %}
+  </div>
+
+  <!-- ── PANEL: Overview ──────────────────────────────────────── -->
+  <div class="pf-panel active" id="tab-overview">
+    <div class="pf-grid">
+
+      <!-- LEFT -->
+      <div>
+
+        <!-- Recent Posts -->
+        {% if posts %}
+        <div class="pf-card">
+          <div class="pf-card-head">
+            <h2 class="pf-card-title">Recent Posts</h2>
+            <button class="pf-card-link" style="border:none;background:none;cursor:pointer;" onclick="switchTab('posts')">See all →</button>
+          </div>
+          {% for post in posts|slice:":5" %}
+          <div class="pf-post-item">
+            <span class="pf-post-label">{{ post.industry|default:"General" }}</span>
+            <a href="{% url 'post_detail' post.pk %}" class="pf-post-title">{{ post.title|default:"Untitled Post" }}</a>
+            <p class="pf-post-excerpt">{{ post.content|truncatewords:20 }}</p>
+            <div class="pf-post-meta">
+              {{ post.created_at|timesince }} ago &nbsp;·&nbsp;
+              👍 {{ post.likes.count }} &nbsp;·&nbsp;
+              💬 {{ post.comments.count }}
             </div>
+          </div>
+          {% endfor %}
         </div>
         {% endif %}
 
-        <div class="center sub-section">
-            <div class="user-info">
-                <ul>
-                    <li>Connections (Innovators): {{ inventor_connections|default:"0" }}</li>
-                    <li>Connections (Investors): {{ investor_connections|default:"0" }}</li>
-                    <li>Projects: {{ projects_count|default:"0" }}</li>
-                    <li>Patents: {{ patents_count|default:"0" }}</li>
-                    <li>Likes: {{ likes_count|default:"0" }}</li>
-                    <li>Interests: {{ interests_count|default:"0" }}</li>
-                </ul>
-            </div>
-            {% if profile.user.user_type == 'investor' %}
-                <div class="more-user-info">
-                    <p><strong>Company:</strong> {{ profile.company|default:"Not specified" }}</p>
-                    <p><strong>Industry:</strong> {{ profile.industry|default:"Not specified" }}</p>
+        <!-- Recent Projects -->
+        {% if projects %}
+        <div class="pf-card">
+          <div class="pf-card-head">
+            <h2 class="pf-card-title">Recent Projects</h2>
+            <button class="pf-card-link" style="border:none;background:none;cursor:pointer;" onclick="switchTab('projects')">See all →</button>
+          </div>
+          <div class="pf-proj-grid">
+            {% for proj in projects|slice:":3" %}
+            <a href="{% url 'project_detail' proj.pk %}" class="pf-proj-card">
+              {% if proj.images.filter %}
+                {% with proj.images.first as img %}
+                  {% if img %}<img src="{{ img.image.url }}" alt="{{ proj.title }}" class="pf-proj-thumb">
+                  {% else %}<div class="pf-proj-thumb-ph">🚀</div>{% endif %}
+                {% endwith %}
+              {% else %}
+                <div class="pf-proj-thumb-ph">🚀</div>
+              {% endif %}
+              <div class="pf-proj-body">
+                <span class="pf-proj-status">{{ proj.status|title }}</span>
+                <p class="pf-proj-name">{{ proj.title }}</p>
+                <p class="pf-proj-desc">{{ proj.description|truncatewords:14 }}</p>
+                <div class="pf-proj-meta">
+                  <span>⭐ {{ proj.ratings.count }}</span>
+                  <span>❤️ {{ proj.likes.count }}</span>
                 </div>
-            {% endif %}
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Verification form (own unverified profile) -->
+        {% if request.user == profile.user %}
+          {% if profile.verification_status == 'unverified' or profile.verification_status == 'rejected' %}
+          <div class="pf-verif-card pf-verif-card--gradient">
+            <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#0A1628;margin:0 0 6px;">
+              {% if profile.verification_status == 'rejected' %}Re-apply for Verification{% else %}Get Verified{% endif %}
+            </h3>
+            <p style="font-size:.82rem;color:#6b7280;margin:0 0 16px;">A verified badge builds trust with investors and collaborators.</p>
+            <form method="post" action="{% url 'submit_verification_request' %}" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="pf-verif-form-field">
+                <label>Why should you be verified?</label>
+                <textarea name="bio_statement" rows="3" placeholder="Describe your background and credibility…"></textarea>
+              </div>
+              <div class="pf-verif-form-field">
+                <label>LinkedIn URL (optional)</label>
+                <input type="url" name="linkedin_url" placeholder="https://linkedin.com/in/yourprofile">
+              </div>
+              <div class="pf-verif-form-field">
+                <label>ID Document (optional — PDF, JPG, PNG)</label>
+                <input type="file" name="id_document" accept=".pdf,.jpg,.jpeg,.png">
+              </div>
+              <button type="submit" class="pf-btn pf-btn--primary" style="margin-top:4px;">Submit Verification Request</button>
+            </form>
+          </div>
+          {% endif %}
+        {% endif %}
+
+      </div><!-- /left -->
+
+      <!-- RIGHT sidebar -->
+      <div>
+
+        <!-- Verification status pill (own profile) -->
+        {% if request.user == profile.user %}
+        <div class="pf-card" style="padding:18px 22px;">
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:800;color:#0A1628;margin:0 0 10px;">Verification</h3>
+          {% if profile.verification_status == 'verified' %}
+            <span style="background:#d1fae5;color:#065f46;font-size:.78rem;font-weight:700;padding:4px 12px;border-radius:20px;">✓ Verified {{ profile.user.user_type|title }}</span>
+          {% elif profile.verification_status == 'pending' %}
+            <span style="background:#fef9c3;color:#92400e;font-size:.78rem;font-weight:700;padding:4px 12px;border-radius:20px;">⏳ Pending Review</span>
+            <p style="font-size:.78rem;color:#6b7280;margin-top:8px;">Your application is being reviewed.</p>
+          {% elif profile.verification_status == 'rejected' %}
+            <span style="background:#fee2e2;color:#991b1b;font-size:.78rem;font-weight:700;padding:4px 12px;border-radius:20px;">✗ Rejected</span>
+          {% else %}
+            <span style="background:#f3f4f6;color:#6b7280;font-size:.78rem;font-weight:700;padding:4px 12px;border-radius:20px;">Unverified</span>
+          {% endif %}
         </div>
 
-</div>
-<!-- ##### -->
+        <!-- Account card (own only) -->
+        <div class="pf-card">
+          <div class="pf-card-head"><h3 class="pf-card-title">Account</h3></div>
+          <div class="pf-info-row">
+            <span class="pf-info-label">Email</span>
+            <span class="pf-info-val">{{ profile.user.email }}</span>
+          </div>
+          {% if profile.phone_number %}
+          <div class="pf-info-row">
+            <span class="pf-info-label">Phone</span>
+            <span class="pf-info-val">{{ profile.phone_number }}</span>
+          </div>
+          {% endif %}
+          <div class="pf-info-row" style="flex-wrap:wrap;gap:8px;padding:14px 22px;">
+            <a href="{% url 'edit_profile' %}" class="pf-btn pf-btn--outline" style="font-size:.78rem;padding:7px 16px;">Edit Profile</a>
+            <a href="{% url 'update_password' %}" class="pf-btn pf-btn--outline" style="font-size:.78rem;padding:7px 16px;">Change Password</a>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- About -->
+        <div class="pf-card">
+          <div class="pf-card-head"><h3 class="pf-card-title">About</h3></div>
+          {% if profile.industry %}
+          <div class="pf-info-row">
+            <span class="pf-info-label">Industry</span>
+            <span class="pf-info-val">{{ profile.industry }}</span>
+          </div>
+          {% endif %}
+          {% if profile.company %}
+          <div class="pf-info-row">
+            <span class="pf-info-label">Company</span>
+            <span class="pf-info-val">{{ profile.company }}</span>
+          </div>
+          {% endif %}
+          {% if profile.geography_focus %}
+          <div class="pf-info-row">
+            <span class="pf-info-label">Location</span>
+            <span class="pf-info-val">{{ profile.geography_focus }}</span>
+          </div>
+          {% endif %}
+          {% if profile.ticket_size_min or profile.ticket_size_max %}
+          <div class="pf-info-row">
+            <span class="pf-info-label">Ticket Size</span>
+            <span class="pf-info-val">${{ profile.ticket_size_min|floatformat:0 }} – ${{ profile.ticket_size_max|floatformat:0 }}</span>
+          </div>
+          {% endif %}
+          <div class="pf-info-row">
+            <span class="pf-info-label">Username</span>
+            <span class="pf-info-val" style="color:#9ca3af;">@{{ profile.user.username }}</span>
+          </div>
+          <div class="pf-info-row">
+            <span class="pf-info-label">Member since</span>
+            <span class="pf-info-val">{{ profile.user.date_joined|date:"M Y" }}</span>
+          </div>
+        </div>
+
+        <!-- Groups preview -->
+        {% if groups %}
+        <div class="pf-card">
+          <div class="pf-card-head">
+            <h3 class="pf-card-title">Groups</h3>
+            <button class="pf-card-link" style="border:none;background:none;cursor:pointer;" onclick="switchTab('groups')">See all →</button>
+          </div>
+          <div style="padding:10px 14px; display:flex; flex-direction:column; gap:8px;">
+            {% for g in groups|slice:":3" %}
+            <a href="{% url 'group_detail' g.pk %}" class="pf-tile">
+              {% if g.cover_image %}<img src="{{ g.cover_image.url }}" class="pf-tile-img" alt="{{ g.name }}">
+              {% else %}<div class="pf-tile-icon">👥</div>{% endif %}
+              <div class="pf-tile-info">
+                <div class="pf-tile-name">{{ g.name }}</div>
+                <div class="pf-tile-sub">{{ g.members.count }} members</div>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Activity -->
+        <div class="pf-card" style="padding:18px 22px;">
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:800;color:#0A1628;margin:0 0 8px;">Activity</h3>
+          <p style="font-size:.82rem;color:#6b7280;margin:0;">
+            Liked {{ likes_count }} items &nbsp;·&nbsp; {{ interests_count }} interests marked
+          </p>
+        </div>
+
+      </div><!-- /right -->
+    </div><!-- /pf-grid -->
+  </div><!-- /tab-overview -->
 
 
-{% endblock  %}
+  <!-- ── PANEL: Projects ──────────────────────────────────────── -->
+  <div class="pf-panel" id="tab-projects">
+    <div class="pf-card">
+      <div class="pf-card-head">
+        <h2 class="pf-card-title">Projects <span style="color:#9ca3af;font-weight:400;">({{ projects_count }})</span></h2>
+      </div>
+      {% if projects %}
+      <div class="pf-proj-grid">
+        {% for proj in projects %}
+        <a href="{% url 'project_detail' proj.pk %}" class="pf-proj-card">
+          {% with proj.images.first as img %}
+            {% if img %}<img src="{{ img.image.url }}" alt="{{ proj.title }}" class="pf-proj-thumb">
+            {% else %}<div class="pf-proj-thumb-ph">🚀</div>{% endif %}
+          {% endwith %}
+          <div class="pf-proj-body">
+            <span class="pf-proj-status">{{ proj.status|title }}</span>
+            <p class="pf-proj-name">{{ proj.title }}</p>
+            <p class="pf-proj-desc">{{ proj.description|truncatewords:16 }}</p>
+            <div class="pf-proj-meta">
+              <span>🏷️ {{ proj.industry|default:"—" }}</span>
+              <span>⭐ {{ proj.ratings.count }}</span>
+              <span>❤️ {{ proj.likes.count }}</span>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="pf-empty">
+        <div class="pf-empty-icon">🚀</div>
+        <div class="pf-empty-text">No projects yet</div>
+        {% if request.user == profile.user %}
+        <div class="pf-empty-sub"><a href="{% url 'create_project' %}" style="color:var(--blue);font-weight:600;">Create your first project →</a></div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+
+  <!-- ── PANEL: Posts ─────────────────────────────────────────── -->
+  <div class="pf-panel" id="tab-posts">
+    <div class="pf-card">
+      <div class="pf-card-head">
+        <h2 class="pf-card-title">Posts <span style="color:#9ca3af;font-weight:400;">({{ posts|length }})</span></h2>
+      </div>
+      {% if posts %}
+        {% for post in posts %}
+        <div class="pf-post-item">
+          <span class="pf-post-label">{{ post.industry|default:"General" }}</span>
+          <a href="{% url 'post_detail' post.pk %}" class="pf-post-title">{{ post.title|default:"Untitled Post" }}</a>
+          <p class="pf-post-excerpt">{{ post.content|truncatewords:30 }}</p>
+          <div class="pf-post-meta">
+            {{ post.created_at|timesince }} ago &nbsp;·&nbsp;
+            👍 {{ post.likes.count }} &nbsp;·&nbsp;
+            💬 {{ post.comments.count }}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="pf-empty">
+        <div class="pf-empty-icon">📝</div>
+        <div class="pf-empty-text">No posts yet</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+
+  <!-- ── PANEL: Groups ────────────────────────────────────────── -->
+  <div class="pf-panel" id="tab-groups">
+    <div class="pf-card">
+      <div class="pf-card-head">
+        <h2 class="pf-card-title">Groups <span style="color:#9ca3af;font-weight:400;">({{ groups|length }})</span></h2>
+      </div>
+      {% if groups %}
+      <div class="pf-tile-list">
+        {% for g in groups %}
+        <a href="{% url 'group_detail' g.pk %}" class="pf-tile">
+          {% if g.cover_image %}<img src="{{ g.cover_image.url }}" class="pf-tile-img" alt="{{ g.name }}">
+          {% else %}<div class="pf-tile-icon">👥</div>{% endif %}
+          <div class="pf-tile-info">
+            <div class="pf-tile-name">{{ g.name }}</div>
+            <div class="pf-tile-sub">{{ g.get_industry_display }} · {{ g.members.count }} members</div>
+          </div>
+          {% if g.creator == profile.user %}
+          <span class="pf-tile-badge">Creator</span>
+          {% endif %}
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="pf-empty">
+        <div class="pf-empty-icon">👥</div>
+        <div class="pf-empty-text">No groups joined</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+
+  <!-- ── PANEL: Pages ─────────────────────────────────────────── -->
+  <div class="pf-panel" id="tab-pages">
+    {% if owned_pages %}
+    <div class="pf-card">
+      <div class="pf-card-head">
+        <h2 class="pf-card-title">Pages Owned <span style="color:#9ca3af;font-weight:400;">({{ owned_pages|length }})</span></h2>
+      </div>
+      <div class="pf-tile-list">
+        {% for pg in owned_pages %}
+        <a href="{% url 'page_detail' pg.pk %}" class="pf-tile">
+          {% if pg.logo %}<img src="{{ pg.logo.url }}" class="pf-tile-img" alt="{{ pg.title }}">
+          {% else %}<div class="pf-tile-icon">📄</div>{% endif %}
+          <div class="pf-tile-info">
+            <div class="pf-tile-name">{{ pg.title }}</div>
+            <div class="pf-tile-sub">{{ pg.get_industry_display }} · {{ pg.followers.count }} followers</div>
+          </div>
+          <span class="pf-tile-badge">Owner</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if followed_pages %}
+    <div class="pf-card">
+      <div class="pf-card-head">
+        <h2 class="pf-card-title">Following <span style="color:#9ca3af;font-weight:400;">({{ followed_pages|length }})</span></h2>
+      </div>
+      <div class="pf-tile-list">
+        {% for pg in followed_pages %}
+        <a href="{% url 'page_detail' pg.pk %}" class="pf-tile">
+          {% if pg.logo %}<img src="{{ pg.logo.url }}" class="pf-tile-img" alt="{{ pg.title }}">
+          {% else %}<div class="pf-tile-icon">📄</div>{% endif %}
+          <div class="pf-tile-info">
+            <div class="pf-tile-name">{{ pg.title }}</div>
+            <div class="pf-tile-sub">{{ pg.get_industry_display }} · {{ pg.followers.count }} followers</div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if not owned_pages and not followed_pages %}
+    <div class="pf-card">
+      <div class="pf-empty">
+        <div class="pf-empty-icon">📄</div>
+        <div class="pf-empty-text">No pages yet</div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+
+  <!-- ── PANEL: Patents ───────────────────────────────────────── -->
+  {% if patents_count %}
+  <div class="pf-panel" id="tab-patents">
+    <div class="pf-card">
+      <div class="pf-card-head">
+        <h2 class="pf-card-title">Patents <span style="color:#9ca3af;font-weight:400;">({{ patents_count }})</span></h2>
+      </div>
+      {% for pat in patents %}
+      <div class="pf-patent-item">
+        <div class="pf-patent-name">{{ pat.title }}</div>
+        <div class="pf-patent-desc">{{ pat.description|truncatewords:25 }}</div>
+        <div class="pf-patent-date">Filed: {{ pat.filed_date|date:"M d, Y" }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+
+  <!-- ── PANEL: Companies ─────────────────────────────────────── -->
+  {% if companies %}
+  <div class="pf-panel" id="tab-companies">
+    <div class="pf-card">
+      <div class="pf-card-head">
+        <h2 class="pf-card-title">Companies <span style="color:#9ca3af;font-weight:400;">({{ companies|length }})</span></h2>
+      </div>
+      <div class="pf-tile-list">
+        {% for co in companies %}
+        <a href="{% url 'company_profile' co.id %}" class="pf-tile">
+          <img src="{{ co.logo.url }}" class="pf-tile-img" alt="{{ co.name }}">
+          <div class="pf-tile-info">
+            <div class="pf-tile-name">{{ co.name }}</div>
+            <div class="pf-tile-sub">{{ co.get_industry_display }} · {{ co.location|default:"—" }}</div>
+          </div>
+          {% if co.is_verified %}
+          <span class="pf-tile-badge" style="background:#d1fae5;color:#065f46;">✓ Verified</span>
+          {% endif %}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+
+  <!-- ── PANEL: Proposals (own profile only) ──────────────────── -->
+  {% if request.user == profile.user %}
+  <div class="pf-panel" id="tab-proposals">
+    <div class="pf-grid" style="grid-template-columns:1fr 1fr;">
+
+      <div class="pf-card">
+        <div class="pf-card-head"><h2 class="pf-card-title">Sent Proposals</h2></div>
+        {% if proposals_sent %}
+          {% for p in proposals_sent %}
+          <div class="pf-proposal-item">
+            <div class="pf-proposal-title">
+              {{ p.post.title|default:"Untitled Post" }}
+              <span class="pf-proposal-status pf-proposal-status--{{ p.status }}">{{ p.status|title }}</span>
+            </div>
+            <div class="pf-proposal-meta">{{ p.created_at|timesince }} ago{% if p.amount %} · ${{ p.amount|floatformat:0 }}{% endif %}</div>
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="pf-empty"><div class="pf-empty-text">No sent proposals</div></div>
+        {% endif %}
+      </div>
+
+      <div class="pf-card">
+        <div class="pf-card-head"><h2 class="pf-card-title">Received Proposals</h2></div>
+        {% if proposals_recv %}
+          {% for p in proposals_recv %}
+          <div class="pf-proposal-item">
+            <div class="pf-proposal-title">
+              From: {{ p.from_investor.get_full_name|default:p.from_investor.username }}
+              <span class="pf-proposal-status pf-proposal-status--{{ p.status }}">{{ p.status|title }}</span>
+            </div>
+            <div class="pf-proposal-meta">{{ p.created_at|timesince }} ago · {{ p.post.title|default:"Post" }}</div>
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="pf-empty"><div class="pf-empty-text">No received proposals</div></div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+  {% endif %}
+
+</div><!-- /pf-wrap -->
+
+<script>
+(function(){
+  var tabs = document.querySelectorAll('.pf-tab');
+  var panels = document.querySelectorAll('.pf-panel');
+
+  function activateTab(tabName) {
+    tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.tab === tabName); });
+    panels.forEach(function(p){ p.classList.toggle('active', p.id === 'tab-' + tabName); });
+    // Update URL hash without scroll jump
+    history.replaceState(null, '', '#' + tabName);
+  }
+
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){ activateTab(t.dataset.tab); });
+  });
+
+  // Expose for "See all" buttons
+  window.switchTab = activateTab;
+
+  // Restore tab from URL hash
+  var hash = location.hash.replace('#','');
+  if (hash) activateTab(hash);
+})();
+</script>
+{% endblock %}

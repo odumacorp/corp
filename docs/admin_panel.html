@@ -332,6 +332,21 @@
         <span class="nav-icon"><i class="fi fi-rr-paper-plane"></i></span>
         <span>Contact Submissions</span>
       </a>
+      <a href="{% url 'admin_stage_approvals' %}" class="adm-nav-link">
+        <span class="nav-icon">🚀</span>
+        <span>Stage Approvals</span>
+        {% if pending_stage_count %}<span class="adm-nav-count">{{ pending_stage_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'admin_verification_queue' %}" class="adm-nav-link">
+        <span class="nav-icon">✓</span>
+        <span>Verification Queue</span>
+        {% if pending_verification_count %}<span class="adm-nav-count">{{ pending_verification_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'admin_project_review_queue' %}" class="adm-nav-link">
+        <span class="nav-icon">🔍</span>
+        <span>Project Reviews</span>
+        {% if pending_review_count %}<span class="adm-nav-count">{{ pending_review_count }}</span>{% endif %}
+      </a>
     </div>
     <div class="adm-sidebar-bottom">
       <a href="{% url 'index' %}" class="adm-sidebar-back">← Back to site</a>
@@ -2326,7 +2341,7 @@
             <tr>
               <td>
                 {% if ev.shared_by %}
-                  <a href="{% url 'profile' ev.shared_by.username %}">{{ ev.shared_by.get_full_name|default:ev.shared_by.username }}</a>
+                  <a href="{% url 'profile_view' ev.shared_by.id %}">{{ ev.shared_by.get_full_name|default:ev.shared_by.username }}</a>
                 {% else %}
                   <span style="color:var(--muted);">Anonymous</span>
                 {% endif %}

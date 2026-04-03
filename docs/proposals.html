@@ -1,17 +1,354 @@
 {% extends '_partials/base.html' %}
 {% load static %}
+
+{% block title %}Proposals &amp; Collaborations — Oduma Connect{% endblock %}
+
 {% block content %}
-<h3>Investor Proposals</h3>
-{% if proposals %}
-    <ul>
-    {% for proposal in proposals %}
-        <li>
-            <strong>{{ proposal.investor.get_full_name }}</strong> - {{ proposal.about }} <br>
-            <small>Interests: {{ proposal.interests }}</small>
-        </li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No proposals available.</p>
-{% endif %}
+<div class="prp-page">
+
+  <div class="prp-head">
+    <div>
+      <h1 class="prp-title">Proposals &amp; Collaborations</h1>
+      <p class="prp-sub">Manage incoming investment proposals and collaboration requests for your projects.</p>
+    </div>
+    {% if pending_proposals or pending_collabs %}
+    <div class="prp-badge-row">
+      {% if pending_proposals %}<span class="prp-badge prp-badge--proposal">{{ pending_proposals }} new proposal{{ pending_proposals|pluralize }}</span>{% endif %}
+      {% if pending_collabs %}<span class="prp-badge prp-badge--collab">{{ pending_collabs }} new collaboration{{ pending_collabs|pluralize }}</span>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Tabs -->
+  <div class="prp-tabs" role="tablist">
+    <button class="prp-tab active" onclick="switchTab('incoming')" id="tab-incoming">
+      Incoming <span class="prp-tab-count">{{ incoming_proposals.count|add:incoming_collabs.count }}</span>
+    </button>
+    <button class="prp-tab" onclick="switchTab('sent')" id="tab-sent">
+      Sent <span class="prp-tab-count">{{ sent_proposals.count|add:sent_collabs.count }}</span>
+    </button>
+  </div>
+
+  <!-- ══ INCOMING ══ -->
+  <div id="pane-incoming" class="prp-pane">
+
+    <h2 class="prp-section-title">📈 Investment Proposals {% if incoming_proposals %}<span class="prp-count">{{ incoming_proposals.count }}</span>{% endif %}</h2>
+
+    {% if incoming_proposals %}
+      {% for proposal in incoming_proposals %}
+      <div class="prp-card prp-card--{{ proposal.status }}">
+        <div class="prp-card__top">
+          <div class="prp-card__from">
+            <div class="prp-avatar">{{ proposal.from_user.first_name|first|upper }}{{ proposal.from_user.last_name|first|upper }}</div>
+            <div>
+              <a href="{% url 'profile_view' id=proposal.from_user.id %}" class="prp-card__name" style="text-decoration:none;color:inherit;">{{ proposal.from_user.get_full_name|default:proposal.from_user.username }}</a>
+              <span class="prp-card__role">{{ proposal.from_user.user_type|title }}</span>
+            </div>
+          </div>
+          <div class="prp-card__meta">
+            <span class="prp-status prp-status--{{ proposal.status }}">{{ proposal.get_status_display }}</span>
+            <span class="prp-card__date">{{ proposal.created_at|date:"M j, Y" }}</span>
+          </div>
+        </div>
+        <div class="prp-card__project">Project: <a href="{% url 'project_detail' pk=proposal.project.pk %}">{{ proposal.project.title }}</a></div>
+        {% if proposal.amount %}<div class="prp-card__amount">💰 Proposed: <strong>{{ proposal.amount }}</strong></div>{% endif %}
+        {% if proposal.message %}<blockquote class="prp-card__msg">{{ proposal.message }}</blockquote>{% endif %}
+        {% if proposal.status == 'pending' %}
+        <div class="prp-card__actions">
+          <div class="prp-agreement-notice">
+            <span>⚖️</span>
+            <span>By accepting, you agree to the <a href="{% url 'privacy_policy' %}#contract-inv-inn" target="_blank">Investor ↔ Innovator Platform Agreement</a> and the 5–10% Oduma Corp equity share on project completion.</span>
+          </div>
+          <div class="prp-card__btns" style="flex-wrap:wrap;gap:8px;">
+            <form method="POST" action="{% url 'agree_to_proposal' proposal_id=proposal.pk %}">{% csrf_token %}
+              <button type="submit" class="prp-btn prp-btn--accept">✓ Accept</button>
+            </form>
+            <form method="POST" action="{% url 'decline_proposal' proposal_id=proposal.pk %}">{% csrf_token %}
+              <button type="submit" class="prp-btn prp-btn--decline">✕ Decline</button>
+            </form>
+            <button type="button" class="prp-btn prp-btn--msg"
+                    onclick="openProposalAction('counter', {{ proposal.pk }}, '{{ proposal.from_user.get_full_name|escapejs }}')">
+              🔄 Counter Offer
+            </button>
+            <button type="button" class="prp-btn prp-btn--msg"
+                    onclick="openProposalAction('hold', {{ proposal.pk }}, '{{ proposal.from_user.get_full_name|escapejs }}')">
+              ⏸ Put On Hold
+            </button>
+            <button type="button" class="prp-btn prp-btn--msg"
+                    onclick="openProposalAction('review', {{ proposal.pk }}, '{{ proposal.from_user.get_full_name|escapejs }}')">
+              🔍 Request Review
+            </button>
+            <button type="button" class="prp-btn prp-btn--msg"
+                    onclick="openProposalAction('reply', {{ proposal.pk }}, '{{ proposal.from_user.get_full_name|escapejs }}')">
+              💬 Reply
+            </button>
+            <a href="{% url 'start_conversation' proposal.from_user.pk %}" class="prp-btn prp-btn--msg">🗨 Open Chatroom</a>
+          </div>
+        </div>
+        {% elif proposal.status == 'accepted' %}
+        <div class="prp-card__btns" style="margin-top:12px;">
+          <a href="{% url 'start_conversation' proposal.from_user.pk %}" class="prp-btn prp-btn--msg">🗨 Continue Discussion</a>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="prp-empty"><span>📭</span><p>No investment proposals yet. Once investors send proposals on your projects, they'll appear here.</p></div>
+    {% endif %}
+
+    <h2 class="prp-section-title" style="margin-top:32px;">🤝 Collaboration Requests {% if incoming_collabs %}<span class="prp-count">{{ incoming_collabs.count }}</span>{% endif %}</h2>
+
+    {% if incoming_collabs %}
+      {% for collab in incoming_collabs %}
+      <div class="prp-card prp-card--{{ collab.status }}">
+        <div class="prp-card__top">
+          <div class="prp-card__from">
+            <div class="prp-avatar" style="background:#7c3aed;">{{ collab.from_user.first_name|first|upper }}{{ collab.from_user.last_name|first|upper }}</div>
+            <div>
+              <a href="{% url 'profile_view' id=collab.from_user.id %}" class="prp-card__name" style="text-decoration:none;color:inherit;">{{ collab.from_user.get_full_name|default:collab.from_user.username }}</a>
+              <span class="prp-card__role">{{ collab.from_user.user_type|title }}</span>
+            </div>
+          </div>
+          <div class="prp-card__meta">
+            <span class="prp-status prp-status--{{ collab.status }}">{{ collab.get_status_display }}</span>
+            <span class="prp-card__date">{{ collab.created_at|date:"M j, Y" }}</span>
+          </div>
+        </div>
+        <div class="prp-card__project">Project: <a href="{% url 'project_detail' pk=collab.project.pk %}">{{ collab.project.title }}</a></div>
+        {% if collab.message %}<blockquote class="prp-card__msg">{{ collab.message }}</blockquote>{% endif %}
+        {% if collab.status == 'pending' %}
+        <div class="prp-card__actions">
+          <div class="prp-agreement-notice">
+            <span>⚖️</span>
+            <span>By accepting, you agree to the <a href="{% url 'privacy_policy' %}#contract-inn-inn" target="_blank">Innovator ↔ Innovator Collaboration Agreement</a>. IP and contribution terms are governed by the platform agreement.</span>
+          </div>
+          <div class="prp-card__btns">
+            <form method="POST" action="{% url 'agree_to_collaboration' collab_id=collab.pk %}">{% csrf_token %}
+              <button type="submit" class="prp-btn prp-btn--accept">✓ Accept Collaboration</button>
+            </form>
+            <form method="POST" action="{% url 'decline_collaboration' collab_id=collab.pk %}">{% csrf_token %}
+              <button type="submit" class="prp-btn prp-btn--decline">✕ Decline</button>
+            </form>
+            <a href="{% url 'inbox' %}" class="prp-btn prp-btn--msg">💬 Message</a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="prp-empty"><span>📭</span><p>No collaboration requests yet. When people want to collaborate on your projects, you'll see them here.</p></div>
+    {% endif %}
+
+  </div>
+
+  <!-- ══ SENT ══ -->
+  <div id="pane-sent" class="prp-pane" style="display:none;">
+
+    <h2 class="prp-section-title">📤 Proposals You Sent</h2>
+    {% if sent_proposals %}
+      {% for proposal in sent_proposals %}
+      <div class="prp-card prp-card--{{ proposal.status }}">
+        <div class="prp-card__top">
+          <div class="prp-card__from">
+            <div class="prp-avatar" style="background:#0ea5e9;">{{ proposal.project.owner.first_name|first|upper }}{{ proposal.project.owner.last_name|first|upper }}</div>
+            <div>
+              <a href="{% url 'profile_view' id=proposal.project.owner.id %}" class="prp-card__name" style="text-decoration:none;color:inherit;">{{ proposal.project.owner.get_full_name|default:proposal.project.owner.username }}</a>
+              <span class="prp-card__role">Project Owner</span>
+            </div>
+          </div>
+          <div class="prp-card__meta">
+            <span class="prp-status prp-status--{{ proposal.status }}">{{ proposal.get_status_display }}</span>
+            <span class="prp-card__date">{{ proposal.created_at|date:"M j, Y" }}</span>
+          </div>
+        </div>
+        <div class="prp-card__project">Project: <a href="{% url 'project_detail' pk=proposal.project.pk %}">{{ proposal.project.title }}</a></div>
+        {% if proposal.amount %}<div class="prp-card__amount">💰 Amount: <strong>{{ proposal.amount }}</strong></div>{% endif %}
+        {% if proposal.message %}<blockquote class="prp-card__msg">{{ proposal.message }}</blockquote>{% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="prp-empty"><span>📬</span><p>You haven't sent any investment proposals yet.</p></div>
+    {% endif %}
+
+    <h2 class="prp-section-title" style="margin-top:32px;">📤 Collaborations You Requested</h2>
+    {% if sent_collabs %}
+      {% for collab in sent_collabs %}
+      <div class="prp-card prp-card--{{ collab.status }}">
+        <div class="prp-card__top">
+          <div class="prp-card__from">
+            <div class="prp-avatar" style="background:#7c3aed;">{{ collab.project.owner.first_name|first|upper }}{{ collab.project.owner.last_name|first|upper }}</div>
+            <div>
+              <a href="{% url 'profile_view' id=collab.project.owner.id %}" class="prp-card__name" style="text-decoration:none;color:inherit;">{{ collab.project.owner.get_full_name|default:collab.project.owner.username }}</a>
+              <span class="prp-card__role">Project Owner</span>
+            </div>
+          </div>
+          <div class="prp-card__meta">
+            <span class="prp-status prp-status--{{ collab.status }}">{{ collab.get_status_display }}</span>
+            <span class="prp-card__date">{{ collab.created_at|date:"M j, Y" }}</span>
+          </div>
+        </div>
+        <div class="prp-card__project">Project: <a href="{% url 'project_detail' pk=collab.project.pk %}">{{ collab.project.title }}</a></div>
+        {% if collab.message %}<blockquote class="prp-card__msg">{{ collab.message }}</blockquote>{% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="prp-empty"><span>📬</span><p>You haven't sent any collaboration requests yet.</p></div>
+    {% endif %}
+
+  </div>
+
+</div>
+
+<style>
+.prp-page { max-width: 800px; margin: 0 auto; padding: 32px 16px 80px; }
+.prp-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+.prp-title { font-family: var(--oc-font-serif); font-size: 1.6rem; color: var(--oc-navy); margin: 0 0 4px; }
+.prp-sub { color: var(--oc-text-secondary); font-size: .9rem; margin: 0; }
+.prp-badge-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.prp-badge { padding: 5px 14px; border-radius: 999px; font-family: var(--oc-font-sans); font-size: .78rem; font-weight: 700; }
+.prp-badge--proposal { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.prp-badge--collab   { background: #faf5ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+.prp-tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--oc-border); margin-bottom: 28px; }
+.prp-tab { background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; padding: 10px 20px; font-family: var(--oc-font-sans); font-size: .9rem; font-weight: 600; color: var(--oc-text-secondary); cursor: pointer; transition: color .15s, border-color .15s; display: flex; align-items: center; gap: 6px; }
+.prp-tab.active { color: var(--oc-primary); border-bottom-color: var(--oc-primary); }
+.prp-tab-count { background: var(--oc-primary-xlight); color: var(--oc-primary); border-radius: 999px; padding: 1px 8px; font-size: .72rem; }
+.prp-section-title { font-family: var(--oc-font-serif); font-size: 1rem; color: var(--oc-navy); margin: 0 0 16px; display: flex; align-items: center; gap: 8px; }
+.prp-count { background: var(--oc-primary-xlight); color: var(--oc-primary); border-radius: 999px; padding: 1px 10px; font-size: .75rem; font-family: var(--oc-font-sans); font-weight: 700; }
+.prp-card { background: #fff; border: 1.5px solid var(--oc-border); border-radius: 16px; padding: 20px; margin-bottom: 14px; }
+.prp-card--pending  { border-left: 4px solid #f59e0b; }
+.prp-card--accepted { border-left: 4px solid #22c55e; }
+.prp-card--declined { border-left: 4px solid #ef4444; opacity: .8; }
+.prp-card__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.prp-card__from { display: flex; align-items: center; gap: 10px; }
+.prp-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--oc-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; flex-shrink: 0; }
+.prp-card__name { display: block; font-size: .95rem; color: var(--oc-text-primary); }
+.prp-card__role { font-size: .75rem; color: var(--oc-text-muted); }
+.prp-card__meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.prp-card__date { font-size: .75rem; color: var(--oc-text-muted); }
+.prp-status { padding: 3px 10px; border-radius: 999px; font-size: .72rem; font-weight: 700; }
+.prp-status--pending  { background: #fef3c7; color: #92400e; }
+.prp-status--accepted { background: #dcfce7; color: #14532d; }
+.prp-status--declined { background: #fee2e2; color: #7f1d1d; }
+.prp-card__project { font-size: .85rem; color: var(--oc-text-secondary); margin-bottom: 8px; }
+.prp-card__project a { color: var(--oc-primary); font-weight: 600; }
+.prp-card__amount { font-size: .88rem; margin-bottom: 8px; }
+.prp-card__msg { font-size: .88rem; color: var(--oc-text-secondary); line-height: 1.65; margin: 8px 0; padding: 10px 14px; background: var(--oc-surface-alt); border-left: 3px solid var(--oc-border); border-radius: 0 8px 8px 0; font-style: italic; }
+.prp-card__actions { margin-top: 14px; border-top: 1px solid var(--oc-border); padding-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+.prp-agreement-notice { display: flex; gap: 8px; align-items: flex-start; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 10px 12px; font-size: .8rem; color: #92400e; line-height: 1.55; }
+.prp-agreement-notice a { color: #1d4ed8; font-weight: 600; }
+.prp-card__btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.prp-btn { padding: 9px 18px; border-radius: 10px; font-family: var(--oc-font-sans); font-size: .85rem; font-weight: 700; cursor: pointer; border: none; text-decoration: none; display: inline-block; transition: opacity .15s; }
+.prp-btn:hover { opacity: .85; }
+.prp-btn--accept  { background: var(--oc-primary); color: #fff; }
+.prp-btn--decline { background: #fee2e2; color: #b91c1c; }
+.prp-btn--msg     { background: var(--oc-surface-alt); color: var(--oc-primary); border: 1.5px solid var(--oc-border); }
+.prp-empty { text-align: center; padding: 40px 20px; color: var(--oc-text-muted); }
+.prp-empty span { font-size: 2.5rem; display: block; margin-bottom: 12px; }
+.prp-empty p { font-size: .9rem; max-width: 360px; margin: 0 auto; line-height: 1.65; }
+</style>
+
+<script>
+function switchTab(name) {
+  ['incoming','sent'].forEach(function(t) {
+    document.getElementById('pane-' + t).style.display = t === name ? '' : 'none';
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+  });
+}
+
+var _prpActionProposalId = null;
+var _prpActionType = null;
+
+var prpActionConfig = {
+  counter: {
+    title: '🔄 Send Counter Offer',
+    placeholder: 'Describe your counter offer — e.g., different amount, adjusted equity, or revised terms…',
+    submitLabel: 'Send Counter Offer',
+    status: 'countered',
+  },
+  hold: {
+    title: '⏸ Put Proposal On Hold',
+    placeholder: 'Let the investor know why you\'re putting this on hold and when you\'ll follow up…',
+    submitLabel: 'Put On Hold',
+    status: 'on_hold',
+  },
+  review: {
+    title: '🔍 Request More Information',
+    placeholder: 'Specify what additional details or documents you need to review this proposal…',
+    submitLabel: 'Send Review Request',
+    status: 'reviewing',
+  },
+  reply: {
+    title: '💬 Reply to Proposal',
+    placeholder: 'Write your reply to the investor…',
+    submitLabel: 'Send Reply',
+    status: null,
+  },
+};
+
+function openProposalAction(type, proposalId, fromName) {
+  _prpActionProposalId = proposalId;
+  _prpActionType = type;
+  var cfg = prpActionConfig[type];
+  document.getElementById('prp-action-title').textContent = cfg.title;
+  document.getElementById('prp-action-from').textContent = 'To: ' + fromName;
+  document.getElementById('prp-action-textarea').placeholder = cfg.placeholder;
+  document.getElementById('prp-action-submit').textContent = cfg.submitLabel;
+  document.getElementById('prp-action-modal').style.display = 'flex';
+  setTimeout(function(){ document.getElementById('prp-action-textarea').focus(); }, 60);
+}
+
+function closeProposalAction() {
+  document.getElementById('prp-action-modal').style.display = 'none';
+  document.getElementById('prp-action-textarea').value = '';
+}
+
+document.getElementById('prp-action-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var msg = document.getElementById('prp-action-textarea').value.trim();
+  if (!msg) return;
+  var cfg = prpActionConfig[_prpActionType];
+  var payload = { message: msg, action: _prpActionType };
+  if (cfg.status) payload.status = cfg.status;
+
+  fetch('/proposals/' + _prpActionProposalId + '/action/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    },
+    body: JSON.stringify(payload),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.success) {
+      closeProposalAction();
+      window.location.reload();
+    } else {
+      alert(d.error || 'Something went wrong.');
+    }
+  })
+  .catch(function() { alert('Network error. Please try again.'); });
+});
+</script>
+
+<!-- Proposal Action Modal (#8) -->
+<div id="prp-action-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:28px;width:100%;max-width:500px;position:relative;margin:16px;">
+    <button onclick="closeProposalAction()"
+            style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#6b7280;">✕</button>
+    <h3 id="prp-action-title" style="font-family:var(--oc-font-serif);color:var(--oc-navy);margin:0 0 6px;"></h3>
+    <p id="prp-action-from" style="font-size:.8rem;color:#6b7280;margin:0 0 16px;"></p>
+    <form id="prp-action-form">
+      {% csrf_token %}
+      <textarea id="prp-action-textarea" rows="5"
+                style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:12px;font-size:.9rem;resize:vertical;font-family:inherit;"
+                required></textarea>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+        <button type="button" onclick="closeProposalAction()" class="prp-btn prp-btn--decline">Cancel</button>
+        <button type="submit" id="prp-action-submit" class="prp-btn prp-btn--accept">Send</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 {% endblock %}

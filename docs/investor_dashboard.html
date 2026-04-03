@@ -1,966 +1,1063 @@
 {% extends '_partials/base.html' %}
 {% load static %}
 
-{% block title %}Investor Dashboard | Oduma Connect{% endblock %}
+{% block title %}Deal Flow — Investor Dashboard | Oduma Connect{% endblock %}
 
 {% block content %}
 <style>
   :root {
-    --blue:      #004AAD;
-    --blue-dark: #003490;
-    --text:      #1a1a2e;
-    --muted:     #6b7280;
-    --border:    rgba(0,0,0,0.08);
-    --card-bg:   #f9f9f9;
-    --ff-serif:  "Jacques Francois", serif;
-    --ff-sans:   "Jaldi", sans-serif;
+    --id-blue:    #1B5EC7;
+    --id-navy:    #092147;
+    --id-ink:     #0A1628;
+    --id-green:   #16a34a;
+    --id-gold:    #C9A44A;
+    --id-amber:   #d97706;
+    --id-red:     #dc2626;
+    --id-muted:   #6b7280;
+    --id-border:  #e5e7eb;
+    --id-bg:      #f4f7fb;
+    --id-card:    #ffffff;
   }
 
-  .idash-wrapper {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 28px 20px 80px;
+  /* ── Layout ── */
+  .id-shell { display:flex; min-height:calc(100vh - 62px); }
+  .id-sidebar {
+    width: 240px; flex-shrink: 0;
+    background: var(--id-navy);
+    padding: 24px 0 48px;
+    display: flex; flex-direction: column;
+    position: sticky; top: 62px;
+    height: calc(100vh - 62px); overflow-y: auto;
   }
+  .id-main { flex:1; min-width:0; background: var(--id-bg); overflow-y: auto; }
 
-  /* ---- Header ---- */
-  .idash-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
+  /* ── Sidebar ── */
+  .id-sb-profile {
+    padding: 20px 20px 24px;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    margin-bottom: 16px;
   }
-  .idash-title {
-    font-family: var(--ff-serif);
-    font-size: clamp(1.4rem, 3vw, 2rem);
-    color: var(--text);
-    margin: 0;
+  .id-sb-av {
+    width: 52px; height: 52px; border-radius: 50%;
+    object-fit: cover; border: 2px solid rgba(255,255,255,.3);
+    margin-bottom: 10px; display: block;
   }
-  .idash-subtitle {
-    font-family: var(--ff-sans);
-    font-size: 0.9rem;
-    color: var(--muted);
-    margin: 4px 0 0;
+  .id-sb-av-init {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: rgba(255,255,255,.15); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem;
+    font-weight: 800; margin-bottom: 10px;
   }
+  .id-sb-name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: .95rem; color: #fff; }
+  .id-sb-role { font-size: .72rem; color: rgba(255,255,255,.6); letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; }
+  .id-sb-ticket {
+    margin-top: 10px; padding: 8px 12px;
+    background: rgba(255,255,255,.08); border-radius: 8px;
+    font-size: .76rem; color: rgba(255,255,255,.8);
+  }
+  .id-sb-ticket strong { color: #fff; display: block; font-size: .8rem; }
 
-  /* ---- Stats Strip ---- */
-  .idash-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 14px;
-    margin-bottom: 30px;
+  .id-sb-nav { flex: 1; padding: 0 12px; }
+  .id-sb-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 8px;
+    color: rgba(255,255,255,.7); text-decoration: none;
+    font-size: .85rem; font-weight: 600; margin-bottom: 2px;
+    transition: background .15s, color .15s; cursor: pointer;
+    border: none; background: none; width: 100%; text-align: left;
   }
-  .idash-stat {
-    background: #fff;
-    border-radius: 14px;
-    border: 1px solid var(--border);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    padding: 18px 16px;
-    text-align: center;
+  .id-sb-link:hover, .id-sb-link.active {
+    background: rgba(255,255,255,.12); color: #fff;
   }
-  .idash-stat-num {
-    font-family: var(--ff-serif);
-    font-size: 1.8rem;
-    color: var(--blue);
-    line-height: 1;
-    margin-bottom: 4px;
+  .id-sb-link .id-sb-ic { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+  .id-sb-badge {
+    margin-left: auto; background: var(--id-blue);
+    color: #fff; font-size: .65rem; font-weight: 800;
+    padding: 1px 7px; border-radius: 10px;
   }
-  .idash-stat-label {
-    font-family: var(--ff-sans);
-    font-size: 0.78rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+  .id-sb-badge--amber { background: var(--id-amber); }
+  .id-sb-divider { height: 1px; background: rgba(255,255,255,.08); margin: 10px 12px; }
 
-  /* ---- Tabs ---- */
-  .idash-tabs {
-    display: flex;
-    gap: 4px;
-    border-bottom: 2px solid var(--border);
-    margin-bottom: 28px;
-    overflow-x: auto;
-    padding-bottom: 0;
-    scrollbar-width: none;
-  }
-  .idash-tabs::-webkit-scrollbar { display: none; }
-  .idash-tab {
-    font-family: var(--ff-sans);
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: var(--muted);
-    padding: 10px 20px;
-    border: none;
-    background: transparent;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: color 0.2s, border-color 0.2s;
-    text-decoration: none;
-  }
-  .idash-tab:hover { color: var(--blue); }
-  .idash-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+  /* ── Content area ── */
+  .id-content { padding: 28px 28px 80px; max-width: 1100px; }
 
-  /* ---- Tab Panels ---- */
-  .idash-panel { display: none; }
-  .idash-panel.active { display: block; }
+  /* ── Panel tabs ── */
+  .id-panel { display: none; }
+  .id-panel.active { display: block; }
 
-  /* ---- Section heading ---- */
-  .idash-section-title {
-    font-family: var(--ff-serif);
-    font-size: 1.05rem;
-    color: var(--text);
-    margin: 0 0 14px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
+  /* ── Page header ── */
+  .id-ph { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+  .id-ph-title {
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem;
+    font-weight: 800; color: var(--id-ink); margin: 0 0 4px;
+    letter-spacing: -.03em;
   }
-  .idash-section { margin-bottom: 36px; }
+  .id-ph-sub { font-size: .875rem; color: var(--id-muted); margin: 0; }
 
-  /* ---- Connection cards ---- */
-  .idash-conn-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 14px;
+  /* ── Stats row ── */
+  .id-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px,1fr)); gap: 12px; margin-bottom: 28px; }
+  .id-stat {
+    background: var(--id-card); border: 1px solid var(--id-border);
+    border-radius: 12px; padding: 16px 14px; text-align: center;
+    box-shadow: 0 1px 6px rgba(0,0,0,.05); cursor: pointer;
+    transition: box-shadow .2s, transform .15s;
   }
-  .idash-conn-card {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px 16px 16px;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: box-shadow 0.2s, transform 0.2s;
+  .id-stat:hover { box-shadow: 0 4px 16px rgba(27,94,199,.12); transform: translateY(-2px); }
+  .id-stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--id-blue); line-height: 1; margin-bottom: 4px; }
+  .id-stat-label { font-size: .7rem; color: var(--id-muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+
+  /* ── Deal Flow filter bar ── */
+  .id-filter-bar {
+    background: var(--id-card); border: 1px solid var(--id-border);
+    border-radius: 12px; padding: 16px 20px;
+    display: flex; align-items: center; gap: 12px;
+    flex-wrap: wrap; margin-bottom: 20px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.04);
   }
-  .idash-conn-card:hover { box-shadow: 0 6px 20px rgba(0,74,173,0.1); transform: translateY(-2px); }
-  .idash-conn-av {
-    width: 58px; height: 58px; border-radius: 50%;
-    object-fit: cover; margin: 0 auto 10px;
-    display: block;
+  .id-filter-bar form { display: contents; }
+  .id-filter-select, .id-filter-input {
+    border: 1px solid var(--id-border); border-radius: 8px;
+    padding: 7px 12px; font-size: .82rem; color: var(--id-ink);
+    background: #f9fafb; min-width: 130px; flex: 1;
+    font-family: inherit;
   }
-  .idash-conn-av-init {
-    width: 58px; height: 58px; border-radius: 50%;
-    background: linear-gradient(135deg,#004AAD,#0062d4);
-    color: #fff; display: flex; align-items: center; justify-content: center;
-    font-family: var(--ff-serif); font-size: 1.1rem;
+  .id-filter-select:focus, .id-filter-input:focus {
+    outline: none; border-color: var(--id-blue);
+    background: #fff; box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+  }
+  .id-filter-btn {
+    background: var(--id-blue); color: #fff; border: none;
+    border-radius: 8px; padding: 8px 18px; font-size: .82rem;
+    font-weight: 700; cursor: pointer; white-space: nowrap; font-family: inherit;
+  }
+  .id-filter-btn:hover { background: #144FA8; }
+  .id-filter-clear { font-size: .78rem; color: var(--id-muted); text-decoration: none; white-space: nowrap; }
+  .id-filter-clear:hover { color: var(--id-blue); }
+
+  /* ── Deal flow project grid ── */
+  .id-df-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 16px; }
+  .id-df-card {
+    background: var(--id-card); border: 1px solid var(--id-border);
+    border-radius: 14px; overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06); transition: box-shadow .2s, transform .15s;
+  }
+  .id-df-card:hover { box-shadow: 0 6px 24px rgba(27,94,199,.13); transform: translateY(-3px); }
+  .id-df-img { width: 100%; height: 150px; object-fit: cover; display: block; }
+  .id-df-img-placeholder {
+    width: 100%; height: 150px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #e8f0fe, #c7d8f8); font-size: 2.5rem;
+    color: rgba(27,94,199,.25);
+  }
+  .id-df-body { padding: 16px 18px 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .id-df-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .id-df-tag {
+    font-size: .66rem; font-weight: 700; letter-spacing: .06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 20px; white-space: nowrap;
+  }
+  .id-df-tag--industry { background: #e0e8ff; color: #3730a3; }
+  .id-df-tag--stage    { background: #dcfce7; color: #166534; }
+  .id-df-tag--funding  { background: #fef3c7; color: #92400e; }
+  .id-df-title {
+    font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 800;
+    color: var(--id-ink); text-decoration: none; display: block; line-height: 1.3;
+    letter-spacing: -.02em;
+  }
+  .id-df-title:hover { color: var(--id-blue); }
+  .id-df-problem { font-size: .82rem; color: #4b5563; line-height: 1.6; flex: 1; }
+  .id-df-meta { font-size: .75rem; color: var(--id-muted); }
+  .id-df-meta a { color: var(--id-blue); text-decoration: none; }
+  .id-df-funding-ask {
+    font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 800;
+    color: var(--id-blue); letter-spacing: -.02em;
+  }
+  .id-df-readiness { display: flex; align-items: center; gap: 8px; }
+  .id-df-score-bar { flex: 1; height: 4px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+  .id-df-score-fill { height: 100%; border-radius: 3px; background: var(--id-blue); }
+  .id-df-score-fill.high   { background: #16a34a; }
+  .id-df-score-fill.medium { background: var(--id-blue); }
+  .id-df-score-fill.low    { background: var(--id-amber); }
+  .id-df-actions { display: flex; gap: 6px; flex-wrap: wrap; padding-top: 4px; border-top: 1px solid #f3f4f6; margin-top: 4px; }
+
+  /* ── Buttons ── */
+  .id-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 14px; border-radius: 8px;
+    font-size: .78rem; font-weight: 700; text-decoration: none;
+    cursor: pointer; border: none; white-space: nowrap;
+    transition: opacity .15s; font-family: inherit;
+  }
+  .id-btn:hover { opacity: .85; }
+  .id-btn-primary  { background: var(--id-blue); color: #fff; }
+  .id-btn-outline  { background: transparent; color: var(--id-blue); border: 1.5px solid var(--id-blue); }
+  .id-btn-ghost    { background: #f0f4ff; color: var(--id-blue); }
+  .id-btn-green    { background: var(--id-green); color: #fff; }
+  .id-btn-amber    { background: var(--id-amber); color: #fff; }
+  .id-btn-interest { background: #f0f4ff; color: var(--id-blue); border: 1.5px solid transparent; }
+  .id-btn-interest.active { background: #e0e8ff; color: #3730a3; border-color: #c7d2fe; }
+  .id-btn-save     { background: #f0f4ff; color: var(--id-blue); }
+  .id-btn-save.saved { background: #dcfce7; color: var(--id-green); }
+
+  /* ── Row items (proposals, collabs) ── */
+  .id-row-list { display: flex; flex-direction: column; gap: 10px; }
+  .id-row-item {
+    background: var(--id-card); border: 1px solid var(--id-border);
+    border-radius: 12px; padding: 14px 18px;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap;
+  }
+  .id-row-label { font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 700; color: var(--id-ink); text-decoration: none; display: block; margin-bottom: 3px; }
+  .id-row-label:hover { color: var(--id-blue); }
+  .id-row-sub { font-size: .77rem; color: var(--id-muted); line-height: 1.5; }
+  .id-row-sub a { color: var(--id-blue); text-decoration: none; }
+  .id-row-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+  .id-amount { font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 800; color: var(--id-green); }
+
+  /* ── Badges ── */
+  .id-badge {
+    display: inline-block; padding: 2px 10px; border-radius: 20px;
+    font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap;
+  }
+  .id-b-blue   { background: rgba(27,94,199,.1); color: var(--id-blue); }
+  .id-b-green  { background: rgba(22,163,74,.1); color: var(--id-green); }
+  .id-b-yellow { background: rgba(217,119,6,.12); color: var(--id-amber); }
+  .id-b-red    { background: rgba(220,38,38,.1); color: var(--id-red); }
+  .id-b-gray   { background: rgba(107,114,128,.1); color: var(--id-muted); }
+  .id-b-count  { background: var(--id-blue); color: #fff; border-radius: 20px; padding: 0 7px; font-size: .68rem; font-weight: 800; }
+  .id-b-count--amber { background: var(--id-amber); }
+
+  /* ── Section ── */
+  .id-section { margin-bottom: 36px; }
+  .id-section-title {
+    font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 800;
+    color: var(--id-ink); margin: 0 0 16px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--id-border);
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    letter-spacing: -.02em;
+  }
+  .id-count { font-size: .78rem; color: var(--id-muted); font-weight: 400; font-family: inherit; }
+
+  /* ── Empty state ── */
+  .id-empty {
+    text-align: center; padding: 40px 20px; font-size: .875rem; color: var(--id-muted);
+    background: var(--id-card); border-radius: 14px; border: 1.5px dashed #c3d4ec;
+  }
+  .id-empty-icon { font-size: 2.2rem; display: block; margin-bottom: 10px; opacity: .4; }
+
+  /* ── Connection cards ── */
+  .id-conn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: 14px; }
+  .id-conn-card {
+    background: var(--id-card); border: 1px solid var(--id-border);
+    border-radius: 14px; padding: 20px 16px 16px; text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,.05); transition: box-shadow .2s, transform .15s;
+  }
+  .id-conn-card:hover { box-shadow: 0 6px 20px rgba(27,94,199,.1); transform: translateY(-2px); }
+  .id-conn-av { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 10px; }
+  .id-conn-av-init {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: linear-gradient(135deg, #1B5EC7, #3D78D8); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 800;
     margin: 0 auto 10px;
   }
-  .idash-conn-name {
-    font-family: var(--ff-serif); font-size: 0.88rem;
-    color: var(--text); text-decoration: none;
-    display: block; margin-bottom: 4px;
-  }
-  .idash-conn-name:hover { color: var(--blue); text-decoration: underline; }
-  .idash-conn-role {
-    font-family: var(--ff-sans); font-size: 0.74rem;
-    color: var(--muted); text-transform: capitalize;
-  }
-  .idash-conn-company {
-    font-family: var(--ff-sans); font-size: 0.74rem;
-    color: var(--muted); margin-top: 2px;
-  }
+  .id-conn-name { font-family: 'Space Grotesk', sans-serif; font-size: .88rem; font-weight: 700; color: var(--id-ink); text-decoration: none; display: block; margin-bottom: 3px; }
+  .id-conn-name:hover { color: var(--id-blue); }
+  .id-conn-role { font-size: .72rem; color: var(--id-muted); text-transform: capitalize; }
+  .id-conn-btns { display: flex; gap: 6px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
 
-  /* ---- Post cards (liked / interested) ---- */
-  .idash-post-list { display: flex; flex-direction: column; gap: 12px; }
-  .idash-post-card {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px 20px;
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    transition: box-shadow 0.2s;
+  /* ── Pending connections ── */
+  .id-pend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 12px; }
+  .id-pend-card {
+    background: var(--id-card); border: 1px solid var(--id-border);
+    border-radius: 14px; padding: 16px; display: flex;
+    align-items: center; gap: 12px;
   }
-  .idash-post-card:hover { box-shadow: 0 4px 16px rgba(0,74,173,0.09); }
-  .idash-post-av {
-    width: 40px; height: 40px; border-radius: 50%;
-    object-fit: cover; flex-shrink: 0;
+  .id-pend-av { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+  .id-pend-av-init {
+    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+    background: #e5e7eb; color: var(--id-muted);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 800;
   }
-  .idash-post-av-init {
-    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
-    background: linear-gradient(135deg,#004AAD,#0062d4);
-    color: #fff; display: flex; align-items: center; justify-content: center;
-    font-family: var(--ff-serif); font-size: 0.88rem;
-  }
-  .idash-post-meta {
-    font-family: var(--ff-sans); font-size: 0.76rem;
-    color: var(--muted); margin-bottom: 4px;
-  }
-  .idash-post-title {
-    font-family: var(--ff-serif); font-size: 0.95rem;
-    color: var(--text); text-decoration: none;
-    display: block; margin-bottom: 4px;
-  }
-  .idash-post-title:hover { color: var(--blue); text-decoration: underline; }
-  .idash-post-excerpt {
-    font-family: var(--ff-sans); font-size: 0.82rem;
-    color: var(--muted); line-height: 1.5;
-  }
-  .idash-badge {
-    display: inline-block;
-    padding: 2px 10px; border-radius: 20px;
-    font-family: var(--ff-sans); font-size: 0.7rem; font-weight: 700;
-    letter-spacing: 0.4px; text-transform: uppercase;
-  }
-  .idash-badge-blue   { background: rgba(0,74,173,0.1); color: var(--blue); }
-  .idash-badge-green  { background: rgba(16,185,129,0.1); color: #059669; }
-  .idash-badge-yellow { background: rgba(245,158,11,0.12); color: #d97706; }
-  .idash-badge-red    { background: rgba(239,68,68,0.1); color: #dc2626; }
-  .idash-badge-gray   { background: rgba(107,114,128,0.1); color: var(--muted); }
+  .id-pend-name { font-family: 'Space Grotesk', sans-serif; font-size: .88rem; font-weight: 700; color: var(--id-ink); text-decoration: none; display: block; }
+  .id-pend-btns { display: flex; gap: 6px; margin-top: 6px; }
+  .id-accept-btn { padding: 4px 12px; border-radius: 8px; font-size: .75rem; font-weight: 700; background: var(--id-blue); color: #fff; border: none; cursor: pointer; font-family: inherit; }
+  .id-reject-btn { padding: 4px 12px; border-radius: 8px; font-size: .75rem; font-weight: 700; background: #fee2e2; color: var(--id-red); border: none; cursor: pointer; font-family: inherit; }
 
-  /* ---- Proposal / collab rows ---- */
-  .idash-row-list { display: flex; flex-direction: column; gap: 10px; }
-  .idash-row-item {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-    flex-wrap: wrap;
+  /* ── Investor profile form ── */
+  .id-pf-card { background: var(--id-card); border: 1px solid var(--id-border); border-radius: 16px; padding: 28px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+  .id-pf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .id-pf-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+  .id-pf-label { font-size: .8rem; font-weight: 700; color: #374151; }
+  .id-pf-hint  { font-size: .74rem; color: var(--id-muted); }
+  .id-pf-input, .id-pf-textarea, .id-pf-select {
+    border: 1.5px solid var(--id-border); border-radius: 8px;
+    padding: 9px 12px; font-size: .875rem; font-family: inherit; color: var(--id-ink);
+    background: #f9fafb; transition: border-color .15s;
   }
-  .idash-row-left { flex: 1; min-width: 0; }
-  .idash-row-label {
-    font-family: var(--ff-serif); font-size: 0.9rem;
-    color: var(--text); text-decoration: none;
+  .id-pf-input:focus, .id-pf-textarea:focus, .id-pf-select:focus {
+    outline: none; border-color: var(--id-blue); background: #fff;
+    box-shadow: 0 0 0 3px rgba(27,94,199,.1);
   }
-  .idash-row-label:hover { color: var(--blue); text-decoration: underline; }
-  .idash-row-sub {
-    font-family: var(--ff-sans); font-size: 0.78rem;
-    color: var(--muted); margin-top: 2px;
-  }
-  .idash-amount {
-    font-family: var(--ff-serif); font-size: 0.88rem;
-    color: #059669; white-space: nowrap;
-  }
+  .id-pf-textarea { resize: vertical; min-height: 90px; }
+  .id-pf-save { background: var(--id-blue); color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-size: .875rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .id-pf-save:hover { background: #144FA8; }
 
-  /* ---- Pending connection cards ---- */
-  .idash-pending-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 12px;
-  }
-  .idash-pending-card {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  }
-  .idash-pending-av {
-    width: 46px; height: 46px; border-radius: 50%;
-    object-fit: cover; flex-shrink: 0;
-  }
-  .idash-pending-av-init {
-    width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
-    background: linear-gradient(135deg,#6b7280,#9ca3af);
-    color: #fff; display: flex; align-items: center; justify-content: center;
-    font-family: var(--ff-serif); font-size: 0.95rem;
-  }
-  .idash-pending-name {
-    font-family: var(--ff-serif); font-size: 0.9rem;
-    color: var(--text); text-decoration: none;
-    display: block;
-  }
-  .idash-pending-name:hover { color: var(--blue); text-decoration: underline; }
-  .idash-pending-actions { display: flex; gap: 6px; margin-top: 6px; }
-  .idash-accept-btn, .idash-reject-btn {
-    padding: 4px 12px; border-radius: 8px;
-    font-family: var(--ff-sans); font-size: 0.76rem; font-weight: 700;
-    border: none; cursor: pointer; transition: opacity 0.2s;
-  }
-  .idash-accept-btn { background: var(--blue); color: #fff; }
-  .idash-accept-btn:hover { opacity: 0.85; }
-  .idash-reject-btn { background: #fee2e2; color: #dc2626; }
-  .idash-reject-btn:hover { opacity: 0.85; }
+  /* ── Pitch request modal ── */
+  .id-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 9000; display: none; align-items: center; justify-content: center; }
+  .id-modal-overlay.open { display: flex; }
+  .id-modal { background: #fff; border-radius: 18px; padding: 28px; width: 90%; max-width: 460px; position: relative; }
+  .id-modal-close { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--id-muted); }
+  .id-modal h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--id-ink); margin: 0 0 6px; letter-spacing: -.02em; }
+  .id-modal p  { font-size: .83rem; color: var(--id-muted); margin: 0 0 16px; }
+  .id-modal textarea { width: 100%; border: 1.5px solid var(--id-border); border-radius: 8px; padding: 10px 12px; font-size: .875rem; font-family: inherit; resize: vertical; min-height: 90px; box-sizing: border-box; }
+  .id-modal textarea:focus { outline: none; border-color: var(--id-blue); }
+  .id-modal-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; }
 
-  /* ---- Empty state ---- */
-  .idash-empty {
-    text-align: center;
-    padding: 32px 20px;
-    font-family: var(--ff-sans);
-    font-size: 0.88rem;
-    color: var(--muted);
-    background: #fff;
-    border-radius: 14px;
-    border: 1px dashed var(--border);
+  /* ── Proposal modal ── */
+  .id-prop-modal .id-modal { max-width: 480px; }
+  .id-prop-field { margin-bottom: 12px; }
+  .id-prop-label { display: block; font-size: .8rem; font-weight: 700; color: #374151; margin-bottom: 5px; }
+  .id-prop-input, .id-prop-textarea {
+    width: 100%; border: 1.5px solid var(--id-border); border-radius: 8px;
+    padding: 8px 12px; font-size: .875rem; font-family: inherit;
+    box-sizing: border-box;
   }
-  .idash-empty i { font-size: 1.4rem; display: block; margin-bottom: 8px; opacity: 0.4; }
+  .id-prop-input:focus, .id-prop-textarea:focus { outline: none; border-color: var(--id-blue); }
 
-  @media (max-width: 600px) {
-    .idash-tabs { gap: 0; }
-    .idash-tab { padding: 10px 14px; font-size: 0.82rem; }
-    .idash-conn-grid { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 900px) {
+    .id-sidebar { display: none; }
+    .id-content { padding: 20px 16px 60px; }
+    .id-df-grid { grid-template-columns: 1fr; }
+    .id-pf-row  { grid-template-columns: 1fr; }
   }
 </style>
 
-<div class="idash-wrapper">
+<div class="id-shell">
 
-  <!-- Header -->
-  <div class="idash-header">
-    <div>
-      <h1 class="idash-title">Investor Dashboard</h1>
-      <p class="idash-subtitle" style="margin-bottom:4px;">Welcome back, {{ user.first_name|default:user.username }}</p>
-      <a href="{% url 'my_profile' %}" style="font-family:var(--ff-sans);font-size:0.84rem;color:var(--blue);text-decoration:none;">
-        <i class="fi fi-rr-user fi-sm"></i> View My Profile
-      </a>
+  <!-- ══════ SIDEBAR ══════ -->
+  <aside class="id-sidebar">
+    <div class="id-sb-profile">
+      {% if user.userprofile.profile_pics %}
+        <img src="{{ user.userprofile.profile_pics.url }}" alt="" class="id-sb-av">
+      {% else %}
+        <div class="id-sb-av-init">{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}</div>
+      {% endif %}
+      <div class="id-sb-name">{{ user.get_full_name|default:user.username }}</div>
+      <div class="id-sb-role">Investor</div>
+      {% if investor_profile.ticket_size_min or investor_profile.ticket_size_max %}
+      <div class="id-sb-ticket">
+        <strong>Ticket Size</strong>
+        ${{ investor_profile.ticket_size_min|default:"—" }} – ${{ investor_profile.ticket_size_max|default:"—" }}
+      </div>
+      {% endif %}
     </div>
-    <a href="{% url 'app' %}" class="idash-tab" style="border:1.5px solid var(--blue); border-radius:10px; color:var(--blue); padding:9px 20px;">
-      <i class="fi fi-rr-apps fi-sm"></i> Explore Feed
-    </a>
-  </div>
 
-  <!-- Stats Strip -->
-  <div class="idash-stats">
-    <div class="idash-stat">
-      <div class="idash-stat-num">{{ connections_count }}</div>
-      <div class="idash-stat-label">Connections</div>
-    </div>
-    <div class="idash-stat">
-      <div class="idash-stat-num">{{ interested_posts|length }}</div>
-      <div class="idash-stat-label">Interests</div>
-    </div>
-    <div class="idash-stat">
-      <div class="idash-stat-num">{{ liked_posts|length }}</div>
-      <div class="idash-stat-label">Liked Posts</div>
-    </div>
-    <div class="idash-stat">
-      <div class="idash-stat-num">{{ proposals|length }}</div>
-      <div class="idash-stat-label">Proposals</div>
-    </div>
-    <div class="idash-stat">
-      <div class="idash-stat-num">{{ pending_connections|length }}</div>
-      <div class="idash-stat-label">Pending Requests</div>
-    </div>
-    <div class="idash-stat" style="cursor:pointer;" onclick="showTab('meetings',document.querySelector('[onclick*=meetings]'))">
-      <div class="idash-stat-num" style="color:#7c3aed;">{{ dash_meetings|length }}</div>
-      <div class="idash-stat-label">Meetings</div>
-    </div>
-  </div>
+    <nav class="id-sb-nav">
+      <button class="id-sb-link active" onclick="switchPanel('dealflow', this)">
+        <span class="id-sb-ic">⚡</span> Deal Flow
+        {% if deal_flow_count %}<span class="id-sb-badge">{{ deal_flow_count }}</span>{% endif %}
+      </button>
+      <button class="id-sb-link" onclick="switchPanel('overview', this)">
+        <span class="id-sb-ic">📊</span> Overview
+      </button>
+      <button class="id-sb-link" onclick="switchPanel('proposals', this)">
+        <span class="id-sb-ic">💼</span> My Proposals
+        {% if sent_proposals|length %}<span class="id-sb-badge">{{ sent_proposals|length }}</span>{% endif %}
+      </button>
+      <button class="id-sb-link" onclick="switchPanel('pitches', this)">
+        <span class="id-sb-ic">🎤</span> Pitch Requests
+        {% if my_pitch_requests|length %}<span class="id-sb-badge">{{ my_pitch_requests|length }}</span>{% endif %}
+      </button>
+      <button class="id-sb-link" onclick="switchPanel('saved', this)">
+        <span class="id-sb-ic">🔖</span> Saved
+        {% if saved|length %}<span class="id-sb-badge">{{ saved|length }}</span>{% endif %}
+      </button>
+      <button class="id-sb-link" onclick="switchPanel('connections', this)">
+        <span class="id-sb-ic">🤝</span> Connections
+        {% if connections_count %}<span class="id-sb-badge">{{ connections_count }}</span>{% endif %}
+      </button>
 
-  <!-- Tabs -->
-  <div class="idash-tabs">
-    <button class="idash-tab active" onclick="showTab('overview',this)">Overview</button>
-    <button class="idash-tab" onclick="showTab('connections',this)">Connections</button>
-    <button class="idash-tab" onclick="showTab('interests',this)">Interested Projects</button>
-    <button class="idash-tab" onclick="showTab('liked',this)">Liked Content</button>
-    <button class="idash-tab" onclick="showTab('proposals',this)">Proposals</button>
-    <button class="idash-tab" onclick="showTab('involvement',this)">Involvement</button>
-    <button class="idash-tab" onclick="showTab('pending',this)">Pending{% if pending_proposals|length or pending_collabs|length or pending_proj_collabs|length or pending_connections|length %} <span style="background:var(--blue);color:#fff;border-radius:20px;padding:0 6px;font-size:0.7rem;">{{ pending_proposals|length|add:pending_collabs|length|add:pending_proj_collabs|length|add:pending_connections|length }}</span>{% endif %}</button>
-    <button class="idash-tab" onclick="showTab('meetings',this)"><i class="fi fi-rr-video-camera fi-sm"></i> Meetings{% if dash_meetings %} <span style="background:#7c3aed;color:#fff;border-radius:20px;padding:0 6px;font-size:0.7rem;">{{ dash_meetings|length }}</span>{% endif %}</button>
-  </div>
+      <div class="id-sb-divider"></div>
 
-  <!-- OVERVIEW -->
-  <div id="panel-overview" class="idash-panel active">
+      {% if pending_connections|length or pending_proposals|length %}
+      <button class="id-sb-link" onclick="switchPanel('pending', this)">
+        <span class="id-sb-ic">⚠️</span> Pending
+        {% with t=pending_connections|length|add:pending_proposals|length %}
+        <span class="id-sb-badge id-sb-badge--amber">{{ t }}</span>
+        {% endwith %}
+      </button>
+      {% endif %}
 
-    <!-- ── Recommended Projects (promoted) ── -->
-    {% if recommended_projects %}
-    <div class="idash-section" style="background:linear-gradient(135deg,rgba(124,58,237,0.05),rgba(79,70,229,0.03));border:1.5px solid rgba(124,58,237,0.15);border-radius:14px;padding:18px 20px;">
-      <h2 class="idash-section-title" style="margin-bottom:4px;"><i class="fi fi-rr-rocket"></i> Recommended for You</h2>
-      <p style="font-family:var(--ff-sans);font-size:0.78rem;color:var(--muted);margin:0 0 16px;">These projects have been promoted by the community and are highly rated.</p>
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        {% for proj in recommended_projects %}
-        <div style="background:#fff;border-radius:10px;border:1px solid rgba(124,58,237,0.12);padding:14px 16px;display:flex;gap:14px;align-items:flex-start;">
-          {% if proj.image %}
-          <img src="{{ proj.image.url }}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px;flex-shrink:0;">
+      <button class="id-sb-link" onclick="switchPanel('profile', this)">
+        <span class="id-sb-ic">⚙️</span> My Preferences
+      </button>
+
+      <div class="id-sb-divider"></div>
+      <a href="{% url 'innovators' %}" class="id-sb-link"><span class="id-sb-ic">💡</span> Browse Innovators</a>
+      <a href="{% url 'app' %}" class="id-sb-link"><span class="id-sb-ic">📰</span> Feed</a>
+    </nav>
+  </aside>
+
+  <!-- ══════ MAIN ══════ -->
+  <main class="id-main">
+  <div class="id-content">
+
+    <!-- ══════════════════════════════════════════
+         DEAL FLOW TAB (primary)
+    ══════════════════════════════════════════ -->
+    <div id="panel-dealflow" class="id-panel active">
+
+      <div class="id-ph">
+        <div>
+          <h1 class="id-ph-title">Deal Flow</h1>
+          <p class="id-ph-sub">{{ deal_flow_count }} project{{ deal_flow_count|pluralize }} match your criteria{% if investor_profile.preferred_sectors %} · personalised for your sectors{% endif %}</p>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <form method="get" action="" class="id-filter-bar">
+        <input type="text" name="q" class="id-filter-input" placeholder="Search by keyword…" value="{{ f_search }}" style="max-width:180px;">
+        <select name="industry" class="id-filter-select">
+          <option value="">All Industries</option>
+          {% for val, label in industry_choices %}
+          <option value="{{ val }}" {% if f_industry == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <select name="stage" class="id-filter-select">
+          <option value="">All Stages</option>
+          {% for val, label in pipeline_stage_choices %}
+          <option value="{{ val }}" {% if f_stage == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <select name="funding_stage" class="id-filter-select">
+          <option value="">All Funding</option>
+          {% for val, label in funding_stage_choices %}
+          <option value="{{ val }}" {% if f_funding == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="id-filter-btn">Filter</button>
+        {% if f_industry or f_stage or f_funding or f_search %}
+        <a href="{% url 'investor_dashboard' %}" class="id-filter-clear">✕ Clear</a>
+        {% endif %}
+      </form>
+
+      {% if deal_flow_projects %}
+      <div class="id-df-grid">
+        {% for proj in deal_flow_projects %}
+        {% with score=proj.completeness_score readiness=proj.investment_readiness %}
+        <div class="id-df-card">
+          {% if proj.get_main_image_url %}
+            <img src="{{ proj.get_main_image_url }}" alt="{{ proj.title }}" class="id-df-img">
           {% else %}
-          <div style="width:64px;height:64px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;"><i class="fi fi-rr-bulb"></i></div>
+            <div class="id-df-img-placeholder">🚀</div>
           {% endif %}
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
-              <a href="{% url 'project_detail' proj.pk %}" style="font-family:var(--ff-serif);font-size:0.95rem;font-weight:700;color:var(--text);text-decoration:none;">{{ proj.title|truncatechars:60 }}</a>
-              <span style="font-size:0.68rem;font-weight:700;color:#fff;background:linear-gradient(90deg,#7c3aed,#4f46e5);border-radius:20px;padding:2px 9px;"><i class="fi fi-rr-rocket"></i> {{ proj.promote_count }} boost{{ proj.promote_count|pluralize }}</span>
+
+          <div class="id-df-body">
+            <div class="id-df-tags">
+              <span class="id-df-tag id-df-tag--industry">{{ proj.industry }}</span>
+              <span class="id-df-tag id-df-tag--stage">{{ proj.get_pipeline_stage_display }}</span>
+              {% if proj.funding_stage %}
+              <span class="id-df-tag id-df-tag--funding">{{ proj.get_funding_stage_display }}</span>
+              {% endif %}
+              {% if proj.review_status == 'featured' %}
+              <span style="background:#fef3c7;color:#92400e;border:1px solid #f59e0b;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;">★ Featured</span>
+              {% elif proj.review_status == 'approved' %}
+              <span style="background:#dcfce7;color:#166534;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;">✓ Approved</span>
+              {% endif %}
             </div>
-            <div style="font-family:var(--ff-sans);font-size:0.78rem;color:var(--muted);margin-bottom:6px;">
-              by <a href="{% url 'profile_view' id=proj.owner.id %}" style="color:var(--blue);">{{ proj.owner.get_full_name|default:proj.owner.username }}</a>
-              &nbsp;·&nbsp; {{ proj.get_industry_display }}
-              {% if proj.avg_rating %}&nbsp;·&nbsp; <i class="fi fi-rr-star"></i> {{ proj.avg_rating|floatformat:1 }}{% endif %}
+
+            <a href="{% url 'project_detail' proj.pk %}" class="id-df-title">{{ proj.title }}</a>
+
+            {% if proj.problem_statement %}
+            <p class="id-df-problem">{{ proj.problem_statement|truncatewords:22 }}</p>
+            {% elif proj.description %}
+            <p class="id-df-problem">{{ proj.description|truncatewords:22 }}</p>
+            {% endif %}
+
+            {% if proj.funding_requirement %}
+            <div class="id-df-funding-ask">{{ proj.funding_requirement }}</div>
+            {% endif %}
+
+            <div class="id-df-readiness">
+              <span style="font-size:.72rem;color:var(--id-muted);white-space:nowrap;">{{ readiness.0 }}</span>
+              <div class="id-df-score-bar">
+                <div class="id-df-score-fill {% if score >= 75 %}high{% elif score >= 40 %}medium{% else %}low{% endif %}" style="width:{{ score }}%;"></div>
+              </div>
+              <span style="font-size:.72rem;font-weight:700;color:var(--id-blue);">{{ score }}%</span>
             </div>
-            <p style="font-family:var(--ff-sans);font-size:0.82rem;color:#444;margin:0 0 10px;line-height:1.5;">{{ proj.description|truncatewords:25 }}</p>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <a href="{% url 'project_detail' proj.pk %}" style="padding:5px 14px;background:var(--blue);color:#fff;border-radius:7px;font-family:var(--ff-sans);font-size:0.8rem;font-weight:700;text-decoration:none;">View Project</a>
-              <button onclick="openActionModal('proposal','{% url 'project_send_proposal' proj.pk %}','{{ proj.title|escapejs }}')" style="padding:5px 14px;background:rgba(0,74,173,0.08);color:var(--blue);border:1px solid rgba(0,74,173,0.2);border-radius:7px;font-family:var(--ff-sans);font-size:0.8rem;cursor:pointer;">Send Proposal</button>
-              <button onclick="openActionModal('collab','{% url 'project_collaborate' proj.pk %}','{{ proj.title|escapejs }}')" style="padding:5px 14px;background:rgba(0,74,173,0.05);color:#555;border:1px solid #e0e4ef;border-radius:7px;font-family:var(--ff-sans);font-size:0.8rem;cursor:pointer;">Collaborate</button>
+
+            <div class="id-df-meta">
+              by <a href="{% url 'profile_view' id=proj.owner.id %}">{{ proj.owner.get_full_name|default:proj.owner.username }}</a>
+              {% with op=proj.owner.userprofile %}
+                {% if op.verification_status == 'verified' %}<span class="oc-verified-badge">✓ Verified</span>{% endif %}
+              {% endwith %}
+              · {{ proj.created_at|timesince }} ago
+            </div>
+
+            <!-- Match score badge -->
+            {% if proj._match_score is not None %}
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <span style="font-size:.72rem;color:#6b7280;">Match:</span>
+              <div style="flex:1;height:5px;background:#e0e8f4;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;border-radius:3px;transition:width .5s;
+                  width:{{ proj._match_score }}%;
+                  {% if proj._match_score >= 80 %}background:#059669;
+                  {% elif proj._match_score >= 60 %}background:#10b981;
+                  {% elif proj._match_score >= 40 %}background:#1B5EC7;
+                  {% else %}background:#9ca3af;{% endif %}"></div>
+              </div>
+              <span style="font-size:.72rem;font-weight:800;
+                {% if proj._match_score >= 80 %}color:#059669;{% elif proj._match_score >= 40 %}color:#1B5EC7;{% else %}color:#9ca3af;{% endif %}">
+                {{ proj._match_score }}%
+              </span>
+            </div>
+            {% endif %}
+
+            <div class="id-df-actions">
+              <a href="{% url 'project_detail' proj.pk %}" class="id-btn id-btn-primary" style="font-size:.75rem;padding:5px 12px;">View Pitch</a>
+
+              <!-- Show Interest -->
+              <button class="id-btn id-btn-interest {% if proj.id in interested_project_ids %}active{% endif %}"
+                      data-pk="{{ proj.pk }}"
+                      onclick="toggleInterest(this, {{ proj.pk }})"
+                      style="font-size:.75rem;padding:5px 12px;">
+                {% if proj.id in interested_project_ids %}★ Interested{% else %}☆ Interest{% endif %}
+              </button>
+
+              <!-- Save -->
+              <button class="id-btn id-btn-save {% if proj.id in saved_project_ids %}saved{% endif %}"
+                      onclick="ocToggleReadLater('project', {{ proj.pk }}, this)"
+                      style="font-size:.75rem;padding:5px 12px;">
+                {% if proj.id in saved_project_ids %}🔖 Saved{% else %}🔖 Save{% endif %}
+              </button>
+
+              <!-- Request Pitch -->
+              {% if proj.id not in pitched_project_ids %}
+              <button class="id-btn id-btn-ghost"
+                      onclick="openPitchModal({{ proj.pk }}, '{{ proj.title|escapejs }}')"
+                      style="font-size:.75rem;padding:5px 12px;">
+                🎤 Request Pitch
+              </button>
+              {% else %}
+              <span class="id-badge id-b-blue" style="align-self:center;">Pitch Requested</span>
+              {% endif %}
             </div>
           </div>
         </div>
+        {% endwith %}
         {% endfor %}
       </div>
-    </div>
-    {% endif %}
 
-    <div class="idash-section">
-      <h2 class="idash-section-title">Recent Proposals</h2>
-      {% if proposals %}
-        <div class="idash-row-list">
-          {% for p in proposals|slice:":5" %}
-          <div class="idash-row-item">
-            <div class="idash-row-left">
-              <a href="{% url 'post_detail' p.post.id %}" class="idash-row-label">{{ p.post.title|truncatechars:60 }}</a>
-              <div class="idash-row-sub">by {{ p.post.user.get_full_name|default:p.post.user.username }} · {{ p.created_at|timesince }} ago</div>
-            </div>
-            {% if p.amount %}<span class="idash-amount">${{ p.amount }}</span>{% endif %}
-            <span class="idash-badge {% if p.status == 'accepted' %}idash-badge-green{% elif p.status == 'declined' %}idash-badge-red{% elif p.status == 'countered' %}idash-badge-yellow{% else %}idash-badge-gray{% endif %}">{{ p.get_status_display }}</span>
-          </div>
-          {% endfor %}
-        </div>
       {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-hand-holding-usd"></i>No proposals sent yet</div>
+      <div class="id-empty">
+        <span class="id-empty-icon">🔍</span>
+        No projects match your current filters.
+        {% if f_industry or f_stage or f_funding or f_search %}
+        <br><a href="{% url 'investor_dashboard' %}" style="color:var(--id-blue);margin-top:8px;display:inline-block;">Clear filters to see all projects →</a>
+        {% endif %}
+      </div>
       {% endif %}
-    </div>
+    </div><!-- /dealflow -->
 
-    <div class="idash-section">
-      <h2 class="idash-section-title">Recently Liked Posts</h2>
-      {% if liked_posts %}
-        <div class="idash-post-list">
-          {% for post in liked_posts|slice:":4" %}
-          <div class="idash-post-card">
-            <a href="{% url 'profile_view' id=post.user.id %}" style="line-height:0;flex-shrink:0;">
-              {% if post.user.userprofile.profile_pics %}
-                <img src="{{ post.user.userprofile.profile_pics.url }}" alt="" class="idash-post-av">
-              {% else %}
-                <div class="idash-post-av-init">{{ post.user.first_name|slice:":1"|upper }}{{ post.user.last_name|slice:":1"|upper }}</div>
-              {% endif %}
-            </a>
-            <div style="flex:1;min-width:0;">
-              <div class="idash-post-meta">{{ post.user.get_full_name|default:post.user.username }} · {{ post.created_at|timesince }} ago</div>
-              <a href="{% url 'post_detail' post.id %}" class="idash-post-title">{{ post.title|truncatechars:70 }}</a>
-              <p class="idash-post-excerpt">{{ post.content|truncatechars:120 }}</p>
-            </div>
-            <span class="idash-badge idash-badge-blue">{{ post.get_industry_display }}</span>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-heart"></i>You haven't liked any posts yet</div>
-      {% endif %}
-    </div>
-  </div>
 
-  <!-- CONNECTIONS -->
-  <div id="panel-connections" class="idash-panel">
-    <div class="idash-section">
-      <h2 class="idash-section-title">Investors I'm Connected To <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ connected_investors|length }})</span></h2>
-      {% if connected_investors %}
-        <div class="idash-conn-grid">
-          {% for u in connected_investors %}
-          <div class="idash-conn-card">
-            <a href="{% url 'profile_view' id=u.id %}" style="line-height:0;">
-              {% if u.userprofile.profile_pics %}
-                <img src="{{ u.userprofile.profile_pics.url }}" alt="" class="idash-conn-av">
-              {% else %}
-                <div class="idash-conn-av-init">{{ u.first_name|slice:":1"|upper }}{{ u.last_name|slice:":1"|upper }}</div>
-              {% endif %}
-            </a>
-            <a href="{% url 'profile_view' id=u.id %}" class="idash-conn-name">{{ u.get_full_name|default:u.username }}</a>
-            <div class="idash-conn-role">{{ u.user_type }}</div>
-            {% if u.userprofile.company %}<div class="idash-conn-company">{{ u.userprofile.company }}</div>{% endif %}
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-users"></i>No investor connections yet. <a href="{% url 'investors' %}" style="color:var(--blue);">Browse investors</a></div>
-      {% endif %}
-    </div>
+    <!-- ══════════════════════════════════════════
+         OVERVIEW TAB
+    ══════════════════════════════════════════ -->
+    <div id="panel-overview" class="id-panel">
 
-    <div class="idash-section">
-      <h2 class="idash-section-title">Innovators I'm Connected To <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ connected_innovators|length }})</span></h2>
-      {% if connected_innovators %}
-        <div class="idash-conn-grid">
-          {% for u in connected_innovators %}
-          <div class="idash-conn-card">
-            <a href="{% url 'profile_view' id=u.id %}" style="line-height:0;">
-              {% if u.userprofile.profile_pics %}
-                <img src="{{ u.userprofile.profile_pics.url }}" alt="" class="idash-conn-av">
-              {% else %}
-                <div class="idash-conn-av-init">{{ u.first_name|slice:":1"|upper }}{{ u.last_name|slice:":1"|upper }}</div>
-              {% endif %}
-            </a>
-            <a href="{% url 'profile_view' id=u.id %}" class="idash-conn-name">{{ u.get_full_name|default:u.username }}</a>
-            <div class="idash-conn-role">{{ u.user_type }}</div>
-            {% if u.userprofile.company %}<div class="idash-conn-company">{{ u.userprofile.company }}</div>{% endif %}
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-bulb"></i>No innovator connections yet. <a href="{% url 'innovators' %}" style="color:var(--blue);">Browse innovators</a></div>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- INTERESTED PROJECTS -->
-  <div id="panel-interests" class="idash-panel">
-    <div class="idash-section">
-      <h2 class="idash-section-title">Posts I Showed Interest In</h2>
-      {% if interested_posts %}
-        <div class="idash-post-list">
-          {% for post in interested_posts %}
-          <div class="idash-post-card">
-            <a href="{% url 'profile_view' id=post.user.id %}" style="line-height:0;flex-shrink:0;">
-              {% if post.user.userprofile.profile_pics %}
-                <img src="{{ post.user.userprofile.profile_pics.url }}" alt="" class="idash-post-av">
-              {% else %}
-                <div class="idash-post-av-init">{{ post.user.first_name|slice:":1"|upper }}{{ post.user.last_name|slice:":1"|upper }}</div>
-              {% endif %}
-            </a>
-            <div style="flex:1;min-width:0;">
-              <div class="idash-post-meta">
-                <a href="{% url 'profile_view' id=post.user.id %}" style="color:inherit;">{{ post.user.get_full_name|default:post.user.username }}</a>
-                · {{ post.created_at|timesince }} ago
-              </div>
-              <a href="{% url 'post_detail' post.id %}" class="idash-post-title">{{ post.title|truncatechars:80 }}</a>
-              <p class="idash-post-excerpt">{{ post.content|truncatechars:140 }}</p>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
-                <span class="idash-badge idash-badge-blue">{{ post.get_industry_display }}</span>
-                <span style="font-family:var(--ff-sans);font-size:0.76rem;color:var(--muted);">
-                  <i class="fi fi-rr-heart fi-sm"></i> {{ post.likes.count }}
-                  &nbsp;<i class="fi fi-rr-comment fi-sm"></i> {{ post.comments.count }}
-                </span>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-star"></i>You haven't expressed interest in any posts yet. <a href="{% url 'app' %}" style="color:var(--blue);">Explore the feed</a></div>
-      {% endif %}
-    </div>
-
-    <div class="idash-section">
-      <h2 class="idash-section-title">Project Collaborations</h2>
-      {% if project_collabs %}
-        <div class="idash-row-list">
-          {% for pc in project_collabs %}
-          <div class="idash-row-item">
-            <div class="idash-row-left">
-              <a href="{% url 'project_detail' pc.project.pk %}" class="idash-row-label">{{ pc.project.title|truncatechars:60 }}</a>
-              <div class="idash-row-sub">by {{ pc.project.owner.get_full_name|default:pc.project.owner.username }} · {{ pc.created_at|timesince }} ago</div>
-              {% if pc.message %}<div class="idash-row-sub" style="margin-top:4px;font-style:italic;">"{{ pc.message|truncatechars:80 }}"</div>{% endif %}
-            </div>
-            <span class="idash-badge {% if pc.status == 'accepted' %}idash-badge-green{% elif pc.status == 'declined' %}idash-badge-red{% else %}idash-badge-gray{% endif %}">{{ pc.get_status_display }}</span>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-briefcase"></i>No project collaborations yet</div>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- LIKED CONTENT -->
-  <div id="panel-liked" class="idash-panel">
-    <div class="idash-section">
-      <h2 class="idash-section-title">Posts I Liked <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ liked_posts|length }})</span></h2>
-      {% if liked_posts %}
-        <div class="idash-post-list">
-          {% for post in liked_posts %}
-          <div class="idash-post-card">
-            <a href="{% url 'profile_view' id=post.user.id %}" style="line-height:0;flex-shrink:0;">
-              {% if post.user.userprofile.profile_pics %}
-                <img src="{{ post.user.userprofile.profile_pics.url }}" alt="" class="idash-post-av">
-              {% else %}
-                <div class="idash-post-av-init">{{ post.user.first_name|slice:":1"|upper }}{{ post.user.last_name|slice:":1"|upper }}</div>
-              {% endif %}
-            </a>
-            <div style="flex:1;min-width:0;">
-              <div class="idash-post-meta">
-                <a href="{% url 'profile_view' id=post.user.id %}" style="color:inherit;">{{ post.user.get_full_name|default:post.user.username }}</a>
-                · {{ post.created_at|timesince }} ago
-              </div>
-              <a href="{% url 'post_detail' post.id %}" class="idash-post-title">{{ post.title|truncatechars:80 }}</a>
-              <p class="idash-post-excerpt">{{ post.content|truncatechars:140 }}</p>
-            </div>
-            <span class="idash-badge idash-badge-blue">{{ post.get_industry_display }}</span>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-heart"></i>You haven't liked any posts yet</div>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- PROPOSALS -->
-  <div id="panel-proposals" class="idash-panel">
-    <div class="idash-section">
-      <h2 class="idash-section-title">Investment Proposals Sent <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ proposals|length }})</span></h2>
-      {% if proposals %}
-        <div class="idash-row-list">
-          {% for p in proposals %}
-          <div class="idash-row-item">
-            <div class="idash-row-left">
-              <a href="{% url 'post_detail' p.post.id %}" class="idash-row-label">{{ p.post.title|truncatechars:60 }}</a>
-              <div class="idash-row-sub">
-                to <a href="{% url 'profile_view' id=p.post.user.id %}" style="color:inherit;">{{ p.post.user.get_full_name|default:p.post.user.username }}</a>
-                · {{ p.created_at|timesince }} ago
-              </div>
-              {% if p.message %}<div class="idash-row-sub" style="margin-top:4px;font-style:italic;">"{{ p.message|truncatechars:80 }}"</div>{% endif %}
-            </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-              {% if p.amount %}<span class="idash-amount">${{ p.amount }}</span>{% endif %}
-              <span class="idash-badge {% if p.status == 'accepted' %}idash-badge-green{% elif p.status == 'declined' %}idash-badge-red{% elif p.status == 'countered' %}idash-badge-yellow{% else %}idash-badge-gray{% endif %}">{{ p.get_status_display }}</span>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-hand-holding-usd"></i>No proposals sent yet. <a href="{% url 'app' %}" style="color:var(--blue);">Browse the feed</a> to find investment opportunities.</div>
-      {% endif %}
-    </div>
-
-    <div class="idash-section">
-      <h2 class="idash-section-title">Patent Requests Sent <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ patent_requests|length }})</span></h2>
-      {% if patent_requests %}
-        <div class="idash-row-list">
-          {% for pr in patent_requests %}
-          <div class="idash-row-item">
-            <div class="idash-row-left">
-              <a href="{% url 'post_detail' pr.post.id %}" class="idash-row-label">{{ pr.post.title|truncatechars:60 }}</a>
-              <div class="idash-row-sub">
-                to <a href="{% url 'profile_view' id=pr.post.user.id %}" style="color:inherit;">{{ pr.post.user.get_full_name|default:pr.post.user.username }}</a>
-                · {{ pr.created_at|timesince }} ago
-              </div>
-            </div>
-            <span class="idash-badge {% if pr.status == 'accepted' %}idash-badge-green{% elif pr.status == 'declined' %}idash-badge-red{% else %}idash-badge-gray{% endif %}">{{ pr.get_status_display }}</span>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-document"></i>No patent requests sent yet</div>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- INVOLVEMENT -->
-  <div id="panel-involvement" class="idash-panel">
-    <div class="idash-section">
-      <h2 class="idash-section-title">Post Collaborations <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ collaborations|length }})</span></h2>
-      {% if collaborations %}
-        <div class="idash-row-list">
-          {% for c in collaborations %}
-          <div class="idash-row-item">
-            <div class="idash-row-left">
-              <a href="{% url 'post_detail' c.post.id %}" class="idash-row-label">{{ c.post.title|truncatechars:60 }}</a>
-              <div class="idash-row-sub">
-                with <a href="{% url 'profile_view' id=c.post.user.id %}" style="color:inherit;">{{ c.post.user.get_full_name|default:c.post.user.username }}</a>
-                · {{ c.created_at|timesince }} ago
-              </div>
-              {% if c.message %}<div class="idash-row-sub" style="margin-top:4px;font-style:italic;">"{{ c.message|truncatechars:80 }}"</div>{% endif %}
-            </div>
-            <span class="idash-badge {% if c.status == 'accepted' %}idash-badge-green{% elif c.status == 'declined' %}idash-badge-red{% else %}idash-badge-gray{% endif %}">{{ c.get_status_display }}</span>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-users-alt"></i>No post collaborations yet</div>
-      {% endif %}
-    </div>
-
-    <div class="idash-section">
-      <h2 class="idash-section-title">Project Collaborations <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ project_collabs|length }})</span></h2>
-      {% if project_collabs %}
-        <div class="idash-row-list">
-          {% for pc in project_collabs %}
-          <div class="idash-row-item">
-            <div class="idash-row-left">
-              <a href="{% url 'project_detail' pc.project.pk %}" class="idash-row-label">{{ pc.project.title|truncatechars:60 }}</a>
-              <div class="idash-row-sub">
-                by <a href="{% url 'profile_view' id=pc.project.owner.id %}" style="color:inherit;">{{ pc.project.owner.get_full_name|default:pc.project.owner.username }}</a>
-                · {{ pc.created_at|timesince }} ago
-              </div>
-              {% if pc.message %}<div class="idash-row-sub" style="margin-top:4px;font-style:italic;">"{{ pc.message|truncatechars:80 }}"</div>{% endif %}
-            </div>
-            <span class="idash-badge {% if pc.status == 'accepted' %}idash-badge-green{% elif pc.status == 'declined' %}idash-badge-red{% else %}idash-badge-gray{% endif %}">{{ pc.get_status_display }}</span>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-briefcase"></i>No project collaborations yet</div>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- PENDING -->
-  <div id="panel-pending" class="idash-panel">
-
-    <!-- Pending Connection Requests -->
-    <div class="idash-section">
-      <h2 class="idash-section-title">Incoming Connection Requests <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ pending_connections|length }})</span></h2>
-      {% if pending_connections %}
-        <div class="idash-pending-grid">
-          {% for conn in pending_connections %}
-          <div class="idash-pending-card">
-            <a href="{% url 'profile_view' id=conn.initiator.id %}" style="line-height:0;flex-shrink:0;">
-              {% if conn.initiator.userprofile.profile_pics %}
-                <img src="{{ conn.initiator.userprofile.profile_pics.url }}" alt="" class="idash-pending-av">
-              {% else %}
-                <div class="idash-pending-av-init">{{ conn.initiator.first_name|slice:":1"|upper }}{{ conn.initiator.last_name|slice:":1"|upper }}</div>
-              {% endif %}
-            </a>
-            <div>
-              <a href="{% url 'profile_view' id=conn.initiator.id %}" class="idash-pending-name">{{ conn.initiator.get_full_name|default:conn.initiator.username }}</a>
-              <div style="font-family:var(--ff-sans);font-size:0.74rem;color:var(--muted);">{{ conn.initiator.user_type|capfirst }}</div>
-              <div class="idash-pending-actions">
-                <form method="post" action="{% url 'accept_connection' conn.id %}" style="display:contents;">
-                  {% csrf_token %}
-                  <button type="submit" class="idash-accept-btn">Accept</button>
-                </form>
-                <form method="post" action="{% url 'reject_connection' conn.id %}" style="display:contents;">
-                  {% csrf_token %}
-                  <button type="submit" class="idash-reject-btn">Decline</button>
-                </form>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-user-add"></i>No pending connection requests</div>
-      {% endif %}
-    </div>
-
-    <!-- Pending Proposals -->
-    <div class="idash-section">
-      <h2 class="idash-section-title">Pending Proposals <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ pending_proposals|length }})</span></h2>
-      {% if pending_proposals %}
-        <div class="idash-row-list">
-          {% for p in pending_proposals %}
-          <div class="idash-row-item">
-            <div class="idash-row-left">
-              <a href="{% url 'post_detail' p.post.id %}" class="idash-row-label">{{ p.post.title|truncatechars:60 }}</a>
-              <div class="idash-row-sub">Sent to {{ p.post.user.get_full_name|default:p.post.user.username }} · {{ p.created_at|timesince }} ago</div>
-            </div>
-            {% if p.amount %}<span class="idash-amount">${{ p.amount }}</span>{% endif %}
-            <span class="idash-badge idash-badge-yellow">Awaiting Response</span>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-hand-holding-usd"></i>No pending proposals</div>
-      {% endif %}
-    </div>
-
-    <!-- Pending Collaborations -->
-    <div class="idash-section">
-      <h2 class="idash-section-title">Pending Collaborations <span style="font-size:0.78rem;color:var(--muted);font-family:var(--ff-sans);">({{ pending_collabs|length|add:pending_proj_collabs|length }})</span></h2>
-      {% if pending_collabs or pending_proj_collabs %}
-        <div class="idash-row-list">
-          {% for c in pending_collabs %}
-          <div class="idash-row-item">
-            <div class="idash-row-left">
-              <a href="{% url 'post_detail' c.post.id %}" class="idash-row-label">{{ c.post.title|truncatechars:60 }}</a>
-              <div class="idash-row-sub">Post collaboration · {{ c.created_at|timesince }} ago</div>
-            </div>
-            <span class="idash-badge idash-badge-yellow">Awaiting Response</span>
-          </div>
-          {% endfor %}
-          {% for pc in pending_proj_collabs %}
-          <div class="idash-row-item">
-            <div class="idash-row-left">
-              <a href="{% url 'project_detail' pc.project.pk %}" class="idash-row-label">{{ pc.project.title|truncatechars:60 }}</a>
-              <div class="idash-row-sub">Project collaboration · {{ pc.created_at|timesince }} ago</div>
-            </div>
-            <span class="idash-badge idash-badge-yellow">Awaiting Response</span>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="idash-empty"><i class="fi fi-rr-users-alt"></i>No pending collaborations</div>
-      {% endif %}
-    </div>
-
-  </div><!-- /pending panel -->
-
-  <!-- MEETINGS -->
-  <div id="panel-meetings" class="idash-panel">
-    <div class="idash-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
-        <h2 class="idash-section-title"><i class="fi fi-rr-video-camera fi-sm"></i> Meetings</h2>
-        <div style="display:flex;gap:10px;">
-          <button onclick="openScheduleMeeting('','')" style="padding:8px 18px;border-radius:8px;border:1.5px solid rgba(124,58,237,0.3);background:rgba(124,58,237,0.07);color:#7c3aed;font-size:0.85rem;font-weight:600;cursor:pointer;">
-            <i class="fi fi-rr-video-camera fi-sm"></i> New Meeting
-          </button>
-          <a href="{% url 'meetings_list' %}" style="padding:8px 18px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;color:#555;font-size:0.85rem;font-weight:600;text-decoration:none;">View All</a>
+      <div class="id-ph">
+        <div>
+          <h1 class="id-ph-title">Overview</h1>
+          <p class="id-ph-sub">Welcome back, {{ user.first_name|default:user.username }}</p>
         </div>
       </div>
 
-      {% if dash_meetings %}
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
-        {% for mtg in dash_meetings %}
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:18px 20px;box-shadow:0 1px 6px rgba(0,0,0,0.05);transition:box-shadow 0.2s,transform 0.2s;"
-             onmouseover="this.style.boxShadow='0 4px 18px rgba(124,58,237,0.10)';this.style.transform='translateY(-2px)'"
-             onmouseout="this.style.boxShadow='0 1px 6px rgba(0,0,0,0.05)';this.style.transform=''">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:38px;height:38px;border-radius:10px;background:rgba(124,58,237,0.1);display:flex;align-items:center;justify-content:center;color:#7c3aed;font-size:1.1rem;flex-shrink:0;">
-                <i class="fi fi-rr-video-camera"></i>
-              </div>
-              <div>
-                <div style="font-weight:600;font-size:0.92rem;color:#111;line-height:1.3;">{{ mtg.title|default:"Untitled Meeting" }}</div>
-                <div style="font-size:0.76rem;color:#888;margin-top:2px;">
-                  {% if mtg.scheduled_at %}{{ mtg.scheduled_at|date:"M j, Y · g:i A" }}{% else %}Instant meeting{% endif %}
-                </div>
+      <!-- Stats -->
+      <div class="id-stats">
+        <div class="id-stat" onclick="switchPanel('connections')">
+          <div class="id-stat-num">{{ connections_count }}</div>
+          <div class="id-stat-label">Connections</div>
+        </div>
+        <div class="id-stat" onclick="switchPanel('proposals')">
+          <div class="id-stat-num">{{ sent_proposals|length }}</div>
+          <div class="id-stat-label">Proposals</div>
+        </div>
+        <div class="id-stat" onclick="switchPanel('pitches')">
+          <div class="id-stat-num">{{ my_pitch_requests|length }}</div>
+          <div class="id-stat-label">Pitch Requests</div>
+        </div>
+        <div class="id-stat" onclick="switchPanel('saved')">
+          <div class="id-stat-num">{{ saved|length }}</div>
+          <div class="id-stat-label">Saved</div>
+        </div>
+        <div class="id-stat" onclick="switchPanel('dealflow')">
+          <div class="id-stat-num">{{ deal_flow_count }}</div>
+          <div class="id-stat-label">In Pipeline</div>
+        </div>
+        <div class="id-stat" onclick="switchPanel('pending')">
+          <div class="id-stat-num" style="{% if pending_connections|length or pending_proposals|length %}color:var(--id-amber){% endif %}">
+            {{ pending_connections|length|add:pending_proposals|length }}
+          </div>
+          <div class="id-stat-label">Pending</div>
+        </div>
+      </div>
+
+      <!-- Top Matches for You -->
+      {% if top_matches %}
+      <div class="id-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <h2 class="id-section-title">🎯 Top Matches For You <span class="id-count">{{ top_matches|length }}</span></h2>
+          <a href="{% url 'top_matches_for_investor' %}" style="font-size:.8rem;color:var(--id-blue);font-weight:600;text-decoration:none;">See all matches →</a>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          {% for match in top_matches %}
+          {% with p=match.project %}
+          <div style="display:flex;gap:14px;align-items:center;padding:12px 14px;border:1px solid #e0e8f4;border-radius:10px;background:#fff;transition:box-shadow .2s,transform .2s;"
+               onmouseenter="this.style.boxShadow='0 4px 18px rgba(27,94,199,.1)';this.style.transform='translateY(-1px)'"
+               onmouseleave="this.style.boxShadow='';this.style.transform=''">
+            <!-- Score badge -->
+            <div style="width:46px;height:46px;border-radius:50%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                 {% if match.score >= 80 %}background:#dcfce7;border:2px solid #059669;
+                 {% elif match.score >= 60 %}background:#d1fae5;border:2px solid #10b981;
+                 {% elif match.score >= 40 %}background:#dbeafe;border:2px solid #3b82f6;
+                 {% else %}background:#f3f4f6;border:2px solid #9ca3af;{% endif %}">
+              <span style="font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:800;
+                    {% if match.score >= 80 %}color:#166534;{% elif match.score >= 60 %}color:#065f46;
+                    {% elif match.score >= 40 %}color:#1d4ed8;{% else %}color:#6b7280;{% endif %}">{{ match.score }}</span>
+            </div>
+            <!-- Info -->
+            <div style="flex:1;min-width:0;">
+              <a href="{% url 'project_detail' p.pk %}" style="font-family:'Space Grotesk',sans-serif;font-size:.875rem;font-weight:800;color:#0A1628;text-decoration:none;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.title }}</a>
+              <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;">
+                <span style="background:#e0e8f4;color:#1B5EC7;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;">{{ p.industry }}</span>
+                <span style="background:#f3f4f6;color:#6b7280;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;">{{ match.label }}</span>
               </div>
             </div>
-            <span style="font-size:0.72rem;font-weight:600;padding:3px 9px;border-radius:99px;white-space:nowrap;
-              {% if mtg.status == 'active' %}background:#d1fae5;color:#065f46;
-              {% elif mtg.status == 'ended' %}background:#f1f5f9;color:#64748b;
-              {% else %}background:#ede9fe;color:#5b21b6;{% endif %}">
-              {{ mtg.status|capfirst }}
-            </span>
+            <!-- CTA -->
+            <a href="{% url 'project_detail' p.pk %}" style="background:#1B5EC7;color:#fff;padding:6px 14px;border-radius:7px;font-size:.78rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;">View →</a>
           </div>
-          <div style="font-size:0.8rem;color:#666;margin-bottom:12px;">
-            <i class="fi fi-rr-users fi-sm"></i>
-            {% for p in mtg.participants.all %}{{ p.get_full_name|default:p.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
+          {% endwith %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Upcoming Events -->
+      {% if upcoming_events %}
+      <div class="id-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <h2 class="id-section-title">📅 Upcoming Events</h2>
+          <a href="{% url 'events_hub' %}" style="font-size:.8rem;color:var(--id-blue);font-weight:600;text-decoration:none;">All events →</a>
+        </div>
+        {% for event in upcoming_events %}
+        <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f0f0f0;">
+          <div style="background:#e0e8f4;border-radius:8px;padding:7px 10px;text-align:center;min-width:44px;flex-shrink:0;">
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#0A1628;line-height:1;">{{ event.date|date:"j" }}</div>
+            <div style="font-size:.62rem;font-weight:700;color:#6b7280;text-transform:uppercase;">{{ event.date|date:"M" }}</div>
           </div>
-          <div style="display:flex;gap:8px;">
-            <a href="{% url 'join_meeting' mtg.id %}" style="flex:1;text-align:center;padding:7px 12px;border-radius:8px;font-size:0.8rem;font-weight:600;text-decoration:none;
-              {% if mtg.status == 'ended' %}background:#f1f5f9;color:#64748b;{% else %}background:#7c3aed;color:#fff;{% endif %}">
-              {% if mtg.status == 'ended' %}<i class="fi fi-rr-eye fi-sm"></i> Details
-              {% elif mtg.zoom_join_url %}<i class="fi fi-rr-video-camera fi-sm"></i> Join Zoom
-              {% else %}<i class="fi fi-rr-video-camera fi-sm"></i> Open{% endif %}
-            </a>
-            {% if mtg.zoom_join_url and mtg.status != 'ended' %}
-            <button onclick="navigator.clipboard.writeText('{{ mtg.zoom_join_url|escapejs }}');this.textContent='Copied!';" title="Copy join link"
-              style="padding:7px 12px;border-radius:8px;font-size:0.8rem;border:1.5px solid #e5e7eb;background:#fff;color:#666;cursor:pointer;">
-              <i class="fi fi-rr-copy fi-sm"></i>
-            </button>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:.875rem;color:#0A1628;">{{ event.name }}</div>
+            <div style="font-size:.75rem;color:#6b7280;">{{ event.location }} · <span style="background:#7c3aed;color:#fff;font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:20px;">{{ event.get_event_type_display }}</span></div>
+            {% if event.id in registered_event_ids %}
+            <span style="font-size:.72rem;color:#059669;font-weight:700;">✓ Registered</span>
+            {% else %}
+            <form method="post" action="{% url 'register_for_event' event.pk %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" style="font-size:.72rem;color:var(--id-blue);font-weight:600;background:none;border:none;cursor:pointer;padding:2px 0;">Register →</button>
+            </form>
             {% endif %}
           </div>
         </div>
         {% endfor %}
       </div>
+      {% endif %}
+
+      <!-- Oduma Services -->
+      <div class="id-section">
+        <h2 class="id-section-title" style="margin-bottom:14px;">Oduma Services</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <a href="{% url 'training_hub' %}" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid #e0e8f4;border-radius:10px;text-decoration:none;color:#0A1628;font-size:.84rem;font-weight:700;transition:all .2s;"
+             onmouseenter="this.style.borderColor='#1B5EC7';this.style.color='#1B5EC7'" onmouseleave="this.style.borderColor='#e0e8f4';this.style.color='#0A1628'">
+            <span style="font-size:1.3rem;">📚</span> Training
+          </a>
+          <a href="{% url 'mentorship_hub' %}" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid #e0e8f4;border-radius:10px;text-decoration:none;color:#0A1628;font-size:.84rem;font-weight:700;transition:all .2s;"
+             onmouseenter="this.style.borderColor='#1B5EC7';this.style.color='#1B5EC7'" onmouseleave="this.style.borderColor='#e0e8f4';this.style.color='#0A1628'">
+            <span style="font-size:1.3rem;">🎓</span> Mentorship
+          </a>
+          <a href="{% url 'events_hub' %}" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid #e0e8f4;border-radius:10px;text-decoration:none;color:#0A1628;font-size:.84rem;font-weight:700;transition:all .2s;"
+             onmouseenter="this.style.borderColor='#1B5EC7';this.style.color='#1B5EC7'" onmouseleave="this.style.borderColor='#e0e8f4';this.style.color='#0A1628'">
+            <span style="font-size:1.3rem;">📅</span> Events
+          </a>
+          <a href="{% url 'top_matches_for_investor' %}" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid #e0e8f4;border-radius:10px;text-decoration:none;color:#0A1628;font-size:.84rem;font-weight:700;transition:all .2s;"
+             onmouseenter="this.style.borderColor='#1B5EC7';this.style.color='#1B5EC7'" onmouseleave="this.style.borderColor='#e0e8f4';this.style.color='#0A1628'">
+            <span style="font-size:1.3rem;">🎯</span> My Matches
+          </a>
+        </div>
+      </div>
+
+      <!-- Recent proposals -->
+      <div class="id-section">
+        <h2 class="id-section-title">Recent Proposals <span class="id-count">{{ sent_proposals|length }} total</span></h2>
+        {% if sent_proposals %}
+        <div class="id-row-list">
+          {% for p in sent_proposals|slice:":4" %}
+          <div class="id-row-item">
+            <div>
+              <a href="{% url 'project_detail' p.project.pk %}" class="id-row-label">{{ p.project.title|truncatechars:60 }}</a>
+              <div class="id-row-sub">to <a href="{% url 'profile_view' id=p.project.owner.id %}">{{ p.project.owner.get_full_name|default:p.project.owner.username }}</a> · {{ p.created_at|timesince }} ago</div>
+            </div>
+            <div class="id-row-right">
+              {% if p.amount %}<span class="id-amount">${{ p.amount }}</span>{% endif %}
+              <span class="id-badge {% if p.status == 'accepted' %}id-b-green{% elif p.status == 'declined' %}id-b-red{% elif p.status == 'countered' or p.status == 'on_hold' %}id-b-yellow{% else %}id-b-gray{% endif %}">{{ p.get_status_display }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="id-empty"><span class="id-empty-icon">💼</span>No proposals yet. Browse the deal flow to find projects.</div>
+        {% endif %}
+      </div>
+
+      <!-- Saved projects quick view -->
+      <div class="id-section">
+        <h2 class="id-section-title">Saved Projects <span class="id-count">{{ saved|length }}</span></h2>
+        {% if saved %}
+        <div class="id-df-grid">
+          {% for item in saved|slice:":3" %}{% if item.project %}
+          <div class="id-df-card">
+            {% if item.project.get_main_image_url %}<img src="{{ item.project.get_main_image_url }}" alt="" class="id-df-img">
+            {% else %}<div class="id-df-img-placeholder">🚀</div>{% endif %}
+            <div class="id-df-body">
+              <a href="{% url 'project_detail' item.project.pk %}" class="id-df-title">{{ item.project.title }}</a>
+              <p class="id-df-problem">{{ item.project.description|truncatewords:15 }}</p>
+              <div class="id-df-actions">
+                <a href="{% url 'project_detail' item.project.pk %}" class="id-btn id-btn-primary" style="font-size:.75rem;padding:5px 12px;">View Pitch</a>
+                <button class="id-btn id-btn-ghost" onclick="openActionModal('proposal','{% url 'project_send_proposal' item.project.pk %}','{{ item.project.title|escapejs }}')" style="font-size:.75rem;padding:5px 12px;">Propose</button>
+              </div>
+            </div>
+          </div>
+          {% endif %}{% endfor %}
+        </div>
+        {% else %}
+        <div class="id-empty"><span class="id-empty-icon">🔖</span>Save projects from deal flow to see them here.</div>
+        {% endif %}
+      </div>
+    </div><!-- /overview -->
+
+
+    <!-- ══════════════════════════════════════════
+         PROPOSALS TAB
+    ══════════════════════════════════════════ -->
+    <div id="panel-proposals" class="id-panel">
+      <div class="id-ph"><div><h1 class="id-ph-title">My Proposals</h1><p class="id-ph-sub">Investment proposals you've submitted</p></div></div>
+      {% if sent_proposals %}
+      <div class="id-row-list">
+        {% for p in sent_proposals %}
+        <div class="id-row-item">
+          <div>
+            <a href="{% url 'project_detail' p.project.pk %}" class="id-row-label">{{ p.project.title }}</a>
+            <div class="id-row-sub">
+              {{ p.project.industry }} · {{ p.project.get_pipeline_stage_display }} ·
+              to <a href="{% url 'profile_view' id=p.project.owner.id %}">{{ p.project.owner.get_full_name|default:p.project.owner.username }}</a> ·
+              {{ p.created_at|timesince }} ago
+            </div>
+            {% if p.message %}<div class="id-row-sub" style="margin-top:4px;font-style:italic;">"{{ p.message|truncatechars:100 }}"</div>{% endif %}
+          </div>
+          <div class="id-row-right">
+            {% if p.amount %}<span class="id-amount">${{ p.amount }}</span>{% endif %}
+            {% if p.equity_percentage %}<span style="font-size:.78rem;color:var(--id-muted);">{{ p.equity_percentage }}% equity</span>{% endif %}
+            <span class="id-badge {% if p.status == 'accepted' %}id-b-green{% elif p.status == 'declined' %}id-b-red{% elif p.status in 'countered,on_hold' %}id-b-yellow{% elif p.status == 'reviewing' %}id-b-blue{% else %}id-b-gray{% endif %}">{{ p.get_status_display }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
       {% else %}
-      <div style="text-align:center;padding:40px 20px;background:#faf5ff;border-radius:14px;border:1.5px dashed rgba(124,58,237,0.2);">
-        <div style="font-size:2rem;margin-bottom:10px;">📹</div>
-        <div style="font-weight:600;color:#5b21b6;margin-bottom:6px;">No meetings yet</div>
-        <div style="font-size:0.85rem;color:#888;margin-bottom:16px;">Schedule a video call with an innovator to get started.</div>
-        <button onclick="openScheduleMeeting('','')" style="padding:9px 22px;border-radius:9px;background:#7c3aed;color:#fff;border:none;font-size:0.875rem;font-weight:600;cursor:pointer;">
-          <i class="fi fi-rr-video-camera fi-sm"></i> Schedule a Meeting
-        </button>
+      <div class="id-empty"><span class="id-empty-icon">💼</span>No proposals sent yet. Find projects in the deal flow and click "Propose" on any project detail page.</div>
+      {% endif %}
+    </div><!-- /proposals -->
+
+
+    <!-- ══════════════════════════════════════════
+         PITCH REQUESTS TAB
+    ══════════════════════════════════════════ -->
+    <div id="panel-pitches" class="id-panel">
+      <div class="id-ph"><div><h1 class="id-ph-title">Pitch Requests</h1><p class="id-ph-sub">Projects you've requested a pitch meeting for</p></div></div>
+      {% if my_pitch_requests %}
+      <div class="id-row-list">
+        {% for pr in my_pitch_requests %}
+        <div class="id-row-item">
+          <div>
+            <a href="{% url 'project_detail' pr.project.pk %}" class="id-row-label">{{ pr.project.title }}</a>
+            <div class="id-row-sub">
+              {{ pr.project.industry }} · {{ pr.project.get_pipeline_stage_display }} ·
+              requested {{ pr.requested_at|timesince }} ago
+            </div>
+            {% if pr.message %}<div class="id-row-sub" style="margin-top:3px;font-style:italic;">"{{ pr.message|truncatechars:100 }}"</div>{% endif %}
+            {% if pr.response_note %}<div class="id-row-sub" style="margin-top:3px;color:#374151;"><strong>Response:</strong> {{ pr.response_note }}</div>{% endif %}
+          </div>
+          <div class="id-row-right">
+            <span class="id-badge {% if pr.status == 'accepted' or pr.status == 'scheduled' %}id-b-green{% elif pr.status == 'declined' %}id-b-red{% else %}id-b-gray{% endif %}">{{ pr.get_status_display }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="id-empty"><span class="id-empty-icon">🎤</span>No pitch requests yet. Use the "Request Pitch" button on any project in the deal flow.</div>
+      {% endif %}
+    </div><!-- /pitches -->
+
+
+    <!-- ══════════════════════════════════════════
+         SAVED TAB
+    ══════════════════════════════════════════ -->
+    <div id="panel-saved" class="id-panel">
+      <div class="id-ph"><div><h1 class="id-ph-title">Saved Projects</h1><p class="id-ph-sub">Your watchlist</p></div></div>
+      {% if saved %}
+      <div class="id-df-grid">
+        {% for item in saved %}{% if item.project %}
+        <div class="id-df-card">
+          {% if item.project.get_main_image_url %}<img src="{{ item.project.get_main_image_url }}" alt="" class="id-df-img">
+          {% else %}<div class="id-df-img-placeholder">🚀</div>{% endif %}
+          <div class="id-df-body">
+            <div class="id-df-tags">
+              <span class="id-df-tag id-df-tag--industry">{{ item.project.industry }}</span>
+              <span class="id-df-tag id-df-tag--stage">{{ item.project.get_pipeline_stage_display }}</span>
+            </div>
+            <a href="{% url 'project_detail' item.project.pk %}" class="id-df-title">{{ item.project.title }}</a>
+            {% if item.project.funding_requirement %}<div class="id-df-funding-ask">{{ item.project.funding_requirement }}</div>{% endif %}
+            <div class="id-df-actions">
+              <a href="{% url 'project_detail' item.project.pk %}" class="id-btn id-btn-primary" style="font-size:.75rem;padding:5px 12px;">View Pitch</a>
+              <button class="id-btn id-btn-ghost" onclick="openActionModal('proposal','{% url 'project_send_proposal' item.project.pk %}','{{ item.project.title|escapejs }}')" style="font-size:.75rem;padding:5px 12px;">Propose</button>
+            </div>
+          </div>
+        </div>
+        {% endif %}{% endfor %}
+      </div>
+      {% else %}
+      <div class="id-empty"><span class="id-empty-icon">🔖</span>No saved projects. Save interesting deals from the deal flow to build your watchlist.</div>
+      {% endif %}
+    </div><!-- /saved -->
+
+
+    <!-- ══════════════════════════════════════════
+         CONNECTIONS TAB
+    ══════════════════════════════════════════ -->
+    <div id="panel-connections" class="id-panel">
+      <div class="id-ph"><div><h1 class="id-ph-title">My Network</h1><p class="id-ph-sub">Innovators and investors you're connected to</p></div></div>
+
+      <div class="id-section">
+        <h2 class="id-section-title">💡 Innovators <span class="id-count">{{ connected_innovators|length }}</span></h2>
+        {% if connected_innovators %}
+        <div class="id-conn-grid">
+          {% for u in connected_innovators %}
+          <div class="id-conn-card">
+            {% if u.userprofile.profile_pics %}<img src="{{ u.userprofile.profile_pics.url }}" alt="" class="id-conn-av">
+            {% else %}<div class="id-conn-av-init">{{ u.first_name|slice:":1"|upper }}{{ u.last_name|slice:":1"|upper }}</div>{% endif %}
+            <a href="{% url 'profile_view' id=u.id %}" class="id-conn-name">{{ u.get_full_name|default:u.username }}</a>
+            <div class="id-conn-role">{{ u.userprofile.industry|default:"—" }}</div>
+            <div class="id-conn-btns">
+              <a href="{% url 'start_conversation' u.pk %}" class="id-btn id-btn-outline" style="font-size:.74rem;padding:4px 10px;">Message</a>
+              <a href="{% url 'profile_view' id=u.id %}" class="id-btn id-btn-ghost" style="font-size:.74rem;padding:4px 10px;">View</a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}<div class="id-empty"><span class="id-empty-icon">💡</span>No innovators connected yet. <a href="{% url 'innovators' %}" style="color:var(--id-blue);">Browse innovators →</a></div>{% endif %}
+      </div>
+    </div><!-- /connections -->
+
+
+    <!-- ══════════════════════════════════════════
+         PENDING TAB
+    ══════════════════════════════════════════ -->
+    <div id="panel-pending" class="id-panel">
+      <div class="id-ph"><div><h1 class="id-ph-title">Needs Attention</h1></div></div>
+      {% if pending_connections %}
+      <div class="id-section">
+        <h2 class="id-section-title" style="color:var(--id-amber);">⏳ Connection Requests <span class="id-count">{{ pending_connections|length }}</span></h2>
+        <div class="id-pend-grid">
+          {% for conn in pending_connections %}
+          <div class="id-pend-card">
+            <a href="{% url 'profile_view' id=conn.initiator.id %}">
+              {% if conn.initiator.userprofile.profile_pics %}<img src="{{ conn.initiator.userprofile.profile_pics.url }}" alt="" class="id-pend-av">
+              {% else %}<div class="id-pend-av-init">{{ conn.initiator.first_name|slice:":1"|upper }}{{ conn.initiator.last_name|slice:":1"|upper }}</div>{% endif %}
+            </a>
+            <div>
+              <a href="{% url 'profile_view' id=conn.initiator.id %}" class="id-pend-name">{{ conn.initiator.get_full_name|default:conn.initiator.username }}</a>
+              <div style="font-size:.74rem;color:var(--id-muted);">Wants to connect</div>
+              <div class="id-pend-btns">
+                <form method="post" action="{% url 'accept_connection' conn.id %}" style="display:contents;">{% csrf_token %}<button type="submit" class="id-accept-btn">Accept</button></form>
+                <form method="post" action="{% url 'reject_connection' conn.id %}" style="display:contents;">{% csrf_token %}<button type="submit" class="id-reject-btn">Decline</button></form>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
       </div>
       {% endif %}
-    </div>
-  </div><!-- /meetings panel -->
+      {% if not pending_connections and not pending_proposals %}
+      <div class="id-empty"><span class="id-empty-icon">✓</span>All caught up — nothing needs your attention.</div>
+      {% endif %}
+    </div><!-- /pending -->
 
-</div><!-- /idash-wrapper -->
 
-<script>
-function showTab(name, btn) {
-  document.querySelectorAll('.idash-panel').forEach(function(p){ p.classList.remove('active'); });
-  document.querySelectorAll('.idash-tab').forEach(function(b){ b.classList.remove('active'); });
-  document.getElementById('panel-' + name).classList.add('active');
-  btn.classList.add('active');
-}
+    <!-- ══════════════════════════════════════════
+         INVESTOR PREFERENCES TAB
+    ══════════════════════════════════════════ -->
+    <div id="panel-profile" class="id-panel">
+      <div class="id-ph">
+        <div>
+          <h1 class="id-ph-title">Investor Preferences</h1>
+          <p class="id-ph-sub">Your profile helps us personalise deal flow recommendations.</p>
+        </div>
+      </div>
 
-// Activate tab from URL hash
-(function(){
-  var hash = window.location.hash.replace('#','');
-  if (hash) {
-    var panel = document.getElementById('panel-' + hash);
-    if (panel) {
-      document.querySelectorAll('.idash-panel').forEach(function(p){ p.classList.remove('active'); });
-      document.querySelectorAll('.idash-tab').forEach(function(b){ b.classList.remove('active'); });
-      panel.classList.add('active');
-      document.querySelectorAll('.idash-tab').forEach(function(b){
-        if (b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'" + hash + "'") !== -1) {
-          b.classList.add('active');
-        }
-      });
-    }
-  }
-})();
-</script>
+      <div class="id-pf-card">
+        <form method="post" action="{% url 'update_investor_profile' %}">
+          {% csrf_token %}
 
-<!-- ── Action modal for recommended projects ── -->
-<style>
-  .act-modal-overlay-idash {
-    display: none; position: fixed; inset: 0; z-index: 9100;
-    background: rgba(10,20,60,0.52); align-items: center; justify-content: center; padding: 20px 12px;
-  }
-  .act-modal-overlay-idash.open { display: flex; }
-</style>
-<div class="act-modal-overlay-idash" id="act-modal-overlay" onclick="if(event.target===this)closeActionModal()">
-  <div style="background:#fff;border-radius:18px;width:min(520px,100%);box-shadow:0 24px 80px rgba(0,0,0,0.25);padding:28px 28px 24px;position:relative;">
-    <button onclick="closeActionModal()" style="position:absolute;top:16px;right:18px;width:32px;height:32px;border-radius:50%;border:none;background:#f0f0f0;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#666;">×</button>
-    <div id="am-icon" style="font-size:2rem;margin-bottom:6px;line-height:1;"></div>
-    <h3 id="am-title" style="font-family:'Jacques Francois',serif;font-size:1.15rem;color:#1a1a2e;margin:0 0 4px;"></h3>
-    <p id="am-subtitle" style="font-family:'Jaldi',sans-serif;font-size:0.82rem;color:#888;margin:0 0 16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></p>
-    <div class="quick-chips" id="am-chips" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;"></div>
-    <label id="am-msg-label" style="font-family:'Jaldi',sans-serif;font-size:0.76rem;color:#888;margin-bottom:5px;display:block;"></label>
-    <textarea id="am-msg" rows="4" style="width:100%;border:1px solid #d0d8ef;border-radius:8px;padding:10px 12px;font-family:'Jaldi',sans-serif;font-size:0.88rem;resize:vertical;outline:none;box-sizing:border-box;margin-bottom:10px;background:#f8f9ff;"></textarea>
-    <div id="am-amount-row" style="display:none;">
-      <label style="font-family:'Jaldi',sans-serif;font-size:0.76rem;color:#888;margin-bottom:5px;display:block;">Proposed amount (optional, $)</label>
-      <input type="number" id="am-amt" placeholder="e.g. 5000" style="width:100%;border:1px solid #d0d8ef;border-radius:8px;padding:10px 12px;font-family:'Jaldi',sans-serif;font-size:0.88rem;outline:none;box-sizing:border-box;margin-bottom:10px;background:#f8f9ff;">
-    </div>
-    <button id="am-submit" onclick="submitActionModal()" style="width:100%;padding:11px;background:#004AAD;color:#fff;border:none;border-radius:9px;font-family:'Jaldi',sans-serif;font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:6px;">Send</button>
-    <div id="am-ok" style="text-align:center;font-family:'Jaldi',sans-serif;font-size:0.9rem;color:#16a34a;margin-top:10px;display:none;"></div>
+          <div class="id-pf-row">
+            <div class="id-pf-field">
+              <label class="id-pf-label">Min Ticket Size (USD)</label>
+              <span class="id-pf-hint">Smallest single investment you make</span>
+              <input type="number" name="ticket_size_min" class="id-pf-input" min="0"
+                placeholder="e.g. 25000"
+                value="{{ investor_profile.ticket_size_min|default:'' }}">
+            </div>
+            <div class="id-pf-field">
+              <label class="id-pf-label">Max Ticket Size (USD)</label>
+              <span class="id-pf-hint">Largest single investment you make</span>
+              <input type="number" name="ticket_size_max" class="id-pf-input" min="0"
+                placeholder="e.g. 500000"
+                value="{{ investor_profile.ticket_size_max|default:'' }}">
+            </div>
+          </div>
+
+          <div class="id-pf-field">
+            <label class="id-pf-label">Preferred Sectors</label>
+            <span class="id-pf-hint">Comma-separated — e.g. tech, health, agriculture. Used to surface matching projects first.</span>
+            <input type="text" name="preferred_sectors" class="id-pf-input"
+              placeholder="e.g. tech, energy, agriculture, health"
+              value="{{ investor_profile.preferred_sectors|default:'' }}">
+          </div>
+
+          <div class="id-pf-field">
+            <label class="id-pf-label">Geography Focus</label>
+            <span class="id-pf-hint">Markets or regions you invest in</span>
+            <input type="text" name="geography_focus" class="id-pf-input"
+              placeholder="e.g. West Africa, East Africa, Pan-African, Global"
+              value="{{ investor_profile.geography_focus|default:'' }}">
+          </div>
+
+          <div class="id-pf-field">
+            <label class="id-pf-label">Investment Thesis / Mandate</label>
+            <span class="id-pf-hint">A short description of what you look for in deals. Visible to innovators on your profile.</span>
+            <textarea name="investment_thesis" class="id-pf-textarea" rows="4"
+              placeholder="e.g. Early-stage deep-tech startups solving infrastructure problems in Sub-Saharan Africa…">{{ investor_profile.investment_thesis|default:'' }}</textarea>
+          </div>
+
+          <button type="submit" class="id-pf-save">Save Preferences</button>
+        </form>
+      </div>
+    </div><!-- /profile -->
+
+
+  </div><!-- /id-content -->
+  </main>
+</div><!-- /id-shell -->
+
+
+<!-- ── Pitch Request Modal ── -->
+<div id="pitch-modal" class="id-modal-overlay">
+  <div class="id-modal">
+    <button class="id-modal-close" onclick="closePitchModal()">✕</button>
+    <h3 id="pitch-modal-title">Request a Pitch</h3>
+    <p>Send a message to the innovator explaining your interest and availability for a pitch meeting.</p>
+    <form id="pitch-modal-form" method="post" action="">
+      {% csrf_token %}
+      <textarea name="message" placeholder="e.g. I'm interested in your project and would like to schedule a 30-minute pitch call at your convenience…" rows="4"></textarea>
+      <div class="id-modal-actions">
+        <button type="button" class="id-btn id-btn-ghost" onclick="closePitchModal()">Cancel</button>
+        <button type="submit" class="id-btn id-btn-primary">Send Request</button>
+      </div>
+    </form>
   </div>
 </div>
+
+<!-- ── Proposal Modal ── -->
+<div id="action-modal" class="id-modal-overlay id-prop-modal">
+  <div class="id-modal">
+    <button class="id-modal-close" onclick="document.getElementById('action-modal').classList.remove('open')">✕</button>
+    <h3 id="action-modal-title">Send Proposal</h3>
+    <form id="action-modal-form" method="post" action="">
+      {% csrf_token %}
+      <div class="id-prop-field">
+        <label class="id-prop-label">Proposed Amount (USD)</label>
+        <input type="number" name="amount" class="id-prop-input" placeholder="e.g. 50000" min="1" required>
+      </div>
+      <div class="id-prop-field">
+        <label class="id-prop-label">Equity Requested (%)</label>
+        <input type="number" name="equity_percentage" class="id-prop-input" placeholder="e.g. 10" min="0" max="100">
+      </div>
+      <div class="id-prop-field">
+        <label class="id-prop-label">Message</label>
+        <textarea name="message" class="id-prop-textarea" rows="4" placeholder="Your investment thesis for this project…" required></textarea>
+      </div>
+      <div class="id-modal-actions">
+        <button type="button" class="id-btn id-btn-ghost" onclick="document.getElementById('action-modal').classList.remove('open')">Cancel</button>
+        <button type="submit" class="id-btn id-btn-primary">Submit Proposal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
-var _amUrl = '';
-var AM_CHIPS = {
-  collab:   [['Technical help','I can contribute technical expertise to this project.'],['Marketing',"I'd like to handle marketing and outreach."],['Industry expert','I have industry experience and would love to co-develop this.'],['R&D support','I can help with research and development.']],
-  proposal: [['Express interest','I am interested in funding this project and would like to discuss terms.'],['Seed + mentorship','I can offer seed funding and mentorship to help scale this project.'],['Request meeting',"I'd like to schedule a meeting to learn more before committing."]],
-  patent:   [['Patent attorney','I can connect you with a patent attorney to protect this innovation.'],['Filing guidance','I have experience filing patents and can guide you through the process.'],['Co-ownership offer',"I'd like to co-own this patent in exchange for covering filing costs."]]
-};
-var AM_META = {
-  collab:   {icon:'<i class="fi fi-rr-handshake"></i>',title:'Collaborate',  label:'Describe your collaboration idea:', placeholder:"I'd like to collaborate by…",btn:'Send Request',  ok:'<i class="fi fi-rr-check"></i> Collaboration request sent!',amount:false},
-  proposal: {icon:'<i class="fi fi-rr-clipboard"></i>',title:'Send Proposal',label:'Investment proposal message:',       placeholder:"I'm interested in funding this project…",btn:'Send Proposal',ok:'<i class="fi fi-rr-check"></i> Proposal sent!',amount:true},
-  patent:   {icon:'<i class="fi fi-rr-document"></i>',title:'Help Patent',  label:'Describe your patent support offer:',placeholder:'I can help patent this by…',btn:'Send Offer',   ok:'<i class="fi fi-rr-check"></i> Patent offer sent!',amount:false}
-};
-function openActionModal(type, url, subtitle) {
-  _amUrl = url;
-  var meta = AM_META[type];
-  document.getElementById('am-icon').textContent = meta.icon;
-  document.getElementById('am-title').textContent = meta.title;
-  document.getElementById('am-subtitle').textContent = subtitle || '';
-  document.getElementById('am-msg-label').textContent = meta.label;
-  var chipsEl = document.getElementById('am-chips');
-  chipsEl.innerHTML = '';
-  AM_CHIPS[type].forEach(function(c) {
-    var btn = document.createElement('button'); btn.type='button';
-    btn.style.cssText='padding:3px 9px;background:#eef3ff;border:1px solid #c0d0f0;border-radius:12px;font-family:Jaldi,sans-serif;font-size:0.74rem;color:#1040c0;cursor:pointer;';
-    btn.textContent = c[0]; btn.onclick = function(){ document.getElementById('am-msg').value = c[1]; };
-    chipsEl.appendChild(btn);
+/* Panel switching */
+function switchPanel(id, btn) {
+  document.querySelectorAll('.id-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.id-sb-link').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById('panel-' + id);
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+/* Toggle interest (AJAX) */
+function toggleInterest(btn, pk) {
+  fetch(`/projects/${pk}/interest/`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': '{{ csrf_token }}', 'X-Requested-With': 'XMLHttpRequest' }
+  }).then(r => r.json()).then(d => {
+    btn.classList.toggle('active', d.interested);
+    btn.textContent = d.interested ? '★ Interested' : '☆ Interest';
   });
-  var msgEl = document.getElementById('am-msg'); msgEl.value=''; msgEl.placeholder=meta.placeholder;
-  document.getElementById('am-amount-row').style.display = meta.amount ? '' : 'none';
-  document.getElementById('am-amt').value = '';
-  var okEl = document.getElementById('am-ok'); okEl.style.display='none'; okEl.textContent=meta.ok;
-  var sb = document.getElementById('am-submit'); sb.textContent=meta.btn; sb.disabled=false;
-  document.getElementById('act-modal-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-  msgEl.focus();
 }
-function closeActionModal() {
-  document.getElementById('act-modal-overlay').classList.remove('open');
-  document.body.style.overflow = '';
+
+/* Pitch modal */
+function openPitchModal(pk, title) {
+  document.getElementById('pitch-modal-title').textContent = 'Request Pitch: ' + title;
+  document.getElementById('pitch-modal-form').action = `/projects/${pk}/request-pitch/`;
+  document.getElementById('pitch-modal').classList.add('open');
 }
-function submitActionModal() {
-  var msg = document.getElementById('am-msg').value.trim();
-  var amt = document.getElementById('am-amt').value;
-  var body = new FormData();
-  body.append('message', msg);
-  body.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-  if (amt) body.append('amount', amt);
-  var sb = document.getElementById('am-submit'); sb.disabled=true; sb.textContent='Sending…';
-  fetch(_amUrl, {method:'POST', body:body, headers:{'X-Requested-With':'XMLHttpRequest'}})
-  .then(function(r){return r.json();})
-  .then(function(data){
-    if (data.ok) { document.getElementById('am-ok').style.display='block'; setTimeout(closeActionModal, 1600); }
-    else { sb.disabled=false; sb.textContent=sb.dataset.btn||'Send'; }
-  }).catch(function(){ sb.disabled=false; });
+function closePitchModal() {
+  document.getElementById('pitch-modal').classList.remove('open');
 }
+
+/* Proposal modal */
+function openActionModal(type, url, title) {
+  document.getElementById('action-modal-title').textContent = 'Send Proposal — ' + title;
+  document.getElementById('action-modal-form').action = url;
+  document.getElementById('action-modal').classList.add('open');
+}
+
+/* Close modals on backdrop click */
+document.querySelectorAll('.id-modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('open');
+    }
+  });
+});
 </script>
-{% include '_partials/footer.html' %}
+
 {% endblock %}

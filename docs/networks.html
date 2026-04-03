@@ -1,45 +1,83 @@
 {% extends '_partials/base.html' %}
 {% load static %}
 
-{% block content %}
-<h2>My Network</h2>
-<div class="container mt-5">
-    {% if connections %}
-        <ul class="list-group mt-3">
-            {% for connection in connections %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <!-- Profile Picture with Default -->
-                        {% if connection.userprofile.profile_pics %}
-                            <img src="{{ connection.userprofile.profile_pics.url }}" alt="Profile Picture" class="rounded-circle me-3" width="50" height="50">
-                        {% else %}
-                            <img src="{% static 'default-avatar.png' %}" alt="Default Avatar" class="rounded-circle me-3" width="50" height="50">
-                        {% endif %}
-        
-                        <!-- Connection Details with Defaults -->
-                        <div>
-                            <strong>{{ connection.get_full_name|default:"No Name" }}</strong><br>
-                            <small>{{ connection.username|default:"No Username" }}</small><br>
-                            <span class="badge bg-secondary">
-                                {{ connection.userprofile.connected_users.count|default:0 }} Connections
-                            </span>
-                        </div>
-                    </div>
-        
-                    <!-- Disconnect Form -->
-                    <form method="POST" action="{% url 'disconnect_user' connection.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm">Disconnect</button>
-                    </form>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No connections yet. Go to the Innovators or Investors page and click "Connect" to start building your network.</p>
-    {% endif %}
-    <!-- Debugging Fallback Message -->
-    <p>Connections: {{ connections }}</p>
-</div>
+{% block title %}My Network | Oduma Connect{% endblock %}
 
-<script src="{% static 'pages_scripts.js' %}"></script>
+{% block content %}
+<div class="oc-container" style="padding-top:40px;padding-bottom:64px;">
+
+  <div style="margin-bottom:28px;">
+    <h1 style="font-size:1.75rem;font-weight:700;color:var(--oc-text-primary);margin-bottom:4px;">My Network</h1>
+    <p style="font-size:.9rem;color:var(--oc-text-muted);">
+      {{ connections|length }} connection{{ connections|length|pluralize }}
+    </p>
+  </div>
+
+  {% if connections %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+      {% for connection in connections %}
+      <div class="oc-card" style="padding:20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;">
+
+        <!-- Avatar (clickable) -->
+        <a href="{% url 'profile_view' id=connection.id %}" style="display:block;line-height:0;">
+          {% if connection.userprofile.profile_pics %}
+            <img src="{{ connection.userprofile.profile_pics.url }}" alt="{{ connection.get_full_name }}"
+                 style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--oc-border);">
+          {% else %}
+            <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#004AAD,#0066cc);
+                        display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.4rem;margin:0 auto;">
+              {{ connection.first_name|slice:":1"|upper }}{{ connection.last_name|slice:":1"|upper }}
+            </div>
+          {% endif %}
+        </a>
+
+        <!-- Name (clickable) -->
+        <div>
+          <a href="{% url 'profile_view' id=connection.id %}"
+             style="font-size:.95rem;font-weight:700;color:var(--oc-text-primary);text-decoration:none;display:block;margin-bottom:2px;">
+            {{ connection.get_full_name|default:connection.username }}
+          </a>
+          <div style="font-size:.8rem;color:var(--oc-text-muted);">
+            {{ connection.user_type|capfirst }}
+            {% if connection.userprofile.industry %}&nbsp;·&nbsp; {{ connection.userprofile.industry }}{% endif %}
+          </div>
+          {% if connection.userprofile.bio %}
+          <p style="font-size:.8rem;color:var(--oc-text-secondary);margin-top:6px;line-height:1.5;">
+            {{ connection.userprofile.bio|truncatewords:12 }}
+          </p>
+          {% endif %}
+        </div>
+
+        <!-- Stats -->
+        <div style="display:flex;gap:16px;font-size:.78rem;color:var(--oc-text-muted);">
+          <span>{{ connection.userprofile.connected_users.count }} connections</span>
+          <span>{{ connection.posts.count }} posts</span>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;">
+          <a href="{% url 'profile_view' id=connection.id %}" class="oc-btn oc-btn-outline oc-btn-sm">View Profile</a>
+          <form method="POST" action="{% url 'disconnect_user' connection.id %}" style="display:inline;"
+                onsubmit="return confirm('Disconnect from {{ connection.get_full_name|default:connection.username }}?')">
+            {% csrf_token %}
+            <button type="submit" class="oc-btn oc-btn-ghost oc-btn-sm" style="color:#dc2626;">Disconnect</button>
+          </form>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="oc-card" style="text-align:center;padding:60px 20px;color:var(--oc-text-muted);">
+      <div style="font-size:3rem;margin-bottom:16px;">🌐</div>
+      <h3 style="font-size:1.1rem;font-weight:600;color:var(--oc-text-primary);margin-bottom:8px;">No connections yet</h3>
+      <p style="font-size:.875rem;margin-bottom:20px;">Visit the Innovators or Investors pages and click Connect to start building your network.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <a href="{% url 'innovators' %}" class="oc-btn oc-btn-primary oc-btn-sm">Browse Innovators</a>
+        <a href="{% url 'investors' %}"  class="oc-btn oc-btn-outline oc-btn-sm">Browse Investors</a>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
 {% endblock %}

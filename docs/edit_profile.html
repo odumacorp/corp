@@ -1,13 +1,225 @@
 {% extends "_partials/base.html" %}
+{% load static %}
+{% block title %}Edit Profile | Oduma Connect{% endblock %}
+
+{% block extra_head %}
+<style>
+:root{--navy:#0A1628;--blue:#1B5EC7;--blue-d:#144FA8;}
+
+.ep-page{max-width:860px;margin:0 auto;padding:40px 24px 80px;}
+
+/* Header */
+.ep-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:32px;}
+.ep-header h1{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:800;color:var(--navy);margin:0;}
+.ep-back{display:inline-flex;align-items:center;gap:6px;font-size:.84rem;font-weight:600;color:#6b7280;text-decoration:none;transition:color .15s;}
+.ep-back:hover{color:var(--navy);}
+
+/* Card */
+.ep-card{background:#fff;border:1px solid #e0e8f4;border-radius:16px;overflow:hidden;box-shadow:0 2px 20px rgba(10,22,40,0.06);}
+
+/* Avatar section */
+.ep-avatar-section{background:linear-gradient(135deg,#0A1628,#1B5EC7);padding:28px 32px;display:flex;align-items:center;gap:22px;}
+.ep-avatar-wrap{position:relative;flex-shrink:0;}
+.ep-avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.25);}
+.ep-avatar-initials{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.15);border:3px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;}
+.ep-avatar-upload{position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:#fff;border:2px solid #e0e8f4;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.75rem;}
+.ep-avatar-info h2{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:800;color:#fff;margin:0 0 4px;}
+.ep-avatar-info p{font-size:.82rem;color:rgba(255,255,255,0.65);margin:0 0 10px;}
+.ep-avatar-label{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:.78rem;font-weight:700;padding:6px 14px;border-radius:8px;cursor:pointer;transition:background .18s;}
+.ep-avatar-label:hover{background:rgba(255,255,255,0.2);}
+#ep-pic-input{display:none;}
+
+/* Sections */
+.ep-sections{padding:28px 32px;display:flex;flex-direction:column;gap:28px;}
+.ep-section{}
+.ep-section-title{font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.ep-section-title::after{content:'';flex:1;height:1px;background:#f0f4f8;}
+
+.ep-grid{display:grid;gap:16px;}
+.ep-grid-2{grid-template-columns:1fr 1fr;}
+.ep-grid-1{grid-template-columns:1fr;}
+
+.ep-field label{display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:6px;letter-spacing:.01em;}
+.ep-field input,.ep-field textarea,.ep-field select{
+  width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:11px 14px;
+  font-size:.875rem;font-family:inherit;color:#0A1628;background:#fafbff;
+  transition:border-color .18s,box-shadow .18s;outline:none;box-sizing:border-box;}
+.ep-field input:focus,.ep-field textarea:focus,.ep-field select:focus{
+  border-color:#1B5EC7;box-shadow:0 0 0 3px rgba(27,94,199,0.1);background:#fff;}
+.ep-field textarea{resize:vertical;line-height:1.65;}
+.ep-field .ep-hint{font-size:.72rem;color:#9ca3af;margin-top:5px;}
+
+/* Error display */
+.ep-field-errors{margin-top:5px;}
+.ep-field-errors li{font-size:.78rem;color:#dc2626;list-style:none;}
+
+/* Footer actions */
+.ep-actions{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-top:1px solid #f0f4f8;flex-wrap:wrap;gap:12px;}
+.ep-btn-save{background:#1B5EC7;color:#fff;border:none;padding:12px 32px;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:background .18s,transform .18s;}
+.ep-btn-save:hover{background:#144FA8;transform:translateY(-1px);}
+.ep-btn-cancel{color:#6b7280;font-size:.875rem;font-weight:600;text-decoration:none;padding:12px 20px;border-radius:10px;transition:background .15s;}
+.ep-btn-cancel:hover{background:#f0f4f8;color:var(--navy);}
+
+/* Success message */
+.ep-alert{display:flex;align-items:center;gap:10px;background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;padding:13px 16px;border-radius:10px;font-size:.875rem;font-weight:600;margin-bottom:24px;}
+
+@media(max-width:640px){
+  .ep-page{padding:24px 16px 60px;}
+  .ep-sections{padding:20px 20px;}
+  .ep-actions{padding:16px 20px;}
+  .ep-grid-2{grid-template-columns:1fr;}
+  .ep-avatar-section{padding:22px 20px;flex-wrap:wrap;}
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2>Edit Profile</h2>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save Changes</button>
-    </form>
+<div class="ep-page">
+
+  <!-- Header -->
+  <div class="ep-header">
+    <h1>Edit Profile</h1>
+    <a href="{% url 'profile_view' id=request.user.id %}" class="ep-back">← Back to Profile</a>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="ep-alert">✓ {{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="ep-card">
+
+      <!-- Avatar / identity strip -->
+      <div class="ep-avatar-section">
+        <div class="ep-avatar-wrap">
+          {% if form.instance.profile_pics %}
+            <img src="{{ form.instance.profile_pics.url }}" alt="Avatar" class="ep-avatar" id="ep-avatar-preview">
+          {% else %}
+            <div class="ep-avatar-initials" id="ep-avatar-initials">
+              {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+            </div>
+          {% endif %}
+          <div class="ep-avatar-upload" onclick="document.getElementById('ep-pic-input').click()">📷</div>
+        </div>
+        <div class="ep-avatar-info">
+          <h2>{{ request.user.get_full_name|default:request.user.username }}</h2>
+          <p>{{ request.user.email }}</p>
+          <label class="ep-avatar-label" for="ep-pic-input">
+            ↑ Change Photo
+          </label>
+          <input type="file" name="profile_pics" id="ep-pic-input" accept="image/*"
+                 onchange="previewAvatar(this)">
+        </div>
+      </div>
+
+      <!-- Form sections -->
+      <div class="ep-sections">
+
+        <!-- Personal Info -->
+        <div class="ep-section">
+          <div class="ep-section-title">Personal Information</div>
+          <div class="ep-grid ep-grid-2">
+            <div class="ep-field">
+              <label for="{{ form.first_name.id_for_label }}">First Name</label>
+              <input type="text" name="first_name" id="{{ form.first_name.id_for_label }}"
+                     value="{{ form.first_name.value|default:'' }}" placeholder="Jane">
+              {% if form.first_name.errors %}<ul class="ep-field-errors">{% for e in form.first_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+            <div class="ep-field">
+              <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+              <input type="text" name="last_name" id="{{ form.last_name.id_for_label }}"
+                     value="{{ form.last_name.value|default:'' }}" placeholder="Okafor">
+              {% if form.last_name.errors %}<ul class="ep-field-errors">{% for e in form.last_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+            <div class="ep-field">
+              <label for="{{ form.email.id_for_label }}">Email Address</label>
+              <input type="email" name="email" id="{{ form.email.id_for_label }}"
+                     value="{{ form.email.value|default:'' }}" placeholder="jane@example.com">
+              {% if form.email.errors %}<ul class="ep-field-errors">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+            <div class="ep-field">
+              <label for="{{ form.phone_number.id_for_label }}">Phone Number</label>
+              <input type="tel" name="phone_number" id="{{ form.phone_number.id_for_label }}"
+                     value="{{ form.phone_number.value|default:'' }}" placeholder="+234 800 000 0000">
+              {% if form.phone_number.errors %}<ul class="ep-field-errors">{% for e in form.phone_number.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Professional -->
+        <div class="ep-section">
+          <div class="ep-section-title">Professional Details</div>
+          <div class="ep-grid ep-grid-2">
+            <div class="ep-field">
+              <label for="{{ form.company.id_for_label }}">Company / Organisation</label>
+              <input type="text" name="company" id="{{ form.company.id_for_label }}"
+                     value="{{ form.company.value|default:'' }}" placeholder="Acme Ltd.">
+              {% if form.company.errors %}<ul class="ep-field-errors">{% for e in form.company.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+            <div class="ep-field">
+              <label for="{{ form.industry.id_for_label }}">Industry</label>
+              <select name="industry" id="{{ form.industry.id_for_label }}">
+                <option value="">— Select industry —</option>
+                {% for val, label in form.fields.industry.choices %}
+                  {% if val %}
+                    <option value="{{ val }}" {% if form.industry.value == val %}selected{% endif %}>{{ label }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+              {% if form.industry.errors %}<ul class="ep-field-errors">{% for e in form.industry.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Bio -->
+        <div class="ep-section">
+          <div class="ep-section-title">About You</div>
+          <div class="ep-grid ep-grid-1">
+            <div class="ep-field">
+              <label for="{{ form.bio.id_for_label }}">Bio</label>
+              <textarea name="bio" id="{{ form.bio.id_for_label }}" rows="5"
+                placeholder="Tell the community who you are, what you're building, and what you're looking for…">{{ form.bio.value|default:'' }}</textarea>
+              <p class="ep-hint">A strong bio helps investors and innovators find and connect with you.</p>
+              {% if form.bio.errors %}<ul class="ep-field-errors">{% for e in form.bio.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /ep-sections -->
+
+      <!-- Action bar -->
+      <div class="ep-actions">
+        <a href="{% url 'profile_view' id=request.user.id %}" class="ep-btn-cancel">Cancel</a>
+        <button type="submit" class="ep-btn-save">Save Changes</button>
+      </div>
+
+    </div><!-- /ep-card -->
+  </form>
+
 </div>
 
+<script>
+function previewAvatar(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    // Replace initials div with an img if needed
+    const initials = document.getElementById('ep-avatar-initials');
+    let img = document.getElementById('ep-avatar-preview');
+    if (initials) {
+      img = document.createElement('img');
+      img.id = 'ep-avatar-preview';
+      img.className = 'ep-avatar';
+      img.alt = 'Avatar';
+      initials.replaceWith(img);
+    }
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+</script>
 {% endblock %}

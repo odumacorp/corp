@@ -1,23 +1,161 @@
-{% extends '_partials/base.html'  %}
+{% extends '_partials/base.html' %}
+{% load static %}
+{% block title %}Search: {{ query }}{% endblock %}
 
 {% block content %}
-    <h2>Search Results for "{{ query }}"</h2>
+<div style="max-width:900px;margin:32px auto;padding:0 16px;">
 
-    {% if results %}
-        <ul>
-            {% for result in results %}
-                <li>
-                    <a href="#">
-                        {% if result.title %}
-                            {{ result.title }}
-                        {% elif result.name %}
-                            {{ result.name }}
-                        {% endif %}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No results found.</p>
-    {% endif %}
+  <!-- Search form -->
+  <form method="GET" action="{% url 'search' %}" style="display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;">
+    <input type="text" name="q" value="{{ query }}" placeholder="Search projects, posts, groups…"
+           class="oc-input" style="flex:1;min-width:200px;" autofocus>
+    <select name="type" class="oc-select" style="min-width:130px;">
+      <option value="all"      {% if search_type == 'all'      %}selected{% endif %}>All</option>
+      <option value="posts"    {% if search_type == 'posts'    %}selected{% endif %}>Posts</option>
+      <option value="projects" {% if search_type == 'projects' %}selected{% endif %}>Projects</option>
+      <option value="groups"   {% if search_type == 'groups'   %}selected{% endif %}>Groups</option>
+      <option value="pages"    {% if search_type == 'pages'    %}selected{% endif %}>Pages</option>
+      <option value="jobs"     {% if search_type == 'jobs'     %}selected{% endif %}>Jobs</option>
+      <option value="events"   {% if search_type == 'events'   %}selected{% endif %}>Events</option>
+    </select>
+    <button type="submit" class="oc-btn oc-btn-primary">Search</button>
+  </form>
+
+  {% if query %}
+  <p style="color:#6b7280;font-size:.875rem;margin-bottom:20px;">
+    {{ total_count }} result{{ total_count|pluralize }} for "<strong>{{ query }}</strong>"
+  </p>
+
+  <!-- Projects -->
+  {% if project_results %}
+  <section style="margin-bottom:32px;">
+    <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      🚀 Projects <span class="oc-badge oc-badge-primary">{{ project_results|length }}</span>
+    </h3>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      {% for project in project_results %}
+      <div class="oc-card" style="padding:16px;display:flex;gap:14px;align-items:flex-start;">
+        <div style="flex:1;">
+          <a href="{% url 'project_detail' project.pk %}" style="font-weight:600;color:#1a1a2e;text-decoration:none;font-size:.95rem;">{{ project.title }}</a>
+          <div style="font-size:.8rem;color:#6b7280;margin:4px 0;">
+            <span>{{ project.industry }}</span>
+            {% if project.category %}&nbsp;·&nbsp;<span>{{ project.get_category_display|default:project.category }}</span>{% endif %}
+            &nbsp;·&nbsp; by <a href="{% url 'profile_view' id=project.owner.pk %}" style="color:var(--oc-primary);">{{ project.owner.get_full_name }}</a>
+          </div>
+          <p style="font-size:.875rem;color:#374151;margin:6px 0 0;line-height:1.6;">{{ project.description|truncatewords:25 }}</p>
+        </div>
+        <a href="{% url 'project_detail' project.pk %}" class="oc-btn oc-btn-outline oc-btn-sm" style="white-space:nowrap;">View</a>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Posts -->
+  {% if post_results %}
+  <section style="margin-bottom:32px;">
+    <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      📝 Posts <span class="oc-badge oc-badge-primary">{{ post_results|length }}</span>
+    </h3>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      {% for post in post_results %}
+      <div class="oc-card" style="padding:16px;">
+        <a href="{% url 'post_detail' post.pk %}" style="font-weight:600;color:#1a1a2e;text-decoration:none;font-size:.95rem;">{{ post.title|default:"Untitled Post" }}</a>
+        <div style="font-size:.8rem;color:#6b7280;margin:4px 0;">
+          {{ post.get_post_type_display|default:post.post_type }} &nbsp;·&nbsp; {{ post.industry }}
+          &nbsp;·&nbsp; by <a href="{% url 'profile_view' id=post.user.pk %}" style="color:var(--oc-primary);">{{ post.user.get_full_name }}</a>
+        </div>
+        <p style="font-size:.875rem;color:#374151;margin:6px 0 0;line-height:1.6;">{{ post.content|truncatewords:25 }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Groups -->
+  {% if group_results %}
+  <section style="margin-bottom:32px;">
+    <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      👥 Groups <span class="oc-badge oc-badge-primary">{{ group_results|length }}</span>
+    </h3>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      {% for group in group_results %}
+      <div class="oc-card" style="padding:16px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <a href="{% url 'group_detail' group.pk %}" style="font-weight:600;color:#1a1a2e;text-decoration:none;">{{ group.name }}</a>
+          <div style="font-size:.8rem;color:#6b7280;margin-top:4px;">{{ group.members.count }} members &nbsp;·&nbsp; {{ group.get_industry_display|default:group.industry }}</div>
+        </div>
+        <a href="{% url 'group_detail' group.pk %}" class="oc-btn oc-btn-outline oc-btn-sm">View</a>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Pages -->
+  {% if page_results %}
+  <section style="margin-bottom:32px;">
+    <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      📄 Pages <span class="oc-badge oc-badge-primary">{{ page_results|length }}</span>
+    </h3>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      {% for page in page_results %}
+      <div class="oc-card" style="padding:16px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <a href="{% url 'page_detail' page_id=page.id %}" style="font-weight:600;color:#1a1a2e;text-decoration:none;">{{ page.title }}</a>
+          <div style="font-size:.8rem;color:#6b7280;margin-top:4px;">{{ page.followers.count }} followers &nbsp;·&nbsp; {{ page.get_industry_display|default:page.industry }}</div>
+        </div>
+        <a href="{% url 'page_detail' page_id=page.id %}" class="oc-btn oc-btn-outline oc-btn-sm">View</a>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Jobs -->
+  {% if job_results %}
+  <section style="margin-bottom:32px;">
+    <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      🧳 Jobs <span class="oc-badge oc-badge-primary">{{ job_results|length }}</span>
+    </h3>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      {% for job in job_results %}
+      <div class="oc-card" style="padding:16px;">
+        <div style="font-weight:600;color:#1a1a2e;font-size:.95rem;">{{ job.title }}</div>
+        <div style="font-size:.8rem;color:#6b7280;margin:4px 0;">{{ job.get_job_type_display }} &nbsp;·&nbsp; {{ job.company }}{% if job.location %}&nbsp;·&nbsp;{{ job.location }}{% endif %}</div>
+        <p style="font-size:.875rem;color:#374151;margin:6px 0 0;">{{ job.description|truncatewords:20 }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Events -->
+  {% if event_results %}
+  <section style="margin-bottom:32px;">
+    <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      📅 Events <span class="oc-badge oc-badge-primary">{{ event_results|length }}</span>
+    </h3>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      {% for event in event_results %}
+      <div class="oc-card" style="padding:16px;">
+        <div style="font-weight:600;color:#1a1a2e;font-size:.95rem;">{{ event.name }}</div>
+        <div style="font-size:.8rem;color:#6b7280;margin:4px 0;">{{ event.date }} &nbsp;·&nbsp; {{ event.location }}</div>
+        {% if event.description %}<p style="font-size:.875rem;color:#374151;margin:6px 0 0;">{{ event.description|truncatewords:20 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if total_count == 0 %}
+  <div style="text-align:center;padding:60px 20px;color:#6b7280;">
+    <div style="font-size:2rem;margin-bottom:12px;">🔍</div>
+    <p style="font-size:1.1rem;font-weight:600;margin-bottom:6px;">No results found</p>
+    <p style="font-size:.875rem;">Try a different search term or filter.</p>
+  </div>
+  {% endif %}
+
+  {% endif %}
+</div>
 {% endblock %}

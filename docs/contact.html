@@ -1,14 +1,260 @@
 {% extends '_partials/base.html' %}
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Submit</button>
-</form>
+{% load static %}
+{% block title %}Contact Us | Oduma Connect{% endblock %}
 
-{% if messages %}
-    <ul>
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
+{% block extra_head %}
+<style>
+.ct-hero{background:linear-gradient(135deg,#060e1c 0%,#0a1d3d 55%,#0e2c62 100%);padding:72px 0 56px;position:relative;overflow:hidden;}
+.ct-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;}
+.ct-hero::after{content:'';position:absolute;top:-20%;right:-10%;width:600px;height:600px;background:radial-gradient(circle,rgba(27,94,199,0.2) 0%,transparent 65%);pointer-events:none;}
+.ct-hero__inner{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:0 32px;text-align:center;}
+.ct-hero__badge{display:inline-flex;align-items:center;gap:8px;background:rgba(27,94,199,0.18);border:1px solid rgba(27,94,199,0.4);border-radius:100px;padding:5px 14px 5px 8px;margin-bottom:20px;}
+.ct-hero__badge-dot{width:7px;height:7px;border-radius:50%;background:#3b82f6;box-shadow:0 0 8px #3b82f6;}
+.ct-hero__badge span{font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;color:#93c5fd;letter-spacing:.06em;text-transform:uppercase;}
+.ct-hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,5vw,3rem);font-weight:800;color:#fff;line-height:1.1;letter-spacing:-.03em;margin-bottom:14px;}
+.ct-hero h1 em{font-style:normal;background:linear-gradient(90deg,#3b82f6,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ct-hero p{color:rgba(255,255,255,0.58);font-size:1rem;line-height:1.7;max-width:520px;margin:0 auto;}
+
+.ct-main{max-width:1160px;margin:0 auto;padding:64px 32px 80px;display:grid;grid-template-columns:1fr 1.5fr;gap:48px;align-items:start;}
+
+/* Info panel */
+.ct-info{display:flex;flex-direction:column;gap:20px;}
+.ct-info-card{background:#fff;border:1px solid #e0e8f4;border-radius:14px;overflow:hidden;}
+.ct-info-card__head{background:linear-gradient(135deg,#0A1628,#1B5EC7);padding:22px 24px;}
+.ct-info-card__head h2{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#fff;margin:0 0 4px;}
+.ct-info-card__head p{font-size:.82rem;color:rgba(255,255,255,0.65);margin:0;}
+.ct-info-card__body{padding:20px 24px;display:flex;flex-direction:column;gap:16px;}
+
+.ct-detail{display:flex;align-items:flex-start;gap:12px;}
+.ct-detail__icon{width:38px;height:38px;border-radius:9px;background:#f0f4ff;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.ct-detail__label{font-size:.72rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
+.ct-detail__val{font-size:.875rem;font-weight:600;color:#0A1628;line-height:1.5;}
+.ct-detail__val a{color:#1B5EC7;text-decoration:none;}
+.ct-detail__val a:hover{text-decoration:underline;}
+
+.ct-hours{background:#f8faff;border:1px solid #e0e8f4;border-radius:12px;padding:18px 20px;}
+.ct-hours h3{font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:800;color:#0A1628;margin:0 0 12px;}
+.ct-hours-row{display:flex;justify-content:space-between;font-size:.82rem;color:#374151;padding:5px 0;border-bottom:1px solid #f0f4f8;}
+.ct-hours-row:last-child{border-bottom:none;}
+.ct-hours-row span:last-child{font-weight:600;color:#059669;}
+
+.ct-socials{display:flex;gap:8px;}
+.ct-social{width:36px;height:36px;border-radius:8px;background:#f0f4ff;border:1px solid #e0e8f4;display:flex;align-items:center;justify-content:center;color:#1B5EC7;font-size:.8rem;font-weight:800;text-decoration:none;transition:background .18s,color .18s;}
+.ct-social:hover{background:#1B5EC7;color:#fff;}
+
+/* Form panel */
+.ct-form-wrap{background:#fff;border:1px solid #e0e8f4;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(10,22,40,0.07);}
+.ct-form-head{padding:28px 32px 0;}
+.ct-form-head h2{font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:800;color:#0A1628;margin:0 0 4px;}
+.ct-form-head p{font-size:.875rem;color:#6b7280;margin:0 0 28px;}
+.ct-form-body{padding:0 32px 32px;}
+
+.ct-field{margin-bottom:18px;}
+.ct-field label{display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:6px;letter-spacing:.01em;}
+.ct-field input,.ct-field textarea,.ct-field select{
+  width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:11px 14px;
+  font-size:.875rem;font-family:inherit;color:#0A1628;background:#fafbff;
+  transition:border-color .18s,box-shadow .18s;outline:none;box-sizing:border-box;}
+.ct-field input:focus,.ct-field textarea:focus,.ct-field select:focus{border-color:#1B5EC7;box-shadow:0 0 0 3px rgba(27,94,199,0.1);background:#fff;}
+.ct-field textarea{resize:vertical;line-height:1.6;}
+.ct-field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+.ct-topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ct-topic{display:none;}
+.ct-topic+label{display:flex;align-items:center;gap:8px;padding:9px 14px;border:1.5px solid #e0e6f0;border-radius:9px;font-size:.82rem;font-weight:600;color:#374151;cursor:pointer;transition:all .18s;background:#fafbff;}
+.ct-topic:checked+label{border-color:#1B5EC7;background:#f0f4ff;color:#1B5EC7;}
+.ct-topic+label:hover{border-color:#93c5fd;background:#f5f8ff;}
+
+.ct-submit{width:100%;background:#1B5EC7;color:#fff;border:none;padding:14px;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:background .18s,transform .18s;margin-top:8px;}
+.ct-submit:hover{background:#144FA8;transform:translateY(-1px);}
+
+.ct-alert{border-radius:10px;padding:13px 16px;font-size:.875rem;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.ct-alert--success{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;}
+.ct-alert--error{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;}
+
+@media(max-width:900px){
+  .ct-main{grid-template-columns:1fr;gap:32px;}
+  .ct-field-row{grid-template-columns:1fr;}
+  .ct-topic-grid{grid-template-columns:1fr;}
+}
+@media(max-width:560px){
+  .ct-form-head,.ct-form-body{padding-left:20px;padding-right:20px;}
+  .ct-hero__inner{padding:0 20px;}
+  .ct-main{padding:40px 20px 60px;}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<div class="ct-hero">
+  <div class="ct-hero__inner">
+    <div class="ct-hero__badge">
+      <span class="ct-hero__badge-dot"></span>
+      <span>We respond within 48 hours</span>
+    </div>
+    <h1>Get in <em>Touch</em></h1>
+    <p>Have a question, partnership idea, or just want to learn more about what we're building? Our team is ready to help.</p>
+  </div>
+</div>
+
+<!-- Main grid -->
+<div class="ct-main">
+
+  <!-- Left: Company info -->
+  <div class="ct-info">
+
+    <div class="ct-info-card">
+      <div class="ct-info-card__head">
+        <h2>Oduma Corp</h2>
+        <p>Africa's Innovation & Investment Platform</p>
+      </div>
+      <div class="ct-info-card__body">
+
+        <div class="ct-detail">
+          <div class="ct-detail__icon">📧</div>
+          <div>
+            <div class="ct-detail__label">Email</div>
+            <div class="ct-detail__val"><a href="mailto:odumacorp@gmail.com">odumacorp@gmail.com</a></div>
+          </div>
+        </div>
+
+        <div class="ct-detail">
+          <div class="ct-detail__icon">📞</div>
+          <div>
+            <div class="ct-detail__label">Phone</div>
+            <div class="ct-detail__val"><a href="tel:+2348000000000">+234 800 000 0000</a></div>
+          </div>
+        </div>
+
+        <div class="ct-detail">
+          <div class="ct-detail__icon">📍</div>
+          <div>
+            <div class="ct-detail__label">Address</div>
+            <div class="ct-detail__val">Lagos, Nigeria<br><span style="color:#6b7280;font-weight:400;">Serving all of Africa</span></div>
+          </div>
+        </div>
+
+        <div class="ct-detail">
+          <div class="ct-detail__icon">🌐</div>
+          <div>
+            <div class="ct-detail__label">Platform</div>
+            <div class="ct-detail__val"><a href="/">connect.odumacorp.com</a></div>
+          </div>
+        </div>
+
+        <div style="padding-top:4px;">
+          <div class="ct-detail__label" style="margin-bottom:10px;">Follow us</div>
+          <div class="ct-socials">
+            <a href="#" class="ct-social" aria-label="X / Twitter">𝕏</a>
+            <a href="#" class="ct-social" aria-label="LinkedIn">in</a>
+            <a href="#" class="ct-social" aria-label="Instagram" style="font-size:.7rem;">IG</a>
+            <a href="#" class="ct-social" aria-label="Facebook" style="font-size:.75rem;">f</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hours -->
+    <div class="ct-hours">
+      <h3>Support Hours</h3>
+      <div class="ct-hours-row"><span>Monday – Friday</span><span>9:00 AM – 6:00 PM WAT</span></div>
+      <div class="ct-hours-row"><span>Saturday</span><span>10:00 AM – 2:00 PM WAT</span></div>
+      <div class="ct-hours-row"><span>Sunday</span><span style="color:#6b7280;">Closed</span></div>
+    </div>
+
+    <!-- Quick links -->
+    <div style="background:#f8faff;border:1px solid #e0e8f4;border-radius:12px;padding:18px 20px;">
+      <div class="ct-detail__label" style="margin-bottom:12px;">Quick Links</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <a href="{% url 'faq' %}" style="font-size:.875rem;font-weight:600;color:#1B5EC7;text-decoration:none;display:flex;align-items:center;gap:6px;">
+          <span style="font-size:.75rem;">❓</span> Frequently Asked Questions
+        </a>
+        <a href="{% url 'services' %}" style="font-size:.875rem;font-weight:600;color:#1B5EC7;text-decoration:none;display:flex;align-items:center;gap:6px;">
+          <span style="font-size:.75rem;">🛠</span> Our Services
+        </a>
+        <a href="{% url 'about' %}" style="font-size:.875rem;font-weight:600;color:#1B5EC7;text-decoration:none;display:flex;align-items:center;gap:6px;">
+          <span style="font-size:.75rem;">🏢</span> About Oduma Corp
+        </a>
+        <a href="{% url 'privacy_policy' %}" style="font-size:.875rem;font-weight:600;color:#1B5EC7;text-decoration:none;display:flex;align-items:center;gap:6px;">
+          <span style="font-size:.75rem;">🔒</span> Privacy Policy
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right: Contact form -->
+  <div class="ct-form-wrap">
+    <div class="ct-form-head">
+      <h2>Send us a message</h2>
+      <p>Fill in the form and we'll get back to you as soon as possible.</p>
+    </div>
+    <div class="ct-form-body">
+
+      {% for message in messages %}
+        {% if 'success' in message.tags %}
+          <div class="ct-alert ct-alert--success">✓ {{ message }}</div>
+        {% else %}
+          <div class="ct-alert ct-alert--error">⚠ {{ message }}</div>
+        {% endif %}
+      {% endfor %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <!-- Topic -->
+        <div class="ct-field" style="margin-bottom:20px;">
+          <label>What's this about?</label>
+          <div class="ct-topic-grid">
+            <input type="radio" name="topic" id="t1" value="General Inquiry" class="ct-topic" checked>
+            <label for="t1">💬 General Inquiry</label>
+            <input type="radio" name="topic" id="t2" value="Partnership" class="ct-topic">
+            <label for="t2">🤝 Partnership</label>
+            <input type="radio" name="topic" id="t3" value="Technical Support" class="ct-topic">
+            <label for="t3">🛠 Technical Support</label>
+            <input type="radio" name="topic" id="t4" value="Investment Inquiry" class="ct-topic">
+            <label for="t4">💰 Investment Inquiry</label>
+            <input type="radio" name="topic" id="t5" value="Media / Press" class="ct-topic">
+            <label for="t5">📰 Media / Press</label>
+            <input type="radio" name="topic" id="t6" value="Other" class="ct-topic">
+            <label for="t6">📌 Other</label>
+          </div>
+        </div>
+
+        <div class="ct-field-row">
+          <div class="ct-field">
+            <label for="id_name">Full Name *</label>
+            <input type="text" id="id_name" name="name"
+              value="{{ form.name.value|default:'' }}"
+              placeholder="Jane Okafor" required>
+          </div>
+          <div class="ct-field">
+            <label for="id_email">Email Address *</label>
+            <input type="email" id="id_email" name="email"
+              value="{{ form.email.value|default:'' }}"
+              placeholder="jane@example.com" required>
+          </div>
+        </div>
+
+        <div class="ct-field">
+          <label for="id_subject">Subject</label>
+          <input type="text" id="id_subject" name="subject"
+            value="{{ form.subject.value|default:'' }}"
+            placeholder="Brief summary of your message">
+        </div>
+
+        <div class="ct-field">
+          <label for="id_message">Message *</label>
+          <textarea id="id_message" name="message" rows="6" required
+            placeholder="Tell us how we can help you…">{{ form.message.value|default:'' }}</textarea>
+        </div>
+
+        <button type="submit" class="ct-submit">Send Message →</button>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

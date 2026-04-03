@@ -1,97 +1,358 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-
 {% block title %}Contact Submissions | Admin | Oduma Connect{% endblock %}
 
-{% block content %}
+{% block extra_head %}
 <style>
-  .cs-wrapper {
-    max-width: 1000px;
-    margin: 40px auto;
-    padding: 0 20px 60px;
-    font-family: "Jaldi", sans-serif;
-  }
-  .cs-title {
-    font-family: "Jacques Francois", serif;
-    font-size: 1.6rem;
-    color: #1a1a2e;
-    margin-bottom: 24px;
-  }
-  .cs-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-  }
-  .cs-table th {
-    background: #004AAD;
-    color: #fff;
-    font-family: "Jacques Francois", serif;
-    font-size: 0.88rem;
-    padding: 12px 14px;
-    text-align: left;
-  }
-  .cs-table td {
-    padding: 12px 14px;
-    border-bottom: 1px solid #eee;
-    font-size: 0.88rem;
-    color: #333;
-    vertical-align: top;
-  }
-  .cs-table tr:last-child td { border-bottom: none; }
-  .cs-table tr:hover td { background: #f7f9fc; }
-  .cs-badge-replied { color: #22c55e; font-weight: 700; }
-  .cs-badge-pending { color: #d97706; font-weight: 700; }
-  .cs-back { display: inline-block; margin-bottom: 18px; color: #004AAD; text-decoration: none; font-size: 0.9rem; }
-  .cs-back:hover { text-decoration: underline; }
-  .cs-empty { padding: 40px; text-align: center; color: #aaa; font-size: 1rem; }
+:root{--navy:#0A1628;--blue:#1B5EC7;--blue-d:#144FA8;}
+.cs-page{max-width:1200px;margin:0 auto;padding:40px 28px 80px;}
+
+/* Header */
+.cs-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:28px;}
+.cs-header h1{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;color:var(--navy);margin:0;}
+.cs-stats{display:flex;gap:12px;}
+.cs-stat{background:#f0f4ff;border:1px solid #d4e0ff;border-radius:10px;padding:8px 16px;text-align:center;}
+.cs-stat__num{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:800;color:var(--blue);}
+.cs-stat__lbl{font-size:.7rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;}
+
+/* Table */
+.cs-table-wrap{background:#fff;border:1px solid #e0e8f4;border-radius:14px;overflow:hidden;box-shadow:0 2px 16px rgba(10,22,40,0.06);}
+.cs-table{width:100%;border-collapse:collapse;}
+.cs-table thead th{background:#0A1628;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:700;padding:13px 16px;text-align:left;letter-spacing:.03em;}
+.cs-table tbody tr{border-bottom:1px solid #f0f4f8;cursor:pointer;transition:background .15s;}
+.cs-table tbody tr:last-child{border-bottom:none;}
+.cs-table tbody tr:hover{background:#f8faff;}
+.cs-table tbody tr.active{background:#f0f4ff;}
+.cs-table td{padding:13px 16px;font-size:.845rem;color:#374151;vertical-align:middle;}
+.cs-table td.cs-msg{max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6b7280;}
+
+.cs-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;}
+.cs-chip--pending{background:#fef3c7;color:#b45309;}
+.cs-chip--replied{background:#dcfce7;color:#15803d;}
+
+.cs-topic-pill{display:inline-block;padding:2px 9px;border-radius:12px;font-size:.7rem;font-weight:700;background:#e0e8f4;color:#1B5EC7;}
+
+/* Detail drawer */
+.cs-layout{display:grid;grid-template-columns:1fr;gap:20px;}
+.cs-layout.with-detail{grid-template-columns:1fr 400px;}
+
+.cs-detail{background:#fff;border:1px solid #e0e8f4;border-radius:14px;overflow:hidden;box-shadow:0 2px 16px rgba(10,22,40,0.06);position:sticky;top:20px;}
+.cs-detail__head{background:linear-gradient(135deg,#0A1628,#1B5EC7);padding:20px 22px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.cs-detail__head h2{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#fff;margin:0 0 2px;}
+.cs-detail__head p{font-size:.78rem;color:rgba(255,255,255,0.65);margin:0;}
+.cs-detail__close{background:rgba(255,255,255,0.1);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cs-detail__close:hover{background:rgba(255,255,255,0.2);}
+.cs-detail__body{padding:20px 22px;}
+
+.cs-info-row{display:flex;flex-direction:column;gap:2px;margin-bottom:14px;}
+.cs-info-row__lbl{font-size:.7rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;}
+.cs-info-row__val{font-size:.875rem;font-weight:600;color:#0A1628;}
+.cs-info-row__val a{color:#1B5EC7;text-decoration:none;}
+
+.cs-message-box{background:#f8faff;border:1px solid #e0e8f4;border-radius:9px;padding:14px 16px;font-size:.85rem;color:#374151;line-height:1.7;white-space:pre-wrap;word-break:break-word;margin-bottom:20px;max-height:160px;overflow-y:auto;}
+
+.cs-replied-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:14px 16px;font-size:.82rem;color:#374151;line-height:1.65;white-space:pre-wrap;word-break:break-word;margin-bottom:16px;}
+.cs-replied-box__lbl{font-size:.7rem;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+
+/* Reply section */
+.cs-reply{border-top:1px solid #e0e8f4;padding:20px 22px;}
+.cs-reply h3{font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:800;color:#0A1628;margin:0 0 12px;}
+
+.cs-auto-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;}
+.cs-auto-btn{background:#f0f4ff;border:1px solid #d4e0ff;border-radius:8px;padding:7px 10px;font-size:.75rem;font-weight:600;color:#1B5EC7;cursor:pointer;text-align:left;transition:background .15s;line-height:1.4;}
+.cs-auto-btn:hover{background:#e0eaff;}
+.cs-auto-btn.active{background:#1B5EC7;color:#fff;border-color:#1B5EC7;}
+
+.cs-reply textarea{width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:11px 14px;font-size:.845rem;font-family:inherit;color:#0A1628;line-height:1.65;resize:vertical;min-height:120px;box-sizing:border-box;background:#fafbff;outline:none;transition:border-color .18s,box-shadow .18s;margin-bottom:12px;}
+.cs-reply textarea:focus{border-color:#1B5EC7;box-shadow:0 0 0 3px rgba(27,94,199,0.1);background:#fff;}
+.cs-reply-actions{display:flex;gap:8px;}
+.cs-btn-send{flex:1;background:#1B5EC7;color:#fff;border:none;padding:11px;border-radius:9px;font-size:.875rem;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:background .18s;}
+.cs-btn-send:hover{background:#144FA8;}
+.cs-btn-clear{background:#f0f4f8;color:#6b7280;border:none;padding:11px 16px;border-radius:9px;font-size:.875rem;font-weight:600;cursor:pointer;transition:background .18s;}
+.cs-btn-clear:hover{background:#e0e8f4;color:#374151;}
+
+.cs-empty{padding:60px 20px;text-align:center;color:#9ca3af;}
+.cs-empty svg{margin-bottom:12px;opacity:.4;}
+
+.cs-alert{border-radius:10px;padding:12px 16px;font-size:.875rem;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.cs-alert--success{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;}
+.cs-alert--error{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;}
+
+@media(max-width:900px){.cs-layout.with-detail{grid-template-columns:1fr;} .cs-auto-grid{grid-template-columns:1fr;}}
 </style>
+{% endblock %}
 
-<div class="cs-wrapper">
-  <nav class="oc-breadcrumb" style="margin-bottom:16px;">
-    <a href="{% url 'app' %}"><i class="fi fi-rr-home fi-sm"></i> Home</a>
-    <span class="oc-bc-sep">›</span>
-    <a href="{% url 'admin_panel' %}">Admin Panel</a>
-    <span class="oc-bc-sep">›</span>
-    <span class="oc-bc-current">Contact Submissions</span>
+{% block content %}
+<div class="cs-page">
+
+  <!-- Breadcrumb -->
+  <nav style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:#9ca3af;margin-bottom:20px;">
+    <a href="{% url 'app' %}" style="color:#6b7280;text-decoration:none;">Home</a>
+    <span>›</span>
+    <a href="{% url 'admin_panel' %}" style="color:#6b7280;text-decoration:none;">Admin Panel</a>
+    <span>›</span>
+    <span style="color:#0A1628;font-weight:600;">Contact Submissions</span>
   </nav>
-  <h1 class="cs-title">Contact Submissions</h1>
 
-  {% if submissions %}
-  <table class="cs-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Message</th>
-        <th>Submitted</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for sub in submissions %}
-      <tr>
-        <td>{{ forloop.counter }}</td>
-        <td>{{ sub.name }}</td>
-        <td><a href="mailto:{{ sub.email }}">{{ sub.email }}</a></td>
-        <td>{{ sub.message|truncatewords:30 }}</td>
-        <td>{{ sub.submitted_at|date:"M d, Y H:i" }}</td>
-        <td>
-          {% if sub.is_replied %}
-            <span class="cs-badge-replied">Replied</span>
-          {% else %}
-            <span class="cs-badge-pending">Pending</span>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <div class="cs-empty">No contact submissions yet.</div>
-  {% endif %}
+  <!-- Page header -->
+  <div class="cs-header">
+    <h1>Contact Submissions</h1>
+    <div class="cs-stats">
+      <div class="cs-stat">
+        <div class="cs-stat__num">{{ submissions|length }}</div>
+        <div class="cs-stat__lbl">Total</div>
+      </div>
+      <div class="cs-stat">
+        <div class="cs-stat__num" id="js-pending-count">—</div>
+        <div class="cs-stat__lbl">Pending</div>
+      </div>
+      <div class="cs-stat">
+        <div class="cs-stat__num" id="js-replied-count">—</div>
+        <div class="cs-stat__lbl">Replied</div>
+      </div>
+    </div>
+  </div>
+
+  {% for message in messages %}
+    <div class="cs-alert {% if 'success' in message.tags %}cs-alert--success{% else %}cs-alert--error{% endif %}">
+      {% if 'success' in message.tags %}✓{% else %}⚠{% endif %} {{ message }}
+    </div>
+  {% endfor %}
+
+  <!-- Layout: table + detail drawer -->
+  <div class="cs-layout" id="cs-layout">
+
+    <!-- Table -->
+    <div class="cs-table-wrap">
+      {% if submissions %}
+      <table class="cs-table" id="cs-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Topic</th>
+            <th>Message</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sub in submissions %}
+          <tr onclick="openDetail({{ sub.id }})" data-id="{{ sub.id }}"
+              data-replied="{% if sub.is_replied %}1{% else %}0{% endif %}">
+            <td style="color:#9ca3af;font-size:.78rem;">{{ forloop.counter }}</td>
+            <td style="font-weight:700;color:#0A1628;">{{ sub.name }}</td>
+            <td><a href="mailto:{{ sub.email }}" onclick="event.stopPropagation();" style="color:#1B5EC7;text-decoration:none;font-size:.82rem;">{{ sub.email }}</a></td>
+            <td><span class="cs-topic-pill">{{ sub.topic|default:"General" }}</span></td>
+            <td class="cs-msg">{{ sub.message }}</td>
+            <td style="white-space:nowrap;font-size:.78rem;color:#6b7280;">{{ sub.submitted_at|date:"M d, Y" }}<br>{{ sub.submitted_at|date:"H:i" }}</td>
+            <td>
+              {% if sub.is_replied %}
+                <span class="cs-chip cs-chip--replied">✓ Replied</span>
+              {% else %}
+                <span class="cs-chip cs-chip--pending">● Pending</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="cs-empty">
+        <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><path stroke="#9ca3af" stroke-width="1.5" d="M3 8l9 6 9-6M5 6h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z"/></svg>
+        <p style="font-size:.9rem;font-weight:600;">No contact submissions yet.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Detail drawer (hidden until row clicked) -->
+    <div class="cs-detail" id="cs-detail" style="display:none;">
+      <div class="cs-detail__head">
+        <div>
+          <h2 id="dd-name">—</h2>
+          <p id="dd-email">—</p>
+        </div>
+        <button class="cs-detail__close" onclick="closeDetail()">✕</button>
+      </div>
+
+      <div class="cs-detail__body">
+        <div class="cs-info-row">
+          <span class="cs-info-row__lbl">Topic</span>
+          <span class="cs-info-row__val"><span id="dd-topic" class="cs-topic-pill">—</span></span>
+        </div>
+        <div class="cs-info-row" id="dd-subject-row" style="display:none;">
+          <span class="cs-info-row__lbl">Subject</span>
+          <span class="cs-info-row__val" id="dd-subject">—</span>
+        </div>
+        <div class="cs-info-row">
+          <span class="cs-info-row__lbl">Received</span>
+          <span class="cs-info-row__val" id="dd-date">—</span>
+        </div>
+
+        <div style="font-size:.72rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Message</div>
+        <div class="cs-message-box" id="dd-message">—</div>
+
+        <div id="dd-replied-section" style="display:none;">
+          <div class="cs-replied-box">
+            <div class="cs-replied-box__lbl">✓ Your Reply</div>
+            <span id="dd-admin-reply">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reply section -->
+      <div class="cs-reply">
+        <h3 id="dd-reply-heading">Reply via Email</h3>
+
+        <!-- Auto-generated responses -->
+        <div id="dd-auto-section">
+          <div style="font-size:.72rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Auto-generated responses</div>
+          <div class="cs-auto-grid" id="dd-auto-grid">
+            <!-- filled by JS based on topic -->
+          </div>
+        </div>
+
+        <form method="post" id="dd-reply-form" action="" style="margin-top:14px;">
+          {% csrf_token %}
+          <textarea name="reply_text" id="dd-reply-text" placeholder="Type your reply here, or select a template above…"></textarea>
+          <div class="cs-reply-actions">
+            <button type="button" class="cs-btn-clear" onclick="clearReply()">Clear</button>
+            <button type="submit" class="cs-btn-send">Send Reply →</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
 </div>
-{% endblock content %}
+
+<!-- Submission data store for JS -->
+<script>
+const SUBMISSIONS = {
+  {% for sub in submissions %}
+  {{ sub.id }}: {
+    id: {{ sub.id }},
+    name: "{{ sub.name|escapejs }}",
+    email: "{{ sub.email }}",
+    topic: "{{ sub.topic|default:'General Inquiry' }}",
+    subject: "{{ sub.subject|escapejs }}",
+    message: `{{ sub.message|escapejs }}`,
+    date: "{{ sub.submitted_at|date:'M d, Y — H:i' }}",
+    replied: {{ sub.is_replied|lower }},
+    adminReply: `{{ sub.admin_reply|escapejs }}`,
+  },
+  {% endfor %}
+};
+
+// Count stats
+let pending = 0, replied = 0;
+Object.values(SUBMISSIONS).forEach(s => s.replied ? replied++ : pending++);
+document.getElementById('js-pending-count').textContent = pending;
+document.getElementById('js-replied-count').textContent = replied;
+
+// Auto-reply templates keyed by topic
+const AUTO_REPLIES = {
+  "General Inquiry": [
+    "Hi {name},\n\nThank you for reaching out to Oduma Corp! We've received your message and our team will get back to you within 1–2 business days.\n\nIf you have any urgent questions, feel free to email us directly at odumacorp@gmail.com.\n\nBest regards,\nOduma Corp Team",
+    "Hi {name},\n\nThank you for contacting us. We appreciate your interest in Oduma Connect.\n\nOne of our team members will review your enquiry and respond shortly.\n\nWarm regards,\nOduma Corp",
+  ],
+  "Partnership": [
+    "Hi {name},\n\nThank you for your interest in partnering with Oduma Corp! We're always excited to explore meaningful collaborations that drive African innovation forward.\n\nOur partnerships team will review your proposal and reach out within 3–5 business days to schedule a discovery call.\n\nBest regards,\nOduma Corp Partnerships",
+    "Hi {name},\n\nWe received your partnership inquiry and we're genuinely excited about the possibilities.\n\nPlease expect a follow-up from our team within the week. In the meantime, you can explore our services at odumacorp.com.\n\nLooking forward to connecting,\nOduma Corp",
+  ],
+  "Technical Support": [
+    "Hi {name},\n\nThank you for reporting this issue. We're sorry you're experiencing difficulties with the platform.\n\nOur technical team has been notified and will investigate promptly. Please expect a resolution update within 24 hours.\n\nIf the issue is urgent, please describe it in more detail by replying to this email.\n\nBest,\nOduma Connect Support",
+    "Hi {name},\n\nWe've received your technical support request and it's been escalated to our engineering team.\n\nWe'll keep you updated as we work to resolve the issue. Thank you for your patience.\n\nOduma Connect Support",
+  ],
+  "Investment Inquiry": [
+    "Hi {name},\n\nThank you for your investment inquiry! Oduma Corp is committed to connecting serious capital with Africa's most promising innovators.\n\nOur investment relations team will reach out within 2 business days to understand your investment thesis and explore how we can work together.\n\nBest regards,\nOduma Corp — Investment Relations",
+    "Hi {name},\n\nWe appreciate your interest in investment opportunities via Oduma Connect.\n\nA member of our team will schedule a call with you shortly to discuss the deal flow and partnership structures available on our platform.\n\nWarm regards,\nOduma Corp",
+  ],
+  "Media / Press": [
+    "Hi {name},\n\nThank you for reaching out regarding media and press matters. We're happy to assist with any coverage of Oduma Corp and the work we're doing for African innovation.\n\nOur communications team will get back to you within 1 business day with the information or comment you need.\n\nBest,\nOduma Corp Communications",
+  ],
+  "Other": [
+    "Hi {name},\n\nThank you for contacting Oduma Corp. We've received your message and will review it carefully.\n\nA member of our team will respond within 1–2 business days.\n\nBest regards,\nOduma Corp Team",
+  ],
+};
+
+function openDetail(id) {
+  const s = SUBMISSIONS[id];
+  if (!s) return;
+
+  // Highlight row
+  document.querySelectorAll('#cs-table tbody tr').forEach(r => r.classList.remove('active'));
+  const row = document.querySelector(`#cs-table tbody tr[data-id="${id}"]`);
+  if (row) row.classList.add('active');
+
+  // Fill fields
+  document.getElementById('dd-name').textContent = s.name;
+  document.getElementById('dd-email').textContent = s.email;
+  document.getElementById('dd-topic').textContent = s.topic;
+  document.getElementById('dd-date').textContent = s.date;
+  document.getElementById('dd-message').textContent = s.message;
+
+  const subRow = document.getElementById('dd-subject-row');
+  if (s.subject) {
+    document.getElementById('dd-subject').textContent = s.subject;
+    subRow.style.display = '';
+  } else {
+    subRow.style.display = 'none';
+  }
+
+  // Replied section
+  const repSection = document.getElementById('dd-replied-section');
+  const autoSection = document.getElementById('dd-auto-section');
+  const heading = document.getElementById('dd-reply-heading');
+  if (s.replied) {
+    document.getElementById('dd-admin-reply').textContent = s.adminReply;
+    repSection.style.display = '';
+    heading.textContent = 'Send Another Reply';
+  } else {
+    repSection.style.display = 'none';
+    heading.textContent = 'Reply via Email';
+  }
+
+  // Build auto-reply buttons
+  const grid = document.getElementById('dd-auto-grid');
+  grid.innerHTML = '';
+  const templates = AUTO_REPLIES[s.topic] || AUTO_REPLIES["Other"];
+  templates.forEach((tmpl, i) => {
+    const filled = tmpl.replace('{name}', s.name.split(' ')[0]);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cs-auto-btn';
+    btn.textContent = `Template ${i + 1}`;
+    btn.title = filled.slice(0, 120) + '…';
+    btn.onclick = () => {
+      document.querySelectorAll('.cs-auto-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('dd-reply-text').value = filled;
+    };
+    grid.appendChild(btn);
+  });
+
+  // Set form action
+  document.getElementById('dd-reply-form').action = `/admin/contact-submissions/${id}/reply/`;
+
+  // Clear textarea
+  document.getElementById('dd-reply-text').value = '';
+
+  // Show drawer
+  document.getElementById('cs-detail').style.display = 'block';
+  document.getElementById('cs-layout').classList.add('with-detail');
+}
+
+function closeDetail() {
+  document.getElementById('cs-detail').style.display = 'none';
+  document.getElementById('cs-layout').classList.remove('with-detail');
+  document.querySelectorAll('#cs-table tbody tr').forEach(r => r.classList.remove('active'));
+}
+
+function clearReply() {
+  document.getElementById('dd-reply-text').value = '';
+  document.querySelectorAll('.cs-auto-btn').forEach(b => b.classList.remove('active'));
+}
+</script>
+{% endblock %}

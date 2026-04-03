@@ -1,0 +1,464 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+{% block title %}Dashboard | Oduma Connect{% endblock %}
+
+{% block content %}
+<style>
+/* ── Command Center Layout ───────────────────────────────────────── */
+:root {
+  --idb-blue:#1B5EC7; --idb-navy:#0A1628; --idb-bg:#F4F7FB;
+  --idb-green:#059669; --idb-gold:#D97706; --idb-red:#DC2626;
+}
+.idb-wrap { max-width:1280px; margin:0 auto; padding:28px 24px 72px; }
+.idb-header { display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:12px; margin-bottom:28px; }
+.idb-header h1 { font-family:'Space Grotesk',sans-serif; font-size:1.65rem; font-weight:800;
+  color:var(--idb-navy); margin:0; }
+.idb-header-sub { font-size:.875rem; color:#6b7280; margin-top:2px; }
+.idb-header-actions { display:flex; gap:10px; flex-wrap:wrap; }
+.idb-btn { padding:9px 20px; border-radius:9px; font-size:.85rem; font-weight:700;
+  text-decoration:none; transition:all .2s; display:inline-flex; align-items:center; gap:6px; }
+.idb-btn--primary { background:var(--idb-blue); color:#fff; border:none; cursor:pointer; }
+.idb-btn--primary:hover { background:#1448a3; color:#fff; }
+.idb-btn--outline { background:#fff; color:var(--idb-navy); border:1.5px solid #d1d5db; }
+.idb-btn--outline:hover { border-color:var(--idb-blue); color:var(--idb-blue); }
+
+/* ── Analytics Row ───────────────────────────────────────────────── */
+.idb-analytics { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:14px; margin-bottom:28px; }
+.idb-stat-card { background:#fff; border:1px solid #e0e8f4; border-radius:14px;
+  padding:20px 22px; position:relative; overflow:hidden; transition:box-shadow .2s,transform .2s; }
+.idb-stat-card:hover { box-shadow:0 6px 24px rgba(27,94,199,.1); transform:translateY(-2px); }
+.idb-stat-card::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; }
+.idb-stat-card--blue::before   { background:var(--idb-blue); }
+.idb-stat-card--green::before  { background:var(--idb-green); }
+.idb-stat-card--gold::before   { background:var(--idb-gold); }
+.idb-stat-card--red::before    { background:var(--idb-red); }
+.idb-stat-card--purple::before { background:#7c3aed; }
+.idb-stat-icon { font-size:1.4rem; margin-bottom:8px; }
+.idb-stat-val { font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:800;
+  color:var(--idb-navy); line-height:1; margin-bottom:4px;
+  /* animated counter */ display:inline-block; }
+.idb-stat-label { font-size:.78rem; color:#6b7280; font-weight:600; }
+.idb-stat-delta { font-size:.72rem; font-weight:700; margin-top:4px; }
+.idb-stat-delta--up   { color:var(--idb-green); }
+.idb-stat-delta--down { color:var(--idb-red); }
+
+/* ── Two-column layout ───────────────────────────────────────────── */
+.idb-main { display:grid; grid-template-columns:1fr 340px; gap:22px; }
+@media(max-width:860px) { .idb-main { grid-template-columns:1fr; } }
+
+/* ── Section cards ───────────────────────────────────────────────── */
+.idb-section { background:#fff; border:1px solid #e0e8f4; border-radius:14px;
+  padding:22px 24px; margin-bottom:20px; }
+.idb-section-head { display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:18px; flex-wrap:wrap; gap:8px; }
+.idb-section-title { font-family:'Space Grotesk',sans-serif; font-size:.95rem; font-weight:800; color:var(--idb-navy); margin:0; }
+.idb-section-link { font-size:.8rem; color:var(--idb-blue); text-decoration:none; font-weight:600; }
+
+/* ── Project row cards ───────────────────────────────────────────── */
+.idb-project-card { border:1px solid #e0e8f4; border-radius:12px; padding:16px 18px;
+  margin-bottom:12px; transition:box-shadow .2s; position:relative; background:#fff; }
+.idb-project-card:hover { box-shadow:0 4px 18px rgba(27,94,199,.1); }
+.idb-project-card-title { font-family:'Space Grotesk',sans-serif; font-weight:800; color:var(--idb-navy);
+  font-size:.9rem; text-decoration:none; }
+.idb-project-card-title:hover { color:var(--idb-blue); }
+.idb-project-meta { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
+.idb-meta-badge { font-size:.7rem; font-weight:700; padding:2px 9px; border-radius:20px; }
+.idb-meta-badge--industry { background:#e0e8f4; color:var(--idb-blue); }
+.idb-meta-badge--stage    { background:#fef9c3; color:#854d0e; }
+.idb-meta-badge--review   { }
+.idb-project-interest { font-size:.82rem; font-weight:700; color:var(--idb-blue); }
+.idb-progress-row { display:flex; align-items:center; gap:10px; margin-top:10px; }
+.idb-progress-bar { flex:1; height:6px; background:#e0e8f4; border-radius:3px; overflow:hidden; }
+.idb-progress-fill { height:100%; border-radius:3px; transition:width .5s ease; }
+.idb-progress-fill--ready      { background:var(--idb-green); }
+.idb-progress-fill--strong     { background:var(--idb-blue); }
+.idb-progress-fill--developing { background:var(--idb-gold); }
+.idb-progress-fill--early      { background:#f59e0b; }
+.idb-progress-fill--starter    { background:#9ca3af; }
+.idb-suggestions { margin-top:10px; padding-top:10px; border-top:1px solid #f3f4f6; }
+.idb-suggestion-item { font-size:.78rem; color:#374151; display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+.idb-suggestion-item::before { content:'→'; color:var(--idb-gold); font-weight:700; flex-shrink:0; }
+
+/* ── Match score cards ───────────────────────────────────────────── */
+.idb-match-card { display:flex; align-items:center; gap:14px; padding:12px 14px;
+  border:1px solid #e0e8f4; border-radius:10px; margin-bottom:10px; transition:box-shadow .2s; }
+.idb-match-card:hover { box-shadow:0 4px 14px rgba(27,94,199,.1); }
+.idb-match-score { width:48px; height:48px; border-radius:50%; display:flex; align-items:center;
+  justify-content:center; font-family:'Space Grotesk',sans-serif; font-size:1rem; font-weight:800;
+  flex-shrink:0; }
+.idb-match-score--excellent { background:#dcfce7; color:#166534; }
+.idb-match-score--strong    { background:#d1fae5; color:#065f46; }
+.idb-match-score--good      { background:#dbeafe; color:#1d4ed8; }
+.idb-match-score--partial   { background:#fef9c3; color:#854d0e; }
+.idb-match-score--low       { background:#f3f4f6; color:#6b7280; }
+.idb-match-name { font-size:.875rem; font-weight:700; color:var(--idb-navy); text-decoration:none; }
+.idb-match-label { font-size:.72rem; color:#6b7280; margin-top:2px; }
+
+/* ── Activity timeline ───────────────────────────────────────────── */
+.idb-timeline { list-style:none; margin:0; padding:0; }
+.idb-timeline-item { display:flex; gap:12px; margin-bottom:14px; position:relative; }
+.idb-timeline-item:last-child { margin-bottom:0; }
+.idb-timeline-dot { width:32px; height:32px; border-radius:50%; background:#e0e8f4;
+  display:flex; align-items:center; justify-content:center; font-size:.85rem; flex-shrink:0; margin-top:2px; }
+.idb-timeline-content { flex:1; }
+.idb-timeline-text { font-size:.84rem; color:#374151; line-height:1.4; }
+.idb-timeline-time { font-size:.72rem; color:#9ca3af; margin-top:3px; }
+
+/* ── Service quick links ─────────────────────────────────────────── */
+.idb-services { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.idb-service-link { display:flex; align-items:center; gap:10px; padding:12px 14px;
+  border:1.5px solid #e0e8f4; border-radius:10px; text-decoration:none; color:var(--idb-navy);
+  font-size:.84rem; font-weight:700; transition:all .2s; }
+.idb-service-link:hover { border-color:var(--idb-blue); color:var(--idb-blue);
+  background:#f0f5ff; box-shadow:0 2px 10px rgba(27,94,199,.1); }
+.idb-service-icon { font-size:1.3rem; }
+
+/* ── Events mini list ────────────────────────────────────────────── */
+.idb-event-item { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px;
+  padding-bottom:12px; border-bottom:1px solid #f0f0f0; }
+.idb-event-item:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.idb-event-date { background:#e0e8f4; border-radius:8px; padding:8px 12px; text-align:center;
+  min-width:48px; flex-shrink:0; }
+.idb-event-day { font-family:'Space Grotesk',sans-serif; font-size:1.1rem; font-weight:800; color:var(--idb-navy); line-height:1; }
+.idb-event-month { font-size:.65rem; font-weight:700; color:#6b7280; text-transform:uppercase; }
+.idb-event-name { font-weight:700; font-size:.875rem; color:var(--idb-navy); margin-bottom:2px; }
+.idb-event-loc  { font-size:.75rem; color:#6b7280; }
+.idb-event-type-tag { font-size:.65rem; font-weight:700; background:#7c3aed; color:#fff;
+  padding:2px 7px; border-radius:20px; margin-left:5px; }
+
+/* ── Loading skeleton (used on page load) ────────────────────────── */
+.idb-skeleton { background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);
+  background-size:200% 100%; animation:skeletonShimmer 1.4s infinite; border-radius:6px; }
+@keyframes skeletonShimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* ── Hover micro-interactions ────────────────────────────────────── */
+.idb-stat-card, .idb-project-card, .idb-match-card, .idb-service-link, .idb-section {
+  transition:box-shadow .22s ease, transform .22s ease;
+}
+</style>
+
+<div class="idb-wrap">
+
+  <!-- Header -->
+  <div class="idb-header">
+    <div>
+      <h1>Command Center</h1>
+      <div class="idb-header-sub">
+        Welcome back, {{ request.user.first_name|default:request.user.username }}.
+        {% if profile.verification_status == 'verified' %}
+          <span class="oc-verified-badge" style="margin-left:6px;">✓ Verified</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="idb-header-actions">
+      <a href="{% url 'create_project' %}" class="idb-btn idb-btn--primary">+ New Project</a>
+      <a href="{% url 'project_list' %}" class="idb-btn idb-btn--outline">All Projects</a>
+    </div>
+  </div>
+
+  <!-- Analytics Cards -->
+  <div class="idb-analytics">
+    <div class="idb-stat-card idb-stat-card--blue">
+      <div class="idb-stat-icon">📁</div>
+      <div class="idb-stat-val" data-count="{{ total_projects }}">{{ total_projects }}</div>
+      <div class="idb-stat-label">Total Projects</div>
+      <div class="idb-stat-delta idb-stat-delta--up">{{ published_projects }} published</div>
+    </div>
+    <div class="idb-stat-card idb-stat-card--green">
+      <div class="idb-stat-icon">💼</div>
+      <div class="idb-stat-val" data-count="{{ pitch_count }}">{{ pitch_count }}</div>
+      <div class="idb-stat-label">Pitch Requests</div>
+      {% if pending_pitches %}<div class="idb-stat-delta idb-stat-delta--up">{{ pending_pitches }} pending response</div>{% endif %}
+    </div>
+    <div class="idb-stat-card idb-stat-card--gold">
+      <div class="idb-stat-icon">🤝</div>
+      <div class="idb-stat-val" data-count="{{ connections }}">{{ connections }}</div>
+      <div class="idb-stat-label">Connections</div>
+      {% if pending_connections %}<div class="idb-stat-delta idb-stat-delta--up">{{ pending_connections }} pending</div>{% endif %}
+    </div>
+    <div class="idb-stat-card idb-stat-card--purple">
+      <div class="idb-stat-icon">🎓</div>
+      <div class="idb-stat-val" data-count="{{ my_courses|length }}">{{ my_courses|length }}</div>
+      <div class="idb-stat-label">Active Courses</div>
+    </div>
+    <div class="idb-stat-card idb-stat-card--blue">
+      <div class="idb-stat-icon">🔧</div>
+      <div class="idb-stat-val" data-count="{{ open_consulting }}">{{ open_consulting }}</div>
+      <div class="idb-stat-label">Open Support Requests</div>
+    </div>
+  </div>
+
+  <!-- Main grid -->
+  <div class="idb-main">
+
+    <!-- LEFT: Projects + matches -->
+    <div>
+
+      <!-- Projects -->
+      <div class="idb-section">
+        <div class="idb-section-head">
+          <h2 class="idb-section-title">My Projects</h2>
+          <a href="{% url 'project_list' %}" class="idb-section-link">See all →</a>
+        </div>
+
+        {% if projects_with_interest %}
+          {% for item in projects_with_interest %}
+          {% with p=item.project %}
+          <div class="idb-project-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+              <a href="{% url 'project_detail' p.pk %}" class="idb-project-card-title">{{ p.title }}</a>
+              <span style="font-size:.72rem;color:#9ca3af;">{{ p.created_at|timesince }} ago</span>
+            </div>
+
+            <div class="idb-project-meta">
+              <span class="idb-meta-badge idb-meta-badge--industry">{{ p.industry }}</span>
+              <span class="idb-meta-badge idb-meta-badge--stage">{{ p.get_pipeline_stage_display }}</span>
+              {% if p.review_status != 'draft' %}
+              <span class="oc-review-badge oc-review-badge--{{ p.review_status }}">{{ p.get_review_status_display }}</span>
+              {% endif %}
+              {% if item.interest_count %}
+              <span class="idb-project-interest">★ {{ item.interest_count }} interested</span>
+              {% endif %}
+            </div>
+
+            <!-- Readiness bar -->
+            <div class="idb-progress-row">
+              <span style="font-size:.72rem;color:#6b7280;white-space:nowrap;">Profile</span>
+              <div class="idb-progress-bar">
+                <div class="idb-progress-fill idb-progress-fill--{% with rd=p.investment_readiness %}{{ rd.1 }}{% endwith %}"
+                     style="width:{{ item.score }}%;"></div>
+              </div>
+              <span style="font-size:.72rem;font-weight:700;color:var(--idb-blue);white-space:nowrap;">{{ item.score }}%</span>
+            </div>
+
+            <!-- Improvement suggestions -->
+            {% if item.suggestions %}
+            <div class="idb-suggestions">
+              <div style="font-size:.72rem;font-weight:700;color:#6b7280;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Improve your pitch</div>
+              {% for s in item.suggestions %}
+              <div class="idb-suggestion-item">{{ s }}</div>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Quick actions -->
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+              <a href="{% url 'edit_project' p.pk %}" style="font-size:.75rem;padding:5px 12px;background:#f3f4f6;border-radius:6px;text-decoration:none;color:#374151;font-weight:600;">Edit</a>
+              {% if p.review_status == 'draft' or p.review_status == 'rejected' %}
+              <form method="post" action="{% url 'submit_project_for_review' p.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" style="font-size:.75rem;padding:5px 12px;background:#e0e8f4;border:none;border-radius:6px;color:#1B5EC7;font-weight:600;cursor:pointer;">Submit for Review</button>
+              </form>
+              {% endif %}
+              <a href="{% url 'project_investor_matches' p.pk %}" style="font-size:.75rem;padding:5px 12px;background:#f0f9f4;border-radius:6px;text-decoration:none;color:#059669;font-weight:600;">Find Investors</a>
+              <a href="{% url 'request_consulting_for_project' p.pk %}" style="font-size:.75rem;padding:5px 12px;background:#fef3c7;border-radius:6px;text-decoration:none;color:#92400e;font-weight:600;">Get Support</a>
+            </div>
+          </div>
+          {% endwith %}
+          {% endfor %}
+        {% else %}
+        <div style="text-align:center;padding:28px;color:#6b7280;">
+          <p style="font-size:1.5rem;margin-bottom:8px;">🚀</p>
+          <p style="font-weight:700;margin-bottom:4px;">No projects yet</p>
+          <a href="{% url 'create_project' %}" class="idb-btn idb-btn--primary" style="margin-top:10px;display:inline-flex;">Create Your First Project</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Top Matching Investors -->
+      {% if top_investor_matches %}
+      <div class="idb-section">
+        <div class="idb-section-head">
+          <h2 class="idb-section-title">Top Matching Investors</h2>
+          <a href="{% url 'investors' %}" class="idb-section-link">Browse all →</a>
+        </div>
+        {% for match in top_investor_matches %}
+        <div class="idb-match-card">
+          <div class="idb-match-score idb-match-score--{{ match.css }}">{{ match.score }}</div>
+          <div style="flex:1;">
+            <a href="{% url 'profile_view' id=match.investor.id %}" class="idb-match-name">
+              {{ match.investor.get_full_name|default:match.investor.username }}
+            </a>
+            {% with ip=match.investor.userprofile %}
+            {% if ip.verification_status == 'verified' %}
+            <span class="oc-verified-badge" style="margin-left:5px;">✓ Verified</span>
+            {% endif %}
+            <div class="idb-match-label">{{ match.label }}
+              {% if ip.industry %} · {{ ip.industry }}{% endif %}
+              {% if ip.geography_focus %} · {{ ip.geography_focus }}{% endif %}
+            </div>
+            {% endwith %}
+          </div>
+          <div>
+            <a href="{% url 'profile_view' id=match.investor.id %}" class="idb-btn idb-btn--outline" style="font-size:.75rem;padding:6px 14px;">Connect</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Activity Timeline -->
+      {% if recent_notifications %}
+      <div class="idb-section">
+        <div class="idb-section-head">
+          <h2 class="idb-section-title">Activity Timeline</h2>
+          <a href="{% url 'notifications' %}" class="idb-section-link">All notifications →</a>
+        </div>
+        <ul class="idb-timeline">
+          {% for notif in recent_notifications %}
+          <li class="idb-timeline-item">
+            <div class="idb-timeline-dot">
+              {% if 'pitch' in notif.message|lower %}💼
+              {% elif 'view' in notif.message|lower %}👁
+              {% elif 'connect' in notif.message|lower %}🤝
+              {% elif 'interest' in notif.message|lower %}★
+              {% elif 'review' in notif.message|lower %}🔍
+              {% else %}🔔{% endif %}
+            </div>
+            <div class="idb-timeline-content">
+              <div class="idb-timeline-text">{{ notif.message }}</div>
+              <div class="idb-timeline-time">{{ notif.created_at|timesince }} ago</div>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+    </div><!-- /left -->
+
+    <!-- RIGHT SIDEBAR -->
+    <div>
+
+      <!-- Oduma Services -->
+      <div class="idb-section">
+        <h2 class="idb-section-title" style="margin-bottom:14px;">Oduma Services</h2>
+        <div class="idb-services">
+          <a href="{% url 'training_hub' %}" class="idb-service-link">
+            <span class="idb-service-icon">📚</span> Training
+          </a>
+          <a href="{% url 'mentorship_hub' %}" class="idb-service-link">
+            <span class="idb-service-icon">🎓</span> Mentorship
+          </a>
+          <a href="{% url 'request_consulting' %}" class="idb-service-link">
+            <span class="idb-service-icon">🧠</span> Consulting
+          </a>
+          <a href="{% url 'events_hub' %}" class="idb-service-link">
+            <span class="idb-service-icon">📅</span> Events
+          </a>
+          <a href="{% url 'top_matches_for_investor' %}" class="idb-service-link" style="grid-column:span 2;">
+            <span class="idb-service-icon">🎯</span> Find Investor Matches
+          </a>
+        </div>
+      </div>
+
+      <!-- Verification CTA -->
+      {% if profile.verification_status != 'verified' %}
+      <div class="idb-section" style="background:linear-gradient(135deg,#f0f5ff,#e0e8f4);border-color:#c3d4ec;">
+        <h2 class="idb-section-title" style="margin-bottom:6px;">Get Verified</h2>
+        <p style="font-size:.82rem;color:#6b7280;margin-bottom:14px;">A verified badge builds trust with investors.</p>
+        {% if profile.verification_status == 'pending' %}
+        <span style="font-size:.8rem;font-weight:700;color:#854d0e;">⏳ Verification under review</span>
+        {% else %}
+        <a href="{% url 'my_profile' %}" class="idb-btn idb-btn--primary" style="font-size:.82rem;padding:8px 16px;">Apply for Verification</a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Active Mentorship -->
+      {% if my_mentorship %}
+      <div class="idb-section" style="background:#f0f9f4;border-color:#bbf7d0;">
+        <h2 class="idb-section-title" style="margin-bottom:10px;">Active Mentor</h2>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;border-radius:50%;background:#059669;color:#fff;
+            display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;">
+            {{ my_mentorship.mentor.user.first_name|first|upper }}{{ my_mentorship.mentor.user.last_name|first|upper }}
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:.875rem;color:#0A1628;">{{ my_mentorship.mentor.user.get_full_name|default:my_mentorship.mentor.user.username }}</div>
+            <div style="font-size:.75rem;color:#6b7280;">{{ my_mentorship.mentor.get_expertise_display }}</div>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="idb-section" style="border-style:dashed;border-color:#d1d5db;text-align:center;">
+        <p style="font-size:1.3rem;margin-bottom:6px;">🎓</p>
+        <p style="font-size:.82rem;font-weight:700;margin-bottom:4px;">No mentor yet</p>
+        <a href="{% url 'mentorship_hub' %}" class="idb-section-link">Find a mentor →</a>
+      </div>
+      {% endif %}
+
+      <!-- Active Courses -->
+      {% if my_courses %}
+      <div class="idb-section">
+        <div class="idb-section-head">
+          <h2 class="idb-section-title">Learning</h2>
+          <a href="{% url 'training_hub' %}" class="idb-section-link">All courses →</a>
+        </div>
+        {% for enr in my_courses %}
+        <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f0f0;">
+          <a href="{% url 'course_detail' enr.course.slug %}" style="font-size:.875rem;font-weight:700;color:#0A1628;text-decoration:none;">{{ enr.course.title }}</a>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+            <div style="flex:1;height:5px;background:#e0e8f4;border-radius:3px;overflow:hidden;">
+              <div style="height:100%;background:var(--idb-blue);border-radius:3px;width:{{ enr.progress }}%;transition:width .4s;"></div>
+            </div>
+            <span style="font-size:.72rem;font-weight:700;color:var(--idb-blue);">{{ enr.progress }}%</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Upcoming Events -->
+      {% if upcoming_events %}
+      <div class="idb-section">
+        <div class="idb-section-head">
+          <h2 class="idb-section-title">Upcoming Events</h2>
+          <a href="{% url 'events_hub' %}" class="idb-section-link">All events →</a>
+        </div>
+        {% for event in upcoming_events %}
+        <div class="idb-event-item">
+          <div class="idb-event-date">
+            <div class="idb-event-day">{{ event.date|date:"j" }}</div>
+            <div class="idb-event-month">{{ event.date|date:"M" }}</div>
+          </div>
+          <div style="flex:1;">
+            <div class="idb-event-name">
+              {{ event.name }}
+              <span class="idb-event-type-tag">{{ event.get_event_type_display }}</span>
+            </div>
+            <div class="idb-event-loc">📍 {{ event.location }}</div>
+            {% if event.id in registered_event_ids %}
+            <span style="font-size:.72rem;color:#059669;font-weight:700;">✓ Registered</span>
+            {% else %}
+            <a href="{% url 'register_for_event' event.pk %}" style="font-size:.72rem;color:var(--idb-blue);font-weight:600;text-decoration:none;">Register →</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    </div><!-- /right sidebar -->
+  </div><!-- /idb-main -->
+</div>
+
+<script>
+/* Animated counters */
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.idb-stat-val[data-count]').forEach(el => {
+    const target = parseInt(el.dataset.count, 10) || 0;
+    if (target === 0) return;
+    let current = 0;
+    const step = Math.max(1, Math.ceil(target / 30));
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current;
+      if (current >= target) clearInterval(timer);
+    }, 35);
+  });
+});
+</script>
+{% endblock %}

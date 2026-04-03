@@ -1,20 +1,69 @@
-{% extends '_partials/base.html'  %} 
+{% extends '_partials/base.html' %}
+{% load static %}
 
-{% load static %} 
+{% block title %}Jobs | Oduma Connect{% endblock %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jobs</title>
-    <script src="pages_scripts.js"></script>
-</head>
-<body>
-    <div id="navbar"></div>
-    {% block content%}
+{% block content %}
+<div class="oc-container" style="padding-top:40px;padding-bottom:64px;">
 
-    {%endblock content%}
-</body>
-<div id="footer"></div>
-</html>
+  <!-- Page header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;">
+    <div>
+      <h1 style="font-size:1.75rem;font-weight:700;color:var(--oc-text-primary);margin-bottom:4px;">Jobs</h1>
+      <p style="font-size:.9rem;color:var(--oc-text-muted);">Opportunities posted by companies and innovators on Oduma Connect.</p>
+    </div>
+    {% if user.is_authenticated %}
+      <a href="{% url 'create_job' %}" class="oc-btn oc-btn-primary oc-btn-sm">+ Post a Job</a>
+    {% endif %}
+  </div>
+
+  {% if jobs %}
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      {% for job in jobs %}
+      <div class="oc-card" style="padding:24px;display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
+        <!-- Company logo placeholder -->
+        <div style="width:52px;height:52px;border-radius:10px;background:var(--oc-bg-subtle);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">
+          💼
+        </div>
+        <div style="flex:1;min-width:200px;">
+          <h3 style="font-size:1rem;font-weight:700;color:var(--oc-text-primary);margin-bottom:4px;">{{ job.title }}</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+            {% if job.company %}
+              <span style="font-size:.8rem;color:var(--oc-text-muted);">🏢 {{ job.company }}</span>
+            {% endif %}
+            {% if job.location %}
+              <span style="font-size:.8rem;color:var(--oc-text-muted);">📍 {{ job.location }}</span>
+            {% endif %}
+            {% if job.job_type %}
+              <span style="font-size:.75rem;background:var(--oc-bg-subtle);color:var(--oc-primary);padding:2px 10px;border-radius:99px;font-weight:600;">{{ job.job_type }}</span>
+            {% endif %}
+          </div>
+          {% if job.description %}
+            <p style="font-size:.875rem;color:var(--oc-text-secondary);line-height:1.6;margin-bottom:0;">
+              {{ job.description|truncatewords:30 }}
+            </p>
+          {% endif %}
+        </div>
+        <div style="flex-shrink:0;">
+          {% if user.is_authenticated %}
+            <a href="{% url 'job_detail' job.pk %}" class="oc-btn oc-btn-primary oc-btn-sm">Apply</a>
+          {% else %}
+            <a href="{% url 'login' %}" class="oc-btn oc-btn-outline oc-btn-sm">View</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="oc-card" style="text-align:center;padding:60px 20px;color:var(--oc-text-muted);">
+      <div style="font-size:3rem;margin-bottom:16px;">🧳</div>
+      <h3 style="font-size:1.1rem;font-weight:600;color:var(--oc-text-primary);margin-bottom:8px;">No jobs posted yet</h3>
+      <p style="font-size:.875rem;">Be the first to post an opportunity for the community.</p>
+      {% if user.is_authenticated %}
+        <a href="{% url 'create_job' %}" class="oc-btn oc-btn-primary" style="margin-top:16px;">Post a Job</a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

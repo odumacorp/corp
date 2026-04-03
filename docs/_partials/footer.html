@@ -1,10 +1,76 @@
-
 {% load static %}
-<!-- <link rel="stylesheet" href="Styles/styles.css"> -->
-<footer class="footer">
-  <p>&copy; {% now "Y" %} Oduma Corp. All rights reserved.</p>
+
+<footer class="oc-footer" role="contentinfo">
+  <div class="oc-footer__grid">
+
+    <!-- Brand column -->
+    <div>
+      <img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="Oduma Corp"
+           style="width:38px;height:38px;border-radius:8px;margin-bottom:16px;opacity:.9;">
+      <div class="oc-footer__brand-name">Oduma Corp</div>
+      <p class="oc-footer__brand-tagline">
+        Connecting Africa's boldest innovators with the investors who back them. Deal flow, capital, and collaboration — structured for serious players.
+      </p>
+      <div style="margin-top:20px;display:flex;gap:10px;">
+        <a href="#" style="width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:.75rem;transition:.15s;"
+           onmouseenter="this.style.background='rgba(255,255,255,0.12)';this.style.color='#fff';"
+           onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.5)';">𝕏</a>
+        <a href="#" style="width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:.75rem;transition:.15s;"
+           onmouseenter="this.style.background='rgba(255,255,255,0.12)';this.style.color='#fff';"
+           onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.5)';">in</a>
+      </div>
+    </div>
+
+    <!-- Platform column -->
+    <div>
+      <div class="oc-footer__col-title">Platform</div>
+      <ul class="oc-footer__links">
+        <li><a href="{% url 'innovators' %}">Browse Innovators</a></li>
+        <li><a href="{% url 'investors' %}">Find Investors</a></li>
+        <li><a href="{% url 'jobs' %}">Jobs Board</a></li>
+        <li><a href="{% url 'events' %}">Events</a></li>
+        {% if user.is_authenticated %}
+          <li><a href="{% url 'networks' %}">My Network</a></li>
+          <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        {% endif %}
+      </ul>
+    </div>
+
+    <!-- Company column -->
+    <div>
+      <div class="oc-footer__col-title">Company</div>
+      <ul class="oc-footer__links">
+        <li><a href="{% url 'about' %}">About</a></li>
+        <li><a href="{% url 'services' %}">Services</a></li>
+        <li><a href="{% url 'contact' %}">Contact</a></li>
+        <li><a href="{% url 'faq' %}">FAQ</a></li>
+        <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+      </ul>
+    </div>
+
+    <!-- Account column -->
+    <div>
+      <div class="oc-footer__col-title">Account</div>
+      <ul class="oc-footer__links">
+        {% if user.is_authenticated %}
+          <li><a href="{% url 'profile_view' id=user.id %}">My Profile</a></li>
+          <li><a href="{% url 'inbox' %}">Messages</a></li>
+          <li><a href="{% url 'edit_profile' %}">Settings</a></li>
+          <li><a href="{% url 'logout' %}">Log out</a></li>
+        {% else %}
+          <li><a href="{% url 'login' %}">Log in</a></li>
+          <li><a href="{% url 'register' %}">Create account</a></li>
+        {% endif %}
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="oc-footer__bottom">
+    <span>&copy; {% now "Y" %} Oduma Corp. All rights reserved.</span>
+    <span style="display:flex;align-items:center;gap:6px;">
+      <span style="width:6px;height:6px;border-radius:50%;background:#059669;box-shadow:0 0 6px #059669;display:inline-block;"></span>
+      Built for African innovation
+    </span>
+  </div>
 </footer>
-
-
-
-

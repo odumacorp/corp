@@ -1,152 +1,568 @@
-{% extends '_partials/base.html'  %} 
+{% extends '_partials/base.html' %}
+{% load static %}
 
-{% load static %} 
+{% block title %}Oduma Connect — Africa's Innovation & Investment Platform{% endblock %}
+{% block meta_description %}Where Africa's boldest innovators meet the investors who back them. Deal flow, collaboration, and capital — structured for serious players.{% endblock %}
+
+{% block extra_head %}
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0A1628;--blue:#1B5EC7;--blue-d:#144FA8;--gold:#C9A44A;
+  --muted:#6b7280;--border:rgba(255,255,255,0.09);--ff:'Space Grotesk',sans-serif;
+}
+/* ── Sticky Nav ── */
+.lp-nav{position:fixed;top:0;left:0;right:0;z-index:900;background:rgba(10,22,40,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;}
+.lp-nav__inner{width:100%;max-width:1320px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+.lp-nav__logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+.lp-nav__logo img{width:32px;height:32px;border-radius:7px;}
+.lp-nav__logo-name{font-family:var(--ff);font-size:.95rem;font-weight:800;color:#fff;letter-spacing:-.01em;}
+.lp-nav__links{display:flex;align-items:center;gap:2px;list-style:none;}
+.lp-nav__links a{font-family:var(--ff);font-size:.84rem;font-weight:600;color:rgba(255,255,255,0.65);text-decoration:none;padding:6px 14px;border-radius:7px;transition:background .15s,color .15s;}
+.lp-nav__links a:hover{background:rgba(255,255,255,0.07);color:#fff;}
+.lp-nav__actions{display:flex;align-items:center;gap:10px;}
+.lp-nav__login{font-family:var(--ff);font-size:.84rem;font-weight:700;color:rgba(255,255,255,0.75);text-decoration:none;padding:7px 16px;border-radius:8px;transition:color .15s;}
+.lp-nav__login:hover{color:#fff;}
+.lp-nav__cta{font-family:var(--ff);font-size:.84rem;font-weight:700;color:#fff;background:var(--blue);text-decoration:none;padding:8px 20px;border-radius:8px;transition:background .18s;white-space:nowrap;}
+.lp-nav__cta:hover{background:var(--blue-d);color:#fff;}
+.lp-nav__hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;}
+.lp-nav__hamburger span{display:block;width:22px;height:2px;background:rgba(255,255,255,0.8);border-radius:2px;transition:all .2s;}
+.lp-mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;background:#0d1e38;border-bottom:1px solid var(--border);padding:16px 24px 20px;z-index:899;flex-direction:column;gap:4px;}
+.lp-mobile-menu.open{display:flex;}
+.lp-mobile-menu a{font-family:var(--ff);font-size:.9rem;font-weight:600;color:rgba(255,255,255,0.75);text-decoration:none;padding:10px 12px;border-radius:8px;transition:background .15s,color .15s;}
+.lp-mobile-menu a:hover{background:rgba(255,255,255,0.07);color:#fff;}
+.lp-mobile-menu__divider{height:1px;background:var(--border);margin:8px 0;}
+.lp-mobile-menu a.primary{background:var(--blue);color:#fff;text-align:center;margin-top:4px;}
+/* ── Hero ── */
+.lp-hero{position:relative;background:linear-gradient(150deg,#060e1c 0%,#0a1d3d 45%,#0e2c62 100%);min-height:100vh;display:flex;align-items:center;overflow:hidden;padding-top:60px;}
+.lp-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;}
+.lp-hero::after{content:'';position:absolute;top:-10%;right:-5%;width:700px;height:700px;background:radial-gradient(circle,rgba(27,94,199,0.22) 0%,transparent 65%);pointer-events:none;}
+.lp-hero__inner{position:relative;z-index:1;width:100%;max-width:1320px;margin:0 auto;padding:100px 32px 90px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+.lp-hero__badge{display:inline-flex;align-items:center;gap:8px;background:rgba(27,94,199,0.18);border:1px solid rgba(27,94,199,0.4);border-radius:100px;padding:6px 14px 6px 8px;margin-bottom:24px;}
+.lp-hero__badge-dot{width:7px;height:7px;border-radius:50%;background:#3b82f6;box-shadow:0 0 8px #3b82f6;flex-shrink:0;}
+.lp-hero__badge span{font-family:var(--ff);font-size:.75rem;font-weight:700;color:#93c5fd;letter-spacing:.04em;text-transform:uppercase;}
+.lp-hero__headline{font-family:var(--ff);font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;color:#fff;line-height:1.1;letter-spacing:-.03em;margin-bottom:22px;}
+.lp-hero__headline em{font-style:normal;background:linear-gradient(90deg,#3b82f6,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.lp-hero__sub{font-size:1.05rem;color:rgba(255,255,255,0.58);line-height:1.7;max-width:480px;margin-bottom:36px;}
+.lp-hero__actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:48px;}
+.lp-btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;font-family:var(--ff);font-size:.95rem;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none;transition:background .18s,transform .18s;border:none;cursor:pointer;}
+.lp-btn-primary:hover{background:var(--blue-d);color:#fff;transform:translateY(-1px);}
+.lp-btn-ghost{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);font-family:var(--ff);font-size:.95rem;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.15);transition:background .18s;}
+.lp-btn-ghost:hover{background:rgba(255,255,255,0.12);color:#fff;}
+.lp-hero__trust{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.lp-hero__avatars{display:flex;}
+.lp-av{width:34px;height:34px;border-radius:50%;border:2px solid #0a1d3d;object-fit:cover;margin-left:-10px;background:#1B5EC7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.72rem;font-weight:800;flex-shrink:0;}
+.lp-av:first-child{margin-left:0;}
+.lp-hero__trust-text{font-size:.82rem;color:rgba(255,255,255,0.5);line-height:1.4;}
+.lp-hero__trust-text strong{color:rgba(255,255,255,0.85);}
+.lp-hero__card-stack{position:relative;display:flex;flex-direction:column;gap:14px;}
+.lp-hero__card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:20px 22px;backdrop-filter:blur(8px);}
+.lp-hero__card-label{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;}
+.lp-hero__card-title{font-family:var(--ff);font-size:.95rem;font-weight:700;color:#fff;margin-bottom:6px;}
+.lp-hero__card-meta{font-size:.8rem;color:rgba(255,255,255,0.5);}
+.lp-hero__card-stat{font-family:var(--ff);font-size:1.6rem;font-weight:800;color:#fff;}
+.lp-hero__card-badge{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:100px;margin-top:10px;}
+.lp-hero__card-badge--green{background:rgba(5,150,105,0.2);color:#34d399;}
+.lp-hero__card-badge--blue{background:rgba(59,130,246,0.2);color:#93c5fd;}
+/* ── Stats ── */
+.lp-stats{background:#fff;border-bottom:1px solid #e4eaf2;}
+.lp-stats__inner{max-width:1320px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:repeat(4,1fr);}
+.lp-stats__item{padding:28px 24px;border-right:1px solid #f0f4fa;text-align:center;}
+.lp-stats__item:last-child{border-right:none;}
+.lp-stats__val{font-family:var(--ff);font-size:2rem;font-weight:800;color:#0A1628;line-height:1;margin-bottom:4px;}
+.lp-stats__label{font-size:.78rem;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+/* ── Section shell ── */
+.lp-section{padding:96px 0;}
+.lp-section--alt{background:#f8fafd;}
+.lp-section--dark{background:var(--navy);}
+.lp-inner{max-width:1320px;margin:0 auto;padding:0 32px;}
+.lp-label{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);background:rgba(27,94,199,0.08);padding:4px 12px;border-radius:100px;margin-bottom:14px;}
+.lp-label--light{color:#93c5fd;background:rgba(59,130,246,0.12);}
+.lp-h2{font-family:var(--ff);font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:800;color:#0A1628;letter-spacing:-.03em;line-height:1.15;margin-bottom:16px;}
+.lp-h2--light{color:#fff;}
+.lp-lead{font-size:1.05rem;color:#6b7280;line-height:1.7;max-width:560px;}
+.lp-lead--light{color:rgba(255,255,255,0.55);}
+.lp-section-head{margin-bottom:56px;display:flex;flex-direction:column;}
+.lp-section-head--center{align-items:center;text-align:center;}
+.lp-section-head--center .lp-lead{margin:0 auto;}
+/* ── How it works ── */
+.lp-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;}
+.lp-step{background:#fff;border:1px solid #e4eaf2;border-radius:16px;padding:28px 24px;transition:box-shadow .2s,transform .2s;}
+.lp-step:hover{box-shadow:0 8px 32px rgba(27,94,199,.1);transform:translateY(-3px);}
+.lp-step__num{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#3b82f6);color:#fff;font-family:var(--ff);font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
+.lp-step__title{font-family:var(--ff);font-size:1rem;font-weight:800;color:#0A1628;margin-bottom:8px;}
+.lp-step__desc{font-size:.875rem;color:#6b7280;line-height:1.6;}
+/* ── Split panels ── */
+.lp-split{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.lp-panel{border-radius:20px;padding:44px 40px;display:flex;flex-direction:column;gap:24px;}
+.lp-panel--blue{background:linear-gradient(145deg,#0d2147 0%,#1B5EC7 100%);}
+.lp-panel--dark{background:linear-gradient(145deg,#0A1628 0%,#12243f 100%);border:1px solid rgba(255,255,255,0.07);}
+.lp-panel__icon{width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
+.lp-panel__title{font-family:var(--ff);font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1.2;}
+.lp-panel__desc{font-size:.9rem;color:rgba(255,255,255,0.55);line-height:1.7;}
+.lp-panel__features{display:flex;flex-direction:column;gap:10px;}
+.lp-panel__feature{display:flex;align-items:flex-start;gap:10px;font-size:.875rem;color:rgba(255,255,255,0.75);line-height:1.5;}
+.lp-panel__feature-dot{width:20px;height:20px;border-radius:50%;background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:.65rem;color:#93c5fd;}
+.lp-panel__cta{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--navy);font-family:var(--ff);font-size:.9rem;font-weight:700;padding:13px 24px;border-radius:10px;text-decoration:none;transition:opacity .18s;align-self:flex-start;margin-top:auto;}
+.lp-panel__cta:hover{opacity:.9;color:var(--navy);}
+.lp-panel__cta--blue{background:var(--blue);color:#fff;}
+.lp-panel__cta--blue:hover{background:var(--blue-d);color:#fff;opacity:1;}
+/* ── Projects ── */
+.lp-projects{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.lp-proj-card{background:#fff;border:1px solid #e4eaf2;border-radius:16px;overflow:hidden;transition:box-shadow .2s,transform .2s;display:flex;flex-direction:column;}
+.lp-proj-card:hover{box-shadow:0 8px 32px rgba(27,94,199,.1);transform:translateY(-3px);}
+.lp-proj-img{height:160px;object-fit:cover;width:100%;display:block;}
+.lp-proj-img-placeholder{height:160px;background:linear-gradient(135deg,#0d2147,#1B5EC7);display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
+.lp-proj-body{padding:20px;flex:1;display:flex;flex-direction:column;gap:8px;}
+.lp-proj-industry{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);background:rgba(27,94,199,0.07);padding:2px 10px;border-radius:100px;display:inline-block;align-self:flex-start;}
+.lp-proj-title{font-family:var(--ff);font-size:.95rem;font-weight:700;color:#0A1628;text-decoration:none;line-height:1.3;}
+.lp-proj-title:hover{color:var(--blue);}
+.lp-proj-desc{font-size:.82rem;color:#6b7280;line-height:1.5;flex:1;}
+.lp-proj-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid #f0f4fa;}
+.lp-proj-owner{display:flex;align-items:center;gap:8px;text-decoration:none;}
+.lp-proj-owner-av{width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;}
+.lp-proj-owner-name{font-size:.78rem;font-weight:600;color:#374151;}
+.lp-proj-arrow{font-size:.82rem;color:var(--blue);font-weight:700;text-decoration:none;}
+.lp-proj-arrow:hover{color:var(--blue-d);}
+/* ── Services ── */
+.lp-services{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.lp-svc{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px 22px;transition:background .18s,border-color .18s;text-decoration:none;display:block;}
+.lp-svc:hover{background:rgba(255,255,255,0.07);border-color:rgba(27,94,199,0.4);}
+.lp-svc__icon{font-size:2rem;margin-bottom:14px;display:block;}
+.lp-svc__title{font-family:var(--ff);font-size:.95rem;font-weight:700;color:#fff;margin-bottom:6px;}
+.lp-svc__desc{font-size:.82rem;color:rgba(255,255,255,0.45);line-height:1.55;}
+/* ── Testimonials ── */
+.lp-testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.lp-testi{background:#fff;border:1px solid #e4eaf2;border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;gap:16px;transition:box-shadow .2s;}
+.lp-testi:hover{box-shadow:0 6px 24px rgba(27,94,199,.08);}
+.lp-testi__stars{color:#f59e0b;font-size:.9rem;letter-spacing:2px;}
+.lp-testi__quote{font-size:.9rem;color:#374151;line-height:1.65;font-style:italic;flex:1;}
+.lp-testi__author{display:flex;align-items:center;gap:12px;}
+.lp-testi__av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#0A1628);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--ff);font-size:.85rem;font-weight:800;flex-shrink:0;}
+.lp-testi__name{font-family:var(--ff);font-size:.875rem;font-weight:700;color:#0A1628;}
+.lp-testi__role{font-size:.75rem;color:#9ca3af;}
+/* ── CTA section ── */
+.lp-cta-section{background:linear-gradient(135deg,#0d2147 0%,#1B5EC7 60%,#2563eb 100%);padding:100px 32px;text-align:center;position:relative;overflow:hidden;}
+.lp-cta-section::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;}
+.lp-cta-section__inner{position:relative;z-index:1;max-width:640px;margin:0 auto;}
+.lp-cta-section__title{font-family:var(--ff);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1.15;margin-bottom:16px;}
+.lp-cta-section__sub{font-size:1rem;color:rgba(255,255,255,0.65);line-height:1.7;margin-bottom:36px;}
+.lp-cta-section__actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.lp-btn-white{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--navy);font-family:var(--ff);font-size:.95rem;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none;transition:opacity .18s;}
+.lp-btn-white:hover{opacity:.9;color:var(--navy);}
+.lp-btn-outline-white{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);color:#fff;font-family:var(--ff);font-size:.95rem;font-weight:700;padding:14px 28px;border-radius:10px;border:1px solid rgba(255,255,255,0.25);text-decoration:none;transition:background .18s;}
+.lp-btn-outline-white:hover{background:rgba(255,255,255,0.18);color:#fff;}
+/* ── Responsive ── */
+@media(max-width:1024px){.lp-services{grid-template-columns:repeat(2,1fr);}.lp-projects{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:900px){.lp-nav__links{display:none;}.lp-nav__login{display:none;}.lp-nav__hamburger{display:flex;}.lp-hero__inner{grid-template-columns:1fr;gap:48px;}.lp-hero__card-stack{display:none;}.lp-stats__inner{grid-template-columns:repeat(2,1fr);}.lp-steps{grid-template-columns:1fr;}.lp-split{grid-template-columns:1fr;}.lp-testimonials{grid-template-columns:1fr;}}
+@media(max-width:640px){.lp-hero__inner{padding:72px 0 60px;}.lp-section{padding:64px 0;}.lp-inner{padding:0 20px;}.lp-stats__inner{padding:0 20px;}.lp-projects{grid-template-columns:1fr;}.lp-services{grid-template-columns:repeat(2,1fr);}.lp-panel{padding:32px 24px;}.lp-cta-section{padding:72px 20px;}}
+</style>
+{% endblock %}
 
 {% block content %}
-<head>
 
-</head>
-  <div class="main-container">
-  <header class="header">
-    <div class="video-section">
-      <video autoplay muted loop>
-        <source src="{% static 'images/earth2.mp4' %}" type="video/mp4">
-      </video>
-      <div class="hero-section">
-        <img class="main-logo" src="{% static 'images/OdumaCorp-icon.png' %}" alt="" srcset="" onclick="window.location.href='/'">
+<!-- ── Sticky Nav ── -->
+<nav class="lp-nav" role="navigation" aria-label="Main navigation">
+  <div class="lp-nav__inner">
+    <a href="{% url 'index' %}" class="lp-nav__logo">
+      <img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="Oduma Corp">
+      <span class="lp-nav__logo-name">Oduma Corp</span>
+    </a>
+    <ul class="lp-nav__links">
+      <li><a href="#how-it-works">How it works</a></li>
+      <li><a href="#for-you">For you</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="{% url 'about' %}">About</a></li>
+    </ul>
+    <div class="lp-nav__actions">
+      {% if user.is_authenticated %}
+        <a href="{% url 'app' %}" class="lp-nav__login">Feed</a>
+        <a href="{% url 'innovator_dashboard' %}" class="lp-nav__cta">Dashboard &rarr;</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="lp-nav__login">Log in</a>
+        <a href="{% url 'register' %}" class="lp-nav__cta">Get started &rarr;</a>
+      {% endif %}
+    </div>
+    <button class="lp-nav__hamburger" onclick="document.getElementById('lp-mob').classList.toggle('open')" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="lp-mobile-menu" id="lp-mob">
+  <a href="#how-it-works" onclick="document.getElementById('lp-mob').classList.remove('open')">How it works</a>
+  <a href="#for-you" onclick="document.getElementById('lp-mob').classList.remove('open')">For you</a>
+  <a href="#projects" onclick="document.getElementById('lp-mob').classList.remove('open')">Projects</a>
+  <a href="#services" onclick="document.getElementById('lp-mob').classList.remove('open')">Services</a>
+  <a href="{% url 'about' %}">About</a>
+  <div class="lp-mobile-menu__divider"></div>
+  {% if user.is_authenticated %}
+    <a href="{% url 'app' %}">Feed</a>
+    <a href="{% url 'innovator_dashboard' %}" class="primary">Dashboard &rarr;</a>
+  {% else %}
+    <a href="{% url 'login' %}">Log in</a>
+    <a href="{% url 'register' %}" class="primary">Get started &rarr;</a>
+  {% endif %}
+</div>
 
-        <section class="heading">
-          <h1>We Make Your Dreams Come True!</h1>
-          <h2>Innovate & Invest</h2>
-        </section>
-        <div class="div-button">
-          {% if user.is_authenticated %}
-              <button onclick="window.location.href='{% url 'app' %}';" class="cta-button">Home</button>
-          {% else %}
-              <button onclick="window.location.href='{% url 'register' %}';" class="cta-button">Start Now!</button>
-          {% endif %}
 
+<!-- ── Hero ── -->
+<section class="lp-hero" id="hero">
+  <div class="lp-hero__inner">
+    <div>
+      <div class="lp-hero__badge">
+        <span class="lp-hero__badge-dot"></span>
+        <span>Africa's #1 Innovation Platform</span>
+      </div>
+      <h1 class="lp-hero__headline">Where great ideas<br>meet <em>serious capital</em></h1>
+      <p class="lp-hero__sub">Oduma Connect bridges Africa's boldest innovators with investors who believe in transformative ideas. Deal flow, collaboration, and capital &mdash; all in one place.</p>
+      <div class="lp-hero__actions">
+        {% if user.is_authenticated %}
+          <a href="{% url 'app' %}" class="lp-btn-primary">Go to Feed &rarr;</a>
+          <a href="{% url 'project_list' %}" class="lp-btn-ghost">Browse Projects</a>
+        {% else %}
+          <a href="{% url 'register' %}" class="lp-btn-primary">Start for free &rarr;</a>
+          <a href="{% url 'login' %}" class="lp-btn-ghost">Log in</a>
+        {% endif %}
+      </div>
+      <div class="lp-hero__trust">
+        <div class="lp-hero__avatars">
+          <div class="lp-av">AI</div><div class="lp-av">KO</div>
+          <div class="lp-av">TM</div><div class="lp-av">BF</div>
+          <div class="lp-av">+</div>
         </div>
-        <div class="mission-vision">
-          <p><strong>Our Mission:</strong> To empower people to create, innovate and invent solutions that improve their quality of life and contribute to social and economic development.</p>
-          <p><strong>Our Vision:</strong> To become a leading company in Africa that fosters a culture of innovation and invention, and supports the growth of local talent and businesses.</p>
+        <div class="lp-hero__trust-text">
+          Joined by <strong>{{ innovator_count|default:"500" }}+ innovators</strong><br>
+          and <strong>{{ investor_count|default:"200" }}+ investors</strong> across Africa
         </div>
       </div>
     </div>
-  </header>
-  <section class="main-section">
-    <section id="services-section" class="services-section">
-      <h2>Our Services</h2>
-  
-      <ul class="services-list">
-        <li><span>Innovation Consulting:</span><p>We help our clients identify opportunities, generate ideas, prototype and test solutions, and implement them in the market. We also assist in pitching solutions to investors and securing funding for their innovations.</p></li>
-        <li><span>Invention Support:</span><p>We offer technical and financial assistance to inventors with promising ideas that solve real-world problems. We help protect intellectual property, commercialize inventions, and connect inventors with investors.</p></li>
-        <li><span>Innovation Training:</span><p>We offer workshops and courses on various topics related to innovation and invention, such as design thinking, creativity, entrepreneurship, and intellectual property. We also provide mentorship and networking opportunities to help connect innovators.</p></li>
-      </ul>
-    </section>
-
-    <section class="carousel-section" >
-      <div class="carousel">
-        <div class="carousel-item">
-          <button onclick="window.location.href='{% url "services" %}#invention-support'">
-
-          <!-- <button onclick="window.location.href='services.html#innovation-consulting'"> -->
-            <img src="{% static 'images/support.gif' %}" alt="Service 2">
-          </button>
-          <h3>Invention Support</h3>
-          <p>We help your ideas become reality.</p>
+    <div class="lp-hero__card-stack">
+      <div class="lp-hero__card">
+        <div class="lp-hero__card-label">Active Projects</div>
+        <div class="lp-hero__card-stat">{{ project_count|default:"120" }}+</div>
+        <div class="lp-hero__card-meta">Across tech, health, agriculture, energy &amp; more</div>
+        <span class="lp-hero__card-badge lp-hero__card-badge--green">&#9679; Live deal flow</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="lp-hero__card">
+          <div class="lp-hero__card-label">Innovators</div>
+          <div class="lp-hero__card-stat">{{ innovator_count|default:"500" }}</div>
+          <div class="lp-hero__card-meta">Verified builders</div>
         </div>
-      
-        <div class="carousel-item">
-          <!-- <button onclick="window.location.href=''"> -->
-            <button onclick="window.location.href='{% url "services" %}#innovation-consulting'">
-
-            <img src="{% static 'images/social-media.gif'%}" alt="Service 1">
-          </button>
-  
-          <h3>Innovation Consulting</h3>
-          <p>We guide your innovations to success.</p>
-        </div>
-        <div class="carousel-item">
-          <!-- <button onclick="window.location.href='services.html#innovation-training'"> -->
-            <button onclick="window.location.href='{% url "services" %}#innovation-training'">
-
-            <img src="{% static 'images/diagram.gif' %} " alt="Service 3">
-          </button>
-          <h3>Innovation Training</h3>
-          <p>Empowering innovators for the future.</p>
+        <div class="lp-hero__card">
+          <div class="lp-hero__card-label">Investors</div>
+          <div class="lp-hero__card-stat">{{ investor_count|default:"200" }}</div>
+          <div class="lp-hero__card-meta">Ready to deploy</div>
         </div>
       </div>
-    </section>
-  
-    <section class="testimonial-section">
-      <h2>Why Innovators Choose Us</h2>
-      <div class="testimonial">
-        <img src="{% static 'images/hero.jpg' %} " alt="Testimonial Person">
-        <div>
-          <p>"Oduma Corp helped me take my invention from an idea to a fully developed product."</p>
-          <p class="author">- John Doe</p>
-        </div>
-        
+      <div class="lp-hero__card">
+        <div class="lp-hero__card-label">Latest Opportunity</div>
+        <div class="lp-hero__card-title">{% if featured_projects %}{{ featured_projects.0.title|truncatechars:40 }}{% else %}AgriTech Smart Irrigation System{% endif %}</div>
+        <div class="lp-hero__card-meta">{% if featured_projects %}{{ featured_projects.0.industry }}{% else %}Agriculture &middot; Nigeria{% endif %}</div>
+        <span class="lp-hero__card-badge lp-hero__card-badge--blue">Seeking investment</span>
       </div>
-    </section>
-    
-    <!-- <section class="contact-section">
-      <h2>Get in Touch</h2>
-      <form action="submit_form.php" method="post">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
-        
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        
-        <label for="message">Message:</label>
-        <textarea id="message" name="message" required></textarea>
-        
-        <button type="submit" class="submit-button">Submit</button>
-      </form>
-    </section> -->
-
-    <section>
-      <h2>Welcome to Our Platform</h2>
-      <p>Explore innovation, connect with investors, and showcase your ideas.</p>
-  </section>
-  
-  <!-- Contact Form Section -->
-  <section  class="contact-section">
-      <h2>Get in Touch</h2>
-  
-      {% if messages %}
-          {% for message in messages %}
-              <p class="{{ message.tags }}">{{ message }}</p>
-          {% endfor %}
-      {% endif %}
-  
-      <form method="post">
-        {% csrf_token %}
-
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" class="form-control" placeholder="Your Name" required>
-
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" class="form-control" placeholder="Your Email" required>
-
-        <label for="message">Message:</label>
-        <textarea id="message" name="message" class="form-control" placeholder="Your Message" rows="4" required></textarea>
-
-        <button type="submit" class="submit-button">Submit</button>
-    </form>
+    </div>
+  </div>
 </section>
-  </section>
-    <!-- <div id="footer"></div>  -->
-    
 
-  </section>
 
+<!-- ── Stats bar ── -->
+<div class="lp-stats">
+  <div class="lp-stats__inner">
+    <div class="lp-stats__item">
+      <div class="lp-stats__val" data-count="{{ innovator_count|default:500 }}">{{ innovator_count|default:"500" }}+</div>
+      <div class="lp-stats__label">Innovators</div>
+    </div>
+    <div class="lp-stats__item">
+      <div class="lp-stats__val" data-count="{{ investor_count|default:200 }}">{{ investor_count|default:"200" }}+</div>
+      <div class="lp-stats__label">Investors</div>
+    </div>
+    <div class="lp-stats__item">
+      <div class="lp-stats__val" data-count="{{ project_count|default:120 }}">{{ project_count|default:"120" }}+</div>
+      <div class="lp-stats__label">Projects Listed</div>
+    </div>
+    <div class="lp-stats__item">
+      <div class="lp-stats__val">6+</div>
+      <div class="lp-stats__label">African Countries</div>
+    </div>
+  </div>
 </div>
-</body>
-
-</html>
-{% endblock content %}
 
 
+<!-- ── How it works ── -->
+<section class="lp-section" id="how-it-works">
+  <div class="lp-inner">
+    <div class="lp-section-head lp-section-head--center">
+      <span class="lp-label">How it works</span>
+      <h2 class="lp-h2">Simple. Structured. Effective.</h2>
+      <p class="lp-lead">From first idea to funded venture &mdash; Oduma Connect guides you every step of the way.</p>
+    </div>
+    <div class="lp-steps">
+      <div class="lp-step">
+        <div class="lp-step__num">01</div>
+        <div class="lp-step__title">Create your profile</div>
+        <p class="lp-step__desc">Sign up as an innovator or investor. Build a rich profile that showcases your work, thesis, or track record in minutes.</p>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step__num">02</div>
+        <div class="lp-step__title">Connect &amp; discover</div>
+        <p class="lp-step__desc">Our intelligent matching surfaces the right projects to investors and the right capital to innovators &mdash; based on industry, stage, and geography.</p>
+      </div>
+      <div class="lp-step">
+        <div class="lp-step__num">03</div>
+        <div class="lp-step__title">Collaborate &amp; close</div>
+        <p class="lp-step__desc">Use built-in messaging, proposals, and meeting scheduling to move from interest to agreement without leaving the platform.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── For Innovators / Investors ── -->
+<section class="lp-section lp-section--alt" id="for-you">
+  <div class="lp-inner">
+    <div class="lp-section-head lp-section-head--center">
+      <span class="lp-label">Built for both sides</span>
+      <h2 class="lp-h2">Everything you need to succeed</h2>
+      <p class="lp-lead">Whether you're building the next big thing or backing it, Oduma Connect is your unfair advantage.</p>
+    </div>
+    <div class="lp-split">
+      <div class="lp-panel lp-panel--blue">
+        <div class="lp-panel__icon">&#128640;</div>
+        <div>
+          <div class="lp-panel__title">For Innovators</div>
+          <p class="lp-panel__desc">Showcase your project, attract investors, and access the tools and mentorship to take your idea from concept to scale.</p>
+        </div>
+        <div class="lp-panel__features">
+          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Publish projects with rich media and detailed pitches</div>
+          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Get verified to build trust with investors</div>
+          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Receive and respond to investment proposals</div>
+          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Access mentorship, training, and consulting services</div>
+          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Track investor interest and engagement analytics</div>
+        </div>
+        <a href="{% url 'register' %}" class="lp-panel__cta">Join as Innovator &rarr;</a>
+      </div>
+      <div class="lp-panel lp-panel--dark">
+        <div class="lp-panel__icon">&#128188;</div>
+        <div>
+          <div class="lp-panel__title">For Investors</div>
+          <p class="lp-panel__desc">Access curated deal flow, run due diligence, and build a portfolio of Africa's most promising ventures &mdash; all from one dashboard.</p>
+        </div>
+        <div class="lp-panel__features">
+          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>AI-matched project recommendations by thesis</div>
+          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Filter by industry, stage, funding range, and geography</div>
+          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Send proposals and schedule meetings in-platform</div>
+          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Save projects and manage your pipeline</div>
+          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Connect with verified, credible innovators</div>
+        </div>
+        <a href="{% url 'register' %}" class="lp-panel__cta lp-panel__cta--blue">Join as Investor &rarr;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── Featured Projects ── -->
+<section class="lp-section" id="projects">
+  <div class="lp-inner">
+    <div class="lp-section-head" style="flex-direction:row;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:40px;">
+      <div>
+        <span class="lp-label">Live deal flow</span>
+        <h2 class="lp-h2" style="margin-bottom:0;">Featured Projects</h2>
+      </div>
+      <a href="{% url 'project_list' %}" style="font-family:var(--ff);font-size:.875rem;font-weight:700;color:var(--blue);text-decoration:none;white-space:nowrap;">View all projects &rarr;</a>
+    </div>
+
+    {% if featured_projects %}
+    <div class="lp-projects">
+      {% for project in featured_projects %}
+      <div class="lp-proj-card">
+        {% with img=project.get_main_image_url %}
+          {% if img %}<img src="{{ img }}" alt="{{ project.title }}" class="lp-proj-img">
+          {% else %}<div class="lp-proj-img-placeholder">&#128640;</div>{% endif %}
+        {% endwith %}
+        <div class="lp-proj-body">
+          {% if project.industry %}<span class="lp-proj-industry">{{ project.industry }}</span>{% endif %}
+          <a href="{% url 'project_detail' project.pk %}" class="lp-proj-title">{{ project.title }}</a>
+          <p class="lp-proj-desc">{{ project.description|truncatewords:22 }}</p>
+        </div>
+        <div class="lp-proj-footer">
+          <a href="{% url 'profile_view' id=project.owner.pk %}" class="lp-proj-owner">
+            {% if project.owner.userprofile.profile_pics %}
+              <img src="{{ project.owner.userprofile.profile_pics.url }}" class="lp-proj-owner-av" alt="">
+            {% else %}
+              <div class="lp-proj-owner-av">{{ project.owner.first_name|first|upper }}{{ project.owner.last_name|first|upper }}</div>
+            {% endif %}
+            <span class="lp-proj-owner-name">{{ project.owner.get_full_name|default:project.owner.username }}</span>
+          </a>
+          <a href="{% url 'project_detail' project.pk %}" class="lp-proj-arrow">View &rarr;</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="lp-projects">
+      <div class="lp-proj-card">
+        <div class="lp-proj-img-placeholder">&#127807;</div>
+        <div class="lp-proj-body">
+          <span class="lp-proj-industry">Agriculture</span>
+          <span class="lp-proj-title">AgriTech Smart Irrigation</span>
+          <p class="lp-proj-desc">IoT-powered irrigation and crop monitoring for smallholder farmers across sub-Saharan Africa.</p>
+        </div>
+        <div class="lp-proj-footer">
+          <span style="font-size:.78rem;color:#9ca3af;">Sample project</span>
+          <a href="{% url 'register' %}" class="lp-proj-arrow">Join to view &rarr;</a>
+        </div>
+      </div>
+      <div class="lp-proj-card">
+        <div class="lp-proj-img-placeholder">&#127973;</div>
+        <div class="lp-proj-body">
+          <span class="lp-proj-industry">Healthcare</span>
+          <span class="lp-proj-title">HealthTech AI Diagnostics</span>
+          <p class="lp-proj-desc">AI-powered diagnostic tool for rural clinics with limited specialist access in West Africa.</p>
+        </div>
+        <div class="lp-proj-footer">
+          <span style="font-size:.78rem;color:#9ca3af;">Sample project</span>
+          <a href="{% url 'register' %}" class="lp-proj-arrow">Join to view &rarr;</a>
+        </div>
+      </div>
+      <div class="lp-proj-card">
+        <div class="lp-proj-img-placeholder">&#128179;</div>
+        <div class="lp-proj-body">
+          <span class="lp-proj-industry">Finance</span>
+          <span class="lp-proj-title">Mobile Payment Wallet</span>
+          <p class="lp-proj-desc">Mobile-first payment solution built for the unbanked across East and West Africa.</p>
+        </div>
+        <div class="lp-proj-footer">
+          <span style="font-size:.78rem;color:#9ca3af;">Sample project</span>
+          <a href="{% url 'register' %}" class="lp-proj-arrow">Join to view &rarr;</a>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:32px;">
+      <a href="{% url 'register' %}" class="lp-btn-primary" style="display:inline-flex;">Browse all projects &rarr;</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+
+<!-- ── Oduma Services ── -->
+<section class="lp-section lp-section--dark" id="services">
+  <div class="lp-inner">
+    <div class="lp-section-head lp-section-head--center">
+      <span class="lp-label lp-label--light">Oduma Services</span>
+      <h2 class="lp-h2 lp-h2--light">More than a marketplace</h2>
+      <p class="lp-lead lp-lead--light">We invest in your growth with an ecosystem of services designed to make innovators investable and investors informed.</p>
+    </div>
+    <div class="lp-services">
+      <a href="{% if user.is_authenticated %}{% url 'training_hub' %}{% else %}{% url 'register' %}{% endif %}" class="lp-svc">
+        <span class="lp-svc__icon">&#128218;</span>
+        <div class="lp-svc__title">Training &amp; Courses</div>
+        <p class="lp-svc__desc">Structured learning paths on pitching, finance, legal, and product &mdash; built for African founders.</p>
+      </a>
+      <a href="{% if user.is_authenticated %}{% url 'mentorship_hub' %}{% else %}{% url 'register' %}{% endif %}" class="lp-svc">
+        <span class="lp-svc__icon">&#127891;</span>
+        <div class="lp-svc__title">Mentorship</div>
+        <p class="lp-svc__desc">Get matched with experienced mentors who've built and funded startups across the continent.</p>
+      </a>
+      <a href="{% if user.is_authenticated %}{% url 'request_consulting' %}{% else %}{% url 'register' %}{% endif %}" class="lp-svc">
+        <span class="lp-svc__icon">&#129504;</span>
+        <div class="lp-svc__title">Innovation Consulting</div>
+        <p class="lp-svc__desc">Expert support for strategy, go-to-market, investor readiness, and due diligence preparation.</p>
+      </a>
+      <a href="{% if user.is_authenticated %}{% url 'events_hub' %}{% else %}{% url 'register' %}{% endif %}" class="lp-svc">
+        <span class="lp-svc__icon">&#128197;</span>
+        <div class="lp-svc__title">Events &amp; Demo Days</div>
+        <p class="lp-svc__desc">Pitch competitions, investor meetups, and demo days connecting the ecosystem in real time.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── Testimonials ── -->
+<section class="lp-section lp-section--alt">
+  <div class="lp-inner">
+    <div class="lp-section-head lp-section-head--center">
+      <span class="lp-label">What members say</span>
+      <h2 class="lp-h2">Trusted by builders and backers</h2>
+    </div>
+    <div class="lp-testimonials">
+      <div class="lp-testi">
+        <div class="lp-testi__stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="lp-testi__quote">"Within two weeks of listing my project, I had three investor conversations. The platform made it easy to present my idea professionally and connect with the right people."</p>
+        <div class="lp-testi__author">
+          <div class="lp-testi__av">AK</div>
+          <div><div class="lp-testi__name">Amara K.</div><div class="lp-testi__role">Founder, AgriTech Startup &middot; Ghana</div></div>
+        </div>
+      </div>
+      <div class="lp-testi">
+        <div class="lp-testi__stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="lp-testi__quote">"As an investor, deal sourcing used to be scattered across WhatsApp groups and cold emails. Oduma Connect gives me structured, filtered deal flow I can actually act on."</p>
+        <div class="lp-testi__author">
+          <div class="lp-testi__av">TO</div>
+          <div><div class="lp-testi__name">Tunde O.</div><div class="lp-testi__role">Angel Investor &middot; Nigeria</div></div>
+        </div>
+      </div>
+      <div class="lp-testi">
+        <div class="lp-testi__stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="lp-testi__quote">"The mentorship programme alone was worth it. My mentor helped me restructure my pitch and I raised my seed round three months later. Highly recommend."</p>
+        <div class="lp-testi__author">
+          <div class="lp-testi__av">NM</div>
+          <div><div class="lp-testi__name">Naledi M.</div><div class="lp-testi__role">Co-Founder, HealthTech &middot; South Africa</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── Final CTA ── -->
+<section class="lp-cta-section">
+  <div class="lp-cta-section__inner">
+    <h2 class="lp-cta-section__title">Africa's next big idea starts here</h2>
+    <p class="lp-cta-section__sub">Join thousands of innovators and investors already building the future together. It's free to get started.</p>
+    <div class="lp-cta-section__actions">
+      {% if user.is_authenticated %}
+        <a href="{% url 'app' %}" class="lp-btn-white">Go to your feed &rarr;</a>
+        <a href="{% url 'project_list' %}" class="lp-btn-outline-white">Browse projects</a>
+      {% else %}
+        <a href="{% url 'register' %}" class="lp-btn-white">Create free account &rarr;</a>
+        <a href="{% url 'login' %}" class="lp-btn-outline-white">Log in</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  /* Animated stat counters */
+  document.querySelectorAll('.lp-stats__val[data-count]').forEach(function (el) {
+    var target = parseInt(el.dataset.count, 10) || 0;
+    if (!target) return;
+    var cur = 0, step = Math.max(1, Math.ceil(target / 40));
+    var t = setInterval(function () {
+      cur = Math.min(cur + step, target);
+      el.textContent = cur + '+';
+      if (cur >= target) clearInterval(t);
+    }, 30);
+  });
+  /* Smooth scroll */
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id = this.getAttribute('href').slice(1);
+      var el = document.getElementById(id);
+      if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); document.getElementById('lp-mob').classList.remove('open'); }
+    });
+  });
+  /* Nav shadow on scroll */
+  var nav = document.querySelector('.lp-nav');
+  window.addEventListener('scroll', function () {
+    nav.style.boxShadow = window.scrollY > 10 ? '0 2px 20px rgba(0,0,0,0.35)' : 'none';
+  }, { passive: true });
+});
+</script>
+
+{% endblock %}

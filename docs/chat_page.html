@@ -1,24 +1,680 @@
 {% extends '_partials/base.html' %}
-{% block content %}
-<h2>Chat with {{ participant_name }}</h2>
-<div class="container mt-4">
+{% load static %}
+{% block title %}Chat with {{ participant_name }} | Oduma Connect{% endblock %}
 
-    <div class="messages">
-      {% for message in messages %}
-        <div class="message">
-          <strong>{{ message.sender.get_full_name }}</strong>: {{ message.content }}
-        </div>
-      {% empty %}
-        <p>No messages yet.</p>
-      {% endfor %}
+{% block extra_head %}
+<style>
+/* ── Shell ── */
+.ch-shell{display:flex;flex-direction:column;height:calc(100vh - 62px);max-width:800px;margin:0 auto;background:#f4f7fb;}
+
+/* ── Header ── */
+.ch-header{display:flex;align-items:center;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40,0.05);}
+.ch-back{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#6b7280;text-decoration:none;transition:background .15s;flex-shrink:0;}
+.ch-back:hover{background:#f0f4f8;color:#0A1628;}
+.ch-hdr-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+.ch-hdr-initials{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#1B5EC7,#0A1628);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:800;color:#fff;flex-shrink:0;}
+.ch-hdr-info{flex:1;min-width:0;}
+.ch-hdr-name{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:800;color:#0A1628;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ch-hdr-sub{font-size:.72rem;color:#9ca3af;margin-top:1px;}
+.ch-icon-btn{width:34px;height:34px;border-radius:9px;border:1px solid #e8edf4;background:#f8faff;display:flex;align-items:center;justify-content:center;color:#6b7280;cursor:pointer;text-decoration:none;transition:background .15s,color .15s;flex-shrink:0;}
+.ch-icon-btn:hover{background:#1B5EC7;color:#fff;border-color:#1B5EC7;}
+
+/* ── Messages ── */
+.ch-messages{flex:1;overflow-y:auto;padding:20px 20px 12px;display:flex;flex-direction:column;gap:2px;}
+.ch-messages::-webkit-scrollbar{width:4px;}
+.ch-messages::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:4px;}
+
+.ch-date-sep{text-align:center;margin:14px 0 10px;font-size:.68rem;font-weight:700;color:#9ca3af;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.ch-date-sep::before,.ch-date-sep::after{content:'';flex:1;height:1px;background:#e8edf4;}
+
+/* Message rows */
+.ch-row{display:flex;align-items:flex-end;gap:8px;margin-bottom:2px;position:relative;}
+.ch-row--mine{flex-direction:row-reverse;}
+.ch-msg-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;margin-bottom:16px;}
+.ch-msg-initials{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1B5EC7,#0A1628);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:.58rem;font-weight:800;color:#fff;flex-shrink:0;margin-bottom:16px;}
+
+.ch-msg-wrap{display:flex;flex-direction:column;max-width:68%;position:relative;}
+.ch-row--mine .ch-msg-wrap{align-items:flex-end;}
+.ch-row--theirs .ch-msg-wrap{align-items:flex-start;}
+
+/* Reply-to quote */
+.ch-quote{background:rgba(27,94,199,0.08);border-left:3px solid #1B5EC7;border-radius:6px;padding:6px 10px;margin-bottom:4px;font-size:.75rem;color:#374151;max-width:100%;overflow:hidden;}
+.ch-row--mine .ch-quote{background:rgba(255,255,255,0.2);border-left-color:rgba(255,255,255,0.6);color:rgba(255,255,255,0.85);}
+.ch-quote__author{font-weight:700;font-size:.7rem;margin-bottom:2px;color:#1B5EC7;}
+.ch-row--mine .ch-quote__author{color:rgba(255,255,255,0.9);}
+.ch-quote__text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* Bubble */
+.ch-bubble{padding:10px 14px;font-size:.875rem;line-height:1.6;word-break:break-word;position:relative;}
+.ch-row--theirs .ch-bubble{background:#fff;color:#1a202c;border-radius:4px 16px 16px 16px;border:1px solid #e8edf4;box-shadow:0 1px 4px rgba(10,22,40,0.05);}
+.ch-row--mine .ch-bubble{background:linear-gradient(135deg,#1B5EC7,#1451aa);color:#fff;border-radius:16px 4px 16px 16px;}
+
+/* Time + receipt */
+.ch-meta{display:flex;align-items:center;gap:4px;margin-top:3px;justify-content:flex-end;}
+.ch-time{font-size:.65rem;color:#9ca3af;}
+.ch-row--mine .ch-time{color:rgba(255,255,255,0.55);}
+.ch-receipt{font-size:.68rem;font-weight:700;}
+.ch-receipt--sent{color:#9ca3af;}
+.ch-receipt--delivered{color:#6b7280;}
+.ch-receipt--read{color:#3b82f6;}
+
+/* Reactions */
+.ch-reactions{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;}
+.ch-rxn{
+  display:inline-flex;align-items:center;gap:3px;
+  background:#fff;border:1.5px solid #e0e8f4;border-radius:20px;
+  padding:3px 9px 3px 6px;font-size:.82rem;cursor:pointer;
+  transition:background .15s,border-color .15s;
+  user-select:none;position:relative;
+}
+.ch-rxn:hover{background:#f0f4ff;border-color:#c7d8f8;}
+.ch-rxn:active{opacity:.75;}
+.ch-rxn--mine{background:#e0eaff;border-color:#1B5EC7;}
+.ch-rxn--mine:hover{background:#d0deff;}
+.ch-rxn__emoji{display:inline-block;transition:transform .25s cubic-bezier(.34,1.56,.64,1);}
+.ch-rxn__count{font-size:.72rem;font-weight:800;color:#374151;min-width:8px;transition:all .2s;}
+.ch-rxn--mine .ch-rxn__count{color:#1B5EC7;}
+
+/* New reaction appears */
+@keyframes rxnPop{
+  0%  {transform:scale(0);opacity:0;}
+  60% {transform:scale(1.25);opacity:1;}
+  80% {transform:scale(0.92);}
+  100%{transform:scale(1);}
+}
+@keyframes rxnBounce{
+  0%  {transform:scale(1);}
+  30% {transform:scale(1.35);}
+  60% {transform:scale(0.9);}
+  80% {transform:scale(1.1);}
+  100%{transform:scale(1);}
+}
+@keyframes rxnRemove{
+  0%  {transform:scale(1);opacity:1;}
+  100%{transform:scale(0);opacity:0;}
+}
+@keyframes countPop{
+  0%  {transform:translateY(0);}
+  40% {transform:translateY(-4px);}
+  70% {transform:translateY(1px);}
+  100%{transform:translateY(0);}
+}
+.ch-rxn--new{animation:rxnPop .35s cubic-bezier(.34,1.56,.64,1) forwards;}
+.ch-rxn--bounce .ch-rxn__emoji{animation:rxnBounce .4s cubic-bezier(.34,1.56,.64,1);}
+.ch-rxn--count-change .ch-rxn__count{animation:countPop .3s ease;}
+
+/* Floating emoji burst */
+@keyframes burst{
+  0%  {opacity:1;transform:translateY(0) scale(1);}
+  100%{opacity:0;transform:translateY(-40px) scale(1.4);}
+}
+.ch-burst{
+  position:fixed;pointer-events:none;font-size:1.4rem;z-index:9999;
+  animation:burst .55s ease forwards;
+}
+
+/* Hover action bar */
+.ch-actions{
+  display:flex;position:absolute;top:-36px;
+  background:#fff;border:1px solid #e8edf4;border-radius:24px;
+  padding:4px 6px;gap:2px;align-items:center;z-index:10;
+  white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .15s;
+}
+.ch-row--mine .ch-actions{right:0;}
+.ch-row--theirs .ch-actions{left:36px;}
+.ch-row:hover .ch-actions{opacity:1;pointer-events:auto;}
+.ch-act-btn{width:30px;height:30px;border-radius:50%;border:none;background:transparent;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:background .12s;position:relative;}
+.ch-act-btn:hover{background:#f0f4f8;}
+.ch-act-btn[title]:hover::after{content:attr(title);position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);background:#0A1628;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:5px;white-space:nowrap;pointer-events:none;}
+
+/* Emoji picker — fixed-position, clamped to viewport */
+.ch-emoji-picker{display:none;}
+.ch-emoji-picker.open{display:block;}
+#ch-ep-portal{
+  position:fixed;z-index:9999;
+  background:#fff;border:1px solid #e8edf4;border-radius:14px;
+  padding:10px;width:248px;
+  animation:epIn .12s ease;
+}
+@keyframes epIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.ch-ep-cats{display:flex;gap:3px;margin-bottom:8px;border-bottom:1px solid #f0f4f8;padding-bottom:7px;}
+.ch-ep-cat{flex:1;text-align:center;font-size:.9rem;padding:5px 2px;border-radius:7px;cursor:pointer;border:none;background:transparent;transition:background .12s;}
+.ch-ep-cat:hover,.ch-ep-cat.active{background:#f0f4ff;}
+.ch-ep-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;max-height:180px;overflow-y:auto;}
+.ch-ep-grid::-webkit-scrollbar{width:3px;}
+.ch-ep-grid::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px;}
+.ch-ep-grid button{width:32px;height:32px;border:none;background:transparent;font-size:1.05rem;cursor:pointer;border-radius:7px;transition:background .1s;display:flex;align-items:center;justify-content:center;}
+.ch-ep-grid button:hover{background:#f0f4f8;}
+
+/* Inline reply button below bubble */
+.ch-reply-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:.7rem;font-weight:600;color:#6b7280;
+  background:transparent;border:none;cursor:pointer;padding:2px 6px;
+  border-radius:6px;margin-top:2px;
+  opacity:0;transition:opacity .15s,color .15s,background .15s;
+  pointer-events:none;
+}
+.ch-row--mine .ch-reply-btn{align-self:flex-end;}
+.ch-row--theirs .ch-reply-btn{align-self:flex-start;}
+.ch-row:hover .ch-reply-btn{opacity:1;pointer-events:auto;}
+.ch-reply-btn:hover{color:#1B5EC7;background:#f0f4ff;}
+
+/* Empty state */
+.ch-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:40px 20px;text-align:center;}
+.ch-empty__icon{font-size:3rem;}
+.ch-empty__title{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;color:#374151;}
+.ch-empty__sub{font-size:.82rem;color:#9ca3af;}
+
+/* Reply preview bar */
+.ch-reply-bar{display:none;background:#f0f4ff;border-top:1px solid #d4e0ff;padding:8px 16px;align-items:center;gap:10px;flex-shrink:0;}
+.ch-reply-bar.active{display:flex;}
+.ch-reply-bar__content{flex:1;min-width:0;}
+.ch-reply-bar__author{font-size:.72rem;font-weight:700;color:#1B5EC7;margin-bottom:1px;}
+.ch-reply-bar__text{font-size:.78rem;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ch-reply-bar__close{width:26px;height:26px;border-radius:50%;border:none;background:rgba(27,94,199,0.12);color:#1B5EC7;cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ch-reply-bar__close:hover{background:rgba(27,94,199,0.2);}
+
+/* ── Input bar ── */
+.ch-inputbar{flex-shrink:0;background:#fff;border-top:1px solid #e8edf4;padding:12px 16px;display:flex;align-items:flex-end;gap:10px;}
+.ch-inputbar textarea{flex:1;border:1.5px solid #e0e6f0;border-radius:22px;padding:10px 16px;font-size:.875rem;font-family:inherit;color:#0A1628;line-height:1.5;resize:none;min-height:42px;max-height:120px;background:#fafbff;outline:none;transition:border-color .18s,box-shadow .18s;box-sizing:border-box;}
+.ch-inputbar textarea:focus{border-color:#1B5EC7;box-shadow:0 0 0 3px rgba(27,94,199,0.1);background:#fff;}
+.ch-inputbar textarea::placeholder{color:#9ca3af;}
+.ch-send{width:42px;height:42px;border-radius:50%;flex-shrink:0;background:#1B5EC7;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .18s;}
+.ch-send:hover{background:#144FA8;}
+.ch-send svg{fill:#fff;width:18px;height:18px;}
+
+@media(max-width:600px){
+  .ch-shell{height:calc(100vh - 56px);}
+  .ch-messages{padding:14px 12px 6px;}
+  .ch-inputbar{padding:10px 12px;}
+  .ch-msg-wrap{max-width:82%;}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ch-shell">
+
+  <!-- Header -->
+  <div class="ch-header">
+    <a href="{% url 'inbox' %}" class="ch-back" title="Back to inbox">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </a>
+    {% if participant_profile and participant_profile.profile_pics %}
+      <img src="{{ participant_profile.profile_pics.url }}" alt="{{ participant_name }}" class="ch-hdr-avatar">
+    {% else %}
+      <div class="ch-hdr-initials">{{ participant.first_name|first|upper }}{{ participant.last_name|first|upper }}</div>
+    {% endif %}
+    <div class="ch-hdr-info">
+      <div class="ch-hdr-name">{{ participant_name }}</div>
+      <div class="ch-hdr-sub">{% if participant_profile.company %}{{ participant_profile.company }} · {% endif %}{{ participant.user_type|default:"Member"|capfirst }}</div>
     </div>
-    
-    <!-- Message Form (if needed) -->
-    <form method="POST">
+    {% if participant %}
+    <a href="{% url 'profile_view' id=participant.id %}" class="ch-icon-btn" title="View profile">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Messages -->
+  <div class="ch-messages" id="ch-messages">
+    {% if chat_messages %}
+      {% for msg in chat_messages %}
+
+        {% if forloop.first %}
+          <div class="ch-date-sep">{{ msg.timestamp|date:"F j, Y" }}</div>
+        {% endif %}
+
+        {% if msg.sender == request.user %}
+        <!-- My message -->
+        <div class="ch-row ch-row--mine" data-msg-id="{{ msg.id }}">
+          <div class="ch-msg-wrap">
+
+            <!-- Hover action bar -->
+            <div class="ch-actions">
+              <button class="ch-act-btn" title="React" onclick="toggleEmojiPicker({{ msg.id }}, event)">😊</button>
+              <button class="ch-act-btn" title="Copy" onclick="copyMsg('{{ msg.content|escapejs }}')">📋</button>
+            </div>
+
+            <!-- Emoji picker (full grid) -->
+            <div class="ch-emoji-picker" id="ep-{{ msg.id }}"></div>
+
+            <!-- Quote if reply -->
+            {% if msg.reply_to %}
+            <div class="ch-quote">
+              <div class="ch-quote__author">{{ msg.reply_to.sender.get_full_name|default:msg.reply_to.sender.username }}</div>
+              <div class="ch-quote__text">{{ msg.reply_to.content|truncatechars:80 }}</div>
+            </div>
+            {% endif %}
+
+            <div class="ch-bubble">{{ msg.content }}</div>
+
+            <div class="ch-meta">
+              <span class="ch-time">{{ msg.timestamp|date:"H:i" }}</span>
+              {% if msg.is_read %}
+                <span class="ch-receipt ch-receipt--read" title="Read">✓✓</span>
+              {% else %}
+                <span class="ch-receipt ch-receipt--delivered" title="Delivered">✓</span>
+              {% endif %}
+            </div>
+
+            <!-- Reactions -->
+            {% if msg.reaction_summary %}
+            <div class="ch-reactions" id="rxn-{{ msg.id }}">
+              {% for r in msg.reaction_summary %}
+              <span class="ch-rxn {% if r.mine %}ch-rxn--mine{% endif %}" data-emoji="{{ r.emoji }}" onclick="reactTo({{ msg.id }}, '{{ r.emoji }}', event)">
+                <span class="ch-rxn__emoji">{{ r.emoji }}</span><span class="ch-rxn__count">{{ r.count }}</span>
+              </span>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Reply button below bubble -->
+            <button class="ch-reply-btn" onclick="setReply({{ msg.id }}, '{{ request.user.first_name|escapejs }}', '{{ msg.content|escapejs|truncatechars:60 }}')">
+              ↩ Reply
+            </button>
+
+          </div>
+        </div>
+
+        {% else %}
+        <!-- Their message -->
+        <div class="ch-row ch-row--theirs" data-msg-id="{{ msg.id }}">
+          {% if participant_profile and participant_profile.profile_pics %}
+            <img src="{{ participant_profile.profile_pics.url }}" alt="" class="ch-msg-avatar">
+          {% else %}
+            <div class="ch-msg-initials">{{ participant.first_name|first|upper }}{{ participant.last_name|first|upper }}</div>
+          {% endif %}
+
+          <div class="ch-msg-wrap">
+
+            <!-- Hover action bar -->
+            <div class="ch-actions">
+              <button class="ch-act-btn" title="React" onclick="toggleEmojiPicker({{ msg.id }}, event)">😊</button>
+              <button class="ch-act-btn" title="Copy" onclick="copyMsg('{{ msg.content|escapejs }}')">📋</button>
+            </div>
+
+            <!-- Emoji picker (full grid) -->
+            <div class="ch-emoji-picker" id="ep-{{ msg.id }}"></div>
+
+            <!-- Quote if reply -->
+            {% if msg.reply_to %}
+            <div class="ch-quote">
+              <div class="ch-quote__author">{{ msg.reply_to.sender.get_full_name|default:msg.reply_to.sender.username }}</div>
+              <div class="ch-quote__text">{{ msg.reply_to.content|truncatechars:80 }}</div>
+            </div>
+            {% endif %}
+
+            <div class="ch-bubble">{{ msg.content }}</div>
+
+            <div class="ch-meta">
+              <span class="ch-time">{{ msg.timestamp|date:"H:i" }}</span>
+            </div>
+
+            <!-- Reactions -->
+            {% if msg.reaction_summary %}
+            <div class="ch-reactions" id="rxn-{{ msg.id }}">
+              {% for r in msg.reaction_summary %}
+              <span class="ch-rxn {% if r.mine %}ch-rxn--mine{% endif %}" data-emoji="{{ r.emoji }}" onclick="reactTo({{ msg.id }}, '{{ r.emoji }}', event)">
+                <span class="ch-rxn__emoji">{{ r.emoji }}</span><span class="ch-rxn__count">{{ r.count }}</span>
+              </span>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Reply button below bubble -->
+            <button class="ch-reply-btn" onclick="setReply({{ msg.id }}, '{{ participant.first_name|escapejs }}', '{{ msg.content|escapejs|truncatechars:60 }}')">
+              ↩ Reply
+            </button>
+
+          </div>
+        </div>
+        {% endif %}
+
+      {% endfor %}
+    {% else %}
+      <div class="ch-empty">
+        <div class="ch-empty__icon">💬</div>
+        <div class="ch-empty__title">Start the conversation</div>
+        <p class="ch-empty__sub">Say hello to {{ participant_name }}. Your messages are private.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Reply preview bar -->
+  <div class="ch-reply-bar" id="ch-reply-bar">
+    <div class="ch-reply-bar__content">
+      <div class="ch-reply-bar__author" id="rb-author"></div>
+      <div class="ch-reply-bar__text" id="rb-text"></div>
+    </div>
+    <button class="ch-reply-bar__close" onclick="clearReply()">✕</button>
+  </div>
+
+  <!-- Input bar -->
+  <div class="ch-inputbar">
+    <form method="POST" style="display:contents;" id="ch-form">
       {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">Send</button>
+      <input type="hidden" name="reply_to_id" id="ch-reply-to-id" value="">
+      <textarea
+        name="content"
+        id="ch-input"
+        placeholder="Type a message…"
+        rows="1"
+        autocomplete="off"
+        onkeydown="handleEnter(event)"
+        oninput="autoGrow(this)"
+      ></textarea>
+      <button type="submit" class="ch-send" title="Send">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
     </form>
-    
+  </div>
+
 </div>
+
+<script>
+var CSRF = '{{ csrf_token }}';
+var REACT_URL_TPL = '{% url "toggle_message_reaction" message_id=12345 %}'.replace('12345', '{id}');
+function reactUrl(msgId) { return REACT_URL_TPL.replace('{id}', msgId); }
+
+// Scroll to bottom
+(function(){
+  var el = document.getElementById('ch-messages');
+  if (el) el.scrollTop = el.scrollHeight;
+})();
+
+// Send on Enter, Shift+Enter = newline
+function handleEnter(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    var val = document.getElementById('ch-input').value.trim();
+    if (val) document.getElementById('ch-form').submit();
+  }
+}
+
+// Auto-grow textarea
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// ── Reply ──
+function setReply(msgId, author, text) {
+  document.getElementById('ch-reply-to-id').value = msgId;
+  document.getElementById('rb-author').textContent = author;
+  document.getElementById('rb-text').textContent   = text;
+  document.getElementById('ch-reply-bar').classList.add('active');
+  document.getElementById('ch-input').focus();
+  closeAllEmoji();
+}
+function clearReply() {
+  document.getElementById('ch-reply-to-id').value = '';
+  document.getElementById('ch-reply-bar').classList.remove('active');
+}
+
+// ── Copy ──
+function copyMsg(text) {
+  navigator.clipboard && navigator.clipboard.writeText(text).then(function(){
+    showToast('Message copied');
+  });
+}
+
+// ── Toast ──
+function showToast(msg) {
+  if (window.ocToast) { ocToast(msg); return; }
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#0A1628;color:#fff;padding:8px 18px;border-radius:20px;font-size:.82rem;z-index:9999;';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2000);
+}
+
+// ── Emoji picker (single fixed portal) ──
+var EMOJI_CATS = {
+  '😊': ['😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇','🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚','😋','😛','😝','😜','🤪','🤨','🧐','🤓','😎','🥸','🤩','🥳','😏','😒','😞','😔','😟','😕','🙁','☹️','😣','😖','😫','😩','🥺','😢','😭','😤','😠','😡','🤬','🤯','😳','🥵','🥶','😱','😨','😰','😥','😓'],
+  '👍': ['👍','👎','👏','🙌','🤝','🤜','🤛','✊','👊','✋','👋','🤙','💪','☝️','👆','👇','👈','👉','🤞','✌️','🤟','🤘','🖖','👌','🤌','🤏','👐','🙏','🫶','❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','❤️‍🔥','💔','💕','💞','💓','💗','💖','💝'],
+  '😂': ['😂','🤣','😹','💀','☠️','👻','🤡','💩','🙈','🙉','🙊','🦆','🐸','🦋','🔥','💥','✨','⚡','🌈','🎉','🎊','🎈','🥳','🍕','🍔','🍟','🌮','🍣','🍩','🍪','🎂','🍰','🥂','🍺','☕','🧋'],
+  '👀': ['👀','💯','✅','❌','‼️','❓','❗','💬','💭','💤','🔔','🎵','🎶','📣','🔊','📱','💻','📸','📷','🎥','📞','💡','🔦','🧲','⭐','🌟','💫','🎯','🏆','🥇','🎮','🎲','🎭','🎨','📚','✏️','📝'],
+};
+var EP_KEYS = Object.keys(EMOJI_CATS);
+var _epMsgId = null;
+var _epPortal = null;
+
+function getPortal() {
+  if (!_epPortal) {
+    _epPortal = document.createElement('div');
+    _epPortal.id = 'ch-ep-portal';
+
+    // Category tabs
+    var cats = document.createElement('div');
+    cats.className = 'ch-ep-cats';
+    EP_KEYS.forEach(function(cat, i) {
+      var btn = document.createElement('button');
+      btn.className = 'ch-ep-cat' + (i === 0 ? ' active' : '');
+      btn.textContent = cat;
+      btn.dataset.idx = i;
+      btn.dataset.cat = cat;
+      btn.onclick = function(e) {
+        e.stopPropagation();
+        cats.querySelectorAll('.ch-ep-cat').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        renderEpGrid(cat);
+      };
+      cats.appendChild(btn);
+    });
+    _epPortal.appendChild(cats);
+
+    var grid = document.createElement('div');
+    grid.className = 'ch-ep-grid';
+    grid.id = 'ch-ep-grid';
+    _epPortal.appendChild(grid);
+
+    _epPortal.onclick = function(e){ e.stopPropagation(); };
+    document.body.appendChild(_epPortal);
+    renderEpGrid(EP_KEYS[0]);
+  }
+  return _epPortal;
+}
+
+function renderEpGrid(cat) {
+  var grid = document.getElementById('ch-ep-grid');
+  grid.innerHTML = '';
+  EMOJI_CATS[cat].forEach(function(em) {
+    var b = document.createElement('button');
+    b.textContent = em;
+    b.onclick = function(e) {
+      e.stopPropagation();
+      if (_epMsgId !== null) reactTo(_epMsgId, em, null);
+      closeEmojiPortal();
+    };
+    grid.appendChild(b);
+  });
+  grid.scrollTop = 0;
+}
+
+function closeEmojiPortal() {
+  if (_epPortal) { _epPortal.style.display = 'none'; }
+  _epMsgId = null;
+}
+
+function toggleEmojiPicker(msgId, e) {
+  e.stopPropagation();
+  var portal = getPortal();
+  var trigRect = e.currentTarget.getBoundingClientRect();
+  var isOpen = portal.style.display === 'block' && _epMsgId === msgId;
+
+  closeEmojiPortal();
+  if (isOpen) return;
+
+  _epMsgId = msgId;
+  portal.style.display = 'block';
+
+  // Position: prefer above trigger, clamp to viewport
+  var pw = 248, ph = 260;
+  var top = trigRect.top - ph - 6;
+  var left = trigRect.left;
+  if (top < 8) top = trigRect.bottom + 6;
+  if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+  if (left < 8) left = 8;
+  portal.style.top  = top  + 'px';
+  portal.style.left = left + 'px';
+}
+
+document.addEventListener('click', function() { closeEmojiPortal(); });
+
+// ── React ──
+function spawnBurst(emoji, x, y) {
+  var el = document.createElement('span');
+  el.className = 'ch-burst';
+  el.textContent = emoji;
+  el.style.left = (x - 12) + 'px';
+  el.style.top  = (y - 12) + 'px';
+  document.body.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 600);
+}
+
+function getOrCreateReactionContainer(msgId) {
+  var container = document.getElementById('rxn-' + msgId);
+  if (!container) {
+    container = document.createElement('div');
+    container.className = 'ch-reactions';
+    container.id = 'rxn-' + msgId;
+    var row = document.querySelector('[data-msg-id="' + msgId + '"] .ch-msg-wrap');
+    if (!row) return null;
+    var replyBtn = row.querySelector('.ch-reply-btn');
+    if (replyBtn) replyBtn.before(container);
+    else row.appendChild(container);
+  }
+  return container;
+}
+
+function applyReactions(msgId, reactions, animEmoji) {
+  var container = getOrCreateReactionContainer(msgId);
+  if (!container) return;
+
+  if (reactions.length === 0) {
+    container.style.animation = 'rxnRemove .25s ease forwards';
+    setTimeout(function(){ container.remove(); }, 250);
+    return;
+  }
+
+  reactions.forEach(function(r) {
+    var existing = container.querySelector('[data-emoji="' + CSS.escape(r.emoji) + '"]');
+    if (existing) {
+      // Update count with animation
+      var countEl = existing.querySelector('.ch-rxn__count');
+      var oldCount = parseInt(countEl.textContent) || 0;
+      if (oldCount !== r.count) {
+        countEl.textContent = r.count;
+        existing.classList.remove('ch-rxn--count-change');
+        void existing.offsetWidth;
+        existing.classList.add('ch-rxn--count-change');
+      }
+      // Toggle mine state
+      existing.classList.toggle('ch-rxn--mine', r.mine);
+      if (r.emoji === animEmoji) {
+        existing.classList.remove('ch-rxn--bounce');
+        void existing.offsetWidth;
+        existing.classList.add('ch-rxn--bounce');
+      }
+    } else {
+      // New reaction chip
+      var chip = document.createElement('span');
+      chip.className = 'ch-rxn ch-rxn--new' + (r.mine ? ' ch-rxn--mine' : '');
+      chip.dataset.emoji = r.emoji;
+      chip.setAttribute('onclick', 'reactTo(' + msgId + ', "' + r.emoji + '", event)');
+      chip.innerHTML = '<span class="ch-rxn__emoji">' + r.emoji + '</span>' +
+                       '<span class="ch-rxn__count">' + r.count + '</span>';
+      container.appendChild(chip);
+    }
+  });
+
+  // Remove chips no longer in response
+  container.querySelectorAll('.ch-rxn').forEach(function(chip) {
+    var em = chip.dataset.emoji;
+    if (!reactions.find(function(r){ return r.emoji === em; })) {
+      chip.style.animation = 'rxnRemove .2s ease forwards';
+      setTimeout(function(){ chip.remove(); }, 200);
+    }
+  });
+}
+
+function reactTo(msgId, emoji, e) {
+  closeEmojiPortal();
+
+  // Burst animation at click point
+  if (e && e.clientX) spawnBurst(emoji, e.clientX, e.clientY);
+
+  // Optimistic update — one reaction per user, replace old if different
+  var container = getOrCreateReactionContainer(msgId);
+  if (container) {
+    var target = container.querySelector('[data-emoji="' + CSS.escape(emoji) + '"]');
+    var isSameEmoji = target && target.classList.contains('ch-rxn--mine');
+
+    // Remove my previous reaction chip (different emoji)
+    container.querySelectorAll('.ch-rxn--mine').forEach(function(chip) {
+      if (chip.dataset.emoji !== emoji) {
+        var prevCount = parseInt(chip.querySelector('.ch-rxn__count').textContent) || 0;
+        if (prevCount <= 1) {
+          chip.style.animation = 'rxnRemove .2s ease forwards';
+          setTimeout(function(){ chip.remove(); if (container && !container.children.length) container.remove(); }, 200);
+        } else {
+          chip.querySelector('.ch-rxn__count').textContent = prevCount - 1;
+          chip.classList.remove('ch-rxn--mine');
+        }
+      }
+    });
+
+    if (isSameEmoji) {
+      // Toggle off same emoji
+      var countEl = target.querySelector('.ch-rxn__count');
+      var newCount = (parseInt(countEl.textContent) || 1) - 1;
+      target.classList.remove('ch-rxn--mine');
+      if (newCount <= 0) {
+        target.style.animation = 'rxnRemove .2s ease forwards';
+        setTimeout(function(){ target.remove(); if (container && !container.children.length) container.remove(); }, 200);
+      } else {
+        countEl.textContent = newCount;
+        target.classList.remove('ch-rxn--count-change');
+        void target.offsetWidth;
+        target.classList.add('ch-rxn--count-change');
+      }
+    } else if (target) {
+      // Add mine to existing chip for this emoji
+      var countEl = target.querySelector('.ch-rxn__count');
+      countEl.textContent = (parseInt(countEl.textContent) || 0) + 1;
+      target.classList.add('ch-rxn--mine');
+      target.classList.remove('ch-rxn--bounce');
+      void target.offsetWidth;
+      target.classList.add('ch-rxn--bounce');
+      target.classList.remove('ch-rxn--count-change');
+      void target.offsetWidth;
+      target.classList.add('ch-rxn--count-change');
+    } else {
+      // New emoji chip
+      var chip = document.createElement('span');
+      chip.className = 'ch-rxn ch-rxn--mine ch-rxn--new';
+      chip.dataset.emoji = emoji;
+      chip.setAttribute('onclick', 'reactTo(' + msgId + ', "' + emoji + '", event)');
+      chip.innerHTML = '<span class="ch-rxn__emoji">' + emoji + '</span>' +
+                       '<span class="ch-rxn__count">1</span>';
+      container.appendChild(chip);
+    }
+  }
+
+  // Sync with server
+  fetch(reactUrl(msgId), {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': CSRF},
+    body: JSON.stringify({emoji: emoji}),
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    if (data.reactions) applyReactions(msgId, data.reactions, emoji);
+  })
+  .catch(function(){ showToast('Could not save reaction'); });
+}
+</script>
 {% endblock %}

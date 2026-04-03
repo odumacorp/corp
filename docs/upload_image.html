@@ -1,5 +1,155 @@
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload Image</button>
-</form>
+{% extends '_partials/base.html' %}
+{% load static %}
+{% block title %}Upload Image — {{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="ui-page">
+
+  <!-- Breadcrumbs -->
+  <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+    <ol class="oc-breadcrumbs__list">
+      <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><a href="{% url 'project_detail' project.pk %}" class="oc-breadcrumbs__link">{{ project.title }}</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Upload Image</span></li>
+    </ol>
+  </nav>
+
+  <div class="ui-card">
+    <h2 class="ui-title">Upload Image</h2>
+    <p class="ui-subtitle">Adding images to <strong>{{ project.title }}</strong></p>
+
+    {% if messages %}
+      {% for msg in messages %}
+      <div class="oc-alert oc-alert--{{ msg.tags }}" style="margin-bottom:16px;">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" id="upload-form">
+      {% csrf_token %}
+
+      <!-- File picker with preview -->
+      <div class="ui-drop-zone" id="drop-zone" onclick="document.getElementById('img-file').click()">
+        <div id="drop-placeholder">
+          <span style="font-size:2.5rem;">🖼</span>
+          <p>Click or drag &amp; drop an image here</p>
+          <small>JPG, PNG, WebP — max 10 MB</small>
+        </div>
+        <img id="img-preview" src="" alt="Preview" style="display:none;max-height:260px;border-radius:8px;object-fit:contain;" />
+        <input type="file" id="img-file" name="image" accept="image/*" required style="display:none">
+      </div>
+
+      <!-- Name field (for SEO caption) -->
+      <div class="ui-field">
+        <label class="ui-label">
+          Image Name
+          <span class="ui-hint">Shown as caption on the image. Also used for SEO alt text.</span>
+        </label>
+        <input type="text" name="name" class="oc-input" placeholder="e.g. Prototype v3 — front view" maxlength="255" />
+      </div>
+
+      <!-- Description / alt text -->
+      <div class="ui-field">
+        <label class="ui-label">
+          Description
+          <span class="ui-hint">Longer alt text — helps visually-impaired users and search engines.</span>
+        </label>
+        <input type="text" name="description" class="oc-input" placeholder="e.g. Close-up of the PCB layout showing the main processor" />
+      </div>
+
+      <!-- Set as main image -->
+      <div class="ui-field ui-field--inline">
+        <input type="checkbox" id="is-main" name="is_main" />
+        <label for="is-main" class="ui-label" style="margin:0;">Set as main / cover image</label>
+      </div>
+
+      <div class="ui-actions">
+        <a href="{% url 'project_detail' project.pk %}" class="oc-btn oc-btn--outline">Cancel</a>
+        <button type="submit" class="oc-btn oc-btn--primary">Upload Image</button>
+      </div>
+    </form>
+
+    <!-- Existing images -->
+    {% with images=project.images.all %}
+    {% if images %}
+    <hr style="margin:28px 0;border:none;border-top:1px solid #e5e7eb;">
+    <h3 class="ui-section-title">Existing Images ({{ images.count }})</h3>
+    <div class="ui-gallery">
+      {% for img in images %}
+      <div class="ui-gallery-item">
+        <div class="oc-img-wrap" style="height:130px;">
+          <img src="{{ img.image.url }}" alt="{{ img.name|default:project.title }}" style="width:100%;height:100%;object-fit:cover;" />
+          {% if img.name %}<span class="oc-img-caption">{{ img.name }}</span>{% endif %}
+        </div>
+        <div class="ui-gallery-meta">
+          {% if img.is_main %}<span class="ui-main-badge">Main</span>{% endif %}
+          <span class="ui-img-name">{{ img.name|default:"(no name)" }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+  </div>
+</div>
+
+<style>
+.ui-page { max-width: 640px; margin: 0 auto; padding: 24px 16px 60px; }
+.ui-card { background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 2px 16px rgba(0,0,0,.07); }
+.ui-title { font-family: 'Jacques Francois', serif; font-size: 1.5rem; color: #1a1a2e; margin: 0 0 4px; }
+.ui-subtitle { color: #6b7280; font-size: 0.9rem; margin: 0 0 22px; font-family: 'Jaldi', sans-serif; }
+.ui-drop-zone {
+  border: 2px dashed #c7d2fe; border-radius: 14px; padding: 32px 20px;
+  text-align: center; cursor: pointer; transition: border-color .2s, background .2s;
+  background: #f8faff; margin-bottom: 20px;
+  font-family: 'Jaldi', sans-serif; color: #6b7280;
+}
+.ui-drop-zone:hover, .ui-drop-zone.drag-over { border-color: #004AAD; background: #eaf0ff; }
+.ui-field { margin-bottom: 16px; }
+.ui-field--inline { display: flex; align-items: center; gap: 10px; }
+.ui-label { display: block; font-family: 'Jaldi', sans-serif; font-size: 0.88rem; font-weight: 700; color: #374151; margin-bottom: 5px; }
+.ui-hint { display: block; font-weight: 400; color: #9ca3af; font-size: 0.8rem; margin-top: 1px; }
+.ui-section-title { font-family: 'Jacques Francois', serif; font-size: 1rem; color: #1a1a2e; margin: 0 0 14px; }
+.ui-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+.ui-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.ui-gallery-item { display: flex; flex-direction: column; gap: 6px; }
+.ui-gallery-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.ui-main-badge { background: #dbeafe; color: #1e40af; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 50px; }
+.ui-img-name { font-family: 'Jaldi', sans-serif; font-size: 0.78rem; color: #6b7280; }
+</style>
+
+<script>
+var fileInput = document.getElementById('img-file');
+var preview   = document.getElementById('img-preview');
+var placeholder = document.getElementById('drop-placeholder');
+var dropZone  = document.getElementById('drop-zone');
+
+fileInput.addEventListener('change', function() {
+  if (this.files && this.files[0]) showPreview(this.files[0]);
+});
+
+dropZone.addEventListener('dragover', function(e) {
+  e.preventDefault(); this.classList.add('drag-over');
+});
+dropZone.addEventListener('dragleave', function() {
+  this.classList.remove('drag-over');
+});
+dropZone.addEventListener('drop', function(e) {
+  e.preventDefault(); this.classList.remove('drag-over');
+  var f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) {
+    fileInput.files = e.dataTransfer.files;
+    showPreview(f);
+  }
+});
+
+function showPreview(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+{% endblock %}

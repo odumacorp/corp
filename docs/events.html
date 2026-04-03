@@ -1,35 +1,59 @@
-{% extends '_partials/base.html'  %} 
+{% extends '_partials/base.html' %}
+{% load static %}
 
-{% load static %} 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Events and News</title>
-    <script src="pages_scripts.js"></script>
-</head>
-<body>
-    {% block content%}
-    <div id="navbar"></div>
-        <!-- Upcoming Events -->
-        <h5 class="mt-4">Upcoming Events</h5>
-        {% if events %}
-            <ul class="list-group">
-                {% for event in events %}
-                    <li class="list-group-item">
-                        <strong>{{ event.name }}</strong> - {{ event.location }} <br>
-                        <small class="text-muted">Date: {{ event.date|date:"M d, Y" }}</small>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No upcoming events.</p>
-        {% endif %}
+{% block title %}Events | Oduma Connect{% endblock %}
 
-    {%endblock content%}
-</body>
-<div id="footer"></div>
+{% block content %}
+<div class="oc-container" style="padding-top:40px;padding-bottom:64px;">
 
-</html>
+  <!-- Page header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;">
+    <div>
+      <h1 style="font-size:1.75rem;font-weight:700;color:var(--oc-text-primary);margin-bottom:4px;">Events</h1>
+      <p style="font-size:.9rem;color:var(--oc-text-muted);">Discover upcoming events across the Oduma Connect network.</p>
+    </div>
+    {% if user.is_authenticated and user.user_type == 'admin' %}
+      <a href="{% url 'admin_panel' %}" class="oc-btn oc-btn-primary oc-btn-sm">+ Add Event</a>
+    {% endif %}
+  </div>
 
+  {% if events %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
+      {% for event in events %}
+      <div class="oc-card" style="padding:0;overflow:hidden;">
+        <!-- Coloured date banner -->
+        <div style="background:var(--oc-primary);padding:18px 20px;display:flex;align-items:center;gap:16px;">
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:10px 16px;text-align:center;min-width:52px;">
+            <div style="font-size:1.5rem;font-weight:700;color:#fff;line-height:1;">{{ event.date|date:"d" }}</div>
+            <div style="font-size:.7rem;font-weight:600;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.04em;">{{ event.date|date:"M" }}</div>
+          </div>
+          <div>
+            <div style="font-size:1rem;font-weight:700;color:#fff;">{{ event.name }}</div>
+            <div style="font-size:.8rem;color:rgba(255,255,255,.75);margin-top:2px;">{{ event.date|date:"l, F j, Y" }}</div>
+          </div>
+        </div>
+        <div style="padding:18px 20px;">
+          {% if event.location %}
+            <div style="display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--oc-text-muted);margin-bottom:10px;">
+              📍 {{ event.location }}
+            </div>
+          {% endif %}
+          {% if event.description %}
+            <p style="font-size:.875rem;color:var(--oc-text-secondary);line-height:1.6;margin-bottom:0;">
+              {{ event.description|truncatewords:25 }}
+            </p>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="oc-card" style="text-align:center;padding:60px 20px;color:var(--oc-text-muted);">
+      <div style="font-size:3rem;margin-bottom:16px;">📅</div>
+      <h3 style="font-size:1.1rem;font-weight:600;color:var(--oc-text-primary);margin-bottom:8px;">No upcoming events</h3>
+      <p style="font-size:.875rem;">Check back soon — events will appear here as they're scheduled.</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

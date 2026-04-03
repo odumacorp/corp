@@ -272,7 +272,7 @@
         <span class="gd-tag">{{ group.get_industry_display }}</span>
         {% if group.is_private %}<span class="gd-private-tag">Private</span>{% else %}<span style="color:#059669;font-size:0.82rem;">Open</span>{% endif %}
         <span><i class="fi fi-rr-user fi-sm"></i> {{ group.members.count }} member{{ group.members.count|pluralize }}</span>
-        {% if group.creator %}<span>Created by {{ group.creator.get_full_name|default:group.creator.username }}</span>{% endif %}
+        {% if group.creator %}<span>Created by <a href="{% url 'profile_view' id=group.creator.id %}" style="color:inherit;text-decoration:underline;">{{ group.creator.get_full_name|default:group.creator.username }}</a></span>{% endif %}
       </div>
       {% if group.description %}<p class="gd-hero-desc">{{ group.description }}</p>{% endif %}
     </div>

@@ -11,15 +11,19 @@
                     {% if node_suggestions %}
                         {% for user in node_suggestions %}
                             <div class="suggestion-card">
-                                <img src="{{ user.profile.image.url }}" alt="Profile" class="icon">
+                                {% if user.userprofile.profile_pics %}
+                                    <img src="{{ user.userprofile.profile_pics.url }}" alt="Profile" class="icon">
+                                {% else %}
+                                    <img src="" alt="Profile" class="icon">
+                                {% endif %}
                                 <span>
                                     <p><strong>{{ user.first_name }} {{ user.last_name }}</strong></p>
                                 </span>
                                 <div class="tiles-about">
-                                    <p>{{ user.profile.bio|truncatewords:10 }}</p>
+                                    <p>{{ user.userprofile.bio|truncatewords:10 }}</p>
                                 </div>
                                 <button>
-                                    <a href="{% url 'profile_view' user.username %}" class="connect-btn">Connect +</a>
+                                    <a href="{% url 'profile_view' id=user.id %}" class="connect-btn">Connect +</a>
                                 </button>
                             </div>
                         {% endfor %}
@@ -49,9 +53,9 @@
             <div class="tile-container">
                 {% if companies %}
                     {% for company in companies %}
-                
+
                         <div class="tile">
-                            <img src="{{ company.logo.url }}" alt="Company Logo" class="icon">
+                            {% if company.logo %}<img src="{{ company.logo.url }}" alt="Company Logo" class="icon">{% endif %}
                             
                             <div>
                                 <span>
@@ -98,15 +102,19 @@
                 {% if community_nodes %}
                     {% for user in community_nodes %}
                         <div class="tile">
-                            <img src="{{ user.profile.image.url }}" alt="Profile" class="icon">
+                            {% if user.userprofile.profile_pics %}
+                                <img src="{{ user.userprofile.profile_pics.url }}" alt="Profile" class="icon">
+                            {% else %}
+                                <img src="" alt="Profile" class="icon">
+                            {% endif %}
                             <span>
                                 <strong>{{ user.first_name }} {{ user.last_name }}</strong>
                             </span>
                             <div class="titles-about">
-                                <p>{{ user.profile.bio|truncatewords:10 }}</p>
+                                <p>{{ user.userprofile.bio|truncatewords:10 }}</p>
                             </div>
                             <button>
-                                <a href="{% url 'profile_view' user.username %}" class="connect-btn">Connect +</a>
+                                <a href="{% url 'profile_view' id=user.id %}" class="connect-btn">Connect +</a>
                             </button>
                         </div>
                     {% endfor %}
@@ -136,7 +144,7 @@
                 {% if profile_based_companies %}
                     {% for company in profile_based_companies %}
                         <div class="tile">
-                            <img src="{{ company.logo.url }}" alt="Company Logo">
+                            {% if company.logo %}<img src="{{ company.logo.url }}" alt="Company Logo">{% endif %}
                             <div>
                                 <strong>{{ company.name }}</strong>
                                 <div class="titles-about">

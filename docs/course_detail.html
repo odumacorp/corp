@@ -1,0 +1,147 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+{% block title %}{{ course.title }} | Training Hub{% endblock %}
+
+{% block content %}
+<style>
+.cd-wrap { max-width:900px; margin:0 auto; padding:36px 24px 64px; }
+.cd-header { background:linear-gradient(135deg,#0A1628,#1B5EC7); border-radius:16px;
+  padding:36px 40px; color:#fff; margin-bottom:32px; }
+.cd-header h1 { font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:800; margin:0 0 8px; }
+.cd-header p { opacity:.85; font-size:.9rem; margin:0 0 20px; }
+.cd-meta-row { display:flex; flex-wrap:wrap; gap:16px; font-size:.82rem; opacity:.8; }
+.cd-meta-item { display:flex; align-items:center; gap:5px; }
+.cd-progress-wrap { margin-top:18px; }
+.cd-progress-bar { height:8px; background:rgba(255,255,255,.2); border-radius:4px; overflow:hidden; }
+.cd-progress-fill { height:100%; background:#fff; border-radius:4px; transition:width .5s ease; }
+.cd-section-title { font-family:'Space Grotesk',sans-serif; font-size:1rem; font-weight:800;
+  color:#0A1628; margin:0 0 14px; }
+.cd-module { border:1px solid #e0e8f4; border-radius:10px; padding:16px 20px; margin-bottom:10px;
+  background:#fff; transition:box-shadow .2s; }
+.cd-module:hover { box-shadow:0 4px 16px rgba(27,94,199,.1); }
+.cd-module-title { font-weight:700; color:#0A1628; font-size:.9rem; margin-bottom:4px; }
+.cd-module-meta { font-size:.78rem; color:#6b7280; }
+.cd-enroll-card { background:#f4f7fb; border:1.5px solid #d1d5db; border-radius:12px;
+  padding:24px; margin-bottom:28px; text-align:center; }
+.cd-enroll-btn { background:#1B5EC7; color:#fff; border:none; padding:12px 32px;
+  border-radius:10px; font-size:.95rem; font-weight:700; cursor:pointer; text-decoration:none;
+  display:inline-block; transition:background .2s; }
+.cd-enroll-btn:hover { background:#1448a3; color:#fff; }
+.cd-progress-slider { width:100%; accent-color:#1B5EC7; margin:10px 0; cursor:pointer; }
+</style>
+
+<div class="cd-wrap">
+  <a href="{% url 'training_hub' %}" style="font-size:.85rem;color:#1B5EC7;text-decoration:none;display:inline-block;margin-bottom:16px;">← Back to Training Hub</a>
+
+  <!-- Header -->
+  <div class="cd-header">
+    <div style="font-size:.75rem;font-weight:700;opacity:.7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">
+      {{ course.get_category_display }} · {{ course.get_level_display }}
+    </div>
+    <h1>{{ course.title }}</h1>
+    {% if course.description %}
+    <p>{{ course.description }}</p>
+    {% endif %}
+    <div class="cd-meta-row">
+      <div class="cd-meta-item">👤 {{ course.instructor_name }}</div>
+      {% if course.duration_hours %}<div class="cd-meta-item">⏱ {{ course.duration_hours }}h total</div>{% endif %}
+      <div class="cd-meta-item">👥 {{ course.enrolled_count }} enrolled</div>
+      <div class="cd-meta-item">💰 {% if course.is_free %}Free{% else %}${{ course.price }}{% endif %}</div>
+    </div>
+
+    {% if enrollment %}
+    <div class="cd-progress-wrap">
+      <div style="display:flex;justify-content:space-between;font-size:.8rem;opacity:.8;margin-bottom:6px;">
+        <span>Your progress</span>
+        <span id="prog-label">{{ enrollment.progress }}%</span>
+      </div>
+      <div class="cd-progress-bar">
+        <div class="cd-progress-fill" id="prog-fill" style="width:{{ enrollment.progress }}%;"></div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Enroll / Progress -->
+  {% if not enrollment %}
+  <div class="cd-enroll-card">
+    <p style="font-weight:700;font-size:1rem;margin-bottom:6px;">Ready to start learning?</p>
+    <p style="color:#6b7280;font-size:.875rem;margin-bottom:16px;">
+      {% if course.is_free %}This course is free.{% else %}One-time access fee: ${{ course.price }}.{% endif %}
+    </p>
+    <form method="post" action="{% url 'enroll_course' course.slug %}">
+      {% csrf_token %}
+      <button type="submit" class="cd-enroll-btn">Enroll Now — It's Free</button>
+    </form>
+  </div>
+  {% else %}
+  <div style="background:#fff;border:1px solid #e0e8f4;border-radius:12px;padding:20px 24px;margin-bottom:28px;">
+    <p style="font-weight:700;color:#0A1628;margin:0 0 10px;">Update Your Progress</p>
+    <form id="progressForm" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      {% csrf_token %}
+      <input type="range" name="progress" id="progSlider" class="cd-progress-slider"
+             min="0" max="100" value="{{ enrollment.progress }}" style="flex:1;min-width:180px;">
+      <span id="sliderVal" style="font-weight:700;color:#1B5EC7;min-width:40px;">{{ enrollment.progress }}%</span>
+      <button type="submit" style="background:#1B5EC7;color:#fff;border:none;padding:8px 20px;
+        border-radius:8px;font-weight:700;cursor:pointer;font-size:.85rem;">Save</button>
+    </form>
+    {% if enrollment.status == 'completed' %}
+    <p style="color:#059669;font-size:.85rem;font-weight:700;margin:10px 0 0;">🎉 Course completed!</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Modules -->
+  {% if modules %}
+  <p class="cd-section-title">Course Modules ({{ modules|length }})</p>
+  {% for module in modules %}
+  <div class="cd-module">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="cd-module-title">{{ module.order }}. {{ module.title }}</div>
+        {% if module.content %}
+        <div class="cd-module-meta" style="margin-top:6px;color:#374151;font-size:.85rem;">{{ module.content|truncatewords:30 }}</div>
+        {% endif %}
+      </div>
+      {% if module.duration_minutes %}<div style="font-size:.78rem;color:#9ca3af;white-space:nowrap;margin-left:12px;">{{ module.duration_minutes }} min</div>{% endif %}
+    </div>
+    {% if module.video_url %}
+    <a href="{{ module.video_url }}" target="_blank" rel="noopener"
+       style="display:inline-block;margin-top:10px;font-size:.8rem;color:#1B5EC7;font-weight:600;text-decoration:none;">▶ Watch Video</a>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% else %}
+  <div style="background:#f4f7fb;border:1.5px dashed #c3d4ec;border-radius:10px;padding:28px;text-align:center;color:#6b7280;">
+    Module content will be available soon.
+  </div>
+  {% endif %}
+</div>
+
+<script>
+const slider = document.getElementById('progSlider');
+const sliderVal = document.getElementById('sliderVal');
+const progFill = document.getElementById('prog-fill');
+const progLabel = document.getElementById('prog-label');
+if (slider) {
+  slider.addEventListener('input', () => {
+    const v = slider.value;
+    sliderVal.textContent = v + '%';
+    if (progFill) progFill.style.width = v + '%';
+    if (progLabel) progLabel.textContent = v + '%';
+  });
+  document.getElementById('progressForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const res = await fetch("{% url 'update_course_progress' course.slug %}", {
+      method: 'POST',
+      headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'progress=' + slider.value,
+    });
+    const data = await res.json();
+    if (data.status === 'completed') {
+      sliderVal.textContent = '100% — Completed! 🎉';
+    }
+  });
+}
+</script>
+{% endblock %}

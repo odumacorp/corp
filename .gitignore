@@ -69,3 +69,36 @@ coverage.xml
 node_modules/
 npm-debug.log*
 yarn-error.log*
+
+# ── Docker ─────────────────────────────────────────────────────────────────────
+.dockerignore
+docker-compose.override.yml
+docker-compose.prod.yml
+*.dockerenv
+
+# ── Database credentials & dumps ──────────────────────────────────────────────
+*.dump
+*.sql
+pg_dump/
+db_backups/
+odumaconnectdb*
+
+# ── JWT / API tokens ───────────────────────────────────────────────────────────
+*.token
+jwt_secret*
+api_keys.json
+zoom_token_cache*
+
+# ── IDE ────────────────────────────────────────────────────────────────────────
+*.sublime-project
+*.sublime-workspace
+.cursor/
+*.iml
+
+# ── Render / deployment ────────────────────────────────────────────────────────
+render.yaml.local
+.render/
+
+# ── Media uploads (keep structure, not files) ─────────────────────────────────
+media/
+!media/.gitkeep

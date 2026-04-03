@@ -1,99 +1,675 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{{ page_title }} | Oduma Platform{% endblock %}</title>
-    <!-- <link rel="stylesheet" href="httpks://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"> -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <link rel="stylesheet" href="{% static 'css/styles2.css' %}">
-    <link rel="stylesheet" href="{% static 'css/screen_m.css' %}">
-    <!-- jacques francois font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jacques+Francois&family=Jaldi:wght@400;700&display=swap" rel="stylesheet">
-      
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ page_title|default:"Oduma Connect" }} | Oduma Corp{% endblock %}</title>
+  {% block seo_meta %}
+  <meta name="description" content="{% block meta_description %}Oduma Connect — Connecting Africa's boldest innovators with the investors who believe in their vision.{% endblock %}">
+  <meta name="keywords" content="{% block meta_keywords %}innovation, investment, Africa, startups, projects, oduma connect{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}Oduma Connect{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Connecting Africa's boldest innovators with investors.{% endblock %}">
+  <meta property="og:image" content="{% block og_image %}{% endblock %}">
+  <meta property="og:type" content="website">
+  {% endblock %}
 
-    <!-- Google tag (gtag.js) -->
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Jacques+Francois&family=Jaldi:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+  <!-- Design system (must come after Bootstrap so tokens take precedence) -->
+  <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
+
+  <!-- Legacy styles (kept for pages not yet migrated) -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'css/styles2.css' %}">
+  <link rel="stylesheet" href="{% static 'css/screen_m.css' %}">
+
+  <!-- Shepherd.js platform tour -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@11/dist/css/shepherd.css">
+
+  <!-- PWA -->
+  <link rel="manifest" href="{% static 'manifest.json' %}">
+  <meta name="theme-color" content="#1B5EC7">
+
+  {% block extra_head %}{% endblock %}
+
+  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-HSYKW9TPFT"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-HSYKW9TPFT');
   </script>
-       
-  </head>
-<body>    
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-
+</head>
+<body>
 
   {% if not hide_navbar %}
-  {% include '_partials/navbar.html' %}
-  <header>
-    <h1>{{ page_name }}</h1>  <!-- Dynamic Page Name -->
-  </header>
+    {% include '_partials/navbar.html' %}
+  {% endif %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  {% if not hide_navbar %}
+    {% include '_partials/footer.html' %}
+  {% endif %}
+
+  <!-- Toast notifications -->
+  <div class="oc-toast-zone" id="oc-toast-zone">
+    {% for message in messages %}
+      <div class="oc-toast {{ message.tags }}" role="alert">
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Toast auto-dismiss -->
+  <script>
+    (function() {
+      var toasts = document.querySelectorAll('.oc-toast');
+      toasts.forEach(function(t) {
+        setTimeout(function() {
+          t.classList.add('is-leaving');
+          setTimeout(function() { t.remove(); }, 320);
+        }, 3500);
+      });
+    })();
+  </script>
+
+  <!-- Mobile menu toggle -->
+  <script>
+    var hamburger = document.getElementById('oc-hamburger');
+    var mobileMenu = document.getElementById('oc-mobile-menu');
+    var backdrop   = document.getElementById('oc-mobile-backdrop');
+
+    function openMenu()  { mobileMenu && mobileMenu.classList.add('is-open'); }
+    function closeMenu() { mobileMenu && mobileMenu.classList.remove('is-open'); }
+
+    if (hamburger)  hamburger.addEventListener('click', openMenu);
+    if (backdrop)   backdrop.addEventListener('click', closeMenu);
+  </script>
+
+  {% block extra_js %}{% endblock %}
+
+  <!-- Shepherd.js -->
+  <script src="https://cdn.jsdelivr.net/npm/shepherd.js@11/dist/js/shepherd.min.js"></script>
+
+  <!-- ── Feedback Button (appears after 1/3 scroll) ── -->
+  <style>
+    .oc-feedback-btn {
+      position: fixed; bottom: 90px; right: 24px; z-index: 1400;
+      background: #fff; color: var(--oc-primary, #1B5EC7);
+      border: 1.5px solid var(--oc-primary, #1B5EC7);
+      border-radius: 20px; padding: 7px 14px;
+      font-family: "Jaldi", sans-serif; font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; box-shadow: 0 2px 12px rgba(0,74,173,0.15);
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 0.3s, transform 0.3s, background 0.2s;
+      pointer-events: none;
+    }
+    .oc-feedback-btn.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .oc-feedback-btn:hover { background: var(--oc-primary, #004AAD); color: #fff; }
+  </style>
+  <button class="oc-feedback-btn" id="oc-feedback-btn" onclick="document.getElementById('oc-feedback-modal').classList.add('open')">
+    💬 Feedback
+  </button>
+  <div id="oc-feedback-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:16px;padding:28px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;">
+      <button onclick="document.getElementById('oc-feedback-modal').classList.remove('open')" style="position:absolute;top:12px;right:14px;background:none;border:none;cursor:pointer;font-size:1.1rem;color:#aaa;">✕</button>
+      <p style="font-family:'Jacques Francois',serif;font-size:1.05rem;color:#1a1a2e;margin:0 0 16px;">Share your feedback</p>
+      <form id="oc-feedback-form">
+        {% csrf_token %}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <div>
+            <label style="font-family:'Jaldi',sans-serif;font-size:0.78rem;color:#6b7280;display:block;margin-bottom:3px;">Type</label>
+            <select name="feedback_type" style="width:100%;padding:8px 11px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-family:'Jaldi',sans-serif;font-size:0.85rem;">
+              <option value="suggestion">💡 Suggestion</option>
+              <option value="bug">🐛 Bug / Issue</option>
+              <option value="praise">🌟 Praise</option>
+              <option value="question">❓ Question</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-family:'Jaldi',sans-serif;font-size:0.78rem;color:#6b7280;display:block;margin-bottom:3px;">Page / Section</label>
+            <input name="page" id="oc-fb-page" type="text" placeholder="e.g. /app/" value="" style="width:100%;padding:8px 11px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-family:'Jaldi',sans-serif;font-size:0.85rem;box-sizing:border-box;">
+          </div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="font-family:'Jaldi',sans-serif;font-size:0.78rem;color:#6b7280;display:block;margin-bottom:3px;">Which section? <span style="opacity:.6;">(optional)</span></label>
+          <select name="section" style="width:100%;padding:8px 11px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-family:'Jaldi',sans-serif;font-size:0.85rem;">
+            <option value="">— Whole page —</option>
+            <option value="navbar">Navigation bar</option>
+            <option value="feed">Home feed</option>
+            <option value="profile">Profile page</option>
+            <option value="projects">Projects</option>
+            <option value="posts">Posts</option>
+            <option value="messaging">Messaging / Inbox</option>
+            <option value="meetings">Meetings</option>
+            <option value="network">Network / Connections</option>
+            <option value="groups">Community / Groups</option>
+            <option value="companies">Business pages</option>
+            <option value="search">Search</option>
+            <option value="dashboard">Dashboard</option>
+            <option value="admin">Admin panel</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <textarea name="feedback_text" rows="4" placeholder="Tell us what you think…" style="width:100%;padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-family:'Jaldi',sans-serif;font-size:0.88rem;resize:vertical;box-sizing:border-box;margin-bottom:12px;"></textarea>
+        <div style="display:flex;gap:10px;">
+          <button type="submit" style="flex:1;padding:9px;border-radius:9px;background:var(--oc-primary,#004AAD);color:#fff;border:none;font-family:'Jaldi',sans-serif;font-size:0.88rem;cursor:pointer;">Send feedback</button>
+          <button type="button" onclick="document.getElementById('oc-feedback-modal').classList.remove('open')" style="padding:9px 16px;border-radius:9px;background:#f3f4f6;border:1px solid rgba(0,0,0,0.1);font-family:'Jaldi',sans-serif;font-size:0.85rem;cursor:pointer;">Cancel</button>
+        </div>
+        <p id="oc-feedback-thanks" style="display:none;text-align:center;color:#059669;font-family:'Jaldi',sans-serif;font-size:0.88rem;margin-top:10px;">Thanks for your feedback! 🙏</p>
+      </form>
+    </div>
+  </div>
+  <script>
+  // Feedback scroll trigger (show after 1/3 page height scrolled)
+  (function() {
+    // Pre-fill page field with current path
+    var pageInput = document.getElementById('oc-fb-page');
+    if (pageInput) pageInput.value = window.location.pathname;
+
+    var btn   = document.getElementById('oc-feedback-btn');
+    var modal = document.getElementById('oc-feedback-modal');
+    var shown = false;
+    window.addEventListener('scroll', function() {
+      var threshold = document.body.scrollHeight / 3;
+      if (!shown && window.scrollY >= threshold) {
+        shown = true;
+        btn.classList.add('visible');
+      }
+    }, { passive: true });
+    // Modal open/close as flex
+    modal.style.display = 'flex';
+    modal.style.display = 'none';
+    document.addEventListener('click', function(e) {
+      if (e.target === modal) modal.classList.remove('open');
+    });
+    modal.addEventListener('transitionend', function() {});
+    // Intercept open class to set display
+    var obs = new MutationObserver(function() {
+      if (modal.classList.contains('open')) {
+        modal.style.display = 'flex';
+      } else {
+        modal.style.display = 'none';
+      }
+    });
+    obs.observe(modal, { attributes: true, attributeFilter: ['class'] });
+
+    // Submit feedback
+    var form = document.getElementById('oc-feedback-form');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var fd = new FormData(form);
+        fd.append('page', window.location.pathname);
+        fetch('/odu/feedback/', { method: 'POST', body: fd })
+          .then(function() {})
+          .catch(function() {});
+        form.style.display = 'none';
+        document.getElementById('oc-feedback-thanks').style.display = '';
+        setTimeout(function() {
+          modal.classList.remove('open');
+          form.reset();
+          form.style.display = '';
+          document.getElementById('oc-feedback-thanks').style.display = 'none';
+        }, 2500);
+      });
+    }
+  })();
+  </script>
+  {% if user.is_authenticated %}
+  <script>
+  // Auto-start tour for users who haven't seen it
+  (function() {
+    var TOUR_KEY = 'oc_tour_done_v1';
+    if (localStorage.getItem(TOUR_KEY)) return;
+    // Only run on the home feed
+    if (window.location.pathname !== '/app/') return;
+
+    window.addEventListener('DOMContentLoaded', function() {
+      if (typeof Shepherd === 'undefined') return;
+      var tour = new Shepherd.Tour({
+        useModalOverlay: true,
+        defaultStepOptions: {
+          cancelIcon: { enabled: true },
+          scrollTo: { behavior: 'smooth', block: 'center' },
+          classes: 'oc-tour-step',
+        }
+      });
+
+      var steps = [
+        {
+          id: 'welcome',
+          text: '<strong>Welcome to Oduma Connect!</strong><br>Let\'s take a quick 30-second tour so you can hit the ground running.',
+          buttons: [
+            { text: 'Skip tour', action: tour.cancel, secondary: true },
+            { text: 'Show me around →', action: tour.next }
+          ]
+        },
+        {
+          id: 'nav-home',
+          attachTo: { element: '.oc-navbar__brand', on: 'bottom' },
+          text: 'This is <strong>Oduma Connect</strong> — a platform connecting African innovators with investors. Click the logo to return home anytime.',
+          buttons: [{ text: 'Next →', action: tour.next }]
+        },
+        {
+          id: 'nav-explore',
+          attachTo: { element: 'a[href*="innovators"]', on: 'bottom' },
+          text: '<strong>Explore</strong> lets you browse innovators and investors on the platform. Find people to connect with.',
+          buttons: [{ text: '← Back', action: tour.back, secondary: true }, { text: 'Next →', action: tour.next }]
+        },
+        {
+          id: 'nav-inbox',
+          attachTo: { element: 'a[href*="inbox"]', on: 'bottom' },
+          text: '<strong>Inbox</strong> is your messaging hub. Start conversations, reply to proposals, and schedule meetings here.',
+          buttons: [{ text: '← Back', action: tour.back, secondary: true }, { text: 'Next →', action: tour.next }]
+        },
+        {
+          id: 'nav-network',
+          attachTo: { element: 'a[href*="networks"]', on: 'bottom' },
+          text: '<strong>Network</strong> shows your connections. Accept pending requests or find new people to connect with.',
+          buttons: [{ text: '← Back', action: tour.back, secondary: true }, { text: 'Next →', action: tour.next }]
+        },
+        {
+          id: 'nav-community',
+          attachTo: { element: 'a[href*="groups"]', on: 'bottom' },
+          text: '<strong>Community</strong> hosts groups where innovators and investors discuss ideas and share knowledge.',
+          buttons: [{ text: '← Back', action: tour.back, secondary: true }, { text: 'Next →', action: tour.next }]
+        },
+        {
+          id: 'done',
+          text: '<strong>You\'re all set!</strong> 🎉<br>Post a project, connect with someone, or explore the feed. If you ever need help, chat with <strong>Odu</strong> using the blue button in the bottom-right corner.',
+          buttons: [
+            { text: 'Go to my profile', action: function() { window.location.href = '/profile/me/'; tour.complete(); } },
+            { text: 'Done!', action: tour.complete }
+          ]
+        },
+      ];
+
+      steps.forEach(function(s) { tour.addStep(s); });
+      tour.on('complete', function() { localStorage.setItem(TOUR_KEY, '1'); });
+      tour.on('cancel', function()   { localStorage.setItem(TOUR_KEY, '1'); });
+
+      setTimeout(function() { tour.start(); }, 1200);
+    });
+  })();
+  </script>
+  {% endif %}
+
+  <!-- ── PWA service worker registration ─────────────────────────────── -->
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+      .catch(function(e) { console.warn('SW registration failed:', e); });
+  }
+
+  /* Save for offline — callable from any page */
+  window.ocSaveOffline = function(url, btn) {
+    if (!('serviceWorker' in navigator)) {
+      window.ocToast && ocToast('Offline saving not supported in this browser.');
+      return;
+    }
+    navigator.serviceWorker.ready.then(function(reg) {
+      var ch = new MessageChannel();
+      ch.port1.onmessage = function(e) {
+        if (e.data.ok) {
+          if (btn) { btn.textContent = '✓ Saved offline'; btn.disabled = true; }
+          window.ocToast && ocToast('Page saved for offline reading.');
+        } else {
+          window.ocToast && ocToast('Could not save page offline.');
+        }
+      };
+      reg.active.postMessage({ type: 'CACHE_URL', url: url }, [ch.port2]);
+    });
+  };
+  </script>
+
+  <!-- ── Global: Share tracking + Read Later + Image caption ─────────── -->
+  <script>
+  (function() {
+    var CSRF = '{{ csrf_token }}';
+
+    /* ── Share tracking ────────────────────────────────────────────────── */
+
+    // Internal: fire one share (platform chosen, type known) + open window
+    function _doShare(platform, shareType, shareUrl, title, contentType, objectId) {
+      // Track it
+      var fd = new FormData();
+      fd.append('csrfmiddlewaretoken', CSRF);
+      fd.append('platform',     platform);
+      fd.append('share_type',   shareType || 'general');
+      fd.append('content_type', contentType || '');
+      fd.append('object_id',    String(objectId || ''));
+      fd.append('shared_url',   shareUrl || window.location.href);
+      fetch('{% url "track_share" %}', { method: 'POST', body: fd }).catch(function(){});
+
+      // Open share window
+      var encoded    = encodeURIComponent(shareUrl || window.location.href);
+      var encodedTxt = encodeURIComponent((title ? title + ' — ' : '') + (shareUrl || window.location.href));
+      var platformUrls = {
+        whatsapp:  'https://wa.me/?text=' + encodedTxt,
+        telegram:  'https://t.me/share/url?url=' + encoded + (title ? '&text=' + encodeURIComponent(title) : ''),
+        twitter:   'https://twitter.com/intent/tweet?url=' + encoded + (title ? '&text=' + encodeURIComponent(title) : ''),
+        facebook:  'https://www.facebook.com/sharer/sharer.php?u=' + encoded,
+        linkedin:  'https://www.linkedin.com/sharing/share-offsite/?url=' + encoded,
+      };
+      if (platform === 'copy_link') {
+        navigator.clipboard && navigator.clipboard.writeText(shareUrl || window.location.href).then(function() {
+          ocToast('Link copied!');
+        });
+      } else if (platformUrls[platform]) {
+        window.open(platformUrls[platform], '_blank', 'width=620,height=500,noopener');
+      }
+    }
+
+    // Build + position a share dropdown near triggerEl
+    function _openShareDropdown(triggerEl, shareUrl, title, contentType, objectId) {
+      var existing = document.getElementById('oc-share-dropdown');
+      if (existing) { existing.remove(); return; }
+
+      var PLATFORMS = [
+        {key:'whatsapp',  label:'WhatsApp',   icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.546 21.5l4.456-.88A9.953 9.953 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>', bg:'#f0fdf4', border:'#bbf7d0'},
+        {key:'telegram',  label:'Telegram',   icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#2aabee"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.04 9.607c-.152.678-.556.843-1.126.524l-3.113-2.294-1.504 1.449c-.166.166-.305.305-.626.305l.223-3.174 5.779-5.22c.251-.223-.054-.347-.39-.124L7.24 14.6 4.184 13.64c-.667-.208-.68-.667.14-.988l10.879-4.194c.556-.2 1.042.136.859.987-.001-.001-.001-.001 0 0l-.5-.197z"/></svg>', bg:'#eff6ff', border:'#bfdbfe'},
+        {key:'twitter',   label:'X / Twitter',icon:'<svg width="15" height="15" viewBox="0 0 24 24" fill="#0f172a"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>', bg:'#f8fafc', border:'#e2e8f0'},
+        {key:'linkedin',  label:'LinkedIn',   icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>', bg:'#eff6ff', border:'#bfdbfe'},
+        {key:'facebook',  label:'Facebook',   icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>', bg:'#eff6ff', border:'#bfdbfe'},
+        {key:'copy_link', label:'Copy link',  icon:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>', bg:'#f8fafc', border:'#e2e8f0'},
+      ];
+
+      var dd = document.createElement('div');
+      dd.id = 'oc-share-dropdown';
+      dd.style.cssText = [
+        'position:fixed;z-index:9001;',
+        'background:#fff;border-radius:14px;',
+        'box-shadow:0 8px 48px rgba(10,22,40,0.18),0 2px 12px rgba(10,22,40,0.08);',
+        'padding:6px;min-width:200px;',
+        'border:1px solid #e8edf4;',
+        'font-family:"Space Grotesk",sans-serif;',
+        'animation:oc-dd-in .12s ease;',
+      ].join('');
+
+      // Inject keyframe once
+      if (!document.getElementById('oc-dd-style')) {
+        var s = document.createElement('style');
+        s.id = 'oc-dd-style';
+        s.textContent = '@keyframes oc-dd-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}';
+        document.head.appendChild(s);
+      }
+
+      // Header
+      var hdr = document.createElement('div');
+      hdr.style.cssText = 'padding:8px 10px 6px;font-weight:800;color:#0A1628;font-size:0.78rem;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid #f0f4f8;margin-bottom:4px;';
+      hdr.textContent = 'Share via';
+      dd.appendChild(hdr);
+
+      function makeItem(p, label, onclick) {
+        var item = document.createElement('button');
+        item.type = 'button';
+        item.style.cssText = [
+          'display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;',
+          'border:none;background:transparent;cursor:pointer;border-radius:9px;',
+          'transition:background .12s;text-align:left;',
+        ].join('');
+        item.onmouseenter = function(){ item.style.background='#f5f8ff'; };
+        item.onmouseleave = function(){ item.style.background='transparent'; };
+
+        var iconWrap = document.createElement('span');
+        iconWrap.style.cssText = 'width:30px;height:30px;border-radius:8px;background:' + p.bg + ';border:1px solid ' + p.border + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;';
+        iconWrap.innerHTML = p.icon;
+
+        var lbl = document.createElement('span');
+        lbl.style.cssText = 'font-size:.84rem;font-weight:600;color:#1a202c;';
+        lbl.textContent = label;
+
+        item.appendChild(iconWrap);
+        item.appendChild(lbl);
+        item.onclick = function(ev){ ev.stopPropagation(); onclick(); dd.remove(); };
+        return item;
+      }
+
+      PLATFORMS.forEach(function(p) {
+        dd.appendChild(makeItem(p, p.label, function() {
+          _doShare(p.key, 'general', shareUrl, title, contentType, objectId);
+        }));
+      });
+
+      document.body.appendChild(dd);
+
+      // Position below trigger, clamp to viewport
+      var rect = triggerEl.getBoundingClientRect();
+      var ddW = 210, ddH = PLATFORMS.length * 48 + 44;
+      var top  = rect.bottom + 8;
+      var left = rect.left;
+      if (left + ddW > window.innerWidth - 8)  left = window.innerWidth - ddW - 8;
+      if (left < 8) left = 8;
+      if (top + ddH > window.innerHeight - 8)  top  = rect.top - ddH - 8;
+      dd.style.top  = top  + 'px';
+      dd.style.left = left + 'px';
+
+      // Close on outside click or scroll
+      setTimeout(function() {
+        function closeDd(ev) {
+          if (!dd.contains(ev.target)) { dd.remove(); document.removeEventListener('click', closeDd); window.removeEventListener('scroll', closeDd); }
+        }
+        document.addEventListener('click', closeDd);
+        window.addEventListener('scroll', closeDd, {passive:true});
+      }, 0);
+    }
+
+    // Public API: ocShare(title, url, contentType, objectId, triggerBtn)
+    window.ocShare = function(title, shareUrl, contentType, objectId, triggerBtn) {
+      var el = triggerBtn instanceof Element ? triggerBtn
+             : (typeof triggerBtn === 'object' && triggerBtn ? triggerBtn : null);
+      if (!el) el = document.activeElement;
+      _openShareDropdown(el, shareUrl || window.location.href, title || '', contentType || '', objectId || '');
+    };
+
+    /* Also support data-share-toggle attribute pattern */
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-share-toggle]');
+      if (!btn) return;
+      e.stopPropagation();
+      _openShareDropdown(
+        btn,
+        btn.dataset.shareUrl   || window.location.href,
+        btn.dataset.shareTitle || document.title,
+        btn.dataset.contentType || '',
+        btn.dataset.objectId    || ''
+      );
+    });
+
+    /* ── Read Later (bookmark button) ─────────────────────────────────── */
+    {% if user.is_authenticated %}
+    // Accepts either (ctype, oid, btn) OR (btn, ctype, oid) — auto-detects
+    window.ocToggleReadLater = function(a, b, c) {
+      var btn, ctype, oid;
+      if (typeof a === 'string') { ctype = a; oid = b; btn = c; }
+      else                        { btn = a; ctype = b; oid = c; }
+      var fd = new FormData();
+      fd.append('csrfmiddlewaretoken', CSRF);
+      fd.append('type', ctype);
+      fd.append('id', String(oid));
+      fetch('{% url "toggle_read_later" %}', { method: 'POST', body: fd })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if (btn) {
+            btn.classList.toggle('saved', d.saved);
+            btn.textContent = d.saved ? '🔖 Saved' : '🔖 Read Later';
+          }
+          ocToast(d.saved ? 'Saved to Read Later' : 'Removed from Read Later');
+        }).catch(function(){});
+    };
+    {% endif %}
+
+    /* ── Toast helper ─────────────────────────────────────────────────── */
+    window.ocToast = function(msg) {
+      var t = document.createElement('div');
+      t.style.cssText = 'position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:#092147;color:#fff;padding:9px 20px;border-radius:6px;font-family:"Inter",sans-serif;font-size:.85rem;z-index:9999;pointer-events:none;box-shadow:0 4px 16px rgba(9,33,71,.35);';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(function(){ t.style.transition='opacity .4s'; t.style.opacity='0'; setTimeout(function(){ t.remove(); }, 400); }, 2000);
+    };
+  })();
+  </script>
 
   {% if user.is_authenticated %}
-  <div class="section d-flex justify-content-around mt-3">
-    <li class="nav-item list-group mx-2">
-      <button>
-        <a class="nav-link {% if page_name == 'Inbox' %}active{% endif %}" href="{% url 'inbox' %}">
-          Inbox {% if unread_count %}<span class="badge bg-danger">{{ unread_count }}</span>{% endif %}
-        </a>
-      </button>
-    </li>
+  <!-- ── Odu Chatbot Widget ──────────────────────────────────────────── -->
+  <style>
+    .odu-fab {
+      position: fixed; bottom: 24px; right: 24px; z-index: 1500;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--oc-primary, #004AAD); color: #fff;
+      border: none; cursor: pointer; font-size: 1.3rem;
+      box-shadow: 0 4px 18px rgba(0,74,173,0.35);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .odu-fab:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(0,74,173,0.45); }
+    .odu-panel {
+      position: fixed; bottom: 88px; right: 24px; z-index: 1499;
+      width: 340px; max-width: calc(100vw - 32px);
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.16);
+      display: none; flex-direction: column; overflow: hidden;
+      max-height: 480px;
+    }
+    .odu-panel.open { display: flex; }
+    .odu-panel-head {
+      background: var(--oc-primary, #004AAD); color: #fff;
+      padding: 14px 18px; display: flex; align-items: center; gap: 10px;
+      font-family: "Jaldi", sans-serif; font-weight: 700; font-size: 0.95rem;
+    }
+    .odu-panel-head .odu-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,0.2); display: flex; align-items: center;
+      justify-content: center; font-size: 1rem; flex-shrink: 0;
+    }
+    .odu-panel-head-close {
+      margin-left: auto; background: none; border: none; color: rgba(255,255,255,.8);
+      cursor: pointer; font-size: 1.1rem; padding: 0;
+    }
+    .odu-messages {
+      flex: 1; overflow-y: auto; padding: 14px 14px 6px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .odu-msg {
+      max-width: 85%; padding: 8px 12px; border-radius: 12px;
+      font-family: "Jaldi", sans-serif; font-size: 0.84rem; line-height: 1.45;
+    }
+    .odu-msg.bot  { background: #f0f4fb; color: #1a1a2e; align-self: flex-start; border-bottom-left-radius: 4px; }
+    .odu-msg.user { background: var(--oc-primary, #004AAD); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .odu-msg.typing { color: #9ca3af; font-style: italic; }
+    .odu-input-row {
+      padding: 10px 12px; border-top: 1px solid rgba(0,0,0,0.07);
+      display: flex; gap: 8px; align-items: center;
+    }
+    .odu-input {
+      flex: 1; border: 1.5px solid rgba(0,0,0,0.12); border-radius: 8px;
+      padding: 7px 11px; font-family: "Jaldi", sans-serif; font-size: 0.85rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .odu-input:focus { border-color: var(--oc-primary, #004AAD); }
+    .odu-send {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: var(--oc-primary, #004AAD); color: #fff; border: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem; flex-shrink: 0; transition: background 0.15s;
+    }
+    .odu-send:hover { background: #003490; }
+  </style>
 
-    <li class="nav-item list-group mx-2">
-      <button>
-        <a class="nav-link {% if page_name == 'Sent' %}active{% endif %}" href="{% url 'sent_items' %}">
-          Sent
-        </a>
-      </button>
+  <button class="odu-fab" id="odu-fab" title="Chat with Odu" aria-label="Open Odu chat assistant">
+    💬
+  </button>
 
-    </li>
-  </div>
-  {% endif %}
-{% endif %}
-
-  
-  {% block content %}
-  
-  {% endblock content%}
-
-
-
-  <!-- Flash Messages -->
-<div class="container mt-3 flash-message">
-  {% for message in messages %}
-      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
+  <div class="odu-panel" id="odu-panel">
+    <div class="odu-panel-head">
+      <div class="odu-avatar">🤖</div>
+      <div>
+        <div>Odu</div>
+        <div style="font-size:0.72rem;font-weight:400;opacity:0.8;">Oduma Connect Assistant</div>
       </div>
-  {% endfor %}
-</div>
+      <button class="odu-panel-head-close" id="odu-close" aria-label="Close chat">✕</button>
+    </div>
+    <div class="odu-messages" id="odu-messages">
+      <div class="odu-msg bot">Hi {{ user.first_name|default:user.username }}! I'm Odu 👋 How can I help you today? Ask me about features, navigation, or how to connect with investors.</div>
+    </div>
+    <div class="odu-input-row">
+      <input class="odu-input" id="odu-input" type="text" placeholder="Ask Odu anything…" autocomplete="off">
+      <button class="odu-send" id="odu-send" title="Send">➤</button>
+    </div>
+  </div>
 
-<!-- JavaScript to Auto-Dismiss Messages -->
-<script>
-  setTimeout(function() {
-      let alerts = document.querySelectorAll('.alert');
-      alerts.forEach(alert => {
-          alert.classList.remove('show');
-          alert.classList.add('fade');
-          setTimeout(() => alert.remove(), 500); // Ensures smooth removal after fading
-      });
-  }, 2000); // 2 seconds
-</script>
+  <script>
+  (function() {
+    var fab    = document.getElementById('odu-fab');
+    var panel  = document.getElementById('odu-panel');
+    var close  = document.getElementById('odu-close');
+    var input  = document.getElementById('odu-input');
+    var send   = document.getElementById('odu-send');
+    var msgs   = document.getElementById('odu-messages');
+    var CHAT_URL = '{% url "odu_chat" %}';
+    var CSRF     = '{{ csrf_token }}';
 
+    fab.addEventListener('click', function() {
+      panel.classList.toggle('open');
+      if (panel.classList.contains('open')) {
+        setTimeout(function() { input.focus(); }, 80);
+      }
+    });
+    close.addEventListener('click', function() { panel.classList.remove('open'); });
 
-  
+    function addMsg(text, role) {
+      var d = document.createElement('div');
+      d.className = 'odu-msg ' + role;
+      d.textContent = text;
+      msgs.appendChild(d);
+      msgs.scrollTop = msgs.scrollHeight;
+      return d;
+    }
 
-    <!-- Main Content -->
-    <!-- <div class="container">
-   
-    </div> -->
+    function sendMessage() {
+      var text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      addMsg(text, 'user');
+      var typing = addMsg('Odu is typing…', 'bot typing');
+
+      var fd = new FormData();
+      fd.append('message', text);
+      fd.append('csrfmiddlewaretoken', CSRF);
+
+      fetch(CHAT_URL, { method: 'POST', body: fd })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          msgs.removeChild(typing);
+          addMsg(d.reply || d.error || 'Something went wrong.', 'bot');
+        })
+        .catch(function() {
+          msgs.removeChild(typing);
+          addMsg('Network error. Please try again.', 'bot');
+        });
+    }
+
+    send.addEventListener('click', sendMessage);
+    input.addEventListener('keydown', function(e) { if (e.key === 'Enter') sendMessage(); });
+  })();
+  </script>
+  {% endif %}
 
 </body>
 </html>

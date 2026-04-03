@@ -1,0 +1,107 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Project Reviews | Admin Panel{% endblock %}
+
+{% block content %}
+<div style="max-width:1200px;margin:40px auto;padding:0 24px;">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+    <div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:800;color:#0a1628;margin:0 0 4px;">Project Reviews</h1>
+      <p style="color:#6b7280;font-size:.875rem;margin:0;">Review, approve, feature, or reject projects submitted for review.</p>
+    </div>
+    <a href="{% url 'admin_panel' %}" style="font-size:.85rem;color:#1B5EC7;text-decoration:none;">← Back to Admin Panel</a>
+  </div>
+
+  <!-- Filter tabs -->
+  <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;">
+    {% for status_key, status_label in status_choices %}
+    <a href="?status={{ status_key }}"
+       style="padding:6px 16px;border-radius:20px;font-size:.82rem;font-weight:600;text-decoration:none;
+              {% if current_status == status_key %}background:#1B5EC7;color:#fff;{% else %}background:#f3f4f6;color:#374151;{% endif %}">
+      {{ status_label }}
+    </a>
+    {% endfor %}
+    <a href="?" style="padding:6px 16px;border-radius:20px;font-size:.82rem;font-weight:600;text-decoration:none;
+       {% if not current_status %}background:#1B5EC7;color:#fff;{% else %}background:#f3f4f6;color:#374151;{% endif %}">
+      All
+    </a>
+  </div>
+
+  {% if projects %}
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    {% for project in projects %}
+    <div style="border:1px solid #e0e8f4;border-radius:12px;padding:20px 24px;background:#fff;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+
+        <!-- Project info -->
+        <div style="flex:1;min-width:260px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
+            <a href="{% url 'project_detail' project.pk %}" target="_blank"
+               style="font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:800;color:#0a1628;text-decoration:none;">
+              {% if project.review_status == 'featured' %}<span class="oc-featured-star">★</span>{% endif %}
+              {{ project.title }}
+            </a>
+            <span class="oc-review-badge oc-review-badge--{{ project.review_status }}">{{ project.get_review_status_display }}</span>
+          </div>
+          <div style="color:#6b7280;font-size:.8rem;margin-bottom:8px;">
+            by <strong>{{ project.owner.get_full_name|default:project.owner.username }}</strong>
+            {% with op=project.owner.userprofile %}
+              {% if op.verification_status == 'verified' %}
+                <span class="oc-verified-badge" style="margin-left:4px;">✓ Verified</span>
+              {% endif %}
+            {% endwith %}
+            · {{ project.industry }} · Pipeline: <strong>{{ project.get_pipeline_stage_display }}</strong>
+          </div>
+          {% if project.description %}
+          <p style="color:#374151;font-size:.875rem;margin:0 0 8px;line-height:1.5;">{{ project.description|truncatechars:200 }}</p>
+          {% endif %}
+          <div style="font-size:.78rem;color:#9ca3af;">
+            Completeness: <strong>{{ project.completeness_score }}%</strong>
+            · Funding stage: {{ project.get_funding_stage_display|default:"Not set" }}
+          </div>
+        </div>
+
+        <!-- Review action form -->
+        <div style="min-width:280px;">
+          <form method="post" action="{% url 'admin_set_project_review_status' project.pk %}">
+            {% csrf_token %}
+            <div style="margin-bottom:10px;">
+              <label style="display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:4px;">Set Status</label>
+              <select name="review_status"
+                style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 12px;font-size:.875rem;background:#fff;">
+                {% for key, label in status_choices %}
+                <option value="{{ key }}" {% if project.review_status == key %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div style="margin-bottom:10px;">
+              <label style="display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:4px;">Admin Note (optional)</label>
+              <textarea name="review_note" rows="2" placeholder="Feedback or reason…"
+                style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:8px 12px;font-size:.875rem;resize:vertical;box-sizing:border-box;">{{ project.review_note }}</textarea>
+            </div>
+            <button type="submit" class="btn-approve" style="width:100%;padding:8px;">Save Decision</button>
+          </form>
+        </div>
+
+      </div>
+
+      {% if project.reviewed_by or project.reviewed_at %}
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0;font-size:.78rem;color:#9ca3af;">
+        Last reviewed by {{ project.reviewed_by.get_full_name|default:"Admin" }}
+        {% if project.reviewed_at %}on {{ project.reviewed_at|date:"M j, Y" }}{% endif %}
+        {% if project.review_note %} — "{{ project.review_note|truncatechars:120 }}"{% endif %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="background:#f4f7fb;border:1px dashed #c3d4ec;border-radius:10px;padding:40px;text-align:center;color:#6b7280;font-size:.9rem;">
+    No projects found{% if current_status %} with status "{{ current_status }}"{% endif %}.
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,40 +1,756 @@
-{% extends '_partials/base.html' %}  <!-- Extend your base template if you have one -->
+{% extends '_partials/base.html' %}
+{% load static %}
 
+{% block title %}Create Project — Oduma Connect{% endblock %}
+{% block meta_description %}Submit your innovation or invention project to connect with investors.{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<div class="cp-page">
 
-<div class="container mt-5">
-    <h2 class="mb-4">Submit Your Project</h2>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        
-        <div class="mb-3">
-            <label for="{{ form.title.id_for_label }}" class="form-label">Project Title</label>
-            {{ form.title }}
+  <!-- Breadcrumbs -->
+  <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+    <ol class="oc-breadcrumbs__list">
+      <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><a href="{% url 'project_list' %}" class="oc-breadcrumbs__link">Projects</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Create Project</span></li>
+    </ol>
+  </nav>
+
+  <div class="cp-card">
+    <h1 class="cp-title">Submit Your Project</h1>
+    <p class="cp-sub">Share your innovation or invention with investors and collaborators.</p>
+
+    {% if form.errors %}
+    <div class="cp-errors">Please fix the errors below before submitting.</div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" id="project-form">
+      {% csrf_token %}
+
+      <!-- ── Basic info ── -->
+      <fieldset class="cp-section">
+        <legend class="cp-legend">Basic Information</legend>
+
+        <div class="cp-field">
+          <label class="cp-label" for="id_title">Project Title *</label>
+          <input type="text" name="title" id="id_title" class="oc-input {% if form.title.errors %}oc-input--error{% endif %}"
+                 placeholder="e.g. Smart Water Purification System" value="{{ form.title.value|default:'' }}" required maxlength="255" />
+          {% if form.title.errors %}<span class="cp-err">{{ form.title.errors|join:", " }}</span>{% endif %}
         </div>
 
-        <div class="mb-3">
-            <label for="{{ form.description.id_for_label }}" class="form-label">Project Description</label>
-            {{ form.description }}
+        <div class="cp-row">
+          <div class="cp-field">
+            <label class="cp-label" for="id_industry">Industry *</label>
+            <select name="industry" id="id_industry" class="oc-select" required>
+              {% for val, label in form.fields.industry.choices %}
+              <option value="{{ val }}" {% if form.industry.value == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="cp-field">
+            <label class="cp-label" for="id_category">Category *</label>
+            <select name="category" id="id_category" class="oc-select" required>
+              <option value="innovation" {% if form.category.value == 'innovation' %}selected{% endif %}>Innovation</option>
+              <option value="invention" {% if form.category.value == 'invention' %}selected{% endif %}>Invention</option>
+            </select>
+          </div>
+          <div class="cp-field">
+            <label class="cp-label" for="id_status">Status</label>
+            <select name="status" id="id_status" class="oc-select">
+              <option value="draft" {% if form.status.value == 'draft' %}selected{% endif %}>Draft</option>
+              <option value="in_progress" {% if form.status.value == 'in_progress' %}selected{% endif %}>In Progress</option>
+              <option value="completed" {% if form.status.value == 'completed' %}selected{% endif %}>Completed</option>
+            </select>
+          </div>
         </div>
 
-        <div class="mb-3">
-            <label for="{{ form.industry.id_for_label }}" class="form-label">Industry</label>
-            {{ form.industry }}
+        <!-- AI Questionnaire → Description Generator -->
+        <div class="cp-field">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+            <label class="cp-label" style="margin:0;" for="id_description">Project Description *</label>
+            <button type="button" id="toggle-questionnaire"
+                    onclick="toggleQuestionnaire()"
+                    style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+              ✨ Use AI to write my description
+            </button>
+          </div>
+
+          <!-- ── Questionnaire panel ── -->
+          <div id="questionnaire-panel" style="display:none;background:#f8faff;border:1.5px solid #c7d9ff;border-radius:14px;padding:22px;margin-bottom:16px;">
+            <p style="font-size:.85rem;color:#374151;margin:0 0 18px;line-height:1.6;">
+              Answer a few quick questions and our AI will craft a professional description for you.
+              <strong>All fields are optional</strong> — the more you fill in, the better the result.
+            </p>
+
+            <div style="display:grid;gap:14px;">
+              <div>
+                <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  1. What problem does your project solve? *
+                </label>
+                <textarea id="q_problem" rows="2"
+                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;resize:vertical;"
+                          placeholder="e.g. 600 million Africans lack access to clean drinking water due to…"></textarea>
+              </div>
+
+              <div>
+                <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  2. What is your solution / technology? *
+                </label>
+                <textarea id="q_solution" rows="2"
+                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;resize:vertical;"
+                          placeholder="e.g. A low-cost solar-powered filtration device that uses…"></textarea>
+              </div>
+
+              <div>
+                <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  3. Who are your target users / customers?
+                </label>
+                <input type="text" id="q_target"
+                       style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;"
+                       placeholder="e.g. Rural households and small communities in Sub-Saharan Africa">
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div>
+                  <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                    4. Current project stage
+                  </label>
+                  <select id="q_stage"
+                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;background:#fff;">
+                    <option value="">Select stage…</option>
+                    <option value="Idea / Concept">Idea / Concept</option>
+                    <option value="Research & Development">Research & Development</option>
+                    <option value="Prototype / MVP">Prototype / MVP</option>
+                    <option value="Beta / Pilot testing">Beta / Pilot testing</option>
+                    <option value="Launch-ready">Launch-ready</option>
+                    <option value="Live / Generating revenue">Live / Generating revenue</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                    5. Industry / sector
+                  </label>
+                  <input type="text" id="q_industry"
+                         style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;"
+                         placeholder="e.g. Clean Energy, AgriTech…">
+                </div>
+              </div>
+
+              <div>
+                <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  6. What makes it unique compared to existing solutions?
+                </label>
+                <textarea id="q_unique" rows="2"
+                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;resize:vertical;"
+                          placeholder="e.g. Unlike existing products, ours costs 80% less and requires no electricity…"></textarea>
+              </div>
+
+              <div>
+                <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  7. Revenue / business model
+                </label>
+                <input type="text" id="q_revenue"
+                       style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;"
+                       placeholder="e.g. Hardware sales + subscription for maintenance, B2B licensing…">
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div>
+                  <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                    8. Team (brief)
+                  </label>
+                  <input type="text" id="q_team"
+                         style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;"
+                         placeholder="e.g. 2 engineers, 1 business lead">
+                </div>
+                <div>
+                  <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                    9. Funding needed
+                  </label>
+                  <input type="text" id="q_funding"
+                         style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;"
+                         placeholder="e.g. $50,000 seed funding for manufacturing">
+                </div>
+              </div>
+
+              <div>
+                <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  10. Milestones or traction so far
+                </label>
+                <input type="text" id="q_milestones"
+                       style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;"
+                       placeholder="e.g. Pilot with 200 households, 3 awards, patent filed…">
+              </div>
+            </div>
+
+            <div style="margin-top:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <button type="button" id="generate-btn" onclick="generateDescription()"
+                      style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:.875rem;font-weight:700;cursor:pointer;">
+                ✨ Generate Description
+              </button>
+              <span id="generate-spinner" style="display:none;font-size:.8rem;color:#6b7280;">Analyzing your project…</span>
+              <span id="generate-error" style="display:none;font-size:.8rem;color:#dc2626;"></span>
+            </div>
+          </div>
+
+          <!-- ── AI result panel (shown after generation) ── -->
+          <div id="ai-result-panel" style="display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:20px;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+              <span style="font-size:.875rem;font-weight:700;color:#14532d;">✨ AI-Generated Description</span>
+              <span style="font-size:.75rem;color:#6b7280;">You can edit it before using</span>
+            </div>
+            <textarea id="ai-description-text" rows="7"
+                      style="width:100%;border:1.5px solid #86efac;border-radius:8px;padding:12px;font-size:.875rem;line-height:1.7;resize:vertical;background:#fff;"></textarea>
+            <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+              <button type="button" onclick="useAIDescription()"
+                      style="background:#16a34a;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:.85rem;font-weight:700;cursor:pointer;">
+                ✓ Use this description
+              </button>
+              <button type="button" onclick="keepOwnDescription()"
+                      style="background:#f3f4f6;color:#374151;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 20px;font-size:.85rem;font-weight:600;cursor:pointer;">
+                ✎ Keep my own description
+              </button>
+              <button type="button" onclick="generateDescription()"
+                      style="background:transparent;color:#004AAD;border:1.5px solid #004AAD;border-radius:8px;padding:9px 20px;font-size:.85rem;font-weight:600;cursor:pointer;">
+                ↺ Regenerate
+              </button>
+            </div>
+          </div>
+
+          <!-- ── The actual description textarea ── -->
+          <div id="own-description-wrap">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span id="description-source-label" style="font-size:.78rem;color:#6b7280;"></span>
+            </div>
+            <textarea name="description" id="id_description"
+                      class="oc-textarea {% if form.description.errors %}oc-input--error{% endif %}"
+                      rows="6"
+                      placeholder="Describe your project — what problem it solves, how it works, and what stage it's at.
+
+💡 Tip: Click 'Use AI to write my description' above to answer a few questions and get a professional description generated automatically."
+                      required>{{ form.description.value|default:'' }}</textarea>
+            {% if form.description.errors %}<span class="cp-err">{{ form.description.errors|join:", " }}</span>{% endif %}
+          </div>
         </div>
 
-        <div class="mb-3">
-            <label for="{{ image_form.image.id_for_label }}" class="form-label">Upload Image</label>
-            {{ image_form.image }}
+        <div class="cp-field">
+          <label class="cp-label" for="id_website_link">Website / Demo URL</label>
+          <input type="url" name="website_link" id="id_website_link" class="oc-input"
+                 placeholder="https://yourproject.com" value="{{ form.website_link.value|default:'' }}" />
+        </div>
+      </fieldset>
+
+      <!-- ── SEO / Discovery ── -->
+      <fieldset class="cp-section">
+        <legend class="cp-legend">SEO &amp; Discovery</legend>
+        <div class="cp-field">
+          <label class="cp-label" for="id_keywords">
+            Keywords
+            <span class="cp-hint">Comma-separated — helps investors find your project via search.</span>
+          </label>
+          <input type="text" name="keywords" id="id_keywords" class="oc-input"
+                 placeholder="e.g. cleantech, water, IoT, Africa, sustainability"
+                 value="{{ form.keywords.value|default:'' }}" maxlength="500" />
+        </div>
+      </fieldset>
+
+      <!-- ── Photos (up to 10) ── -->
+      <fieldset class="cp-section">
+        <legend class="cp-legend">Photos <span class="cp-hint-inline">up to 10</span></legend>
+        <p class="cp-hint" style="margin-bottom:12px;">The first photo will be your cover image. Add names for SEO.</p>
+
+        <div class="cp-drop-zone" id="img-drop-zone" onclick="document.getElementById('id_images').click()">
+          <div id="img-placeholder">
+            <span style="font-size:2rem;">🖼</span>
+            <p>Click or drag &amp; drop up to 10 photos</p>
+          </div>
+          <input type="file" id="id_images" name="images" accept="image/*" multiple style="display:none">
         </div>
 
-        <div class="mb-3">
-            <label for="{{ form.website_link.id_for_label }}" class="form-label">Website Link</label>
-            {{ form.website_link }}
+        <!-- Previews + names grid -->
+        <div id="photo-grid" class="cp-photo-grid"></div>
+      </fieldset>
+
+      <!-- ── Video (1 min max) ── -->
+      <fieldset class="cp-section">
+        <legend class="cp-legend">Video <span class="cp-hint-inline">optional · max 1 minute</span></legend>
+        <div class="cp-field">
+          <label class="cp-label">Video File</label>
+          <input type="file" name="video" id="id_video" accept="video/mp4,video/webm,video/quicktime" class="oc-input" />
+          <span class="cp-hint">Max duration: 60 seconds. Accepts MP4, WebM, MOV.</span>
+          <span id="video-err" class="cp-err" style="display:none;">Video must be 60 seconds or less.</span>
+        </div>
+        <div class="cp-row">
+          <div class="cp-field">
+            <label class="cp-label" for="id_video_name">Video Name <span class="cp-hint-inline">SEO title</span></label>
+            <input type="text" name="video_name" id="id_video_name" class="oc-input"
+                   placeholder="e.g. Product Demo v1" maxlength="255" value="{{ form.video_name.value|default:'' }}" />
+          </div>
+        </div>
+        <div class="cp-field">
+          <label class="cp-label" for="id_video_description">Video Description</label>
+          <textarea name="video_description" id="id_video_description" class="oc-textarea" rows="2"
+                    placeholder="Brief description of what the video shows…">{{ form.video_description.value|default:'' }}</textarea>
+        </div>
+      </fieldset>
+
+      <!-- ── Documents (up to 4) ── -->
+      <fieldset class="cp-section">
+        <legend class="cp-legend">Documents <span class="cp-hint-inline">up to 4</span></legend>
+        <p class="cp-hint" style="margin-bottom:14px;">Add pitch decks, financial models, patents, or any supporting files.</p>
+
+        <div id="doc-slots">
+          <!-- Doc slot 1 -->
+          <div class="cp-doc-slot" id="doc-slot-1">
+            <div class="cp-doc-slot__head">
+              <span class="cp-doc-slot__num">Document 1</span>
+            </div>
+            <div class="cp-row">
+              <div class="cp-field" style="flex:2">
+                <label class="cp-label">File</label>
+                <input type="file" name="doc_file_1" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip" class="oc-input" />
+              </div>
+              <div class="cp-field">
+                <label class="cp-label">Type</label>
+                <select name="doc_type_1" class="oc-select">
+                  <option value="general">General</option>
+                  <option value="financial">Financial</option>
+                  <option value="legal">Legal</option>
+                  <option value="technical">Technical</option>
+                  <option value="presentation">Presentation</option>
+                  <option value="proposal">Proposal</option>
+                  <option value="report">Report</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="cp-field">
+                <label class="cp-label">Visibility</label>
+                <select name="doc_visibility_1" class="oc-select">
+                  <option value="connections">Connections only</option>
+                  <option value="public">Public</option>
+                  <option value="private">Private (only me)</option>
+                </select>
+              </div>
+            </div>
+            <div class="cp-field">
+              <input type="text" name="doc_title_1" class="oc-input" placeholder="Document title (optional)" maxlength="200" />
+            </div>
+          </div>
+
+          <!-- More doc slots (hidden by default) -->
+          {% for n in "234" %}
+          <div class="cp-doc-slot cp-doc-slot--extra" id="doc-slot-{{ n }}" style="display:none;">
+            <div class="cp-doc-slot__head">
+              <span class="cp-doc-slot__num">Document {{ n }}</span>
+              <button type="button" class="cp-doc-remove" onclick="removeDocSlot('doc-slot-{{ n }}', 'add-doc-btn')">✕ Remove</button>
+            </div>
+            <div class="cp-row">
+              <div class="cp-field" style="flex:2">
+                <label class="cp-label">File</label>
+                <input type="file" name="doc_file_{{ n }}" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip" class="oc-input" />
+              </div>
+              <div class="cp-field">
+                <label class="cp-label">Type</label>
+                <select name="doc_type_{{ n }}" class="oc-select">
+                  <option value="general">General</option>
+                  <option value="financial">Financial</option>
+                  <option value="legal">Legal</option>
+                  <option value="technical">Technical</option>
+                  <option value="presentation">Presentation</option>
+                  <option value="proposal">Proposal</option>
+                  <option value="report">Report</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="cp-field">
+                <label class="cp-label">Visibility</label>
+                <select name="doc_visibility_{{ n }}" class="oc-select">
+                  <option value="connections">Connections only</option>
+                  <option value="public">Public</option>
+                  <option value="private">Private (only me)</option>
+                </select>
+              </div>
+            </div>
+            <div class="cp-field">
+              <input type="text" name="doc_title_{{ n }}" class="oc-input" placeholder="Document title (optional)" maxlength="200" />
+            </div>
+          </div>
+          {% endfor %}
         </div>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" id="add-doc-btn" class="oc-btn oc-btn--ghost" style="margin-top:8px;" onclick="addDocSlot()">+ Add another document</button>
+      </fieldset>
+
+      <!-- ── Investment Profile / Pitch Deck ── -->
+      <fieldset class="cp-section" id="pitch-deck">
+        <legend class="cp-legend">
+          Investment Profile
+          <span class="cp-hint-inline">pitch deck sections — attract serious investors</span>
+        </legend>
+        <div class="cp-pitch-banner">
+          <span class="cp-pitch-banner__icon">📊</span>
+          <div>
+            <strong>Build your investment pitch</strong>
+            <p>Completing all 8 sections unlocks the <em>Investment Ready</em> badge on your project page. Investors filter by completeness.</p>
+          </div>
+        </div>
+
+        <div class="cp-field">
+          <label class="cp-label">1. Problem Statement</label>
+          <span class="cp-hint">What pain point or gap does your project address? Why does it matter?</span>
+          <textarea name="problem_statement" class="oc-textarea" rows="4"
+            placeholder="What problem does your project solve? Who suffers from it and why does it matter?">{{ form.problem_statement.value|default:'' }}</textarea>
+        </div>
+
+        <div class="cp-field">
+          <label class="cp-label">2. Solution Overview</label>
+          <span class="cp-hint">How does your product or service solve the problem?</span>
+          <textarea name="solution_overview" class="oc-textarea" rows="4"
+            placeholder="How does your product or service solve the problem? What is the core technology or approach?">{{ form.solution_overview.value|default:'' }}</textarea>
+        </div>
+
+        <div class="cp-field">
+          <label class="cp-label">3. Market Opportunity</label>
+          <span class="cp-hint">TAM / SAM / SOM — how big is the prize?</span>
+          <textarea name="market_opportunity" class="oc-textarea" rows="4"
+            placeholder="How big is the market? TAM / SAM / SOM? Who are your target customers?">{{ form.market_opportunity.value|default:'' }}</textarea>
+        </div>
+
+        <div class="cp-field">
+          <label class="cp-label">4. Business Model</label>
+          <span class="cp-hint">How will you generate revenue?</span>
+          <textarea name="business_model" class="oc-textarea" rows="4"
+            placeholder="How do you make money? Subscriptions, licensing, hardware, B2B, marketplace…">{{ form.business_model.value|default:'' }}</textarea>
+        </div>
+
+        <div class="cp-field">
+          <label class="cp-label">5. Traction &amp; Validation</label>
+          <span class="cp-hint">Proof points — customers, pilots, revenue, partnerships, press.</span>
+          <textarea name="traction" class="oc-textarea" rows="4"
+            placeholder="Pilots, revenue, users, partnerships, awards, IP filed, media coverage…">{{ form.traction.value|default:'' }}</textarea>
+        </div>
+
+        <div class="cp-field">
+          <label class="cp-label">6. Funding Requirement</label>
+          <span class="cp-hint">How much are you raising and at what stage?</span>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;">
+            <input type="text" name="funding_requirement" class="oc-input"
+              placeholder="e.g. $250,000 seed round" value="{{ form.funding_requirement.value|default:'' }}" />
+            <select name="funding_stage" class="oc-select" style="min-width:150px;">
+              <option value="">Funding Stage</option>
+              <option value="pre_seed" {% if form.funding_stage.value == 'pre_seed' %}selected{% endif %}>Pre-Seed</option>
+              <option value="seed" {% if form.funding_stage.value == 'seed' %}selected{% endif %}>Seed</option>
+              <option value="pre_series_a" {% if form.funding_stage.value == 'pre_series_a' %}selected{% endif %}>Pre-Series A</option>
+              <option value="series_a" {% if form.funding_stage.value == 'series_a' %}selected{% endif %}>Series A</option>
+              <option value="series_b" {% if form.funding_stage.value == 'series_b' %}selected{% endif %}>Series B+</option>
+              <option value="grant" {% if form.funding_stage.value == 'grant' %}selected{% endif %}>Grant / Non-dilutive</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cp-field">
+          <label class="cp-label">7. Use of Funds</label>
+          <span class="cp-hint">How will the investment be allocated?</span>
+          <textarea name="use_of_funds" class="oc-textarea" rows="4"
+            placeholder="How will the investment be allocated? e.g. 40% product, 30% marketing, 30% ops…">{{ form.use_of_funds.value|default:'' }}</textarea>
+        </div>
+
+        <div class="cp-field">
+          <label class="cp-label">8. Team</label>
+          <span class="cp-hint">Who is building this? Why this team?</span>
+          <textarea name="team_overview" class="oc-textarea" rows="4"
+            placeholder="Who is building this? Roles, relevant experience, why this team?">{{ form.team_overview.value|default:'' }}</textarea>
+        </div>
+      </fieldset>
+
+      <div class="cp-form-actions">
+        <a href="{% url 'project_list' %}" class="oc-btn oc-btn--outline">Cancel</a>
+        <button type="submit" class="oc-btn oc-btn--primary">Submit Project</button>
+      </div>
     </form>
+  </div>
 </div>
+
+<style>
+.cp-page { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+.cp-card { background: #fff; border-radius: 20px; padding: 32px; box-shadow: 0 2px 20px rgba(0,0,0,.07); }
+.cp-title { font-family: 'Jacques Francois', serif; font-size: 1.6rem; color: #1a1a2e; margin: 0 0 4px; }
+.cp-sub { color: #6b7280; font-family: 'Jaldi', sans-serif; margin: 0 0 24px; font-size: 0.92rem; }
+.cp-errors { background: #fee2e2; color: #991b1b; padding: 10px 16px; border-radius: 10px; margin-bottom: 20px; font-family: 'Jaldi', sans-serif; font-size: 0.88rem; }
+.cp-section { border: none; padding: 0; margin: 0 0 28px; }
+.cp-legend { font-family: 'Jacques Francois', serif; font-size: 1rem; color: #1a1a2e; margin-bottom: 14px; padding: 0; width: 100%; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
+.cp-field { margin-bottom: 14px; }
+.cp-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+.cp-label { display: block; font-family: 'Jaldi', sans-serif; font-size: 0.88rem; font-weight: 700; color: #374151; margin-bottom: 5px; }
+.cp-hint { display: block; font-weight: 400; color: #9ca3af; font-size: 0.78rem; margin-top: 1px; }
+.cp-hint-inline { font-size: 0.82rem; color: #9ca3af; font-family: 'Jaldi', sans-serif; font-weight: 400; }
+.cp-err { display: block; color: #dc2626; font-family: 'Jaldi', sans-serif; font-size: 0.8rem; margin-top: 3px; }
+.oc-input--error { border-color: #dc2626 !important; }
+.cp-form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
+
+/* Drop zone */
+.cp-drop-zone {
+  border: 2px dashed #c7d2fe; border-radius: 14px; padding: 28px;
+  text-align: center; cursor: pointer; transition: .2s; background: #f8faff;
+  font-family: 'Jaldi', sans-serif; color: #6b7280;
+}
+.cp-drop-zone:hover { border-color: #004AAD; background: #eaf0ff; }
+
+/* Photo grid */
+.cp-photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-top: 14px; }
+.cp-photo-item { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid #e5e7eb; }
+.cp-photo-item img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+.cp-photo-item__main { position: absolute; top: 5px; left: 5px; background: #004AAD; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; font-family: 'Jaldi', sans-serif; }
+.cp-photo-item__name { padding: 6px 8px; background: #fff; }
+.cp-photo-item__name input { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 4px 6px; font-family: 'Jaldi', sans-serif; font-size: 0.75rem; outline: none; }
+.cp-photo-item__name input:focus { border-color: #004AAD; }
+.cp-photo-remove { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,.6); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7rem; cursor: pointer; line-height: 20px; text-align: center; padding: 0; }
+
+/* Doc slots */
+.cp-doc-slot { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.cp-doc-slot__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cp-doc-slot__num { font-family: 'Jacques Francois', serif; font-size: 0.88rem; color: #374151; }
+.cp-doc-remove { background: none; border: none; color: #ef4444; font-family: 'Jaldi', sans-serif; font-size: 0.8rem; cursor: pointer; padding: 0; }
+
+/* Investment Profile pitch banner */
+.cp-pitch-banner {
+  display: flex; align-items: flex-start; gap: 14px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e8f2ff 100%);
+  border: 1px solid #c3d4ec; border-radius: 10px;
+  padding: 16px 18px; margin-bottom: 20px;
+}
+.cp-pitch-banner__icon { font-size: 1.8rem; flex-shrink: 0; margin-top: 2px; }
+.cp-pitch-banner strong { display: block; font-size: .9rem; color: #1a1a2e; margin-bottom: 3px; }
+.cp-pitch-banner p { font-size: .82rem; color: #6b7280; margin: 0; line-height: 1.5; }
+.cp-pitch-banner em { color: #1B5EC7; font-style: normal; font-weight: 700; }
+</style>
+
+<script>
+/* ── Photo multi-upload ── */
+var photoFiles = [];   // Array of {file, name}
+var MAX_PHOTOS = 10;
+
+var imgInput = document.getElementById('id_images');
+var photoGrid = document.getElementById('photo-grid');
+var dropZone  = document.getElementById('img-drop-zone');
+
+imgInput.addEventListener('change', function() {
+  addPhotos(Array.from(this.files));
+  this.value = '';
+});
+
+dropZone.addEventListener('dragover', function(e){ e.preventDefault(); this.style.borderColor='#004AAD'; });
+dropZone.addEventListener('dragleave', function(){ this.style.borderColor=''; });
+dropZone.addEventListener('drop', function(e){
+  e.preventDefault(); this.style.borderColor='';
+  var files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  addPhotos(files);
+});
+
+function addPhotos(files) {
+  var remaining = MAX_PHOTOS - photoFiles.length;
+  if (remaining <= 0) return;
+  files.slice(0, remaining).forEach(function(f) {
+    var idx = photoFiles.length;
+    photoFiles.push({ file: f, name: '' });
+    renderPhoto(idx, f);
+  });
+  syncPhotoInputs();
+}
+
+function renderPhoto(idx, file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var item = document.createElement('div');
+    item.className = 'cp-photo-item';
+    item.id = 'photo-item-' + idx;
+    item.innerHTML =
+      (idx === 0 ? '<span class="cp-photo-item__main">Cover</span>' : '') +
+      '<img src="' + e.target.result + '" alt="" />' +
+      '<button type="button" class="cp-photo-remove" onclick="removePhoto(' + idx + ')">✕</button>' +
+      '<div class="cp-photo-item__name"><input type="text" placeholder="Caption / alt text" oninput="photoFiles[' + idx + '].name=this.value" /></div>';
+    photoGrid.appendChild(item);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto(idx) {
+  photoFiles[idx] = null;
+  var el = document.getElementById('photo-item-' + idx);
+  if (el) el.remove();
+  syncPhotoInputs();
+}
+
+function syncPhotoInputs() {
+  // Remove old hidden inputs
+  document.querySelectorAll('.cp-photo-data').forEach(function(e){ e.remove(); });
+  // Re-build a DataTransfer to set file inputs — not universally supported.
+  // We'll instead inject hidden file inputs per slot at form submit.
+}
+
+// On form submit: inject files via a new FileList trick
+document.getElementById('project-form').addEventListener('submit', function(e) {
+  // Validate video duration before submitting
+  var videoInput = document.getElementById('id_video');
+  if (videoInput.files && videoInput.files[0] && window._videoDuration && window._videoDuration > 60) {
+    e.preventDefault();
+    document.getElementById('video-err').style.display = '';
+    videoInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  // Inject photo names as hidden fields
+  var live = photoFiles.filter(Boolean);
+  live.forEach(function(p, i) {
+    var inp = document.createElement('input');
+    inp.type = 'hidden';
+    inp.name = 'image_name_' + i;
+    inp.value = p.name || '';
+    document.getElementById('project-form').appendChild(inp);
+  });
+  // Transfer actual files using a new multi-file input
+  if (live.length > 0) {
+    var dt = new DataTransfer();
+    live.forEach(function(p){ dt.items.add(p.file); });
+    imgInput.files = dt.files;
+    imgInput.name = 'images';
+    imgInput.style.display = 'none';
+    document.getElementById('project-form').appendChild(imgInput);
+  }
+});
+
+/* ── Video duration check ── */
+window._videoDuration = 0;
+document.getElementById('id_video').addEventListener('change', function() {
+  var f = this.files[0];
+  document.getElementById('video-err').style.display = 'none';
+  if (!f) { window._videoDuration = 0; return; }
+  var url = URL.createObjectURL(f);
+  var vid = document.createElement('video');
+  vid.preload = 'metadata';
+  vid.onloadedmetadata = function() {
+    URL.revokeObjectURL(url);
+    window._videoDuration = vid.duration;
+    if (vid.duration > 60) {
+      document.getElementById('video-err').style.display = '';
+    }
+  };
+  vid.src = url;
+});
+
+/* ── Document slots ── */
+var docSlotOrder = ['2','3','4'];
+var nextDocIdx = 0;
+
+function addDocSlot() {
+  if (nextDocIdx >= docSlotOrder.length) return;
+  var id = 'doc-slot-' + docSlotOrder[nextDocIdx];
+  document.getElementById(id).style.display = '';
+  nextDocIdx++;
+  if (nextDocIdx >= docSlotOrder.length) {
+    document.getElementById('add-doc-btn').style.display = 'none';
+  }
+}
+
+function removeDocSlot(slotId, btnId) {
+  document.getElementById(slotId).style.display = 'none';
+  nextDocIdx = Math.max(0, nextDocIdx - 1);
+  document.getElementById('add-doc-btn').style.display = '';
+}
+
+/* ══════════════════════════════════════════
+   AI Description Questionnaire
+   ══════════════════════════════════════════ */
+
+function toggleQuestionnaire() {
+  var panel = document.getElementById('questionnaire-panel');
+  var btn   = document.getElementById('toggle-questionnaire');
+  var open  = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  btn.textContent = open ? '✨ Use AI to write my description' : '✕ Close questionnaire';
+}
+
+function generateDescription() {
+  var problem  = document.getElementById('q_problem').value.trim();
+  var solution = document.getElementById('q_solution').value.trim();
+
+  if (!problem || !solution) {
+    document.getElementById('generate-error').textContent = 'Please fill in questions 1 and 2 (problem and solution) at minimum.';
+    document.getElementById('generate-error').style.display = 'inline';
+    return;
+  }
+  document.getElementById('generate-error').style.display = 'none';
+
+  var payload = {
+    q_problem:    problem,
+    q_solution:   solution,
+    q_target:     document.getElementById('q_target').value.trim(),
+    q_stage:      document.getElementById('q_stage').value.trim(),
+    q_unique:     document.getElementById('q_unique').value.trim(),
+    q_revenue:    document.getElementById('q_revenue').value.trim(),
+    q_team:       document.getElementById('q_team').value.trim(),
+    q_milestones: document.getElementById('q_milestones').value.trim(),
+    q_funding:    document.getElementById('q_funding').value.trim(),
+    q_industry:   document.getElementById('q_industry').value.trim(),
+  };
+
+  var btn     = document.getElementById('generate-btn');
+  var spinner = document.getElementById('generate-spinner');
+  btn.disabled = true;
+  btn.textContent = 'Generating…';
+  spinner.style.display = 'inline';
+
+  fetch('{% url "generate_project_description" %}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    },
+    body: JSON.stringify(payload),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.disabled = false;
+    btn.textContent = '✨ Generate Description';
+    spinner.style.display = 'none';
+
+    if (data.error) {
+      document.getElementById('generate-error').textContent = data.error;
+      document.getElementById('generate-error').style.display = 'inline';
+      return;
+    }
+
+    // Show AI result panel
+    document.getElementById('ai-description-text').value = data.description;
+    document.getElementById('ai-result-panel').style.display = 'block';
+    document.getElementById('ai-result-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  })
+  .catch(function() {
+    btn.disabled = false;
+    btn.textContent = '✨ Generate Description';
+    spinner.style.display = 'none';
+    document.getElementById('generate-error').textContent = 'Network error. Please try again.';
+    document.getElementById('generate-error').style.display = 'inline';
+  });
+}
+
+function useAIDescription() {
+  var aiText = document.getElementById('ai-description-text').value.trim();
+  document.getElementById('id_description').value = aiText;
+  document.getElementById('description-source-label').textContent = '✅ Using AI-generated description (you can still edit below)';
+  document.getElementById('description-source-label').style.color = '#16a34a';
+  // Scroll to description field
+  document.getElementById('id_description').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.getElementById('id_description').focus();
+  // Close the questionnaire panel
+  document.getElementById('questionnaire-panel').style.display = 'none';
+  document.getElementById('toggle-questionnaire').textContent = '✨ Use AI to write my description';
+}
+
+function keepOwnDescription() {
+  document.getElementById('ai-result-panel').style.display = 'none';
+  document.getElementById('description-source-label').textContent = '✎ Using your own description';
+  document.getElementById('description-source-label').style.color = '#6b7280';
+  document.getElementById('id_description').focus();
+}
+</script>
 {% endblock %}

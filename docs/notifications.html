@@ -1,57 +1,161 @@
 {% extends '_partials/base.html' %}
-
 {% load static %}
+{% block title %}Notifications | Oduma Connect{% endblock %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notifications</title>
-    <script src="pages_scripts.js"></script>
-</head>
-<body>
-    {% block content %}
-    <div id="navbar"></div>
-    
-    <!-- Connected Innovators -->
-    <div class="container mt-5">
-        <h2 class="mb-4">Connected Innovators</h2>
-        <ul>
-            {% for notification in connected_notifications %}
-                <li>{{ notification.message }} <small class="text-muted">({{ notification.created_at }})</small></li>
-            {% empty %}
-                <li>No connections yet.</li>
-            {% endfor %}
-        </ul>
+{% block extra_head %}
+<style>
+:root{--navy:#0A1628;--blue:#1B5EC7;--blue-d:#144FA8;}
+
+.nf-page{max-width:760px;margin:0 auto;padding:40px 24px 80px;}
+
+/* Header */
+.nf-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:28px;}
+.nf-header__left h1{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;color:var(--navy);margin:0 0 4px;}
+.nf-header__left p{font-size:.85rem;color:#6b7280;margin:0;}
+.nf-badge{display:inline-flex;align-items:center;gap:5px;background:#fee2e2;color:#b91c1c;font-size:.75rem;font-weight:700;padding:4px 12px;border-radius:20px;}
+.nf-badge[data-count="0"]{display:none;}
+
+/* Tabs */
+.nf-tabs{display:flex;gap:4px;background:#f0f4f8;border-radius:11px;padding:4px;margin-bottom:24px;}
+.nf-tab{flex:1;text-align:center;padding:8px 10px;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;color:#6b7280;cursor:pointer;border:none;background:transparent;transition:all .18s;position:relative;}
+.nf-tab.active{background:#fff;color:var(--navy);box-shadow:0 1px 6px rgba(10,22,40,0.1);}
+.nf-tab-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:#e0e8f4;color:#1B5EC7;border-radius:9px;font-size:.65rem;font-weight:800;margin-left:5px;vertical-align:middle;}
+.nf-tab.active .nf-tab-count{background:#1B5EC7;color:#fff;}
+
+/* Notification list */
+.nf-list{display:flex;flex-direction:column;gap:2px;}
+.nf-panel{display:none;}
+.nf-panel.active{display:block;}
+
+.nf-item{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;background:#fff;border:1px solid #e8edf4;border-radius:12px;margin-bottom:6px;transition:box-shadow .18s,border-color .18s;position:relative;overflow:hidden;}
+.nf-item:hover{box-shadow:0 4px 20px rgba(10,22,40,0.08);border-color:#d0dbf0;}
+.nf-item.unread::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blue);border-radius:3px 0 0 3px;}
+
+.nf-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.nf-icon--connected{background:#ede9fe;}
+.nf-icon--message{background:#dbeafe;}
+.nf-icon--other{background:#f0fdf4;}
+.nf-icon--contact{background:#fef3c7;}
+
+.nf-body{flex:1;min-width:0;}
+.nf-body__msg{font-size:.875rem;color:#1a202c;line-height:1.55;margin-bottom:4px;word-break:break-word;}
+.nf-body__meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.nf-body__time{font-size:.75rem;color:#9ca3af;}
+.nf-type-chip{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.04em;}
+.nf-type-chip--connected{background:#ede9fe;color:#7c3aed;}
+.nf-type-chip--message{background:#dbeafe;color:#1d4ed8;}
+.nf-type-chip--other{background:#dcfce7;color:#15803d;}
+
+.nf-action{flex-shrink:0;}
+.nf-action a{display:inline-flex;align-items:center;gap:4px;font-size:.78rem;font-weight:700;color:#1B5EC7;text-decoration:none;padding:5px 12px;border:1px solid #d4e0ff;border-radius:7px;background:#f0f4ff;transition:background .15s;}
+.nf-action a:hover{background:#1B5EC7;color:#fff;border-color:#1B5EC7;}
+
+/* Empty state */
+.nf-empty{text-align:center;padding:60px 20px;}
+.nf-empty__icon{width:72px;height:72px;border-radius:20px;background:#f0f4f8;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 16px;}
+.nf-empty__title{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#374151;margin-bottom:6px;}
+.nf-empty__sub{font-size:.875rem;color:#9ca3af;}
+
+@media(max-width:560px){
+  .nf-page{padding:24px 16px 60px;}
+  .nf-tabs{flex-wrap:wrap;}
+  .nf-item{padding:14px 14px;}
+  .nf-icon{width:36px;height:36px;font-size:.95rem;}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="nf-page">
+
+  <!-- Header -->
+  <div class="nf-header">
+    <div class="nf-header__left">
+      <h1>Notifications
+        {% if unread_count %}
+          <span class="nf-badge" data-count="{{ unread_count }}">{{ unread_count }} new</span>
+        {% endif %}
+      </h1>
+      <p>Stay up to date with your connections, messages, and activity.</p>
     </div>
+  </div>
 
-    <!-- Message Notifications -->
-    <div class="container mt-5">
-        <h2 class="mb-4">Messages</h2>
-        <ul>
-            {% for notification in message_notifications %}
-                <li>{{ notification.message }} <small class="text-muted">({{ notification.created_at }})</small></li>
-            {% empty %}
-                <li>No new messages.</li>
-            {% endfor %}
-        </ul>
-    </div>
+  <!-- Tabs -->
+  <div class="nf-tabs" role="tablist">
+    <button class="nf-tab active" onclick="switchTab('all', this)" role="tab">
+      All <span class="nf-tab-count">{{ all_notifications|length }}</span>
+    </button>
+    <button class="nf-tab" onclick="switchTab('connected', this)" role="tab">
+      Connections <span class="nf-tab-count">{{ connected_notifications|length }}</span>
+    </button>
+    <button class="nf-tab" onclick="switchTab('messages', this)" role="tab">
+      Messages <span class="nf-tab-count">{{ message_notifications|length }}</span>
+    </button>
+    <button class="nf-tab" onclick="switchTab('other', this)" role="tab">
+      Other <span class="nf-tab-count">{{ other_notifications|length }}</span>
+    </button>
+  </div>
 
-    <!-- Other Notifications -->
-    <div class="container mt-5">
-        <h2 class="mb-4">Other Notifications</h2>
-        <ul>
-            {% for notification in other_notifications %}
-                <li>{{ notification.message }} <small class="text-muted">({{ notification.created_at }})</small></li>
-            {% empty %}
-                <li>No other notifications.</li>
-            {% endfor %}
-        </ul>
-    </div>
+  <!-- All tab -->
+  <div class="nf-panel active" id="tab-all">
+    {% if all_notifications %}
+      <div class="nf-list">
+        {% for n in all_notifications %}
+          {% include '_partials/notif_item.html' with notif=n %}
+        {% endfor %}
+      </div>
+    {% else %}
+      {% include '_partials/notif_empty.html' with label="You have no notifications yet." %}
+    {% endif %}
+  </div>
 
-    {% endblock content %}
-</body>
+  <!-- Connected tab -->
+  <div class="nf-panel" id="tab-connected">
+    {% if connected_notifications %}
+      <div class="nf-list">
+        {% for n in connected_notifications %}
+          {% include '_partials/notif_item.html' with notif=n %}
+        {% endfor %}
+      </div>
+    {% else %}
+      {% include '_partials/notif_empty.html' with label="No connection notifications." %}
+    {% endif %}
+  </div>
 
-<div id="footer"></div>
-</html>
+  <!-- Messages tab -->
+  <div class="nf-panel" id="tab-messages">
+    {% if message_notifications %}
+      <div class="nf-list">
+        {% for n in message_notifications %}
+          {% include '_partials/notif_item.html' with notif=n %}
+        {% endfor %}
+      </div>
+    {% else %}
+      {% include '_partials/notif_empty.html' with label="No message notifications." %}
+    {% endif %}
+  </div>
+
+  <!-- Other tab -->
+  <div class="nf-panel" id="tab-other">
+    {% if other_notifications %}
+      <div class="nf-list">
+        {% for n in other_notifications %}
+          {% include '_partials/notif_item.html' with notif=n %}
+        {% endfor %}
+      </div>
+    {% else %}
+      {% include '_partials/notif_empty.html' with label="No other notifications." %}
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.nf-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nf-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+{% endblock %}

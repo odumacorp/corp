@@ -1,840 +1,1388 @@
-{% extends '_partials/base.html'  %} 
+{% extends '_partials/base.html' %}
+{% load static %}
 
-{% load static %} 
-
-{% block title %}Welcome to OdumaCorp{% endblock %}
+{% block title %}Home Feed{% endblock %}
 
 {% block content %}
+<style>
+/* ── App-page scoped styles ─────────────────────────────────────── */
+.ap-wrap {
+  display: grid;
+  grid-template-columns: 260px 1fr 280px;
+  gap: 22px;
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 28px 20px 72px;
+  align-items: start;
+}
+@media (max-width: 1080px) {
+  .ap-wrap { grid-template-columns: 240px 1fr; }
+  .ap-sidebar-right { display: none; }
+}
+@media (max-width: 720px) {
+  .ap-wrap { grid-template-columns: 1fr; padding: 16px 14px 64px; gap: 14px; }
+  .ap-sidebar-left { display: none; }
+}
 
-    <!-- sections -->
-    <div>
-        <h3 class="mt-4">Welcome to your app, {{ user.get_full_name }}</h3>
-    </div>
-    <section class="container">
-        
-        <!-- mid-section -->
-        <section id="mid">
-            <!-- left-side -->
-            <div class="left section">
-                <div class="user-section">
-                    {% if profile.profile_pics %}
-                        <img src="{{ profile.profile_pics.url }}" 
-                            alt="Profile Image" 
-                            class="rounded-circle" 
-                            width="100" height="auto">
-                    {% else %}
-                        <p>No profile picture available</p>
-                    {% endif %}
-                    <div>
-                        <div class="user-name">
-                            <p>
-                                {% if user.is_authenticated %}
-                                    <p><strong>Name:</strong> {{ user.get_full_name|default:"Not Provided" }}</p>
-                                {% else %}
-                                    <p>Name: Not logged in</p>
-                                {% endif %}
+/* ── Sidebar card base ──────────────────────────────────────────── */
+.ap-card {
+  background: #fff;
+  border: 1px solid #e4eaf2;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(10,22,40,.04);
+}
+.ap-card + .ap-card { margin-top: 14px; }
+.ap-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid #f0f4fa;
+}
+.ap-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .875rem;
+  font-weight: 800;
+  color: #0A1628;
+}
 
-                            {% if user.id %}
-                            <a href="{% url 'profile_view' id=user.id %}">
-                                <button class="btn btn-primary btn-sm" name="edit_profile">Edit</button>
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            
-                <div class="user-about">
-                    <span>ABOUT: </span>{{ profile.bio|default:"No bio available."|truncatewords:20 }}
-                </div>
-            
-                <div class="user-info">
-                    <ul>
-                        <li>Profile views: {{ profile_views|default:"0" }}</li>
-                        <!-- <li>Connections: {{ connections_count|default:"0" }}</li> -->
-                        <li>Inventions: {{ inventions_count|default:"0" }}</li>
-                        <li>Patents: {{ patents_count|default:"0" }}</li>
-                        <li>Groups: {{ groups_count|default:"0" }}</li>
-                        <li>Pages: {{ pages_count|default:"0" }}</li>
-                        <li>Events: {{ events_count|default:"0" }}</li>
-                    </ul>
-                </div>
-            
-                <div class="more-user-info">
-                    <p><strong>Company:</strong> {{ profile.company|default:"Not specified" }}</p>
-                    <p><strong>Industry:</strong> {{ profile.industry|default:"Not specified" }}</p>
-                </div>
-            </div>
-            <!-- Post Submission Form -->
-            <div class="post-section card">
-                <form method="POST" action="" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <!-- Default placeholder text for textarea -->
-                    <textarea name="content" placeholder="Share your thoughts...">{% if request.POST.content %}{{ request.POST.content }}{% else %}Default post content...{% endif %}</textarea>
-                    <span>Industry:</span>
-                    <select name="industry" id="industry">
-                        <option value="IT" selected>IT</option>
-                        <option value="Medicine">Medicine</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Business">Business</option>
-                        <option value="Arts">Arts</option>
-                        <option value="Agriculture">Agriculture</option>
-                    </select>
-            
-                    <!-- File input with a label for better UX -->
-                    <label for="attachment">Attach a file:</label>
-                    <input type="file" name="attachment">
-            
-                    <button type="submit">Submit</button>
-                </form>
-            </div>
-            <!-- center-part -->
-            {% for post in posts %}
-            <div class="idea-section card">
-                <div class="top">
-                    <span>
-                        <button>...</button>
-                        <button>X</button>
-                    </span>
-                </div>
-                <div class="idea-info">
-                    <table>
-                        <tr>
-                            <td>Connected 
-                                <span id="status">
-                                    {% if users %}
-                                        {% for user in users %}
-                                            <div class="user">
-                                                <p>{{ user.username|default:"Unknown User" }}</p>
-                                                {% if user in request.user.following.all %}
-                                                    <span class="following-dot"></span>
-                                                {% else %}
-                                                    <button class="not-following-button">Not Following</button>
-                                                {% endif %}
-                                            </div>
-                                        {% endfor %}
-                                    {% else %}
-                                        <!-- Sample User -->
-                                        <div class="user">
-                                            <p>SampleUser123</p>
-                                            <span class="following-dot"></span>
-                                        </div>
-                                    {% endif %}
-                                </span>
-                            </td>
-                            <td>
-                                <p><strong>{{ post.user.get_full_name|default:"John Doe" }}</strong></p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <p><strong>Industry:</strong> {{ post.industry|default:"Technology" }}</p>
-                            </td>
-                            <td>
-                                <p>{{ post.created_at|timesince|default:"5 minutes" }} ago</p>
-                            </td>
-                        </tr>
-                    </table>
-            
-                    <div class="idea-body">
-                        <span>{{ post.title|default:"Innovative AI Project" }}</span>
-                        <div class="idea-def">
-                            <p>{{ post.content|default:"This is a sample idea description that demonstrates how artificial intelligence is changing the world." }}</p>
-                        </div>
-                        <div class="interest-section">
-                            <span>Interests #{{ post.interest_count|default:"5" }}</span>
-                            <span>Views #{{ post.view_count|default:"120" }}</span>
-                            <span>Repost #{{ post.repost_count|default:"3" }}</span>
-                            <span>Likes #{{ post.like_count|default:"45" }}</span>
-                        </div>
-                    </div>
-            
-                    <div class="idea-media-section">
-                        {% if post.image %}
-                            <img src="{{ post.image.url }}" class="post-image">
-                        {% else %}
-                            <!-- Sample Image -->
-                            <img src="https://via.placeholder.com/400x200" class="post-image" alt="Sample Image">
-                        {% endif %}
-                    </div>
-            
-                    <div class="action-area">
-                        <div class="idea-action1 small-card">
-                            <div class="area">
-                                <span>Collaborations #{{ post.collaboration_count|default:"2" }}</span>
-                                <span>Proposal #{{ post.proposal_count|default:"1" }}</span>
-                                <span>Patent</span>
-                            </div>
-                        </div>
-            
-                        <!-- Comments Section -->
-                        <div class="comment-section small-card">
-                            <span>Comments # [Auto Scroll]</span>
-                            {% if post.comments.all %}
-                                {% for comment in post.comments.all %}
-                                    <p><strong>{{ comment.user.username|default:"Anonymous" }}</strong>: {{ comment.content|default:"No comment content." }}</p>
-                                {% endfor %}
-                            {% else %}
-                                <!-- Sample Comment -->
-                                <p><strong>Commenter123</strong>: "This is an amazing idea! Can't wait to see more."</p>
-                            {% endif %}
-            
-                            <!-- Comment Form -->
-                            <form method="POST" action="{% url 'add_comment' post.id %}">
-                                {% csrf_token %}
-                                <input type="text" name="content" placeholder="Write a comment...">
-                                <button type="submit">Make Comment</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            
-            {% empty %}
-                <p>No posts available.</p>
-            {% endfor %}
-            <div class="center section">
-                <!-- posts below -->
-                <!-- Display Posts -->
-                
+/* ── Profile card ──────────────────────────────────────────────── */
+.ap-profile-cover {
+  height: 56px;
+  background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 100%);
+}
+.ap-profile-body { padding: 0 18px 18px; text-align: center; }
+.ap-profile-avatar {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  object-fit: cover;
+  display: block;
+  margin: -32px auto 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+.ap-profile-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .95rem;
+  font-weight: 800;
+  color: #0A1628;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 2px;
+}
+.ap-profile-sub {
+  font-size: .75rem;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+.ap-profile-bio {
+  font-size: .78rem;
+  color: #374151;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.ap-profile-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 7px 0;
+  border: 1.5px solid #1B5EC7;
+  border-radius: 8px;
+  color: #1B5EC7;
+  font-size: .8rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all .18s;
+}
+.ap-profile-btn:hover { background: #1B5EC7; color: #fff; }
+.ap-profile-stats { margin-top: 14px; padding-top: 12px; border-top: 1px solid #f0f4fa; }
+.ap-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 0;
+  font-size: .78rem;
+  color: #6b7280;
+}
+.ap-stat-row span:last-child { font-weight: 700; color: #1B5EC7; }
 
-<!-- #### -->
+/* ── Quick links ────────────────────────────────────────────────── */
+.ap-quick-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 18px;
+  font-size: .85rem;
+  font-weight: 600;
+  color: #374151;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+  border-bottom: 1px solid #f5f5f5;
+}
+.ap-quick-link:last-child { border-bottom: none; }
+.ap-quick-link:hover { background: #f4f7fb; color: #1B5EC7; }
+.ap-quick-link .ap-badge {
+  margin-left: auto;
+  background: #dc2626;
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 20px;
+  min-width: 20px;
+  text-align: center;
+}
 
+/* ── Connection request item ────────────────────────────────────── */
+.ap-conn-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-bottom: 1px solid #f5f5f5;
+}
+.ap-conn-item:last-child { border-bottom: none; }
+.ap-conn-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.ap-conn-name {
+  font-size: .83rem;
+  font-weight: 700;
+  color: #0A1628;
+  text-decoration: none;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ap-btn-accept {
+  background: #1B5EC7; color: #fff; border: none;
+  padding: 5px 12px; border-radius: 7px; font-size: .75rem;
+  font-weight: 700; cursor: pointer; white-space: nowrap;
+  transition: background .18s;
+}
+.ap-btn-accept:hover { background: #1448a3; }
+.ap-btn-decline {
+  background: #f3f4f6; color: #6b7280; border: none;
+  padding: 5px 10px; border-radius: 7px; font-size: .75rem;
+  font-weight: 600; cursor: pointer; transition: background .18s;
+}
+.ap-btn-decline:hover { background: #e5e7eb; }
 
-                <!-- ###3 -->
-                <div class="idea-container">
-                    {% if all_innovators_with_projects %}
-                        {% for entry in all_innovators_with_projects %}
-                            {% for project in entry.projects %}
-                            <div class="idea-section card mb-4">
-                                <div class="top d-flex justify-content-between">
-                                    <span><strong>{{ entry.innovator.get_full_name }}</strong></span>
-                                    
-                                    {% if entry.innovator.id not in connected_user_ids %}
-                                        <form method="POST" action="{% url 'connect_user' entry.innovator.id %}">
-                                            {% csrf_token %}
-                                            <button class="btn btn-sm btn-outline-primary">Connect</button>
-                                        </form>
-                                    {% else %}
-                                        <span class="badge bg-success">Connected</span>
-                                    {% endif %}
-                                </div>
-                
-                                <div class="idea-info">
-                                    <table>
-                                        <tr>
-                                            <td>
-                                                <div class="user d-flex align-items-center">
-                                                    {% if entry.innovator.userprofile.profile_pics %}
-                                                        <img src="{{ entry.innovator.userprofile.profile_pics.url }}" alt="Profile" class="rounded-circle me-2" width="30" height="30">
-                                                    {% endif %}
-                                                    <span class="following-dot"></span>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <p><strong>Industry:</strong> {{ entry.innovator.userprofile.industry }}</p>
-                                            </td>
-                                            <td>
-                                                <p>{{ project.created_at|timesince }} ago</p>
-                                            </td>
-                                        </tr>
-                                    </table>
-                
-                                    <div class="idea-body">
-                                        <h5>{{ project.title }}</h5>
-                                        <div class="idea-def">
-                                            <p>{{ project.description }}</p>
-                                        </div>
-                                        <div class="interest-section">
-                                            <span>Views: #{{ project.views|default:"0" }}</span>
-                                            <span>Likes: #{{ project.likes|default:"0" }}</span>
-                                        </div>
-                                    </div>
-                
-                                    <div class="idea-media-section">
-                                        {% if project.project_image %}
-                                            <img src="{{ project.project_image.url }}" class="post-image img-fluid w-50" alt="Project Image">
-                                        {% else %}
-                                            <img src="{% static 'images/bg2.jpg' %}" class="post-image img-fluid w-50" alt="Default Image">
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        {% endfor %}
-                    {% else %}
-                        <p>No innovators or projects to display.</p>
-                    {% endif %}
-                </div>
-                
-                <!-- ####3 -->
-                <h3 class="mt-4">Featured Innovators and Projects</h3>
-                {% for innovator in innovators %}
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h5>{{ innovator.get_full_name }}</h5>
-                            <p><strong>Industry:</strong> {{ innovator.userprofile.industry }}</p>
-                            {% if innovator.first_project %}
-                                <h6 class="mt-3">Featured Project</h6>
-                                <p><strong>{{ innovator.first_project.title }}</strong></p>
-                                <p>{{ innovator.first_project.description|truncatewords:30 }}</p>
-                            {% else %}
-                                <p class="text-muted">No projects yet.</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-                
-                
-                
-                <!-- ################ -->
-                
-                
-                <!-- ######3 -->
-                
-                
+/* ── Filter bar ────────────────────────────────────────────────── */
+.ap-filter-bar {
+  background: #fff;
+  border: 1px solid #e4eaf2;
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  box-shadow: 0 1px 4px rgba(10,22,40,.04);
+}
+.ap-filter-select {
+  flex: 1;
+  min-width: 130px;
+  border: 1.5px solid #e0e6f0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: .84rem;
+  color: #374151;
+  background: #f8fafc;
+  font-family: inherit;
+  transition: border-color .18s;
+  cursor: pointer;
+}
+.ap-filter-select:focus { border-color: #1B5EC7; outline: none; }
+.ap-filter-date {
+  flex: 1;
+  min-width: 140px;
+  border: 1.5px solid #e0e6f0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: .84rem;
+  color: #374151;
+  background: #f8fafc;
+  font-family: inherit;
+  transition: border-color .18s;
+}
+.ap-filter-date:focus { border-color: #1B5EC7; outline: none; }
+.ap-filter-clear {
+  color: #6b7280; font-size: .8rem; font-weight: 600;
+  text-decoration: none; padding: 7px 12px; border-radius: 8px;
+  transition: background .18s;
+}
+.ap-filter-clear:hover { background: #f3f4f6; }
 
-                <!-- #####  Dynamic-->
-                <div class="idea-container">
-                    {% for project in projects %}
-                    <div class="idea-section card">
-                        <div class="top">
-                            <span>
-                                <button>...</button>
-                                <button>X</button>
-                            </span>
-                        </div>
-                        <div class="idea-info">
-                            <table>
-                                <tr>
-                                    <td>Connected 
-                                        <span id="status">
-                                            <div class="user">
-                                                <p>{{ project.user.username }}</p>
-                                                <span class="following-dot"></span>
-                                            </div>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <p><strong>{{ project.user.get_full_name }}</strong></p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <p><strong>Industry:</strong> {{ project.industry }}</p>
-                                    </td>
-                                    <td>
-                                        <p>{{ project.created_at|timesince }} ago</p>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <div class="idea-body">
-                                <span>{{ project.title }}</span>
-                                <div class="idea-def">
-                                    <p>{{ project.description }}</p>
-                                </div>
-                                <div class="interest-section">
-                                    <span>Interests #{{ project.interests.count }}</span>
-                                    <span>Views #{{ project.views }}</span>
-                                    <span>Repost #{{ project.reposts }}</span>
-                                    <span>Likes #{{ project.likes }}</span>
-                                </div>
-                            </div>
-                            
-                            <div class="idea-media-section">
-                                {% if project.image %}
-                                    <img src="{{ project.image.url }}" class="post-image img-fluid w-50" alt="Project Image">
-                                {% else %}
-                                    <img src="{% static 'images/bg2.jpg' %}" class="post-image img-fluid w-50" alt="Default Image">
-                                {% endif %}
-                            </div>
-                            
-                            <div class="action-area">
-                                <div class="idea-action1 small-card">
-                                    <div class="area">
-                                        <span>Collaborations #{{ project.collaborations.count }}</span>
-                                        <span>Proposal #{{ project.proposals.count }}</span>
-                                        <span>Patent</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="comment-section small-card">
-                                    <span>Comments #{{ project.comments.count }}</span>
-                                    {% for comment in project.comments.all|slice:":1" %}
-                                        <p><strong>{{ comment.user.username }}</strong>: "{{ comment.content }}"</p>
-                                    {% endfor %}
-                                    <form method="POST" action="{% url 'add_comment' project.id %}">
-                                        {% csrf_token %}
-                                        <input type="text" name="content" placeholder="Write a comment...">
-                                        <button type="submit">Make Comment</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                <!-- ddddjsdjskdf -->
-                 <p>new:----<span>></span></p>
-                 <p>Entries: {{ all_innovators_with_projects|length }}</p>
+/* ── Post composer ──────────────────────────────────────────────── */
+.ap-composer {
+  background: #fff;
+  border: 1px solid #e4eaf2;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(10,22,40,.04);
+}
+.ap-composer-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+}
+.ap-composer-avatar {
+  width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+}
+.ap-composer-input {
+  flex: 1;
+  background: #f4f7fb;
+  border: 1.5px solid #e4eaf2;
+  border-radius: 24px;
+  padding: 10px 18px;
+  font-size: .875rem;
+  color: #9ca3af;
+  transition: border-color .18s, background .18s;
+}
+.ap-composer-top:hover .ap-composer-input {
+  border-color: #1B5EC7;
+  background: #f0f5ff;
+  color: #6b7280;
+}
+.ap-composer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px 14px;
+  border-top: 1px solid #f5f7fb;
+}
+.ap-composer-btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: .82rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all .18s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ap-composer-btn--outline {
+  border: 1.5px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+}
+.ap-composer-btn--outline:hover { border-color: #1B5EC7; color: #1B5EC7; }
+.ap-composer-btn--primary {
+  background: #1B5EC7; color: #fff;
+}
+.ap-composer-btn--primary:hover { background: #1448a3; }
 
+/* ── Post / project feed card ───────────────────────────────────── */
+.ap-feed-card {
+  background: #fff;
+  border: 1px solid #e4eaf2;
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 1px 4px rgba(10,22,40,.04);
+  transition: box-shadow .2s, transform .2s;
+}
+.ap-feed-card:hover {
+  box-shadow: 0 6px 24px rgba(27,94,199,.1);
+  transform: translateY(-1px);
+}
 
+/* Card header: author row */
+.ap-card-author-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  gap: 10px;
+}
+.ap-card-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.ap-author-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%; object-fit: cover; flex-shrink: 0;
+}
+.ap-author-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .9rem;
+  font-weight: 800;
+  color: #0A1628;
+  text-decoration: none;
+  display: block;
+  line-height: 1.2;
+}
+.ap-author-name:hover { color: #1B5EC7; }
+.ap-author-meta {
+  font-size: .75rem;
+  color: #9ca3af;
+  margin-top: 1px;
+}
 
+/* Card body */
+.ap-card-body { padding: 0 20px 14px; }
+.ap-card-title-link {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0A1628;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.ap-card-title-link:hover { color: #1B5EC7; }
+.ap-card-text {
+  font-size: .875rem;
+  color: #374151;
+  line-height: 1.65;
+  margin: 0;
+}
+.ap-card-category {
+  display: inline-block;
+  background: #e0e8f4;
+  color: #1B5EC7;
+  font-size: .7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
 
-                 
-<div class="idea-container">
-    {% for entry in all_innovators_with_projects %}
-        {% for project in entry.projects %}
-            <div class="idea-section card">
-                <div class="top">
-                    <span>
-                        <button>...</button>
-                        <button>X</button>
-                    </span>
-                </div>
-                <div class="idea-info">
-                    <table>
-                        <tr>
-                            <td>Connected
-                                <span id="status">
-                                    <div class="user">
-                                        <p>{{ entry.innovator.username }}</p>
-                                        <span class="following-dot"></span>
-                                    </div>
-                                </span>
-                            </td>
-                            <td>
-                                <p><strong>{{ entry.innovator.get_full_name }}</strong></p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <p><strong>Industry:</strong> {{ entry.innovator.userprofile.industry }}</p>
-                            </td>
-                            <td>
-                                <p>{{ project.created_at|timesince }} ago</p>
-                            </td>
-                        </tr>
-                    </table>
+/* Card image */
+.ap-card-img-wrap { overflow: hidden; }
+.ap-card-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+  transition: transform .4s ease;
+}
+.ap-card-img-wrap:hover .ap-card-img { transform: scale(1.02); }
 
-                    <div class="idea-body">
-                        <span>{{ project.title }}</span>
-                        <div class="idea-def">
-                            <p>{{ project.description }}</p>
-                        </div>
-                        <div class="interest-section">
-                            <span>Interests #{{ project.interests.count }}</span>
-                            <span>Views #{{ project.views }}</span>
-                            <span>Repost #{{ project.reposts }}</span>
-                            <span>Likes #{{ project.likes }}</span>
-                        </div>
-                    </div>
+/* Card stats bar */
+.ap-card-stats {
+  display: flex;
+  gap: 16px;
+  padding: 10px 20px;
+  border-top: 1px solid #f5f7fb;
+  font-size: .78rem;
+  color: #9ca3af;
+}
 
-                    <div class="idea-media-section">
-                        {% if project.image %}
-                            <img src="{{ project.image.url }}" class="post-image img-fluid w-50" alt="Project Image">
-                        {% else %}
-                            <img src="{% static 'images/bg2.jpg' %}" class="post-image img-fluid w-50" alt="Default Image">
-                        {% endif %}
-                    </div>
+/* Card actions */
+.ap-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 14px 10px;
+  flex-wrap: wrap;
+}
+.ap-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: .82rem;
+  font-weight: 600;
+  color: #4b5563;
+  padding: 7px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background .15s, color .15s;
+}
+.ap-action-btn:hover { background: #f4f7fb; color: #1B5EC7; }
 
-                    <div class="action-area">
-                        <div class="idea-action1 small-card">
-                            <div class="area">
-                                <span>Collaborations #{{ project.collaborations.count }}</span>
-                                <span>Proposal #{{ project.proposals.count }}</span>
-                                <span>Patent</span>
-                            </div>
-                        </div>
+/* Comments section */
+.ap-comments-preview {
+  padding: 8px 20px 12px;
+  border-top: 1px solid #f5f7fb;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ap-comment-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.ap-comment-avatar {
+  width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 2px;
+}
+.ap-comment-bubble {
+  background: #f4f7fb;
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-size: .8rem;
+  flex: 1;
+  line-height: 1.45;
+}
+.ap-comment-author {
+  font-weight: 700;
+  color: #0A1628;
+  text-decoration: none;
+  margin-right: 5px;
+}
+.ap-comment-text { color: #374151; }
 
-                        <div class="comment-section small-card">
-                            <span>Comments #{{ project.comments.count }}</span>
-                            {% for comment in project.comments.all|slice:":1" %}
-                                <p><strong>{{ comment.user.username }}</strong>: "{{ comment.content }}"</p>
-                            {% endfor %}
-                            <form method="POST" action="{% url 'add_comment' project.id %}">
-                                {% csrf_token %}
-                                <input type="text" name="content" placeholder="Write a comment...">
-                                <button type="submit">Make Comment</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-    {% endfor %}
-</div>
+/* Comment input row */
+.ap-comment-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 18px 14px;
+  border-top: 1px solid #f5f7fb;
+}
+.ap-comment-input-row input {
+  flex: 1;
+  border: 1.5px solid #e4eaf2;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: .82rem;
+  font-family: inherit;
+  color: #374151;
+  background: #f8fafc;
+  transition: border-color .18s;
+}
+.ap-comment-input-row input:focus { border-color: #1B5EC7; outline: none; background: #fff; }
+.ap-comment-input-row button {
+  background: #1B5EC7;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .18s;
+}
+.ap-comment-input-row button:hover { background: #1448a3; }
 
-<p>hhhhh</p>
+/* Options menu */
+.ap-options-trigger {
+  background: #f3f4f6; border: none; cursor: pointer;
+  font-size: .85rem; color: #9ca3af; padding: 5px 10px;
+  border-radius: 7px; line-height: 1; transition: background .15s;
+}
+.ap-options-trigger:hover { background: #e5e7eb; color: #374151; }
+.ap-options-menu {
+  display: none;
+  position: absolute;
+  right: 14px; top: 46px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.1);
+  min-width: 160px;
+  z-index: 30;
+  overflow: hidden;
+}
+.ap-options-menu a,
+.ap-options-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: .84rem;
+  color: #1a1a2e;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background .12s;
+}
+.ap-options-menu a:hover,
+.ap-options-menu button:hover { background: #f4f7fb; }
+.ap-options-menu .ap-options-danger { color: #dc2626; border-top: 1px solid #f3f4f6; }
+.ap-options-menu .ap-options-danger:hover { background: #fff5f5; }
 
+/* ── Section divider ────────────────────────────────────────────── */
+.ap-section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 4px;
+}
+.ap-section-divider::before,
+.ap-section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e4eaf2;
+}
+.ap-section-divider-label {
+  font-size: .75rem;
+  font-weight: 700;
+  color: #9ca3af;
+  white-space: nowrap;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
 
-<p>kkk</p>
-<p>Entries: {{ all_innovators_with_projects|length }}</p>
+/* ── Right sidebar ──────────────────────────────────────────────── */
+.ap-sidebar-right { display: flex; flex-direction: column; gap: 14px; }
 
-{% for entry in all_innovators_with_projects %}
+/* Proposal item */
+.ap-proposal-item {
+  padding: 12px 18px;
+  border-bottom: 1px solid #f5f5f5;
+}
+.ap-proposal-item:last-child { border-bottom: none; }
+.ap-proposal-author {
+  display: flex; align-items: center; gap: 9px; margin-bottom: 7px;
+}
+.ap-proposal-on { font-size: .72rem; color: #9ca3af; }
+.ap-proposal-msg { font-size: .8rem; color: #4b5563; margin-bottom: 9px; line-height: 1.45; }
+.ap-proposal-actions { display: flex; gap: 7px; }
 
-  {{ entry.innovator.username }}
-  {% for project in entry.projects %}
-    <p>Title:</p>{{ project.title }}
-  {% endfor %}
-{% endfor %}
+/* Saved project item */
+.ap-saved-item {
+  padding: 12px 18px;
+  border-bottom: 1px solid #f5f5f5;
+}
+.ap-saved-item:last-child { border-bottom: none; }
+.ap-saved-title {
+  font-size: .875rem;
+  font-weight: 700;
+  color: #0A1628;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 3px;
+}
+.ap-saved-title:hover { color: #1B5EC7; }
+.ap-saved-meta { font-size: .75rem; color: #9ca3af; }
 
-<p>Entries: {{ all_innovators_with_projects|length }}</p>
+/* Stats rows in sidebar */
+.ap-sidebar-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 18px;
+  font-size: .82rem;
+  color: #6b7280;
+  border-bottom: 1px solid #f5f5f5;
+}
+.ap-sidebar-stat:last-child { border-bottom: none; }
+.ap-sidebar-stat span:last-child { font-weight: 800; color: #1B5EC7; }
 
-<div id="idea-container">
-    {% for entry in all_innovators_with_projects %}
-        {% for project in entry.projects %}
-            <div class="idea-section card" data-project-id="{{ project.id }}">
-                <div class="top d-flex justify-content-end">
-                    <button>...</button>
-                    <button>X</button>
-                </div>
+/* Dashboard CTA card */
+.ap-dashboard-cta {
+  text-align: center;
+  padding: 18px;
+}
+.ap-dashboard-cta p { font-size: .8rem; color: #6b7280; margin-bottom: 10px; }
+.ap-dashboard-cta-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: #1B5EC7;
+  color: #fff;
+  border-radius: 9px;
+  font-size: .875rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  transition: background .18s;
+}
+.ap-dashboard-cta-btn:hover { background: #1448a3; color: #fff; }
 
-                <div class="idea-info">
-                    <table class="table table-borderless mb-2">
-                        <tr>
-                            <td>
-                                Connected
-                                <div class="user d-flex align-items-center">
-                                    <p class="mb-0">{{ entry.innovator.username }}</p>
-                                    <span class="following-dot ms-2"></span>
-                                </div>
-                            </td>
-                            <td>
-                                <p class="fw-bold mb-0">{{ entry.innovator.get_full_name }}</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <p><strong>Industry:</strong> {{ entry.innovator.userprofile.industry }}</p>
-                            </td>
-                            <td>
-                                <p class="text-muted">{{ project.created_at|timesince }} ago</p>
-                            </td>
-                        </tr>
-                    </table>
+/* Profile viewers */
+.ap-viewers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  padding: 14px 18px;
+}
+.ap-viewer-item {
+  text-align: center;
+  padding: 10px 8px;
+  border: 1px solid #f0f4fa;
+  border-radius: 10px;
+  transition: box-shadow .18s;
+}
+.ap-viewer-item:hover { box-shadow: 0 3px 12px rgba(27,94,199,.1); }
+.ap-viewer-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 6px;
+}
+.ap-viewer-name {
+  font-size: .75rem;
+  font-weight: 700;
+  color: #0A1628;
+  text-decoration: none;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 6px;
+}
 
-                    <div class="idea-body mb-3">
-                        <h5>{{ project.title }}</h5>
-                        <div class="idea-def">
-                            <p>{{ project.description }}</p>
-                        </div>
-                        <div class="interest-section d-flex gap-3 mt-2">
-                            <span>Interests #{{ project.interests.count }}</span>
-                            <span>Views #{{ project.views }}</span>
-                            <span>Repost #{{ project.reposts }}</span>
-                            <span>Likes #{{ project.likes }}</span>
-                        </div>
-                    </div>
+/* Load more */
+.ap-load-more {
+  text-align: center;
+  padding: 12px 0 4px;
+}
+.ap-load-more-btn {
+  background: #fff;
+  border: 1.5px solid #d1d5db;
+  color: #374151;
+  font-size: .875rem;
+  font-weight: 700;
+  padding: 10px 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .18s;
+  font-family: inherit;
+}
+.ap-load-more-btn:hover { border-color: #1B5EC7; color: #1B5EC7; }
 
-                    <div class="idea-media-section mb-3">
-                        <img src="{% if project.image %}{{ project.image.url }}{% else %}{% static 'images/bg2.jpg' %}{% endif %}"
-                             class="post-image img-fluid w-50" alt="Project Image">
-                    </div>
+/* Connect / Connected badge */
+.ap-connect-btn {
+  background: none;
+  border: 1.5px solid #1B5EC7;
+  color: #1B5EC7;
+  font-size: .75rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .18s;
+}
+.ap-connect-btn:hover { background: #1B5EC7; color: #fff; }
+.ap-connected-tag {
+  font-size: .72rem;
+  font-weight: 700;
+  color: #059669;
+  background: #dcfce7;
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+</style>
 
-                    <div class="action-area">
-                        <div class="idea-action1 small-card mb-2">
-                            <div class="area d-flex gap-3">
-                                <span>Collaborations #{{ project.collaborations.count }}</span>
-                                <span>Proposal #{{ project.proposals.count }}</span>
-                                <span>Patent</span>
-                            </div>
-                        </div>
+<div class="ap-wrap">
 
-                        <div class="comment-section small-card">
-                            <span>Comments #{{ project.comments.count }}</span>
-                            {% with project.comments.all|first as comment %}
-                                {% if comment %}
-                                    <p><strong>{{ comment.user.username }}</strong>: "{{ comment.content }}"</p>
-                                {% endif %}
-                            {% endwith %}
-                            <form method="POST" action="{% url 'add_comment' project.id %}">
-                                {% csrf_token %}
-                                <input type="text" name="content" placeholder="Write a comment..." class="form-control mt-2 mb-2">
-                                <button type="submit" class="btn btn-sm btn-primary">Comment</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-    {% endfor %}
+  <!-- ══════════════════════════════════════
+       LEFT SIDEBAR
+  ══════════════════════════════════════ -->
+  <aside class="ap-sidebar-left">
 
-    <!-- Button to trigger AJAX load more -->
-    <div class="text-center mt-4">
-        <button id="load-more-projects" class="btn btn-outline-secondary" data-next-page="2">Load More Projects</button>
-    </div>
-</div>
-
-
-
-<p>jjjj</p>
-
-<div class="idea-container">
-    {% if all_innovators_with_projects %}
-        {% for entry in all_innovators_with_projects %}
-            {% for project in entry.projects %}
-                <div class="idea-section card">
-                    <!-- Full card content with project data -->
-                    <!-- (same as your current structure) -->
-                </div>
-            {% endfor %}
-        {% endfor %}
-    {% else %}
-        <!-- Placeholder project card to show structure -->
-        <div class="idea-section card">
-            <div class="top">
-                <span>
-                    <button>...</button>
-                    <button>X</button>
-                </span>
-            </div>
-            <div class="idea-info">
-                <table>
-                    <tr>
-                        <td>Connected
-                            <span id="status">
-                             
-                                <div class="user">
-                                    <span class="following-dot"></span>
-                                    <p>@username</p>
-                                </div>
-                            </span>
-                        </td>
-                        <td>
-                            <p><strong>Full Name</strong></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p><strong>Industry:</strong> Industry Name</p>
-                        </td>
-                        <td>
-                            <p>Just now</p>
-                        </td>
-                    </tr>
-                </table>
-
-                <div class="idea-body">
-                    <span>Project Title</span>
-                    <div class="idea-def">
-                        <p>This is a placeholder project description to show structure before data loads.</p>
-                    </div>
-                    <div class="interest-section">
-                        <span>Interests #0</span>
-                        <span>Views #0</span>
-                        <span>Repost #0</span>
-                        <span>Likes #0</span>
-                    </div>
-                </div>
-
-                <div class="idea-media-section">
-                    <img src="{% static 'images/bg2.jpg' %}" class="post-image img-fluid w-50" alt="Default Image">
-                </div>
-
-                <div class="action-area">
-                    <div class="idea-action1 small-card">
-                        <div class="area">
-                            <span>Collaborations #0</span>
-                            <span>Proposal #0</span>
-                            <span>Patent</span>
-                        </div>
-                    </div>
-
-                    <div class="comment-section small-card">
-                        <span>Comments #0</span>
-                        <p><strong>@commenter</strong>: "Example comment."</p>
-                        <form>
-                            <input type="text" placeholder="Write a comment...">
-                            <button type="submit" disabled>Make Comment</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+    <!-- Profile card -->
+    <div class="ap-card">
+      <div class="ap-profile-cover"></div>
+      <div class="ap-profile-body">
+        <a href="{% url 'profile_view' id=user.id %}">
+          {% if profile.profile_pics %}
+            <img src="{{ profile.profile_pics.url }}" alt="Profile picture" class="ap-profile-avatar">
+          {% else %}
+            <img src="{% static 'images/usericon.png' %}" alt="Profile picture" class="ap-profile-avatar">
+          {% endif %}
+        </a>
+        <a href="{% url 'profile_view' id=user.id %}" class="ap-profile-name">
+          {{ user.get_full_name|default:user.username }}
+        </a>
+        {% if profile.verification_status == 'verified' %}
+          <span class="oc-verified-badge" style="display:inline-flex;margin-bottom:4px;">✓ Verified</span>
+        {% endif %}
+        <div class="ap-profile-sub">
+          {{ profile.industry|default:"" }}{% if profile.company %}&nbsp;·&nbsp;{{ profile.company }}{% endif %}
         </div>
+        {% if profile.bio %}
+        <p class="ap-profile-bio">{{ profile.bio|truncatewords:18 }}</p>
+        {% endif %}
+        <a href="{% url 'profile_view' id=user.id %}" class="ap-profile-btn">View profile</a>
+        <div class="ap-profile-stats">
+          <div class="ap-stat-row"><span>Profile views</span><span>{{ profile_views|default:"0" }}</span></div>
+          <div class="ap-stat-row"><span>Inventions</span><span>{{ inventions_count|default:"0" }}</span></div>
+          <div class="ap-stat-row"><span>Patents</span><span>{{ patents_count|default:"0" }}</span></div>
+          <div class="ap-stat-row"><span>Groups</span><span>{{ groups_count|default:"0" }}</span></div>
+          <div class="ap-stat-row"><span>Events</span><span>{{ events_count|default:"0" }}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick links -->
+    <div class="ap-card" style="overflow:hidden;">
+      <a href="{% url 'networks' %}"  class="ap-quick-link">🌐 <span>My Network</span></a>
+      <a href="{% url 'innovator_dashboard' %}" class="ap-quick-link">📊 <span>Dashboard</span></a>
+      <a href="{% url 'inbox' %}" class="ap-quick-link">
+        ✉️ <span>Messages</span>
+        {% if unread_count %}<span class="ap-badge">{{ unread_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'notifications' %}" class="ap-quick-link">
+        🔔 <span>Notifications</span>
+        {% if unread_notification_count %}<span class="ap-badge">{{ unread_notification_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'training_hub' %}" class="ap-quick-link">📚 <span>Training</span></a>
+      <a href="{% url 'mentorship_hub' %}" class="ap-quick-link">🎓 <span>Mentorship</span></a>
+      <a href="{% url 'events_hub' %}" class="ap-quick-link">📅 <span>Events</span></a>
+    </div>
+
+    <!-- Pending connection requests -->
+    {% if pending_connections %}
+    <div class="ap-card" style="overflow:hidden;">
+      <div class="ap-card-header">
+        <span class="ap-card-title">Connection Requests</span>
+        <span style="background:#dc2626;color:#fff;font-size:.7rem;font-weight:800;padding:2px 8px;border-radius:20px;">{{ pending_connections|length }}</span>
+      </div>
+      {% for conn in pending_connections %}
+      <div class="ap-conn-item">
+        <a href="{% url 'profile_view' id=conn.initiator.pk %}">
+          <img src="{% static 'images/usericon.png' %}" class="ap-conn-avatar" alt="">
+        </a>
+        <a href="{% url 'profile_view' id=conn.initiator.pk %}" class="ap-conn-name">{{ conn.initiator.get_full_name }}</a>
+        <form method="post" action="{% url 'accept_connection' conn.pk %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="ap-btn-accept">Accept</button>
+        </form>
+        <form method="post" action="{% url 'reject_connection' conn.pk %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="ap-btn-decline">✕</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
     {% endif %}
+
+  </aside><!-- /left sidebar -->
+
+
+  <!-- ══════════════════════════════════════
+       CENTER FEED
+  ══════════════════════════════════════ -->
+  <main style="display:flex;flex-direction:column;gap:14px;min-width:0;">
+
+    <!-- Filter bar -->
+    <div class="ap-filter-bar">
+      <form method="GET" action="" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;width:100%;">
+        <select name="industry" class="ap-filter-select" onchange="this.form.submit()">
+          <option value="">All Industries</option>
+          {% for ind in industry_choices %}
+          <option value="{{ ind }}" {% if industry_filter == ind %}selected{% endif %}>{{ ind }}</option>
+          {% endfor %}
+        </select>
+        <input type="date" name="date" value="{{ date_filter }}" class="ap-filter-date" onchange="this.form.submit()">
+        {% if industry_filter or date_filter %}
+        <a href="{% url 'app' %}" class="ap-filter-clear">✕ Clear</a>
+        {% endif %}
+      </form>
+    </div>
+
+    <!-- Composer -->
+    <div class="ap-composer">
+      <div class="ap-composer-top" onclick="document.getElementById('post-modal').style.display='flex'">
+        {% if profile.profile_pics %}
+          <img src="{{ profile.profile_pics.url }}" class="ap-composer-avatar" alt="">
+        {% else %}
+          <img src="{% static 'images/usericon.png' %}" class="ap-composer-avatar" alt="">
+        {% endif %}
+        <div class="ap-composer-input">Share an idea, project update, or insight…</div>
+      </div>
+      <div class="ap-composer-actions">
+        {% if user.user_type != 'investor' %}
+        <a href="{% url 'create_project' %}" class="ap-composer-btn ap-composer-btn--outline">
+          🚀 New Project
+        </a>
+        {% endif %}
+        <button class="ap-composer-btn ap-composer-btn--primary"
+                onclick="document.getElementById('post-modal').style.display='flex'">
+          ✍️ Write Post
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Posts feed ── -->
+    {% for post in posts %}
+    <article class="ap-feed-card">
+
+      <!-- Options menu (owner only) -->
+      {% if user == post.user %}
+      <div style="position:absolute;top:14px;right:14px;z-index:10;">
+        <button class="ap-options-trigger"
+                onclick="event.stopPropagation();var m=this.nextElementSibling;m.style.display=m.style.display==='block'?'none':'block'">⋯</button>
+        <div class="ap-options-menu">
+          <a href="{% url 'edit_post' post.pk %}">✏️ Edit Post</a>
+          <a href="{% url 'post_media' post.pk %}">🖼 Edit Photos</a>
+          <a href="{% url 'post_detail' post.pk %}">👁 View Full</a>
+          <form method="POST" action="{% url 'delete_post' post.pk %}" onsubmit="return confirm('Delete this post?')">
+            {% csrf_token %}
+            <button type="submit" class="ap-options-danger">🗑 Delete Post</button>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Author row -->
+      <div class="ap-card-author-row">
+        <div class="ap-card-author">
+          <a href="{% url 'profile_view' id=post.user.id %}">
+            {% if post.user.userprofile.profile_pics %}
+              <img src="{{ post.user.userprofile.profile_pics.url }}" class="ap-author-avatar" alt="">
+            {% else %}
+              <img src="{% static 'images/usericon.png' %}" class="ap-author-avatar" alt="">
+            {% endif %}
+          </a>
+          <div>
+            <a href="{% url 'profile_view' id=post.user.id %}" class="ap-author-name">
+              {{ post.user.get_full_name|default:post.user.username }}
+              {% with up=post.user.userprofile %}
+                {% if up.verification_status == 'verified' %}<span class="oc-verified-badge" style="margin-left:5px;font-size:.65rem;">✓</span>{% endif %}
+              {% endwith %}
+            </a>
+            <div class="ap-author-meta">{{ post.industry }}&nbsp;·&nbsp;{{ post.created_at|timesince }} ago</div>
+          </div>
+        </div>
+        <span style="background:#e0e8f4;color:#1B5EC7;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;">{{ post.get_post_type_display|default:post.industry }}</span>
+      </div>
+
+      <!-- Body -->
+      <div class="ap-card-body">
+        {% if post.title %}
+        <a href="{% url 'post_detail' post.id %}" class="ap-card-title-link">{{ post.title }}</a>
+        {% endif %}
+        <p class="ap-card-text">{{ post.content|truncatewords:50 }}</p>
+      </div>
+
+      {% if post.image %}
+      <a href="{% url 'post_detail' post.id %}" class="ap-card-img-wrap">
+        <img src="{{ post.image.url }}" class="ap-card-img" alt="{{ post.title }}">
+      </a>
+      {% endif %}
+
+      <!-- Stats -->
+      <div class="ap-card-stats">
+        <span>👍 {{ post.likes.count }}</span>
+        <span>💬 {{ post.comments.count }}</span>
+        <span>🔁 {{ post.reposts.count }}</span>
+      </div>
+
+      <!-- Actions -->
+      <div class="ap-card-actions">
+        <a href="{% url 'post_detail' post.id %}" class="ap-action-btn">📖 Read More</a>
+        {% if user.is_authenticated %}
+        <button class="ap-action-btn" onclick="ocToggleReadLater('post', {{ post.id }}, this)">🔖 Save</button>
+        <button class="ap-action-btn" onclick="ocShare('{{ post.title|escapejs }}', window.location.origin+'/posts/{{ post.id }}/', 'post', {{ post.id }}, this)">↑ Share</button>
+        {% endif %}
+      </div>
+
+      <!-- Comments preview -->
+      {% if post.comments.all %}
+      <div class="ap-comments-preview">
+        {% for comment in post.comments.all|slice:":2" %}
+        <div class="ap-comment-row">
+          <a href="{% url 'profile_view' id=comment.user.id %}">
+            <img src="{% static 'images/usericon.png' %}" class="ap-comment-avatar" alt="">
+          </a>
+          <div class="ap-comment-bubble">
+            <a href="{% url 'profile_view' id=comment.user.id %}" class="ap-comment-author">{{ comment.user.get_full_name|default:comment.user.username }}</a>
+            <span class="ap-comment-text">{{ comment.content }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Comment input -->
+      <div class="ap-comment-input-row">
+        <img src="{% if profile.profile_pics %}{{ profile.profile_pics.url }}{% else %}{% static 'images/usericon.png' %}{% endif %}"
+             class="ap-comment-avatar" alt="">
+        <form method="POST" action="{% url 'add_comment' post.id %}" style="display:flex;flex:1;gap:8px;">
+          {% csrf_token %}
+          <input type="text" name="content" placeholder="Write a comment…" aria-label="Comment">
+          <button type="submit">Post</button>
+        </form>
+      </div>
+    </article>
+    {% empty %}
+    <div style="background:#fff;border:1px solid #e4eaf2;border-radius:14px;text-align:center;padding:48px 24px;color:#9ca3af;">
+      <p style="font-size:1.5rem;margin-bottom:10px;">💬</p>
+      <p style="font-size:1rem;font-weight:700;color:#374151;margin-bottom:6px;">No posts yet</p>
+      <p style="font-size:.875rem;">Be the first to share something with the community!</p>
+    </div>
+    {% endfor %}
+
+    <!-- ── Featured Projects section ── -->
+    {% if all_innovators_with_projects %}
+    <div class="ap-section-divider">
+      <span class="ap-section-divider-label">Featured Projects</span>
+    </div>
+
+    {% if user.user_type != 'investor' %}
+    <div style="display:flex;justify-content:flex-end;">
+      <a href="{% url 'create_project' %}" style="background:#1B5EC7;color:#fff;padding:8px 18px;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">+ Create Project</a>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% for entry in all_innovators_with_projects %}
+    {% for project in entry.projects %}
+    <article class="ap-feed-card">
+
+      <!-- Options menu (owner only) -->
+      {% if user == entry.innovator %}
+      <div style="position:absolute;top:14px;right:14px;z-index:10;">
+        <button class="ap-options-trigger"
+                onclick="event.stopPropagation();var m=this.nextElementSibling;m.style.display=m.style.display==='block'?'none':'block'">⋯</button>
+        <div class="ap-options-menu">
+          <a href="{% url 'edit_project' project.pk %}">✏️ Edit Project</a>
+          <a href="{% url 'project_detail' project.pk %}">👁 View Details</a>
+          <form method="POST" action="{% url 'delete_project' project.pk %}" onsubmit="return confirm('Delete this project?')">
+            {% csrf_token %}
+            <button type="submit" class="ap-options-danger">🗑 Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Author row -->
+      <div class="ap-card-author-row">
+        <div class="ap-card-author">
+          <a href="{% url 'profile_view' id=entry.innovator.id %}">
+            {% if entry.innovator.userprofile.profile_pics %}
+              <img src="{{ entry.innovator.userprofile.profile_pics.url }}" class="ap-author-avatar" alt="">
+            {% else %}
+              <img src="{% static 'images/usericon.png' %}" class="ap-author-avatar" alt="">
+            {% endif %}
+          </a>
+          <div>
+            <a href="{% url 'profile_view' id=entry.innovator.id %}" class="ap-author-name">
+              {{ entry.innovator.get_full_name }}
+              {% with up=entry.innovator.userprofile %}
+                {% if up.verification_status == 'verified' %}<span class="oc-verified-badge" style="margin-left:5px;font-size:.65rem;">✓</span>{% endif %}
+              {% endwith %}
+            </a>
+            <div class="ap-author-meta">{{ entry.innovator.userprofile.industry }}&nbsp;·&nbsp;{{ project.created_at|timesince }} ago</div>
+          </div>
+        </div>
+        {% if entry.innovator.id not in connected_user_ids %}
+          {% if user != entry.innovator %}
+          <form method="POST" action="{% url 'connect_user' entry.innovator.id %}">
+            {% csrf_token %}
+            <button type="submit" class="ap-connect-btn">+ Connect</button>
+          </form>
+          {% endif %}
+        {% else %}
+          <span class="ap-connected-tag">✓ Connected</span>
+        {% endif %}
+      </div>
+
+      <!-- Body -->
+      <div class="ap-card-body">
+        <a href="{% url 'project_detail' project.pk %}" class="ap-card-title-link">{{ project.title }}</a>
+        {% if project.category %}
+        <span class="ap-card-category">{{ project.get_category_display|default:project.category }}</span>
+        {% endif %}
+        <!-- Review + readiness badges -->
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+          {% if project.review_status != 'draft' %}
+          <span class="oc-review-badge oc-review-badge--{{ project.review_status }}">{{ project.get_review_status_display }}</span>
+          {% endif %}
+          {% with score=project.completeness_score rd=project.investment_readiness %}
+          {% if score >= 50 %}
+          <span style="background:#f0f9f4;color:#059669;font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:20px;">{{ rd.0 }}</span>
+          {% endif %}
+          {% endwith %}
+        </div>
+        <p class="ap-card-text">{{ project.description|truncatewords:35 }}</p>
+      </div>
+
+      <div class="ap-card-img-wrap">
+        {% if project.project_image %}
+          <img src="{{ project.project_image }}" class="ap-card-img" alt="{{ project.title }}">
+        {% else %}
+          <img src="{% static 'images/bg2.jpg' %}" class="ap-card-img" alt="{{ project.title }}">
+        {% endif %}
+      </div>
+
+      <!-- Stats -->
+      <div class="ap-card-stats">
+        <span>👁 {{ project.view_count|default:"0" }}</span>
+        <span>👍 {{ project.like_count|default:"0" }}</span>
+        <span>🤝 {{ project.collab_count|default:"0" }}</span>
+        <span>📄 {{ project.proposal_count|default:"0" }}</span>
+      </div>
+
+      <!-- Actions -->
+      <div class="ap-card-actions">
+        <a href="{% url 'project_detail' project.pk %}" class="ap-action-btn">📋 View Details</a>
+        {% if user.is_authenticated and user != entry.innovator %}
+        <button class="ap-action-btn"
+                onclick="qmOpen('collaborate','{{ project.title|escapejs }}',{{ project.pk }},'{% url "project_collaborate" project.pk %}')">
+          🤝 Collaborate
+        </button>
+        {% if user.user_type == 'investor' %}
+        <button class="ap-action-btn"
+                onclick="qmOpen('proposal','{{ project.title|escapejs }}',{{ project.pk }},'{% url "project_send_proposal" project.pk %}')">
+          💼 Propose
+        </button>
+        {% endif %}
+        <button class="ap-action-btn" onclick="ocToggleReadLater('project', {{ project.pk }}, this)">🔖</button>
+        <button class="ap-action-btn" onclick="ocShare('{{ project.title|escapejs }}', window.location.origin+'/projects/{{ project.pk }}/', 'project', {{ project.pk }}, this)">↑</button>
+        {% elif user.is_authenticated %}
+        <button class="ap-action-btn" onclick="ocToggleReadLater('project', {{ project.pk }}, this)">🔖 Save</button>
+        <button class="ap-action-btn" onclick="ocShare('{{ project.title|escapejs }}', window.location.origin+'/projects/{{ project.pk }}/', 'project', {{ project.pk }}, this)">↑ Share</button>
+        {% endif %}
+      </div>
+
+      <!-- Project comments preview -->
+      {% if project.project_comments.all %}
+      <div class="ap-comments-preview">
+        {% for comment in project.project_comments.all|slice:":1" %}
+        <div class="ap-comment-row">
+          <a href="{% url 'profile_view' id=comment.user.id %}">
+            <img src="{% static 'images/usericon.png' %}" class="ap-comment-avatar" alt="">
+          </a>
+          <div class="ap-comment-bubble">
+            <a href="{% url 'profile_view' id=comment.user.id %}" class="ap-comment-author">{{ comment.user.get_full_name|default:comment.user.username }}</a>
+            <span class="ap-comment-text">{{ comment.content }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Comment input -->
+      <div class="ap-comment-input-row">
+        <img src="{% if profile.profile_pics %}{{ profile.profile_pics.url }}{% else %}{% static 'images/usericon.png' %}{% endif %}"
+             class="ap-comment-avatar" alt="">
+        <form method="POST" action="{% url 'add_project_comment' project.pk %}" style="display:flex;flex:1;gap:8px;">
+          {% csrf_token %}
+          <input type="text" name="content" placeholder="Write a comment…" aria-label="Comment">
+          <button type="submit">Post</button>
+        </form>
+      </div>
+    </article>
+    {% endfor %}
+    {% endfor %}
+
+    <!-- Load more -->
+    <div class="ap-load-more">
+      <button id="load-more-projects" class="ap-load-more-btn" data-next-page="2">
+        Load more projects
+      </button>
+    </div>
+
+    <!-- Who viewed your profile -->
+    {% if recent_viewers %}
+    <div class="ap-card">
+      <div class="ap-card-header">
+        <span class="ap-card-title">Who viewed your profile</span>
+        <a href="{% url 'profile_view' id=user.id %}" style="font-size:.78rem;color:#1B5EC7;font-weight:600;text-decoration:none;">See all</a>
+      </div>
+      <div class="ap-viewers-grid">
+        {% for view in recent_viewers %}
+        {% if view.viewer %}
+        <div class="ap-viewer-item">
+          <a href="{% url 'profile_view' id=view.viewer.id %}">
+            <img src="{% static 'images/usericon.png' %}" class="ap-viewer-avatar" alt="">
+          </a>
+          <a href="{% url 'profile_view' id=view.viewer.id %}" class="ap-viewer-name">{{ view.viewer.get_full_name }}</a>
+          <a href="{% url 'profile_view' id=view.viewer.id %}"
+             style="font-size:.72rem;color:#1B5EC7;font-weight:600;text-decoration:none;">View</a>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- People you may know -->
+    <div class="ap-card">
+      <div class="ap-card-header">
+        <span class="ap-card-title">People you may know</span>
+      </div>
+      <div style="padding:12px 16px;">
+        {% include '_partials/suggestions.html' %}
+      </div>
+    </div>
+
+  </main><!-- /center feed -->
+
+
+  <!-- ══════════════════════════════════════
+       RIGHT SIDEBAR
+  ══════════════════════════════════════ -->
+  <aside class="ap-sidebar-right">
+
+    <!-- Innovator: Proposals -->
+    {% if user.user_type != 'investor' %}
+    <div class="ap-card" style="overflow:hidden;">
+      <div class="ap-card-header">
+        <span class="ap-card-title">Proposals</span>
+        {% if proposals %}<span style="background:#dc2626;color:#fff;font-size:.7rem;font-weight:800;padding:2px 8px;border-radius:20px;">{{ proposals|length }}</span>{% endif %}
+      </div>
+      {% for proposal in proposals %}
+      <div class="ap-proposal-item">
+        <div class="ap-proposal-author">
+          <a href="{% url 'profile_view' id=proposal.from_user.pk %}">
+            <img src="{% static 'images/usericon.png' %}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;" alt="">
+          </a>
+          <div>
+            <a href="{% url 'profile_view' id=proposal.from_user.pk %}" style="font-size:.84rem;font-weight:700;color:#0A1628;text-decoration:none;">{{ proposal.from_user.get_full_name }}</a>
+            <div class="ap-proposal-on">on: {{ proposal.project.title|truncatewords:5 }}</div>
+          </div>
+        </div>
+        {% if proposal.message %}
+        <p class="ap-proposal-msg">{{ proposal.message|truncatewords:12 }}</p>
+        {% endif %}
+        <div class="ap-proposal-actions">
+          <a href="{% url 'proposals_list' %}" style="background:#1B5EC7;color:#fff;padding:5px 12px;border-radius:7px;font-size:.78rem;font-weight:700;text-decoration:none;">Review</a>
+          <a href="{% url 'start_conversation' proposal.from_user.pk %}" style="background:#f3f4f6;color:#374151;padding:5px 12px;border-radius:7px;font-size:.78rem;font-weight:600;text-decoration:none;">Chat</a>
+        </div>
+      </div>
+      {% empty %}
+      <p style="font-size:.83rem;color:#9ca3af;padding:14px 18px;">No proposals yet.</p>
+      {% endfor %}
+      <div style="padding:10px 18px;border-top:1px solid #f5f5f5;">
+        <a href="{% url 'proposals_list' %}" style="font-size:.78rem;color:#1B5EC7;font-weight:600;text-decoration:none;">View all proposals →</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Investor: Saved Projects -->
+    {% if user.user_type == 'investor' %}
+    <div class="ap-card" style="overflow:hidden;">
+      <div class="ap-card-header">
+        <span class="ap-card-title">Saved Projects</span>
+      </div>
+      {% for item in investor_saved %}
+      {% if item.project %}
+      <div class="ap-saved-item">
+        <a href="{% url 'project_detail' item.project.pk %}" class="ap-saved-title">{{ item.project.title }}</a>
+        <div class="ap-saved-meta">
+          by <a href="{% url 'profile_view' id=item.project.owner.pk %}" style="color:#1B5EC7;text-decoration:none;">{{ item.project.owner.get_full_name }}</a>
+          &nbsp;·&nbsp;{{ item.project.industry }}
+        </div>
+        <div style="display:flex;gap:7px;margin-top:8px;">
+          <a href="{% url 'project_detail' item.project.pk %}" style="background:#e0e8f4;color:#1B5EC7;padding:4px 12px;border-radius:7px;font-size:.75rem;font-weight:700;text-decoration:none;">View</a>
+          <button onclick="qmOpen('proposal','{{ item.project.title|escapejs }}',{{ item.project.pk }},'{% url "project_send_proposal" item.project.pk %}')"
+                  style="background:#f3f4f6;color:#374151;border:none;padding:4px 12px;border-radius:7px;font-size:.75rem;font-weight:600;cursor:pointer;">💼 Propose</button>
+        </div>
+      </div>
+      {% endif %}
+      {% empty %}
+      <p style="font-size:.83rem;color:#9ca3af;padding:14px 18px;">No saved projects yet. Use 🔖 to save.</p>
+      {% endfor %}
+    </div>
+
+    <!-- Investor Dashboard CTA -->
+    <div class="ap-card">
+      <div class="ap-dashboard-cta">
+        <p>Manage your portfolio, pitches and matches</p>
+        <a href="{% url 'investor_dashboard' %}" class="ap-dashboard-cta-btn">📊 Investor Dashboard</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Activity stats -->
+    <div class="ap-card" style="overflow:hidden;">
+      <div class="ap-card-header">
+        <span class="ap-card-title">Your Activity</span>
+      </div>
+      <div class="ap-sidebar-stat"><span>Profile views</span><span>{{ profile_views|default:"0" }}</span></div>
+      <div class="ap-sidebar-stat"><span>Inventions</span><span>{{ inventions_count|default:"0" }}</span></div>
+      <div class="ap-sidebar-stat"><span>Patents</span><span>{{ patents_count|default:"0" }}</span></div>
+      <div class="ap-sidebar-stat"><span>Pages</span><span>{{ pages_count|default:"0" }}</span></div>
+    </div>
+
+    <!-- Oduma Services quick links -->
+    <div class="ap-card" style="overflow:hidden;">
+      <div class="ap-card-header">
+        <span class="ap-card-title">Oduma Services</span>
+      </div>
+      <a href="{% url 'training_hub' %}" style="display:flex;align-items:center;gap:10px;padding:11px 18px;font-size:.84rem;font-weight:600;color:#374151;text-decoration:none;border-bottom:1px solid #f5f5f5;transition:background .15s;" onmouseenter="this.style.background='#f4f7fb'" onmouseleave="this.style.background=''">📚 Training</a>
+      <a href="{% url 'mentorship_hub' %}" style="display:flex;align-items:center;gap:10px;padding:11px 18px;font-size:.84rem;font-weight:600;color:#374151;text-decoration:none;border-bottom:1px solid #f5f5f5;transition:background .15s;" onmouseenter="this.style.background='#f4f7fb'" onmouseleave="this.style.background=''">🎓 Mentorship</a>
+      <a href="{% url 'request_consulting' %}" style="display:flex;align-items:center;gap:10px;padding:11px 18px;font-size:.84rem;font-weight:600;color:#374151;text-decoration:none;border-bottom:1px solid #f5f5f5;transition:background .15s;" onmouseenter="this.style.background='#f4f7fb'" onmouseleave="this.style.background=''">🧠 Consulting</a>
+      <a href="{% url 'events_hub' %}" style="display:flex;align-items:center;gap:10px;padding:11px 18px;font-size:.84rem;font-weight:600;color:#374151;text-decoration:none;transition:background .15s;" onmouseenter="this.style.background='#f4f7fb'" onmouseleave="this.style.background=''">📅 Events</a>
+    </div>
+
+  </aside><!-- /right sidebar -->
+
+</div><!-- /ap-wrap -->
+
+
+<!-- ── Post Creation Modal ─────────────────────────────────────────── -->
+<div id="post-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:18px;padding:32px;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;position:relative;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <button onclick="document.getElementById('post-modal').style.display='none'"
+            style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#9ca3af;line-height:1;">✕</button>
+    <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:800;color:#0A1628;margin:0 0 22px;">Create a Post</h3>
+
+    <form method="POST" action="{% url 'app' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:.82rem;font-weight:700;color:#374151;margin-bottom:6px;">Title</label>
+        <input type="text" name="post_title" placeholder="Give your post a title…"
+               style="width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:10px 14px;font-size:.875rem;font-family:inherit;box-sizing:border-box;transition:border-color .18s;"
+               onfocus="this.style.borderColor='#1B5EC7'" onblur="this.style.borderColor='#e0e6f0'">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;font-size:.82rem;font-weight:700;color:#374151;margin-bottom:6px;">Post Type</label>
+          <select name="post_type"
+                  style="width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:10px 12px;font-size:.875rem;font-family:inherit;background:#fff;">
+            <option value="idea">💡 Idea</option>
+            <option value="article">📝 Article</option>
+            <option value="update">🚀 Update</option>
+            <option value="announcement">📢 Announcement</option>
+            <option value="question">❓ Question</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:.82rem;font-weight:700;color:#374151;margin-bottom:6px;">Industry</label>
+          <select name="post_industry"
+                  style="width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:10px 12px;font-size:.875rem;font-family:inherit;background:#fff;">
+            {% for ind in industry_choices %}
+            <option value="{{ ind }}">{{ ind }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:.82rem;font-weight:700;color:#374151;margin-bottom:6px;">Content <span style="color:#dc2626;">*</span></label>
+        <textarea name="post_content" rows="6" required
+                  placeholder="Share your thoughts, insights, or update in detail…"
+                  style="width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:10px 14px;font-size:.875rem;font-family:inherit;resize:vertical;min-height:140px;box-sizing:border-box;line-height:1.6;transition:border-color .18s;"
+                  onfocus="this.style.borderColor='#1B5EC7'" onblur="this.style.borderColor='#e0e6f0'"></textarea>
+      </div>
+      <div style="margin-bottom:22px;">
+        <label style="display:block;font-size:.82rem;font-weight:700;color:#374151;margin-bottom:6px;">Image (optional)</label>
+        <input type="file" name="post_image" accept="image/*"
+               style="font-size:.82rem;color:#374151;width:100%;">
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button type="button" onclick="document.getElementById('post-modal').style.display='none'"
+                style="background:#f3f4f6;color:#374151;border:none;padding:10px 20px;border-radius:9px;font-size:.875rem;font-weight:700;cursor:pointer;font-family:inherit;">Cancel</button>
+        <button type="submit"
+                style="background:#1B5EC7;color:#fff;border:none;padding:10px 24px;border-radius:9px;font-size:.875rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .18s;">Publish Post</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 
-<div id="loading" style="text-align:center; display:none;">
-    <p>Loading projects...</p>
+<!-- ── Quick-Message Modal ─────────────────────────────────────────── -->
+<div id="qm-overlay" class="qm-overlay" role="dialog" aria-modal="true" aria-labelledby="qm-title">
+  <div class="qm-modal">
+    <button class="qm-modal__close" onclick="qmClose()" aria-label="Close">✕</button>
+    <h3 class="qm-modal__title" id="qm-title">Send a Message</h3>
+    <p class="qm-modal__sub" id="qm-sub"></p>
+    <div class="qm-modal__chips" id="qm-chips"></div>
+    <form id="qm-form" method="POST" action="">
+      {% csrf_token %}
+      <input type="hidden" name="message" id="qm-hidden-msg">
+      <textarea id="qm-textarea" name="message_text" rows="4" placeholder="Type your message here…"></textarea>
+      <div class="qm-modal__actions">
+        <button type="button" class="oc-btn oc-btn--outline" onclick="qmClose()">Cancel</button>
+        <button type="submit" class="oc-btn oc-btn--primary" id="qm-submit">Send</button>
+      </div>
+    </form>
+  </div>
 </div>
-                
-<!-- #### -->
-                <div class="that-viewed">
-                    <h3>Who viewed your Profile</h3>
-                    <div class="title-container">
-                        <div class="tile">
-                            {% if recent_viewers %}
-                                {% for view in recent_viewers %}
-                                <div class="viewer-card">
-                                 
-                                    <img src="{{ view.viewer.profile.image.url}}" onerror="this.onerror=null; this.src='{% static 'images/bg2.jpg' %}'" alt="Profile Picture6">
-                                    
-                                    <span>
-                                        <strong>{{ view.viewer.first_name|default:"John" }} {{ view.viewer.last_name|default:"Doe" }}</strong>
-                                    </span>
-                
-                                    <div class="tiles-about">
-                                        <p>{{ view.viewer.profile.bio|truncatewords:10|default:"Entrepreneur interested in tech and startups." }}</p>
-                                    </div>
-                
-                                    <button>
-                                        <a href="{% url 'profile_view' id=view.viewer.id %}" class="connect-btn">Connect +</a>
-                                    </button>
-                                </div>
-                                {% endfor %}
-                            {% else %}
-                                <!-- Auto-Generated Sample Viewer -->
-                                <div class="viewer-card">
-                                    <img src="{{ view.viewer.profile.image.url }}" 
-                                    onerror="this.onerror=null; this.src='{% static 'images/bg2.jpg' %}'" 
-                                    alt="Profile Picture6" 
-                                    style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
-                               
-                                    <span><strong>Jane Smith</strong></span>
-                                    <div class="tiles-about">
-                                        <p>Innovative thinker exploring AI and entrepreneurship.</p>
-                                    </div>
-                                    <button>
-                                        <a href="#" class="connect-btn">Connect +</a>
-                                    </button>
-                                </div>
-                            {% endif %}
-                        </div>
-                        <!--  ###########-->
-                        
-                        <!-- ########## -->
-                        {% for view in recent_viewers|slice:":3" %}
-                        <div class="tile">
-                            <div class="viewer-card">
-                                <img src="{{ view.viewer.profile.image.url }}" 
-                                    onerror="this.onerror=null; this.src='{% static 'images/bg2.jpg' %}'" 
-                                    alt="Profile Picture6" 
-                                    style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
 
-                                <span>
-                                    <strong>{{ view.viewer.first_name|default:"John" }} {{ view.viewer.last_name|default:"Doe" }}</strong>
-                                </span>
-                                <div class="tiles-about">
-                                    <p>{{ view.viewer.profile.bio|truncatewords:10|default:"Entrepreneur interested in tech and startups." }}</p>
-                                </div>
-                                <button>
-                                    <a href="{% url 'profile_view' id=view.viewer.id %}" class="connect-btn">Connect +</a>
-                                </button>
-                            </div>
-                        </div>
-                        {% empty %}
-                            {% for i in "123" %}  {# Generates 3 sample viewers #}
-                                <div class="tile">
-                                    <div class="viewer-card">
-                                        <img src="{{ view.viewer.profile.image.url }}" 
-                                        onerror="this.onerror=null; this.src='{% static 'images/bg2.jpg' %}'" 
-                                        alt="Profile Picture6" 
-                                        style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
-                                                                           <span><strong>Sample User {{ i }}</strong></span>
-                                        <div class="tiles-about">
-                                            <p>Innovative thinker exploring AI and entrepreneurship.</p>
-                                        </div>
-                                        <button>
-                                            <a href="#" class="connect-btn">Connect +</a>
-                                        </button>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        {% endfor %}
+<script>
+var QM_TEMPLATES = {
+  collaborate: {
+    title: 'Request to Collaborate',
+    sub: 'Tell the innovator how you want to help.',
+    submitLabel: 'Send Collaboration Request',
+    chips: [
+      'I\u2019d like to collaborate on this project.',
+      'I have skills that complement this project.',
+      'I can contribute as a developer / designer.',
+      'I\u2019d love to discuss partnership opportunities.',
+      'I have resources that could help move this forward.',
+    ],
+  },
+  proposal: {
+    title: 'Send Investment Proposal',
+    sub: 'Express your investment interest quickly.',
+    submitLabel: 'Send Proposal',
+    chips: [
+      'I\u2019m interested in investing in this project.',
+      'I\u2019d like to schedule a call to discuss funding.',
+      'This aligns with my investment portfolio.',
+      'I can offer seed funding \u2014 let\u2019s talk.',
+      'I\u2019d like to review your financials before committing.',
+    ],
+  },
+  patent: {
+    title: 'Ask About Patent Support',
+    sub: 'Ask the innovator about protecting their idea.',
+    submitLabel: 'Send Message',
+    chips: [
+      'Have you considered filing a patent for this?',
+      'I can connect you with a patent attorney.',
+      'Let\u2019s discuss protecting your intellectual property.',
+      'I\u2019d like to help you file a provisional patent.',
+      'Do you have IP protection in place for this invention?',
+    ],
+  },
+};
 
-                    </div>
-                </div>
-                
-                
-                <div class="suggestions-section card">
-                    {% include '_partials/suggestions.html' %}
-                </div>
-                
+function qmOpen(type, projectTitle, projectId, actionUrl) {
+  var cfg = QM_TEMPLATES[type];
+  if (!cfg) return;
+  document.getElementById('qm-title').textContent = cfg.title + (projectTitle ? ' \u2014 ' + projectTitle : '');
+  document.getElementById('qm-sub').textContent   = cfg.sub;
+  document.getElementById('qm-submit').textContent = cfg.submitLabel;
+  document.getElementById('qm-form').action        = actionUrl;
+  document.getElementById('qm-textarea').value     = '';
+  document.getElementById('qm-hidden-msg').value   = '';
+  var chipsEl = document.getElementById('qm-chips');
+  chipsEl.innerHTML = '';
+  cfg.chips.forEach(function(text) {
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'qm-chip';
+    chip.textContent = text;
+    chip.onclick = function() {
+      document.querySelectorAll('.qm-chip').forEach(function(c){ c.classList.remove('active'); });
+      chip.classList.add('active');
+      document.getElementById('qm-textarea').value = text;
+    };
+    chipsEl.appendChild(chip);
+  });
+  document.getElementById('qm-overlay').classList.add('open');
+  setTimeout(function(){ document.getElementById('qm-textarea').focus(); }, 80);
+}
 
-                <!-- old -->
-                
+function qmClose() {
+  document.getElementById('qm-overlay').classList.remove('open');
+}
+document.getElementById('qm-overlay').addEventListener('click', function(e) {
+  if (e.target === this) qmClose();
+});
+document.getElementById('qm-form').addEventListener('submit', function() {
+  document.getElementById('qm-hidden-msg').value = document.getElementById('qm-textarea').value;
+});
 
-            </div>
-            <div class="right section">
-                <span>Proposals</span>
-                <hr>
-                <div class="proposal-section">
-                    {% for proposal in proposals %}
-                    <div class="tile">
-                        <div class="info">
-                            <img src="{{ proposal.image.url }}" alt="Proposal Image" class="proposal-image">
-                            
-                            <strong>{{ proposal.investor.get_full_name }}</strong>
-
-                        </div>
-                        <div class="titles-about">
-                            <p><strong>About:</strong> {{ proposal.about|truncatewords:15 }}</p>
-    
-                        </div>
-                        <div class="interest-section">
-                            <span>Interests: {{ proposal.interests }}</span>
-                            <span>Views: {{ proposal.views }}</span>
-                            <span>Reposts: {{ proposal.reposts }}</span>
-                            <span>Likes: {{ proposal.likes }}</span>
-                        </div>
-                        <div class="action-section">
-                            <button class="btn btn-primary">Reply</button>
-                            <button class="btn btn-secondary">Attach</button>
-                            <select class="status-dropdown">
-                                <option value="on-hold">On-hold</option>
-                                <option value="accept">Accept</option>
-                                <option value="counter">Counter</option>
-                                <option value="request-details">Request details</option>
-                            </select>
-    
-                        </div>
-                    </div>
-                    {% empty %}
-                        <p>No proposals available.</p>
-                    {% endfor %}
-                    
-                </div>
-                
-                <span>Proposals</span>
-                <hr>
-                <div class="proposal-section">
-                    <div class="tile">
-                        <div class="info">
-                            <img src="{% static 'images/iamger5.jpg' %}" alt="profile-icon" srcset="">
-                            <span>Investor 1</span>
-                        </div>
-                        <div class="titles-about"><span>About:</span>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Provident, culpa.
-                        </div>
-                        <div class="interest-section">
-                            <span>Interests #</span>
-                            <span>Views #</span>
-                            <span>Repost #</span>
-                            <span>Likes #</span>
-                        </div>
-                        <div class="action-section">
-                            <button type="button">Reply</button>
-                            <button type="button">Attach</button>
-                            <select name="" id="">
-                                <option value="On Hold">On Hold</option>
-                                <option value="Accept">Accept</option>
-                                <option value="Counter">Counter</option>
-                                <option value="Request details">Request details</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </section>
-
-<div id="footer"></div>
-
-</body>
-
-
-</html>
-
-{%endblock content%}
+/* Close dropdown menus on outside click */
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.ap-options-menu') && !e.target.classList.contains('ap-options-trigger')) {
+    document.querySelectorAll('.ap-options-menu').forEach(function(m){ m.style.display = 'none'; });
+  }
+});
+</script>
+{% endblock %}

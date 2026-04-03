@@ -27,6 +27,8 @@ from .views import innovators_view
 
 urlpatterns = [
     path('edit-profile/', views.edit_profile, name='edit_profile'),
+    path('admin/contact-submissions/', views.contact_submissions, name='contact_submissions'),
+    path('admin/contact-submissions/<int:sub_id>/reply/', views.reply_contact_submission, name='reply_contact_submission'),
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path('app/', views.app_view, name='app'),
@@ -48,7 +50,7 @@ urlpatterns = [
     path("update_password/", views.update_password, name="update_password"),
 
     #company suggestions
-    path('edit_profile/', edit_profile, name='edit_profile'),
+    # edit_profile already registered above as 'edit-profile/'
 
     # Authentication
     path('register/', register, name='register'),
@@ -66,6 +68,7 @@ urlpatterns = [
     path('profile/', views.my_profile_view, name='my_profile'),
 
     path('project/<int:project_id>/edit/', views.edit_project, name='edit_project'),
+    path('attachment/<int:attachment_id>/edit/', views.edit_attachment, name='edit_attachment'),
 
     # path('edit_project/<int:project_id>/', views.edit_project, name='edit_project'),
     # path('delete_project/<int:project_id>/', views.delete_project, name='delete_project'),
@@ -75,7 +78,7 @@ urlpatterns = [
 
     path('investors/', views.investors_view, name='investors'),
     path('investors/industry/<str:industry_name>/', views.investors_by_industry_view, name='investors_by_industry'),
-    path('investors/by-industry/', views.investors_by_industry, name='investors_by_industry'),
+    path('investors/by-industry/', views.investors_by_industry, name='investors_by_industry_generic'),
 
     ##all users
     # path('networks/', views.networks_view, name='networks'),
@@ -91,6 +94,7 @@ urlpatterns = [
     path('user/<int:user_id>/', UserProfileView.as_view(), name='user_profile'),
 
     path('projects/<int:pk>/', views.project_detail, name='project_detail'),
+    path('projects/<int:pk>/request-progression/', views.request_stage_progression, name='request_stage_progression'),
 
 
     path('filter/industry/<str:industry>/', views.filter_by_industry, name='filter_by_industry'),
@@ -134,6 +138,220 @@ urlpatterns = [
 
 
     path('api/projects/', views.get_projects_data, name='get_projects_data'),
+
+    path('faq/', TemplateView.as_view(template_name='faq.html'), name='faq'),
+    path('privacy/', TemplateView.as_view(template_name='privacy_policy.html'), name='privacy_policy'),
+    path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
+    path('service-worker.js', views.service_worker, name='service_worker'),
+
+    # Profile alias
+    path('profile/me/', views.profile_alias, name='profile'),
+
+    # Project list
+    path('projects/', views.project_list, name='project_list'),
+    path('projects/create/', views.create_project, name='create_project'),
+
+    # Meetings
+    path('meetings/', views.meetings_list, name='meetings_list'),
+    path('meetings/create/', views.create_meeting, name='create_meeting'),
+    path('meetings/<int:meeting_id>/join/', views.join_meeting, name='join_meeting'),
+
+    # Investor dashboard + investor actions
+    path('investor/dashboard/', views.investor_dashboard, name='investor_dashboard'),
+    path('investor/profile/update/', views.update_investor_profile, name='update_investor_profile'),
+    path('projects/<int:pk>/request-pitch/', views.request_pitch, name='request_pitch'),
+    path('projects/<int:pk>/interest/', views.toggle_project_interest, name='toggle_project_interest'),
+
+    # Proposals
+    path('proposals/', views.proposals_list, name='proposals_list'),
+
+    # Connections
+    path('connections/<int:conn_id>/accept/', views.accept_connection, name='accept_connection'),
+    path('connections/<int:conn_id>/reject/', views.reject_connection, name='reject_connection'),
+
+    # Comments
+    path('comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
+    path('comment/<int:comment_id>/edit/', views.edit_comment, name='edit_comment'),
+
+    # Messages
+    path('messages/<int:message_id>/', views.message_detail, name='message_detail'),
+    path('messages/<int:message_id>/delete/', views.delete_message, name='delete_message'),
+    path('messages/<int:message_id>/react/', views.toggle_message_reaction, name='toggle_message_reaction'),
+
+    # Contact submissions (also registered above admin/ to take priority)
+
+    # Admin panel
+    path('admin-panel/', views.admin_panel, name='admin_panel'),
+    path('admin-panel/toggle-view/', views.toggle_admin_view, name='toggle_admin_view'),
+    path('admin-panel/event/add/', views.admin_add_event, name='admin_add_event'),
+    path('admin-panel/job/add/', views.admin_add_job, name='admin_add_job'),
+    path('admin-panel/news/add/', views.admin_add_news, name='admin_add_news'),
+    path('admin-panel/sub-admin/add/', views.admin_add_sub_admin, name='admin_add_sub_admin'),
+    path('admin-panel/notification/broadcast/', views.admin_broadcast_notification, name='admin_broadcast_notification'),
+    path('admin-panel/project/<int:project_id>/status/', views.admin_change_project_status, name='admin_change_project_status'),
+    path('admin-panel/user/<int:user_id>/role/', views.admin_change_role, name='admin_change_role'),
+    path('admin-panel/comment/<int:comment_id>/edit/', views.admin_edit_comment, name='admin_edit_comment'),
+    path('admin-panel/event/<int:event_id>/edit/', views.admin_edit_event, name='admin_edit_event'),
+    path('admin-panel/group/<int:group_id>/edit/', views.admin_edit_group, name='admin_edit_group'),
+    path('admin-panel/job/<int:job_id>/edit/', views.admin_edit_job, name='admin_edit_job'),
+    path('admin-panel/message/<int:message_id>/edit/', views.admin_edit_message, name='admin_edit_message'),
+    path('admin-panel/news/<int:news_id>/edit/', views.admin_edit_news, name='admin_edit_news'),
+    path('admin-panel/page/<int:page_id>/edit/', views.admin_edit_page, name='admin_edit_page'),
+    path('admin-panel/post/<int:post_id>/edit/', views.admin_edit_post, name='admin_edit_post'),
+    path('admin-panel/project/<int:project_id>/edit/', views.admin_edit_project, name='admin_edit_project'),
+    path('admin-panel/event/<int:event_id>/attendees/', views.admin_event_attendees, name='admin_event_attendees'),
+    path('admin-panel/message/<int:message_id>/flag/', views.admin_flag_message, name='admin_flag_message'),
+    path('admin-panel/sub-admin/<int:user_id>/manage/', views.admin_manage_sub_admin, name='admin_manage_sub_admin'),
+    path('admin-panel/user/<int:user_id>/reset-password/', views.admin_reset_user_password, name='admin_reset_user_password'),
+    path('admin-panel/user/<int:user_id>/set-password/', views.admin_set_user_password, name='admin_set_user_password'),
+    path('admin-panel/comment/<int:comment_id>/hide/', views.admin_toggle_hide_comment, name='admin_toggle_hide_comment'),
+    path('admin-panel/event/<int:event_id>/hide/', views.admin_toggle_hide_event, name='admin_toggle_hide_event'),
+    path('admin-panel/group/<int:group_id>/hide/', views.admin_toggle_hide_group, name='admin_toggle_hide_group'),
+    path('admin-panel/job/<int:job_id>/hide/', views.admin_toggle_hide_job, name='admin_toggle_hide_job'),
+    path('admin-panel/message/<int:message_id>/hide/', views.admin_toggle_hide_message, name='admin_toggle_hide_message'),
+    path('admin-panel/news/<int:news_id>/hide/', views.admin_toggle_hide_news, name='admin_toggle_hide_news'),
+    path('admin-panel/page/<int:page_id>/hide/', views.admin_toggle_hide_page, name='admin_toggle_hide_page'),
+    path('admin-panel/post/<int:post_id>/hide/', views.admin_toggle_hide_post, name='admin_toggle_hide_post'),
+    path('admin-panel/post-comment/<int:comment_id>/hide/', views.admin_toggle_hide_post_comment, name='admin_toggle_hide_post_comment'),
+    path('admin-panel/project/<int:project_id>/hide/', views.admin_toggle_hide_project, name='admin_toggle_hide_project'),
+    path('admin-panel/user/<int:user_id>/hide/', views.admin_toggle_hide_user, name='admin_toggle_hide_user'),
+    path('admin-panel/user/<int:user_id>/toggle/', views.admin_toggle_user, name='admin_toggle_user'),
+    path('admin-panel/message/<int:message_id>/unflag/', views.admin_unflag_message, name='admin_unflag_message'),
+    # Admin delete actions
+    path('admin-panel/user/<int:user_id>/delete/',           views.admin_delete_user,       name='admin_delete_user'),
+    path('admin-panel/project/<int:project_id>/delete/',     views.admin_delete_project,    name='admin_delete_project'),
+    path('admin-panel/post/<int:post_id>/delete/',           views.admin_delete_post,       name='admin_delete_post'),
+    path('admin-panel/event/<int:event_id>/delete/',         views.admin_delete_event,      name='admin_delete_event'),
+    path('admin-panel/news/<int:news_id>/delete/',           views.admin_delete_news,       name='admin_delete_news'),
+    path('admin-panel/job/<int:job_id>/delete/',             views.admin_delete_job,        name='admin_delete_job'),
+    path('admin-panel/connection/<int:connection_id>/delete/', views.admin_delete_connection, name='admin_delete_connection'),
+    path('admin-panel/comment/<int:comment_id>/delete/',     views.admin_delete_comment,    name='admin_delete_comment'),
+    path('admin-panel/group/<int:group_id>/delete/',         views.admin_delete_group,      name='admin_delete_group'),
+    path('admin-panel/page/<int:page_id>/delete/',           views.admin_delete_page,       name='admin_delete_page'),
+    path('admin-panel/sub-admin/<int:user_id>/remove/',      views.admin_remove_sub_admin,  name='admin_remove_sub_admin'),
+    # Pipeline stage approvals
+    path('admin-panel/stage-approvals/', views.admin_stage_approvals, name='admin_stage_approvals'),
+    path('admin-panel/stage-approval/<int:req_id>/approve/', views.admin_approve_stage, name='admin_approve_stage'),
+    path('admin-panel/stage-approval/<int:req_id>/reject/', views.admin_reject_stage, name='admin_reject_stage'),
+    # Verification & project reviews
+    path('verification/request/', views.submit_verification_request, name='submit_verification_request'),
+    path('projects/<int:pk>/submit-review/', views.submit_project_for_review, name='submit_project_for_review'),
+    path('admin-panel/verifications/', views.admin_verification_queue, name='admin_verification_queue'),
+    path('admin-panel/verification/<int:req_id>/approve/', views.admin_approve_verification, name='admin_approve_verification'),
+    path('admin-panel/verification/<int:req_id>/reject/', views.admin_reject_verification, name='admin_reject_verification'),
+    path('admin-panel/project-reviews/', views.admin_project_review_queue, name='admin_project_review_queue'),
+    path('admin-panel/project/<int:pk>/review-status/', views.admin_set_project_review_status, name='admin_set_project_review_status'),
+
+    # Companies
+    path('companies/', views.companies_list, name='companies_list'),
+    path('companies/create/', views.create_company, name='create_company'),
+    path('company/<int:company_id>/', views.company_profile, name='company_profile'),
+    path('company/<int:company_id>/edit/', views.company_edit, name='company_edit'),
+    path('company/<int:company_id>/follow/', views.company_follow, name='company_follow'),
+    path('company/<int:company_id>/post/', views.company_post_update, name='company_post_update'),
+    path('company/<int:company_id>/media/upload/', views.company_upload_media, name='company_upload_media'),
+    path('company/<int:company_id>/media/<int:media_id>/delete/', views.company_delete_media, name='company_delete_media'),
+    path('company/<int:company_id>/update/<int:update_id>/delete/', views.company_delete_update, name='company_delete_update'),
+
+    # Groups
+    path('groups/', views.groups_list, name='groups_list'),
+    path('groups/create/', views.group_create, name='group_create'),
+    path('groups/<int:group_id>/', views.group_detail, name='group_detail'),
+    path('groups/<int:group_id>/discussions/<int:discussion_id>/', views.group_discussion_detail, name='group_discussion_detail'),
+    path('groups/<int:group_id>/discussions/<int:discussion_id>/media/', views.group_discussion_media, name='group_discussion_media'),
+    path('groups/<int:group_id>/discussions/<int:discussion_id>/react/', views.group_discussion_react, name='group_discussion_react'),
+    path('groups/<int:group_id>/invite/', views.group_invite, name='group_invite'),
+    path('groups/<int:group_id>/join/', views.group_join_request, name='group_join_request'),
+    path('groups/<int:group_id>/leave/', views.group_leave, name='group_leave'),
+    path('groups/<int:group_id>/post/', views.group_post_discussion, name='group_post_discussion'),
+    path('groups/<int:group_id>/respond/<int:member_id>/', views.group_respond, name='group_respond'),
+    path('groups/<int:group_id>/accept/', views.group_accept_invite, name='group_accept_invite'),
+    path('groups/<int:group_id>/discussions/<int:discussion_id>/comments/<int:comment_id>/react/', views.group_comment_react, name='group_comment_react'),
+
+    # Innovator page / profile
+    path('innovator/page/', views.innovator_page, name='innovator_page'),
+    path('innovator/<int:user_id>/profile/', views.innovator_profile, name='innovator_profile'),
+
+    # My businesses
+    path('my-businesses/', views.my_businesses, name='my_businesses'),
+
+    # Pages
+    path('pages/', views.pages_list, name='pages_list'),
+    path('pages/create/', views.page_create, name='page_create'),
+    path('pages/<int:page_id>/', views.page_detail, name='page_detail'),
+    path('pages/<int:page_id>/media/<int:post_id>/', views.page_post_media, name='page_post_media'),
+
+    # Posts
+    path('posts/<int:post_id>/', views.post_detail, name='post_detail'),
+    path('posts/<int:post_id>/edit/', views.edit_post, name='edit_post'),
+    path('posts/<int:post_id>/delete/', views.delete_post, name='delete_post'),
+    path('posts/<int:post_id>/media/', views.post_media, name='post_media'),
+    path('posts/<int:post_id>/interest/', views.toggle_post_interest, name='toggle_post_interest'),
+    path('posts/<int:post_id>/like/', views.toggle_post_like, name='toggle_post_like'),
+    path('posts/<int:post_id>/repost/', views.toggle_post_repost, name='toggle_post_repost'),
+    path('posts/<int:post_id>/conversation/', views.start_post_conversation, name='start_post_conversation'),
+    path('posts/<int:post_id>/comment/', views.add_comment, name='add_comment'),
+
+    # Project actions
+    path('projects/<int:project_id>/collaborate/', views.project_collaborate, name='project_collaborate'),
+    path('projects/<int:project_id>/proposal/', views.project_send_proposal, name='project_send_proposal'),
+    path('projects/<int:project_id>/comment/', views.add_project_comment, name='add_project_comment'),
+
+    # Attachment download tracking
+    path('attachments/<int:attachment_id>/download/', views.download_attachment, name='download_attachment'),
+
+    # Jobs
+    path('jobs/post/',              views.user_post_job, name='user_post_job'),
+    path('jobs/create/',            views.user_post_job, name='create_job'),
+    path('jobs/<int:pk>/',          views.job_detail,    name='job_detail'),
+
+    # User view alias
+    path('users/<int:user_id>/', views.view_user, name='view_user'),
+
+    # Project AI description generator
+    path('projects/generate-description/', views.generate_project_description, name='generate_project_description'),
+
+    # Odu chatbot + feedback
+    path('odu/chat/', views.odu_chat, name='odu_chat'),
+    path('odu/feedback/', views.submit_feedback, name='submit_feedback'),
+
+    # Share tracking
+    path('track/share/', views.track_share, name='track_share'),
+
+    # Read Later
+    path('read-later/', views.read_later_list, name='read_later_list'),
+    path('read-later/toggle/', views.toggle_read_later, name='toggle_read_later'),
+    path('read-later/<int:item_id>/remove/', views.remove_read_later, name='remove_read_later'),
+
+    # ── Oduma Corp Services ──────────────────────────────────────────────────
+    # Training
+    path('training/',                                     views.training_hub,            name='training_hub'),
+    path('training/<slug:slug>/',                         views.course_detail,           name='course_detail'),
+    path('training/<slug:slug>/enroll/',                  views.enroll_course,           name='enroll_course'),
+    path('training/<slug:slug>/progress/',                views.update_course_progress,  name='update_course_progress'),
+    # Mentorship
+    path('mentorship/',                                   views.mentorship_hub,          name='mentorship_hub'),
+    path('mentorship/request/<int:mentor_id>/',           views.request_mentor,          name='request_mentor'),
+    # Consulting
+    path('consulting/',                                   views.request_consulting,      name='request_consulting'),
+    path('consulting/project/<int:project_id>/',          views.request_consulting,      name='request_consulting_for_project'),
+    path('consulting/my/',                                views.my_consulting_requests,  name='my_consulting_requests'),
+    # Events hub
+    path('events-hub/',                                   views.events_hub,              name='events_hub'),
+    path('events-hub/<int:event_id>/register/',           views.register_for_event,      name='register_for_event'),
+    # Matching
+    path('matches/',                                      views.top_matches_for_investor, name='top_matches_for_investor'),
+    path('projects/<int:pk>/investor-matches/',           views.project_investor_matches, name='project_investor_matches'),
+    # Innovator dashboard
+    path('innovator/dashboard/',                          views.innovator_dashboard,     name='innovator_dashboard'),
+
+    # Innovator agreement workflow
+    path('proposals/<int:proposal_id>/agree/',   views.agree_to_proposal,      name='agree_to_proposal'),
+    path('proposals/<int:proposal_id>/decline/', views.decline_proposal,        name='decline_proposal'),
+    path('proposals/<int:proposal_id>/action/', views.proposal_action,          name='proposal_action'),
+    path('collaborations/<int:collab_id>/agree/',   views.agree_to_collaboration, name='agree_to_collaboration'),
+    path('collaborations/<int:collab_id>/decline/', views.decline_collaboration,  name='decline_collaboration'),
+    path('patent-requests/<int:pr_id>/agree/', views.agree_to_patent_request, name='agree_to_patent_request'),
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

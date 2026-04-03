@@ -1,9 +1,326 @@
 {% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Edit — {{ project.title }}{% endblock %}
+
 {% block content %}
-<h2>Edit Project: {{ project.title }}</h2>
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-</form>
+<div class="ep-page">
+
+  <!-- Breadcrumbs -->
+  <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+    <ol class="oc-breadcrumbs__list">
+      <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><a href="{% url 'project_detail' project.pk %}" class="oc-breadcrumbs__link">{{ project.title }}</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Edit</span></li>
+    </ol>
+  </nav>
+
+  <div class="ep-card">
+    <h1 class="ep-title">Edit Project</h1>
+
+    {% if messages %}
+      {% for msg in messages %}
+      <div class="ep-msg ep-msg--{{ msg.tags }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- ── Basic info ── -->
+      <fieldset class="ep-section">
+        <legend class="ep-legend">Basic Information</legend>
+
+        <div class="ep-field">
+          <label class="ep-label">Project Title *</label>
+          <input type="text" name="title" class="oc-input" value="{{ project.title }}" required maxlength="255" />
+        </div>
+
+        <div class="ep-row">
+          <div class="ep-field">
+            <label class="ep-label">Industry *</label>
+            <select name="industry" class="oc-select" required>
+              {% for val, label in form.fields.industry.choices %}
+              <option value="{{ val }}" {% if project.industry == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="ep-field">
+            <label class="ep-label">Category</label>
+            <select name="category" class="oc-select">
+              <option value="innovation" {% if project.category == 'innovation' %}selected{% endif %}>Innovation</option>
+              <option value="invention" {% if project.category == 'invention' %}selected{% endif %}>Invention</option>
+            </select>
+          </div>
+          <div class="ep-field">
+            <label class="ep-label">Status</label>
+            <select name="status" class="oc-select">
+              <option value="draft" {% if project.status == 'draft' %}selected{% endif %}>Draft</option>
+              <option value="in_progress" {% if project.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+              <option value="completed" {% if project.status == 'completed' %}selected{% endif %}>Completed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ep-field">
+          <label class="ep-label">Description *</label>
+          <textarea name="description" class="oc-textarea" rows="5" required>{{ project.description }}</textarea>
+        </div>
+
+        <div class="ep-field">
+          <label class="ep-label">Website / Demo URL</label>
+          <input type="url" name="website_link" class="oc-input" value="{{ project.website_link|default:'' }}" placeholder="https://yourproject.com" />
+        </div>
+      </fieldset>
+
+      <!-- ── SEO ── -->
+      <fieldset class="ep-section">
+        <legend class="ep-legend">SEO &amp; Discovery</legend>
+        <div class="ep-field">
+          <label class="ep-label">
+            Keywords
+            <span class="ep-hint">Comma-separated keywords for search engines and filters.</span>
+          </label>
+          <input type="text" name="keywords" class="oc-input" value="{{ project.keywords|default:'' }}" placeholder="e.g. fintech, mobile, payments, Africa" maxlength="500" />
+        </div>
+      </fieldset>
+
+      <!-- ── Video ── -->
+      <fieldset class="ep-section">
+        <legend class="ep-legend">Video</legend>
+        {% if project.video %}
+        <div class="ep-current-video">
+          <video controls style="max-height:180px;border-radius:8px;background:#000;">
+            <source src="{{ project.video.url }}">
+          </video>
+          <p class="ep-current-label">Current video: {{ project.video_name|default:project.video.name }}</p>
+        </div>
+        {% endif %}
+        <div class="ep-row">
+          <div class="ep-field">
+            <label class="ep-label">Replace Video</label>
+            <input type="file" name="video" accept="video/mp4,video/webm,video/quicktime" class="oc-input" />
+          </div>
+          <div class="ep-field">
+            <label class="ep-label">
+              Video Name
+              <span class="ep-hint">Shown below video; used for SEO.</span>
+            </label>
+            <input type="text" name="video_name" class="oc-input" value="{{ project.video_name|default:'' }}" placeholder="e.g. Product Demo v2" maxlength="255" />
+          </div>
+        </div>
+        <div class="ep-field">
+          <label class="ep-label">Video Description</label>
+          <textarea name="video_description" class="oc-textarea" rows="2" placeholder="Brief description of the video…">{{ project.video_description|default:'' }}</textarea>
+        </div>
+      </fieldset>
+
+      <!-- ── Investment Profile / Pitch Deck ── -->
+      <fieldset class="ep-section" id="pitch-deck">
+        <legend class="ep-legend">
+          Investment Profile
+          <span style="font-size:.75rem;font-weight:400;color:#6b7280;margin-left:8px;">— pitch deck sections</span>
+        </legend>
+
+        {% with score=project.completeness_score readiness=project.investment_readiness %}
+        <div style="display:flex;align-items:center;gap:12px;background:#f4f7fb;border:1px solid #e0e8f4;border-radius:10px;padding:14px 18px;margin-bottom:20px;flex-wrap:wrap;">
+          <span class="ir-badge ir-badge--{{ readiness.1 }}">{{ readiness.0 }}</span>
+          <div style="flex:1;min-width:120px;">
+            <div style="display:flex;justify-content:space-between;font-size:.75rem;font-weight:700;color:#6b7280;margin-bottom:5px;">
+              <span>Profile completeness</span><span style="color:#1B5EC7;">{{ score }}%</span>
+            </div>
+            <div style="height:6px;background:#e5e7eb;border-radius:4px;overflow:hidden;">
+              <div style="height:100%;border-radius:4px;background:linear-gradient(90deg,#1B5EC7,#3b82f6);width:{{ score }}%;transition:width .4s;"></div>
+            </div>
+          </div>
+        </div>
+        {% endwith %}
+
+        <div class="ep-field">
+          <label class="ep-label">1. Problem Statement</label>
+          <span class="ep-hint">What pain point or gap does your project address?</span>
+          <textarea name="problem_statement" class="oc-textarea" rows="4"
+            placeholder="What problem does your project solve? Who suffers from it and why does it matter?">{{ project.problem_statement }}</textarea>
+        </div>
+
+        <div class="ep-field">
+          <label class="ep-label">2. Solution Overview</label>
+          <span class="ep-hint">How does your product or service solve the problem?</span>
+          <textarea name="solution_overview" class="oc-textarea" rows="4"
+            placeholder="Core technology, approach, key differentiator…">{{ project.solution_overview }}</textarea>
+        </div>
+
+        <div class="ep-field">
+          <label class="ep-label">3. Market Opportunity</label>
+          <span class="ep-hint">TAM / SAM / SOM and target customer profile.</span>
+          <textarea name="market_opportunity" class="oc-textarea" rows="4"
+            placeholder="How big is the market? Who are your target customers?">{{ project.market_opportunity }}</textarea>
+        </div>
+
+        <div class="ep-field">
+          <label class="ep-label">4. Business Model</label>
+          <span class="ep-hint">How will you generate revenue?</span>
+          <textarea name="business_model" class="oc-textarea" rows="4"
+            placeholder="Subscriptions, licensing, hardware, B2B, marketplace…">{{ project.business_model }}</textarea>
+        </div>
+
+        <div class="ep-field">
+          <label class="ep-label">5. Traction &amp; Validation</label>
+          <span class="ep-hint">Proof points — customers, pilots, revenue, partnerships, press.</span>
+          <textarea name="traction" class="oc-textarea" rows="4"
+            placeholder="Pilots, revenue, users, partnerships, awards, IP filed…">{{ project.traction }}</textarea>
+        </div>
+
+        <div class="ep-field">
+          <label class="ep-label">6. Funding Requirement</label>
+          <span class="ep-hint">How much are you raising and at what stage?</span>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;">
+            <input type="text" name="funding_requirement" class="oc-input"
+              placeholder="e.g. $250,000 seed round" value="{{ project.funding_requirement }}" />
+            <select name="funding_stage" class="oc-select" style="min-width:150px;">
+              <option value="">Funding Stage</option>
+              <option value="pre_seed" {% if project.funding_stage == 'pre_seed' %}selected{% endif %}>Pre-Seed</option>
+              <option value="seed" {% if project.funding_stage == 'seed' %}selected{% endif %}>Seed</option>
+              <option value="pre_series_a" {% if project.funding_stage == 'pre_series_a' %}selected{% endif %}>Pre-Series A</option>
+              <option value="series_a" {% if project.funding_stage == 'series_a' %}selected{% endif %}>Series A</option>
+              <option value="series_b" {% if project.funding_stage == 'series_b' %}selected{% endif %}>Series B+</option>
+              <option value="grant" {% if project.funding_stage == 'grant' %}selected{% endif %}>Grant / Non-dilutive</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ep-field">
+          <label class="ep-label">7. Use of Funds</label>
+          <span class="ep-hint">How will the investment be allocated?</span>
+          <textarea name="use_of_funds" class="oc-textarea" rows="4"
+            placeholder="e.g. 40% product, 30% marketing, 30% operations…">{{ project.use_of_funds }}</textarea>
+        </div>
+
+        <div class="ep-field">
+          <label class="ep-label">8. Team</label>
+          <span class="ep-hint">Who is building this? Why this team?</span>
+          <textarea name="team_overview" class="oc-textarea" rows="4"
+            placeholder="Roles, relevant experience, why this team?">{{ project.team_overview }}</textarea>
+        </div>
+      </fieldset>
+
+      <div class="ep-actions">
+        <a href="{% url 'project_detail' project.pk %}" class="oc-btn oc-btn--outline">Cancel</a>
+        <button type="submit" class="oc-btn oc-btn--primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ── Attachments section ── -->
+  {% with attachments=project.attachments.all %}
+  {% if attachments %}
+  <div class="ep-card" style="margin-top:20px;">
+    <h2 class="ep-section-title">Attachments &amp; Visibility</h2>
+    <p class="ep-hint-text">Control who can see and download each file.</p>
+    <div class="ep-att-list">
+      {% for att in attachments %}
+      <form method="POST" action="{% url 'project_detail' project.pk %}" class="ep-att-item">
+        {% comment %}Inline edit per attachment — uses a sub-form posted to a separate update endpoint if you add one{% endcomment %}
+        <div class="ep-att-icon">
+          {% if att.doc_type == 'financial' %}💰
+          {% elif att.doc_type == 'legal' %}⚖️
+          {% elif att.doc_type == 'pitch' %}📊
+          {% elif att.doc_type == 'technical' %}🔧
+          {% else %}📎{% endif %}
+        </div>
+        <div class="ep-att-info">
+          <span class="ep-att-name">{{ att.title|default:att.file.name }}</span>
+          {% if att.description %}<span class="ep-att-desc">{{ att.description }}</span>{% endif %}
+        </div>
+        <div class="ep-att-controls">
+          <form method="POST" action="{% url 'edit_attachment' att.pk %}" style="display:flex;gap:8px;align-items:center;">
+            {% csrf_token %}
+            <select name="visibility" class="oc-select ep-vis-select" onchange="this.form.submit()">
+              <option value="public"      {% if att.visibility == 'public' %}selected{% endif %}>Public</option>
+              <option value="connections" {% if att.visibility == 'connections' %}selected{% endif %}>Connections only</option>
+              <option value="private"     {% if att.visibility == 'private' %}selected{% endif %}>Private</option>
+            </select>
+          </form>
+        </div>
+      </form>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <!-- ── Images section ── -->
+  <div class="ep-card" style="margin-top:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <h2 class="ep-section-title" style="margin:0;">Images</h2>
+      <a href="{% url 'upload_image' project.pk %}" class="oc-btn oc-btn--primary" style="font-size:0.85rem;padding:7px 16px;">+ Add Image</a>
+    </div>
+    {% with images=project.images.all %}
+    {% if images %}
+    <div class="ep-img-grid">
+      {% for img in images %}
+      <div class="ep-img-item">
+        <div class="oc-img-wrap" style="height:120px;border-radius:10px;overflow:hidden;">
+          <img src="{{ img.image.url }}" alt="{{ img.name|default:project.title }}" style="width:100%;height:100%;object-fit:cover;" />
+          {% if img.name %}<span class="oc-img-caption">{{ img.name }}</span>{% endif %}
+        </div>
+        {% if img.is_main %}<span class="ep-main-badge">Main</span>{% endif %}
+        <span class="ep-img-name-label">{{ img.name|default:"(no name)" }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:#9ca3af;font-family:'Jaldi',sans-serif;font-size:0.9rem;">No images yet. <a href="{% url 'upload_image' project.pk %}">Upload your first image.</a></p>
+    {% endif %}
+    {% endwith %}
+  </div>
+
+</div>
+
+<style>
+.ep-page { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+.ep-card { background: #fff; border-radius: 20px; padding: 28px; box-shadow: 0 2px 16px rgba(0,0,0,.07); }
+.ep-title { font-family: 'Jacques Francois', serif; font-size: 1.5rem; color: #1a1a2e; margin: 0 0 20px; }
+.ep-section-title { font-family: 'Jacques Francois', serif; font-size: 1.05rem; color: #1a1a2e; margin: 0 0 8px; }
+.ep-section { border: none; padding: 0; margin: 0 0 22px; }
+.ep-legend { font-family: 'Jacques Francois', serif; font-size: 0.98rem; color: #1a1a2e; padding: 0 0 6px; margin-bottom: 14px; width: 100%; border-bottom: 1px solid #e5e7eb; }
+.ep-field { margin-bottom: 14px; }
+.ep-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+.ep-label { display: block; font-family: 'Jaldi', sans-serif; font-size: 0.88rem; font-weight: 700; color: #374151; margin-bottom: 5px; }
+.ep-hint { display: block; font-weight: 400; color: #9ca3af; font-size: 0.78rem; margin-top: 1px; }
+.ep-hint-text { font-family: 'Jaldi', sans-serif; font-size: 0.85rem; color: #9ca3af; margin: 0 0 14px; }
+.ep-msg { padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; font-family: 'Jaldi', sans-serif; font-size: 0.88rem; }
+.ep-msg--success { background: #d1fae5; color: #065f46; }
+.ep-msg--error   { background: #fee2e2; color: #991b1b; }
+.ep-current-video { margin-bottom: 12px; }
+.ep-current-label { font-family: 'Jaldi', sans-serif; font-size: 0.82rem; color: #6b7280; margin: 5px 0 0; }
+.ep-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
+
+.ep-att-list { display: flex; flex-direction: column; gap: 10px; }
+.ep-att-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #f8fafc; border-radius: 10px; }
+.ep-att-icon { font-size: 1.3rem; flex-shrink: 0; }
+.ep-att-info { flex: 1; min-width: 0; }
+.ep-att-name { display: block; font-family: 'Jaldi', sans-serif; font-weight: 700; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ep-att-desc { display: block; font-family: 'Jaldi', sans-serif; font-size: 0.78rem; color: #6b7280; }
+.ep-att-controls { flex-shrink: 0; }
+.ep-vis-select { font-size: 0.8rem !important; padding: 5px 10px !important; }
+
+.ep-img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.ep-img-item { display: flex; flex-direction: column; gap: 4px; }
+.ep-main-badge { background: #dbeafe; color: #1e40af; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 50px; width: fit-content; font-family: 'Jaldi', sans-serif; }
+.ep-img-name-label { font-family: 'Jaldi', sans-serif; font-size: 0.76rem; color: #6b7280; }
+
+/* Investment readiness badge (reused from design-system) */
+.ir-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: .72rem; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; padding: 4px 12px; border-radius: 20px;
+  white-space: nowrap;
+}
+.ir-badge--ready     { background: #fef3c7; color: #92400e; }
+.ir-badge--strong    { background: #dcfce7; color: #166534; }
+.ir-badge--developing{ background: #dbeafe; color: #1e40af; }
+.ir-badge--early     { background: #fef9c3; color: #854d0e; }
+.ir-badge--starter   { background: #f3f4f6; color: #6b7280; }
+</style>
 {% endblock %}

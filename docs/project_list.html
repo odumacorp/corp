@@ -1,79 +1,463 @@
 {% extends '_partials/base.html' %}
 {% load static %}
+{% block title %}Projects | Oduma Connect{% endblock %}
 
 {% block content %}
-<div>
-  <form method="get" class="row g-3 mb-4">
-    <div class="col-md-4">
-        <input type="text" name="q" class="form-control" placeholder="Search by title or description" value="{{ current_query }}">
-    </div>
-    <div class="col-md-3">
-        <select name="industry" class="form-select">
-            <option value="">All Industries</option>
-            {% for ind in industries %}
-            <option value="{{ ind }}" {% if ind == current_industry %}selected{% endif %}>{{ ind|title }}</option>
-            {% endfor %}
+<style>
+/* ── Projects List Page ──────────────────────────────────────── */
+:root {
+  --ink: #0A1628;
+  --blue: #1B5EC7;
+  --blue-lt: #e0e8f4;
+  --border: #e4eaf2;
+  --bg: #f4f6fb;
+  --radius: 14px;
+}
+
+.pl-wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* ── Hero bar ─────────────────────────────────────────────────── */
+.pl-hero {
+  background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 60%, #3b82f6 100%);
+  border-radius: 0 0 20px 20px;
+  padding: 36px 32px 32px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.pl-hero::after {
+  content: '';
+  position: absolute;
+  right: -60px; top: -60px;
+  width: 260px; height: 260px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+}
+.pl-hero-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 6px;
+}
+.pl-hero-sub { font-size: .9rem; color: rgba(255,255,255,.7); margin: 0 0 22px; }
+
+/* Search bar */
+.pl-search-row {
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+.pl-search-wrap {
+  flex: 1; min-width: 220px;
+  position: relative;
+}
+.pl-search-wrap svg {
+  position: absolute; left: 14px; top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255,255,255,.5); pointer-events: none;
+}
+.pl-search-input {
+  width: 100%; box-sizing: border-box;
+  padding: 11px 14px 11px 42px;
+  background: rgba(255,255,255,.15);
+  border: 1.5px solid rgba(255,255,255,.25);
+  border-radius: 11px;
+  font-size: .9rem; font-family: inherit;
+  color: #fff;
+  outline: none;
+  transition: border-color .18s, background .18s;
+}
+.pl-search-input::placeholder { color: rgba(255,255,255,.5); }
+.pl-search-input:focus { border-color: rgba(255,255,255,.6); background: rgba(255,255,255,.22); }
+.pl-search-btn {
+  padding: 11px 24px;
+  background: #fff; color: var(--blue);
+  border: none; border-radius: 11px;
+  font-size: .9rem; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.pl-search-btn:hover { background: #f0f5ff; }
+
+/* ── Filter bar ───────────────────────────────────────────────── */
+.pl-filter-bar {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 22px;
+  box-shadow: 0 1px 4px rgba(10,22,40,.04);
+}
+.pl-filter-group {
+  display: flex; align-items: center; gap: 6px;
+}
+.pl-filter-label {
+  font-size: .75rem; font-weight: 700;
+  color: #9ca3af; text-transform: uppercase; letter-spacing: .04em;
+  white-space: nowrap;
+}
+.pl-filter-select {
+  padding: 6px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: .82rem; font-family: inherit; color: var(--ink);
+  background: #fafbff; outline: none; cursor: pointer;
+  transition: border-color .15s;
+}
+.pl-filter-select:focus { border-color: var(--blue); }
+.pl-filter-sep {
+  width: 1px; height: 22px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.pl-result-count {
+  margin-left: auto;
+  font-size: .8rem; color: #9ca3af; font-weight: 600;
+  white-space: nowrap;
+}
+.pl-add-btn {
+  padding: 8px 18px;
+  background: var(--blue); color: #fff;
+  border: none; border-radius: 9px;
+  font-size: .82rem; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  text-decoration: none; white-space: nowrap;
+  transition: background .15s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.pl-add-btn:hover { background: #1448a3; color: #fff; }
+
+/* ── Card grid ────────────────────────────────────────────────── */
+.pl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.pl-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: border-color .18s, box-shadow .18s;
+  text-decoration: none;
+  position: relative;
+}
+.pl-card:hover {
+  border-color: var(--blue);
+  box-shadow: 0 6px 24px rgba(27,94,199,.12);
+}
+
+/* Thumb */
+.pl-card-thumb {
+  width: 100%; height: 180px;
+  object-fit: cover; display: block;
+  flex-shrink: 0;
+}
+.pl-card-thumb-ph {
+  width: 100%; height: 180px;
+  background: linear-gradient(135deg, #e0e8f4, #c3d4ec);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem; flex-shrink: 0;
+}
+
+/* Review featured ribbon */
+.pl-card-ribbon {
+  position: absolute; top: 12px; left: 12px;
+  background: #f59e0b; color: #fff;
+  font-size: .68rem; font-weight: 800;
+  padding: 3px 10px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+
+/* Body */
+.pl-card-body {
+  padding: 16px 18px;
+  flex: 1; display: flex; flex-direction: column;
+}
+.pl-card-tags {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
+}
+.pl-tag {
+  font-size: .68rem; font-weight: 700; padding: 2px 9px;
+  border-radius: 20px; white-space: nowrap;
+}
+.pl-tag--industry { background: var(--blue-lt); color: var(--blue); }
+.pl-tag--status-draft       { background: #f3f4f6; color: #6b7280; }
+.pl-tag--status-in_progress { background: #dbeafe; color: #1e40af; }
+.pl-tag--status-completed   { background: #d1fae5; color: #065f46; }
+.pl-tag--stage { background: #fef3c7; color: #92400e; }
+
+.pl-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem; font-weight: 800;
+  color: var(--ink); margin: 0 0 6px;
+  line-height: 1.3;
+}
+.pl-card-desc {
+  font-size: .82rem; color: #6b7280;
+  line-height: 1.55; margin: 0 0 12px;
+  flex: 1;
+}
+
+/* Owner row */
+.pl-card-owner {
+  display: flex; align-items: center; gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f4fa;
+  margin-top: auto;
+}
+.pl-card-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  object-fit: cover; flex-shrink: 0;
+}
+.pl-card-avatar-init {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), #0A1628);
+  color: #fff; font-size: .65rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.pl-card-owner-name {
+  font-size: .78rem; color: var(--ink); font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  flex: 1;
+}
+.pl-card-meta {
+  display: flex; gap: 10px; align-items: center;
+  margin-left: auto; flex-shrink: 0;
+}
+.pl-card-stat {
+  font-size: .72rem; color: #9ca3af;
+  display: flex; align-items: center; gap: 3px;
+}
+
+/* ── Empty state ──────────────────────────────────────────────── */
+.pl-empty {
+  text-align: center; padding: 60px 20px;
+  background: #fff; border: 1px dashed var(--border);
+  border-radius: 16px;
+}
+.pl-empty-icon { font-size: 3rem; margin-bottom: 12px; }
+.pl-empty-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--ink); margin: 0 0 6px; }
+.pl-empty-sub { font-size: .875rem; color: #9ca3af; }
+
+/* ── Pagination ───────────────────────────────────────────────── */
+.pl-pagination {
+  display: flex; justify-content: center; align-items: center;
+  gap: 6px; margin-top: 36px; flex-wrap: wrap;
+}
+.pl-page-btn {
+  padding: 7px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  font-size: .82rem; font-weight: 600;
+  color: var(--ink); background: #fff;
+  text-decoration: none; cursor: pointer;
+  transition: all .15s; font-family: inherit;
+}
+.pl-page-btn:hover, .pl-page-btn.active {
+  background: var(--blue); color: #fff; border-color: var(--blue);
+}
+.pl-page-btn.disabled {
+  opacity: .4; pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .pl-hero { padding: 24px 18px 22px; }
+  .pl-grid { grid-template-columns: 1fr; }
+  .pl-filter-bar { flex-direction: column; align-items: flex-start; }
+  .pl-result-count { margin-left: 0; }
+}
+</style>
+
+<div class="pl-wrap">
+
+  <!-- Hero -->
+  <div class="pl-hero">
+    <h1 class="pl-hero-title">Explore Projects</h1>
+    <p class="pl-hero-sub">Discover innovations across Africa — connect, collaborate, and invest.</p>
+    <form method="get" action="">
+      <div class="pl-search-row">
+        <div class="pl-search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" name="q" class="pl-search-input"
+                 placeholder="Search projects, keywords…"
+                 value="{{ current_query }}">
+        </div>
+        <!-- preserve other filters on search submit -->
+        {% if current_industry %}<input type="hidden" name="industry" value="{{ current_industry }}">{% endif %}
+        {% if current_status  %}<input type="hidden" name="status"   value="{{ current_status }}">{% endif %}
+        {% if current_stage   %}<input type="hidden" name="stage"    value="{{ current_stage }}">{% endif %}
+        {% if current_sort    %}<input type="hidden" name="sort"     value="{{ current_sort }}">{% endif %}
+        <button type="submit" class="pl-search-btn">Search</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Filter bar -->
+  <form method="get" id="filter-form">
+    {% if current_query %}<input type="hidden" name="q" value="{{ current_query }}">{% endif %}
+    <div class="pl-filter-bar">
+
+      <div class="pl-filter-group">
+        <span class="pl-filter-label">Industry</span>
+        <select name="industry" class="pl-filter-select" onchange="document.getElementById('filter-form').submit()">
+          <option value="">All</option>
+          {% for val, label in industry_choices %}
+          <option value="{{ val }}" {% if current_industry == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
         </select>
-    </div>
-    <div class="col-md-3">
-        <select name="user" class="form-select">
-            <option value="">All Users</option>
-            {% for u in users %}
-            <option value="{{ u.id }}" {% if u.id|stringformat:"s" == current_user %}selected{% endif %}>{{ u.get_full_name }}</option>
-            {% endfor %}
+      </div>
+
+      <div class="pl-filter-sep"></div>
+
+      <div class="pl-filter-group">
+        <span class="pl-filter-label">Status</span>
+        <select name="status" class="pl-filter-select" onchange="document.getElementById('filter-form').submit()">
+          <option value="">All</option>
+          <option value="draft"       {% if current_status == 'draft'       %}selected{% endif %}>Draft</option>
+          <option value="in_progress" {% if current_status == 'in_progress' %}selected{% endif %}>In Progress</option>
+          <option value="completed"   {% if current_status == 'completed'   %}selected{% endif %}>Completed</option>
         </select>
-    </div>
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">Filter</button>
+      </div>
+
+      <div class="pl-filter-sep"></div>
+
+      <div class="pl-filter-group">
+        <span class="pl-filter-label">Stage</span>
+        <select name="stage" class="pl-filter-select" onchange="document.getElementById('filter-form').submit()">
+          <option value="">All</option>
+          <option value="idea"       {% if current_stage == 'idea'       %}selected{% endif %}>Idea</option>
+          <option value="validation" {% if current_stage == 'validation' %}selected{% endif %}>Validation</option>
+          <option value="investment" {% if current_stage == 'investment' %}selected{% endif %}>Investment</option>
+          <option value="growth"     {% if current_stage == 'growth'     %}selected{% endif %}>Growth</option>
+        </select>
+      </div>
+
+      <div class="pl-filter-sep"></div>
+
+      <div class="pl-filter-group">
+        <span class="pl-filter-label">Sort</span>
+        <select name="sort" class="pl-filter-select" onchange="document.getElementById('filter-form').submit()">
+          <option value="-created_at" {% if current_sort == '-created_at' %}selected{% endif %}>Newest</option>
+          <option value="created_at"  {% if current_sort == 'created_at'  %}selected{% endif %}>Oldest</option>
+          <option value="-rating"     {% if current_sort == '-rating'     %}selected{% endif %}>Top Rated</option>
+          <option value="-likes"      {% if current_sort == '-likes'      %}selected{% endif %}>Most Liked</option>
+        </select>
+      </div>
+
+      <span class="pl-result-count">{{ total_count }} project{{ total_count|pluralize }}</span>
+
+      {% if request.user.is_authenticated %}
+      <a href="{% url 'create_project' %}" class="pl-add-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Project
+      </a>
+      {% endif %}
+
     </div>
   </form>
-</div>
 
-<h2 class="mb-4">All Registered Projects</h2>
-<p>Total projects found: {{ page_obj.paginator.count }}</p>
+  <!-- Grid -->
+  {% if page_obj.object_list %}
+  <div class="pl-grid">
+    {% for proj in page_obj %}
 
-<div class="container mt-5">
-    <!-- Loop through the projects and display them -->
-    <div class="row">
-        {% for project in page_obj.object_list %}
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ project.title }}</h5>
-                    <p class="card-text"><strong>Description:</strong> {{ project.description|truncatewords:20 }}</p>
-                    <p class="card-text"><strong>Industry:</strong> {{ project.industry|title }}</p>
-                    <p class="card-text"><strong>Created by:</strong> {{ project.user.get_full_name }}</p>
-                    <a href="{% url 'project_detail' project.id %}" class="btn btn-primary">View Details</a>
-                </div>
-            </div>
+    <a href="{% url 'project_detail' proj.pk %}" class="pl-card">
+
+      {% if proj.review_status == 'featured' %}
+      <span class="pl-card-ribbon">★ Featured</span>
+      {% endif %}
+
+      <!-- Thumbnail -->
+      {% if proj.main_img %}
+        <img src="{{ proj.main_img.image.url }}" alt="{{ proj.title }}" class="pl-card-thumb" loading="lazy">
+      {% else %}
+        <div class="pl-card-thumb-ph">🚀</div>
+      {% endif %}
+
+      <div class="pl-card-body">
+        <!-- Tags -->
+        <div class="pl-card-tags">
+          {% if proj.industry %}
+          <span class="pl-tag pl-tag--industry">{{ proj.get_industry_display }}</span>
+          {% endif %}
+          <span class="pl-tag pl-tag--status-{{ proj.status }}">{{ proj.get_status_display }}</span>
+          {% if proj.pipeline_stage and proj.pipeline_stage != 'idea' %}
+          <span class="pl-tag pl-tag--stage">{{ proj.get_pipeline_stage_display }}</span>
+          {% endif %}
         </div>
-        {% endfor %}
-    </div>
 
-    <!-- Pagination -->
-    {% if is_paginated %}
-    <nav>
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?{% if current_query %}q={{ current_query }}&{% endif %}{% if current_industry %}industry={{ current_industry }}&{% endif %}{% if current_user %}user={{ current_user }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
-            </li>
+        <h2 class="pl-card-title">{{ proj.title }}</h2>
+        <p class="pl-card-desc">{{ proj.description|truncatewords:18 }}</p>
+
+        <!-- Owner + stats -->
+        <div class="pl-card-owner">
+          {% if proj.owner.profile_pics %}
+            <img src="{{ proj.owner.profile_pics.url }}" alt="{{ proj.owner.get_full_name }}" class="pl-card-avatar">
+          {% else %}
+            <div class="pl-card-avatar-init">
+              {{ proj.owner.first_name|first|upper }}{{ proj.owner.last_name|first|upper }}
+            </div>
+          {% endif %}
+          <span class="pl-card-owner-name">{{ proj.owner.get_full_name|default:proj.owner.username }}</span>
+          <div class="pl-card-meta">
+            {% if proj.avg_rating %}
+            <span class="pl-card-stat">⭐ {{ proj.avg_rating|floatformat:1 }}</span>
             {% endif %}
-            {% for num in paginator.page_range %}
-            {% if page_obj.number == num %}
-            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-            <li class="page-item"><a class="page-link" href="?{% if current_query %}q={{ current_query }}&{% endif %}{% if current_industry %}industry={{ current_industry }}&{% endif %}{% if current_user %}user={{ current_user }}&{% endif %}page={{ num }}">{{ num }}</a></li>
-            {% endif %}
-            {% endfor %}
-            {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?{% if current_query %}q={{ current_query }}&{% endif %}{% if current_industry %}industry={{ current_industry }}&{% endif %}{% if current_user %}user={{ current_user }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
+            <span class="pl-card-stat">❤️ {{ proj.likes_count }}</span>
+          </div>
+        </div>
+      </div>
+    </a>
+
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if is_paginated %}
+  <nav class="pl-pagination" aria-label="Pagination">
+    {% if page_obj.has_previous %}
+    <a class="pl-page-btn" href="?{% if current_query %}q={{ current_query }}&{% endif %}{% if current_industry %}industry={{ current_industry }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}{% if current_stage %}stage={{ current_stage }}&{% endif %}{% if current_sort %}sort={{ current_sort }}&{% endif %}page={{ page_obj.previous_page_number }}">← Prev</a>
+    {% else %}
+    <span class="pl-page-btn disabled">← Prev</span>
     {% endif %}
-</div>
 
+    {% for num in paginator.page_range %}
+      {% if page_obj.number == num %}
+        <span class="pl-page-btn active">{{ num }}</span>
+      {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+        <a class="pl-page-btn" href="?{% if current_query %}q={{ current_query }}&{% endif %}{% if current_industry %}industry={{ current_industry }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}{% if current_stage %}stage={{ current_stage }}&{% endif %}{% if current_sort %}sort={{ current_sort }}&{% endif %}page={{ num }}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a class="pl-page-btn" href="?{% if current_query %}q={{ current_query }}&{% endif %}{% if current_industry %}industry={{ current_industry }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}{% if current_stage %}stage={{ current_stage }}&{% endif %}{% if current_sort %}sort={{ current_sort }}&{% endif %}page={{ page_obj.next_page_number }}">Next →</a>
+    {% else %}
+    <span class="pl-page-btn disabled">Next →</span>
+    {% endif %}
+  </nav>
+  {% endif %}
+
+  {% else %}
+  <div class="pl-empty">
+    <div class="pl-empty-icon">🔍</div>
+    <div class="pl-empty-title">No projects found</div>
+    <p class="pl-empty-sub">
+      {% if current_query %}No results for "<strong>{{ current_query }}</strong>". Try different keywords.
+      {% else %}No projects match the selected filters.{% endif %}
+    </p>
+    {% if request.user.is_authenticated %}
+    <a href="{% url 'create_project' %}" class="pl-add-btn" style="margin-top:16px;display:inline-flex;">+ Create a Project</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
 {% endblock %}

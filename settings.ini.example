@@ -15,3 +15,20 @@ EMAIL_HOST_PASSWORD=
 ZOOM_ACCOUNT_ID=
 ZOOM_CLIENT_ID=
 ZOOM_CLIENT_SECRET=
+
+; ── Database ─────────────────────────────────────────────────────────────────
+; Leave blank to use SQLite (development default).
+; For production PostgreSQL on Render / Railway / Supabase, set this:
+;   DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DBNAME
+;   e.g. DATABASE_URL=postgresql://oduma_user:s3cr3t@db.render.com:5432/oduma_prod
+; Required packages: psycopg2-binary (already in requirements.txt)
+DATABASE_URL=
+
+; ── Google OAuth (optional) ───────────────────────────────────────────────────
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+; ── Allowed hosts (comma-separated, no spaces) ────────────────────────────────
+; Development: leave blank (defaults to localhost)
+; Production: ALLOWED_HOSTS=connect-ihni.onrender.com,odumaconnect.com
+ALLOWED_HOSTS=

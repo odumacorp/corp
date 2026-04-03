@@ -1,98 +1,517 @@
 {% load static %}
-<head>
 
-<div id="button_scripts"></div>
-<span id="head"></span>
+<style>
+/* ── Profile avatar dropdown ── */
+.oc-profile-dropdown { position: relative; }
+.oc-profile-dropdown__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 6px;
+  padding: 5px 11px 5px 5px;
+  transition: background .15s, border-color .15s;
+}
+.oc-profile-dropdown__toggle:hover {
+  background: rgba(255,255,255,0.20);
+  border-color: rgba(255,255,255,0.40);
+}
+.oc-profile-dropdown__avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.oc-profile-dropdown__name {
+  font-size: .8rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  max-width: 88px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.oc-profile-dropdown__caret {
+  font-size: .5rem;
+  color: rgba(255,255,255,0.45);
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+.oc-profile-dropdown.open .oc-profile-dropdown__caret { transform: rotate(180deg); }
 
-</head>
-<header class="header-section">
-    <div class="nav-bar">
-        <div class="logo-section btn"  >
-                <img onclick="window.location.href='/'" src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="company-icon">
-                <!-- <img src="images/icons8-menu-96.png" alt="" srcset=""> -->
-                <span>Oduma Corp</span>
-            </div>
-            <!-- <div class="menu-btn btn">
-                <img src="{% static 'images/icons8-menu-96.png' %}" alt="" srcset="">
-            </div> -->
-                <nav>
-                    <ul>
-                        <li>
-                            {% if user.is_authenticated %}
-                            <a href="{% url 'app' %}">Home</a>
-                            {% endif %}
-                            <a href="{% url 'investors' %}">Investors</a>
-                            <a href="{% url 'innovators' %}">Innovators</a>
-                            <!-- <a href="{% url 'my_projects' %}">My Project</a> -->
+.oc-profile-dropdown__menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+  min-width: 210px;
+  z-index: 9999;
+  overflow: hidden;
+}
+.oc-profile-dropdown.open .oc-profile-dropdown__menu { display: block; }
 
-                            {% if request.user.user_type == "investor" %}
-                            {% elif request.user.user_type == "innovator" %}
-                            {% endif %}
-                            
-                            
-                            <a href="{% url 'about' %}">About</a>                            
-                            <a href="{% url 'services' %}">Services</a>
-                            <a href="{% url 'events' %}">News/Events</a>
-                            <a href="{% url 'jobs' %}">Jobs</a>
-                            
+.oc-profile-dropdown__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  background: #fafbfd;
+}
+.oc-profile-dropdown__header img {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.oc-profile-dropdown__header-info strong {
+  display: block;
+  font-size: .85rem;
+  color: #0A0C12;
+  font-weight: 700;
+}
+.oc-profile-dropdown__header-info span {
+  font-size: .72rem;
+  color: #7084A0;
+  text-transform: capitalize;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.oc-profile-dropdown__menu a,
+.oc-profile-dropdown__menu button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 16px;
+  font-size: .84rem;
+  font-weight: 500;
+  color: #3D4A5C;
+  text-decoration: none;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background .1s, color .1s;
+}
+.oc-profile-dropdown__menu a:hover,
+.oc-profile-dropdown__menu button:hover {
+  background: #F4F6FA;
+  color: #0A0C12;
+}
+.oc-profile-dropdown__menu .oc-dd-danger { color: #DC2626; }
+.oc-profile-dropdown__menu .oc-dd-danger:hover { background: #FEF2F2; }
+.oc-profile-dropdown__divider { height: 1px; background: rgba(0,0,0,0.06); margin: 3px 0; }
 
-                            {% if user.is_authenticated %}
-                                <a class="nav-link" href="{% url 'inbox' %}">Messages</a>
-                            {% endif %}
-                            
+/* ── Explore dropdown ── */
+.oc-navbar__dropdown { position: relative; }
+.oc-navbar__dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+.oc-navbar__dropdown-toggle .oc-dropdown-caret {
+  font-size: .52rem;
+  transition: transform .2s;
+  opacity: .5;
+}
+.oc-navbar__dropdown:hover .oc-dropdown-caret,
+.oc-navbar__dropdown.open .oc-dropdown-caret { transform: rotate(180deg); }
 
-                            {% if user.is_authenticated %}
-                                    <a href="{% url 'notifications' %}">Notification</a>
-                            {% endif %}
-                            {% if user.is_authenticated %}
-                            <a href="{% url 'dashboard' %}">Dashboard</a>
-                            {% endif %}
-                            {% if user.is_authenticated %}
-                                <a href="{% url 'networks' %}">My Network</a>
-                            {% endif %}
-                            {% if user.is_authenticated %}
-                                <a href="{% url 'profile_view' id=user.id %}">Profile</a>
-                            {% endif %}
+.oc-navbar__dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.14);
+  min-width: 175px;
+  z-index: 9999;
+  overflow: visible;
+}
+.oc-navbar__dropdown:hover .oc-navbar__dropdown-menu,
+.oc-navbar__dropdown.open .oc-navbar__dropdown-menu { display: block; }
+.oc-navbar__dropdown-menu a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: .84rem;
+  font-weight: 500;
+  color: #3D4A5C;
+  text-decoration: none;
+  transition: background .12s;
+}
+.oc-navbar__dropdown-menu a:hover { background: #F4F6FA; color: #0A0C12; }
+.oc-navbar__dropdown-menu a .oc-dd-icon { font-size: .95rem; }
 
-                        </li>
+/* mobile accordion */
+.oc-mobile-menu__accordion {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .25s ease;
+}
+.oc-mobile-menu__accordion.open { max-height: 280px; }
+.oc-mobile-menu__accordion a {
+  padding-left: 28px !important;
+  font-size: .83rem !important;
+  opacity: .85;
+}
+.oc-mobile-accordion-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.oc-mobile-accordion-toggle .oc-dropdown-caret {
+  font-size: .52rem;
+  transition: transform .2s;
+  opacity: .5;
+  margin-right: 4px;
+}
+.oc-mobile-accordion-toggle.open .oc-dropdown-caret { transform: rotate(180deg); }
+</style>
 
-                        
-                    </ul>
-                </nav>
+<nav class="oc-navbar" role="navigation" aria-label="Main navigation">
+  <div class="oc-navbar__inner">
+
+    <!-- Brand -->
+    <a href="/" class="oc-navbar__brand">
+      <img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="Oduma Corp" class="oc-navbar__logo">
+      <span class="oc-navbar__brand-name">Oduma Corp</span>
+    </a>
+
+    <!-- Desktop primary nav -->
+    <div class="oc-navbar__nav">
+
+      {% if user.is_authenticated %}
+        {% with url_name=request.resolver_match.url_name %}
+
+        <a href="{% url 'app' %}" class="oc-navbar__link {% if page_name == 'Home' %}active{% endif %}">Home</a>
+
+        {% if url_name == 'innovators' or url_name == 'investors' or url_name == 'investors_by_industry' or url_name == 'companies_list' %}
+        <div class="oc-navbar__dropdown active" id="oc-explore-dropdown">
+          <span class="oc-navbar__link oc-navbar__dropdown-toggle active"
+                role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" id="oc-explore-toggle">
+        {% else %}
+        <div class="oc-navbar__dropdown" id="oc-explore-dropdown">
+          <span class="oc-navbar__link oc-navbar__dropdown-toggle"
+                role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" id="oc-explore-toggle">
+        {% endif %}
+            {% if url_name == 'innovators' %}Innovators
+            {% elif url_name == 'investors' or url_name == 'investors_by_industry' %}Investors
+            {% elif url_name == 'companies_list' %}Businesses
+            {% else %}Explore{% endif %}
+            <span class="oc-dropdown-caret">▼</span>
+          </span>
+          <div class="oc-navbar__dropdown-menu" role="menu">
+            <a href="{% url 'innovators' %}" role="menuitem"
+               {% if url_name == 'innovators' %}style="color:#1B5EC7;font-weight:600;"{% endif %}>
+              <span class="oc-dd-icon">💡</span> Innovators
+            </a>
+            <a href="{% url 'investors' %}" role="menuitem"
+               {% if url_name == 'investors' or url_name == 'investors_by_industry' %}style="color:#1B5EC7;font-weight:600;"{% endif %}>
+              <span class="oc-dd-icon">💼</span> Investors
+            </a>
+            <a href="{% url 'companies_list' %}" role="menuitem"
+               {% if url_name == 'companies_list' %}style="color:#1B5EC7;font-weight:600;"{% endif %}>
+              <span class="oc-dd-icon">🏢</span> Businesses
+            </a>
+          </div>
         </div>
-        <div class="btns">
-            <div class="buttons">
-                {% if user.is_authenticated %}
-                    <button  onclick="window.location.href='{% url 'logout'%}'">Logout</button>
 
-                {% else %}
-                            <button  onclick="window.location.href='{% url 'register'%}'">Register</button>
-                            <button  onclick="window.location.href='{% url 'login'%}'">Login</button>
-                {% endif %}
-                 <button onclick="history.back()">Back</button>
-            </div>
-                    
-        </div>
-        {% if user.is_authenticated %}
-            <!-- buttons -->
-            <div class="actions">
-                {#<button type="button" class="btn" onclick="window.location.href='{% url 'proposals' %}'">Proposals</button>#}
-            </div>
-            {% endif %}
+        {% if admin_view_mode != 'admin' or user.user_type != 'admin' %}
+          <a href="{% url 'inbox' %}" class="oc-navbar__link oc-navbar__link--icon {% if page_name == 'Inbox' %}active{% endif %}">
+            Inbox
+            {% if unread_count %}<span class="oc-navbar__link-badge">{{ unread_count }}</span>{% endif %}
+          </a>
+          <a href="{% url 'networks' %}"    class="oc-navbar__link">Network</a>
+          <a href="{% url 'groups_list' %}" class="oc-navbar__link">Community</a>
+          <a href="{% url 'dashboard' %}"   class="oc-navbar__link {% if page_name == 'Dashboard' %}active{% endif %}">Dashboard</a>
+          <span class="oc-navbar__divider"></span>
+          <a href="{% url 'events' %}" class="oc-navbar__link">Events</a>
+          <a href="{% url 'jobs' %}"   class="oc-navbar__link">Jobs</a>
+        {% endif %}
+
+        {% if user.user_type == 'admin' %}
+          {% if admin_view_mode == 'admin' %}
+            <span class="oc-navbar__divider"></span>
+            <a href="{% url 'admin_panel' %}"
+               class="oc-navbar__link {% if page_name == 'Admin Panel' %}active{% endif %}"
+               style="color:#F5C842;font-weight:600;">⚙ Admin</a>
+          {% endif %}
+        {% endif %}
+
+        {% endwith %}
+      {% else %}
+        <a href="{% url 'innovators' %}" class="oc-navbar__link">Explore</a>
+        <a href="{% url 'about' %}"      class="oc-navbar__link">About</a>
+        <a href="{% url 'services' %}"   class="oc-navbar__link">Services</a>
+        <a href="{% url 'training_hub' %}"   class="oc-navbar__link">Training</a>
+        <a href="{% url 'events_hub' %}"     class="oc-navbar__link">Events</a>
+      {% endif %}
 
     </div>
-       <!-- search bar -->
-       <div class="search">
-        <div class="in-search">
 
-            <form action="{% url 'search' %}" method="GET" class="search-form">
-                <input type="text" name="q" placeholder="Search..." >
-                <button type="submit">
-                    <img src="{% static 'images/icons8-search-50.png' %}'" alt="search" srcset="">
-                </button>
-            </form>
-        </div>
-     </div>    
-</header>
+    <!-- Right: search + auth + hamburger -->
+    <div class="oc-navbar__right">
 
-    
+      <form action="{% url 'search' %}" method="GET" class="oc-navbar__search" role="search">
+        <svg class="oc-navbar__search-icon" width="14" height="14" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" name="q" placeholder="Search…" aria-label="Search">
+      </form>
+
+      <div class="oc-navbar__auth">
+        {% if user.is_authenticated %}
+
+          {% if user.user_type == 'admin' %}
+            {% if admin_view_mode == 'admin' %}
+              <span style="font-size:.68rem;font-weight:700;background:#F5C842;color:#0A0C12;padding:3px 10px;border-radius:4px;letter-spacing:.04em;white-space:nowrap;">Admin</span>
+            {% else %}
+              <span style="font-size:.68rem;font-weight:700;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);padding:3px 10px;border-radius:4px;letter-spacing:.04em;white-space:nowrap;">User View</span>
+            {% endif %}
+          {% endif %}
+
+          <!-- Notifications -->
+          <a href="{% url 'notifications' %}" class="oc-navbar__link oc-navbar__link--icon" style="color:rgba(255,255,255,.55);padding:6px 8px;position:relative;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            {% if unread_notification_count %}<span class="oc-navbar__link-badge">{{ unread_notification_count }}</span>{% endif %}
+          </a>
+
+          <!-- Profile dropdown -->
+          <div class="oc-profile-dropdown" id="oc-profile-dropdown">
+            <div class="oc-profile-dropdown__toggle" id="oc-profile-toggle"
+                 role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">
+              {% if profile and profile.profile_pics %}
+                <img src="{{ profile.profile_pics.url }}" alt="" class="oc-profile-dropdown__avatar">
+              {% else %}
+                <img src="{% static 'images/usericon.png' %}" alt="" class="oc-profile-dropdown__avatar">
+              {% endif %}
+              <span class="oc-profile-dropdown__name">{{ user.first_name|default:user.username }}</span>
+              <span class="oc-profile-dropdown__caret">▼</span>
+            </div>
+
+            <div class="oc-profile-dropdown__menu" role="menu">
+              <div class="oc-profile-dropdown__header">
+                {% if profile and profile.profile_pics %}
+                  <img src="{{ profile.profile_pics.url }}" alt="">
+                {% else %}
+                  <img src="{% static 'images/usericon.png' %}" alt="">
+                {% endif %}
+                <div class="oc-profile-dropdown__header-info">
+                  <strong>{{ user.get_full_name|default:user.username }}</strong>
+                  <span>{{ user.user_type }}</span>
+                </div>
+              </div>
+
+              <a href="{% url 'profile_view' id=user.id %}" role="menuitem">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                View Profile
+              </a>
+              <a href="{% url 'dashboard' %}" role="menuitem">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                Dashboard
+              </a>
+              <a href="{% url 'notifications' %}" role="menuitem">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                Notifications
+                {% if unread_notification_count %}<span style="margin-left:auto;background:#DC2626;color:#fff;font-size:.62rem;padding:1px 7px;border-radius:99px;">{{ unread_notification_count }}</span>{% endif %}
+              </a>
+              <a href="{% url 'edit_profile' %}" role="menuitem">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Settings
+              </a>
+
+              {% if user.user_type == 'admin' %}
+                <div class="oc-profile-dropdown__divider"></div>
+                {% if admin_view_mode == 'admin' %}
+                  <a href="{% url 'admin_panel' %}" role="menuitem" style="color:#D97706;font-weight:600;">🛡 Admin Panel</a>
+                  <a href="{% url 'toggle_admin_view' %}" role="menuitem" style="color:#7084A0;">👁 Switch to User View</a>
+                {% else %}
+                  <a href="{% url 'toggle_admin_view' %}" role="menuitem" style="color:#D97706;font-weight:600;">🛡 Switch to Admin View</a>
+                {% endif %}
+              {% endif %}
+
+              <div class="oc-profile-dropdown__divider"></div>
+              <a href="{% url 'logout' %}" role="menuitem" class="oc-dd-danger">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                Log out
+              </a>
+            </div>
+          </div>
+
+        {% else %}
+          <a href="{% url 'login' %}"    class="oc-btn oc-btn-outline oc-btn-sm">Log in</a>
+          <a href="{% url 'register' %}" class="oc-btn oc-btn-primary oc-btn-sm">Get started</a>
+        {% endif %}
+      </div>
+
+      <button class="oc-navbar__hamburger" id="oc-hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+  </div>
+</nav>
+
+<!-- Mobile drawer -->
+<div class="oc-mobile-menu" id="oc-mobile-menu" role="dialog" aria-label="Mobile navigation">
+  <div class="oc-mobile-menu__backdrop" id="oc-mobile-backdrop"></div>
+  <div class="oc-mobile-menu__panel">
+
+    <div class="oc-mobile-menu__brand">
+      <img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="Oduma Corp">
+      <span>Oduma Corp</span>
+    </div>
+
+    <form action="{% url 'search' %}" method="GET" style="margin-bottom:12px;">
+      <input style="background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.18);border-radius:6px;padding:8px 12px;width:100%;font-size:.84rem;color:#fff;outline:none;"
+             type="text" name="q" placeholder="Search…">
+    </form>
+
+    <div class="oc-mobile-menu__divider"></div>
+
+    {% if user.is_authenticated %}
+      {% with url_name=request.resolver_match.url_name %}
+
+      <a href="{% url 'app' %}" class="oc-mobile-menu__link">Home</a>
+
+      <button type="button" class="oc-mobile-menu__link oc-mobile-accordion-toggle {% if url_name == 'innovators' or url_name == 'investors' or url_name == 'investors_by_industry' or url_name == 'companies_list' %}open{% endif %}"
+              id="oc-mobile-explore-toggle"
+              style="background:none;border:none;width:100%;text-align:left;cursor:pointer;color:inherit;">
+        {% if url_name == 'innovators' %}Innovators
+        {% elif url_name == 'investors' or url_name == 'investors_by_industry' %}Investors
+        {% elif url_name == 'companies_list' %}Businesses
+        {% else %}Explore{% endif %}
+        <span class="oc-dropdown-caret">▼</span>
+      </button>
+      <div class="oc-mobile-menu__accordion {% if url_name == 'innovators' or url_name == 'investors' or url_name == 'investors_by_industry' or url_name == 'companies_list' %}open{% endif %}"
+           id="oc-mobile-explore-panel">
+        <a href="{% url 'innovators' %}"      class="oc-mobile-menu__link">💡 Innovators</a>
+        <a href="{% url 'investors' %}"        class="oc-mobile-menu__link">💼 Investors</a>
+        <a href="{% url 'companies_list' %}"   class="oc-mobile-menu__link">🏢 Businesses</a>
+      </div>
+
+      {% if admin_view_mode != 'admin' or user.user_type != 'admin' %}
+        <a href="{% url 'inbox' %}" class="oc-mobile-menu__link">
+          Inbox
+          {% if unread_count %}<span style="background:#DC2626;color:#fff;font-size:.62rem;padding:1px 6px;border-radius:99px;margin-left:4px;">{{ unread_count }}</span>{% endif %}
+        </a>
+        <a href="{% url 'networks' %}"    class="oc-mobile-menu__link">Network</a>
+        <a href="{% url 'groups_list' %}" class="oc-mobile-menu__link">Community</a>
+        <a href="{% url 'dashboard' %}"   class="oc-mobile-menu__link">Dashboard</a>
+        <div class="oc-mobile-menu__divider"></div>
+        <a href="{% url 'events' %}"         class="oc-mobile-menu__link">Events</a>
+        <a href="{% url 'jobs' %}"           class="oc-mobile-menu__link">Jobs</a>
+        <a href="{% url 'proposals_list' %}" class="oc-mobile-menu__link">Proposals</a>
+      {% endif %}
+
+      {% if user.user_type == 'admin' %}
+        <div class="oc-mobile-menu__divider"></div>
+        {% if admin_view_mode == 'admin' %}
+          <a href="{% url 'admin_panel' %}" class="oc-mobile-menu__link" style="color:#F5C842;font-weight:600;">🛡 Admin Panel</a>
+          <a href="{% url 'toggle_admin_view' %}" class="oc-mobile-menu__link" style="color:rgba(255,255,255,.4);">Switch to User View</a>
+        {% else %}
+          <a href="{% url 'toggle_admin_view' %}" class="oc-mobile-menu__link" style="color:#F5C842;font-weight:600;">🛡 Switch to Admin View</a>
+        {% endif %}
+      {% endif %}
+
+      <div class="oc-mobile-menu__divider"></div>
+      <a href="{% url 'profile_view' id=user.id %}" class="oc-mobile-menu__link">Profile</a>
+      <a href="{% url 'notifications' %}" class="oc-mobile-menu__link">
+        Notifications
+        {% if unread_notification_count %}<span style="background:#DC2626;color:#fff;font-size:.62rem;padding:1px 6px;border-radius:99px;margin-left:4px;">{{ unread_notification_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'faq' %}"  class="oc-mobile-menu__link">FAQ</a>
+      <a href="{% url 'logout' %}" class="oc-mobile-menu__link" style="color:#F87171;">Log out</a>
+
+      {% endwith %}
+    {% else %}
+      <a href="{% url 'innovators' %}"  class="oc-mobile-menu__link">Explore</a>
+      <a href="{% url 'about' %}"       class="oc-mobile-menu__link">About</a>
+      <a href="{% url 'services' %}"    class="oc-mobile-menu__link">Services</a>
+      <a href="{% url 'events' %}"      class="oc-mobile-menu__link">Events</a>
+      <a href="{% url 'jobs' %}"        class="oc-mobile-menu__link">Jobs</a>
+      <a href="{% url 'faq' %}"         class="oc-mobile-menu__link">FAQ</a>
+      <div class="oc-mobile-menu__divider"></div>
+      <a href="{% url 'login' %}"    class="oc-mobile-menu__link">Log in</a>
+      <a href="{% url 'register' %}" class="oc-mobile-menu__link" style="color:#3B7FFF;font-weight:600;">Get started →</a>
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+(function () {
+  function closeAll() {
+    ['oc-explore-dropdown', 'oc-profile-dropdown'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('open');
+    });
+    var expToggle = document.getElementById('oc-explore-toggle');
+    var profToggle = document.getElementById('oc-profile-toggle');
+    if (expToggle)  expToggle.setAttribute('aria-expanded', 'false');
+    if (profToggle) profToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  var exploreDD  = document.getElementById('oc-explore-dropdown');
+  var exploreBtn = document.getElementById('oc-explore-toggle');
+  if (exploreBtn && exploreDD) {
+    exploreBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var opening = !exploreDD.classList.contains('open');
+      closeAll();
+      if (opening) {
+        exploreDD.classList.add('open');
+        exploreBtn.setAttribute('aria-expanded', 'true');
+      }
+    });
+    exploreDD.addEventListener('mouseleave', function () {
+      exploreDD.classList.remove('open');
+      exploreBtn.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  var profileDD  = document.getElementById('oc-profile-dropdown');
+  var profileBtn = document.getElementById('oc-profile-toggle');
+  if (profileBtn && profileDD) {
+    profileBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var opening = !profileDD.classList.contains('open');
+      closeAll();
+      if (opening) {
+        profileDD.classList.add('open');
+        profileBtn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  }
+
+  document.addEventListener('click', closeAll);
+
+  var mobileToggle = document.getElementById('oc-mobile-explore-toggle');
+  var mobilePanel  = document.getElementById('oc-mobile-explore-panel');
+  if (mobileToggle && mobilePanel) {
+    mobileToggle.addEventListener('click', function () {
+      var isOpen = mobilePanel.classList.toggle('open');
+      mobileToggle.classList.toggle('open', isOpen);
+    });
+  }
+})();
+</script>

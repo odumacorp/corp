@@ -1,7 +1,8 @@
 {% extends '_partials/base.html' %}
 {% load static %}
 
-{% block title %}{{ company.name }} | Oduma Connect{% endblock %}
+{% block title %}{{ company.name }} | Oduma Connect
+{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
@@ -463,6 +464,17 @@
 
 <div style="background:#f0f4ff; min-height:100vh; padding-bottom:48px;">
 
+  <!-- Breadcrumbs -->
+  <div style="max-width:1060px;margin:0 auto;padding:12px 16px 0;">
+    <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+      <ol class="oc-breadcrumbs__list">
+        <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+        <li class="oc-breadcrumbs__item"><a href="{% url 'companies_list' %}" class="oc-breadcrumbs__link">Companies</a><span class="oc-breadcrumbs__sep">›</span></li>
+        <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">{{ company.name }}</span></li>
+      </ol>
+    </nav>
+  </div>
+
   <!-- Cover Image -->
   <div class="cp-cover">
     {% if company.cover_image %}
@@ -507,6 +519,17 @@
           {% if company.email %}
             <a href="mailto:{{ company.email }}" class="cp-btn cp-btn-outline"><i class="fi fi-rr-envelope"></i> Contact</a>
           {% endif %}
+        {% endif %}
+        {% if request.user.is_authenticated %}
+        <button class="oc-save-btn {% if is_saved %}saved{% endif %}"
+                onclick="ocToggleReadLater('company', {{ company.pk }}, this)"
+                title="{% if is_saved %}Remove from Read Later{% else %}Save to Read Later{% endif %}">
+          {% if is_saved %}🔖 Saved{% else %}🔖 Read Later{% endif %}
+        </button>
+        <button class="oc-share-btn"
+                onclick="ocShare('{{ company.name|escapejs }}', '{{ request.scheme }}://{{ request.get_host }}{% url 'company_profile' company.pk %}', 'company', {{ company.pk }}, this)">
+          ↑ Share
+        </button>
         {% endif %}
       </div>
     </div>
@@ -818,5 +841,7 @@
     });
   }
 </script>
-{% include '_partials/footer.html' %}
+
+
+
 {% endblock %}

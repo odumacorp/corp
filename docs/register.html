@@ -1,20 +1,179 @@
 {% extends '_partials/base.html' %}
+{% load static %}
+{% block title %}Create Account | Oduma Connect{% endblock %}
 
-{% block title %}Register | OdumaCorp{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+  .auth-wrap {
+    min-height: calc(100vh - var(--oc-navbar-h));
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 16px; background: #F4F6FA;
+  }
+  .auth-card {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    padding: 36px 32px; width: 100%; max-width: 460px;
+  }
+  .auth-card h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.4rem; font-weight: 800; color: #0A0C12; margin-bottom: 4px;
+    letter-spacing: -0.025em;
+  }
+  .auth-card .subtitle { font-size: .85rem; color: #7084A0; margin-bottom: 24px; }
+  .auth-field { margin-bottom: 14px; }
+  .auth-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .auth-field label {
+    display: block; font-size: .78rem; font-weight: 600; color: #3D4A5C;
+    margin-bottom: 6px; letter-spacing: 0.01em;
+  }
+  .auth-field input, .auth-field select {
+    width: 100%; padding: 10px 14px; border: 1.5px solid rgba(0,0,0,0.12);
+    border-radius: 6px; font-size: .875rem; font-family: inherit;
+    box-sizing: border-box; transition: border-color .18s, box-shadow .18s; outline: none; background: #fff;
+    color: #0A0C12;
+  }
+  .auth-field input:focus, .auth-field select:focus {
+    border-color: #0057FF;
+    box-shadow: 0 0 0 3px rgba(0,87,255,0.10);
+  }
+  .pw-wrap { position: relative; }
+  .pw-wrap input { padding-right: 52px; }
+  .pw-toggle {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; font-size: .76rem;
+    color: #7084A0; padding: 0; font-weight: 600;
+  }
+  .field-error { color: #DC2626; font-size: .78rem; margin-top: 4px; }
+  .auth-submit {
+    width: 100%; padding: 11px; font-size: .92rem; font-weight: 700;
+    background: #0057FF; color: #fff; border: none;
+    border-radius: 6px; cursor: pointer; transition: background .18s, box-shadow .18s; margin-top: 8px;
+    letter-spacing: 0.01em;
+  }
+  .auth-submit:hover { background: #0041CC; box-shadow: 0 4px 16px rgba(0,87,255,0.3); }
+  .auth-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: 8px; padding: 10px 14px; font-size: .85rem; margin-bottom: 16px; }
+  .auth-footer { text-align: center; margin-top: 24px; font-size: .85rem; color: var(--oc-text-muted); }
+  .auth-footer a { color: var(--oc-primary); font-weight: 600; text-decoration: none; }
+  .role-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .role-card {
+    border: 2px solid var(--oc-border); border-radius: 10px; padding: 14px 12px;
+    text-align: center; cursor: pointer; transition: border-color .15s, background .15s;
+    position: relative;
+  }
+  .role-card input[type=radio] { position: absolute; opacity: 0; }
+  .role-card .role-icon { font-size: 1.5rem; margin-bottom: 6px; }
+  .role-card .role-name { font-size: .82rem; font-weight: 700; color: var(--oc-text-primary); }
+  .role-card .role-desc { font-size: .72rem; color: var(--oc-text-muted); margin-top: 2px; }
+  .role-card { border-radius: 8px !important; }
+  .role-card.selected { border-color: #0057FF; background: #EAF0FF; }
+  @media (max-width: 480px) { .auth-row { grid-template-columns: 1fr; } .role-picker { grid-template-columns: 1fr 1fr; } }
+</style>
 
-    <div class="col-md-6">
-        <h3 class="text-center mt-4">Register</h3>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-success w-100">Register</button>
-        </form>
-    </div>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>Create your account</h2>
+    <p class="subtitle">Join Africa's boldest innovation platform — free to start.</p>
+
+    {% if form.non_field_errors %}
+      <div class="auth-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <form method="POST" id="reg-form">
+      {% csrf_token %}
+
+      <div class="auth-row">
+        <div class="auth-field">
+          <label>First Name</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}<div class="field-error">{{ form.first_name.errors }}</div>{% endif %}
+        </div>
+        <div class="auth-field">
+          <label>Last Name</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}<div class="field-error">{{ form.last_name.errors }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="auth-field">
+        <label>Email Address</label>
+        {{ form.email }}
+        {% if form.email.errors %}<div class="field-error">{{ form.email.errors }}</div>{% endif %}
+      </div>
+
+      <div class="auth-field">
+        <label>Phone Number</label>
+        {{ form.phone_number }}
+        {% if form.phone_number.errors %}<div class="field-error">{{ form.phone_number.errors }}</div>{% endif %}
+      </div>
+
+      <div class="auth-field">
+        <label>Password</label>
+        <div class="pw-wrap">
+          {{ form.password1 }}
+          <button type="button" class="pw-toggle" onclick="togglePw('id_password1', this)">Show</button>
+        </div>
+        {% if form.password1.errors %}<div class="field-error">{{ form.password1.errors }}</div>{% endif %}
+      </div>
+
+      <div class="auth-field">
+        <label>Confirm Password</label>
+        <div class="pw-wrap">
+          {{ form.password2 }}
+          <button type="button" class="pw-toggle" onclick="togglePw('id_password2', this)">Show</button>
+        </div>
+        {% if form.password2.errors %}<div class="field-error">{{ form.password2.errors }}</div>{% endif %}
+      </div>
+
+      <!-- Account type as visual role picker -->
+      <div class="auth-field">
+        <label>I am joining as…</label>
+        <div class="role-picker" id="role-picker">
+          <label class="role-card {% if form.user_type.value == 'innovator' %}selected{% endif %}" id="role-innovator">
+            <input type="radio" name="user_type" value="innovator"
+              {% if form.user_type.value == 'innovator' or not form.user_type.value %}checked{% endif %}>
+            <div class="role-icon">💡</div>
+            <div class="role-name">Innovator</div>
+            <div class="role-desc">I have ideas & projects</div>
+          </label>
+          <label class="role-card {% if form.user_type.value == 'investor' %}selected{% endif %}" id="role-investor">
+            <input type="radio" name="user_type" value="investor"
+              {% if form.user_type.value == 'investor' %}checked{% endif %}>
+            <div class="role-icon">💼</div>
+            <div class="role-name">Investor</div>
+            <div class="role-desc">I fund great ideas</div>
+          </label>
+        </div>
+        {% if form.user_type.errors %}<div class="field-error">{{ form.user_type.errors }}</div>{% endif %}
+      </div>
+
+      <button type="submit" class="auth-submit">Create Account</button>
+    </form>
+
+    <p class="auth-footer">
+      Already have an account? <a href="{% url 'login' %}">Log in →</a>
+    </p>
+  </div>
 </div>
 
-
+<script>
+function togglePw(id, btn) {
+  var f = document.getElementById(id);
+  if (f) { f.type = f.type === 'password' ? 'text' : 'password'; btn.textContent = f.type === 'password' ? 'Show' : 'Hide'; }
+}
+// Style all inputs
+document.querySelectorAll('.auth-field input:not([type=radio]), .auth-field select').forEach(function(el) {
+  el.style.cssText = 'width:100%;padding:10px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:6px;font-size:.875rem;box-sizing:border-box;outline:none;font-family:inherit;background:#fff;color:#0A0C12;';
+  el.addEventListener('focus', function(){ this.style.borderColor='#0057FF'; this.style.boxShadow='0 0 0 3px rgba(0,87,255,0.10)'; });
+  el.addEventListener('blur',  function(){ this.style.borderColor='rgba(0,0,0,0.12)'; this.style.boxShadow='none'; });
+});
+// Role picker visual toggle
+document.querySelectorAll('#role-picker input[type=radio]').forEach(function(radio) {
+  radio.addEventListener('change', function() {
+    document.querySelectorAll('#role-picker .role-card').forEach(function(c){ c.classList.remove('selected'); });
+    if (this.checked) this.closest('.role-card').classList.add('selected');
+  });
+});
+</script>
 {% endblock %}
-

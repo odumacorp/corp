@@ -1,20 +1,139 @@
 {% extends '_partials/base.html' %}
+{% load static %}
+{% block title %}Inbox | Oduma Connect{% endblock %}
+
+{% block extra_head %}
+<style>
+.ib-page{max-width:720px;margin:0 auto;padding:40px 24px 80px;}
+.ib-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px;}
+.ib-header h1{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;color:#0A1628;margin:0;}
+.ib-count{font-size:.82rem;color:#6b7280;margin-top:3px;}
+.ib-unread-badge{display:inline-flex;align-items:center;background:#fee2e2;color:#b91c1c;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;margin-left:8px;}
+
+.ib-list{display:flex;flex-direction:column;gap:6px;}
+
+/* Each tile is a full <a> */
+.ib-tile{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 18px;
+  background:#fff;border:1px solid #e8edf4;border-radius:14px;
+  text-decoration:none;color:inherit;
+  transition:box-shadow .18s,border-color .18s,background .12s;
+  position:relative;cursor:pointer;
+}
+.ib-tile:hover{
+  box-shadow:0 4px 20px rgba(10,22,40,0.09);
+  border-color:#c7d8f8;
+  background:#fafcff;
+}
+.ib-tile--unread{border-left:3px solid #1B5EC7;}
+
+/* Avatar */
+.ib-avatar{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #e8edf4;}
+.ib-avatar-initials{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,#1B5EC7,#0A1628);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:800;color:#fff;
+  flex-shrink:0;
+}
+
+/* Body */
+.ib-body{flex:1;min-width:0;}
+.ib-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:3px;}
+.ib-name{font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:700;color:#0A1628;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ib-tile--unread .ib-name{font-weight:800;}
+.ib-time{font-size:.72rem;color:#9ca3af;white-space:nowrap;flex-shrink:0;}
+.ib-preview{font-size:.82rem;color:#6b7280;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;}
+.ib-tile--unread .ib-preview{color:#374151;font-weight:500;}
+
+/* Unread dot */
+.ib-dot{
+  width:9px;height:9px;border-radius:50%;background:#1B5EC7;
+  flex-shrink:0;box-shadow:0 0 5px rgba(27,94,199,0.4);
+}
+
+/* Empty */
+.ib-empty{
+  text-align:center;padding:64px 20px;
+  background:#fff;border:1px solid #e8edf4;border-radius:16px;
+}
+.ib-empty__icon{font-size:2.8rem;margin-bottom:14px;}
+.ib-empty__title{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#374151;margin-bottom:6px;}
+.ib-empty__sub{font-size:.875rem;color:#9ca3af;}
+
+@media(max-width:560px){
+  .ib-page{padding:24px 14px 60px;}
+  .ib-tile{padding:12px 14px;}
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<!-- <h2>Inbox</h2> -->
-<ul>
-  {% for msg in messages %}
-    <li>
-      <strong>From:</strong> {{ msg.sender.username }}<br>
-      <strong>Message:</strong> {{ msg.content }}<br>
-      <small>{{ msg.timestamp }}</small>
-    </li>
-  {% empty %}
-    <li>No messages.</li>
-  {% endfor %}
-</ul>
-<button class="btn btn-secondary my-3" onclick="window.history.back();">
-    ← Go Back
-</button>
+<div class="ib-page">
 
-{% endblock%}
+  <div class="ib-header">
+    <div>
+      <h1>Inbox {% if unread_count %}<span class="ib-unread-badge">{{ unread_count }} new</span>{% endif %}</h1>
+      <p class="ib-count">{{ inbox_items|length }} conversation{{ inbox_items|length|pluralize }}</p>
+    </div>
+  </div>
+
+  {% if inbox_items %}
+  <div class="ib-list">
+    {% for item in inbox_items %}
+    <a href="{% url 'chat_page' conversation_id=item.conversation.id %}"
+       class="ib-tile {% if item.unread %}ib-tile--unread{% endif %}">
+
+      <!-- Avatar -->
+      {% if item.other_user %}
+        {% with prof=item.other_user.userprofile %}
+          {% if prof.profile_pics %}
+            <img src="{{ prof.profile_pics.url }}" alt="{{ item.other_user.get_full_name }}" class="ib-avatar">
+          {% else %}
+            <div class="ib-avatar-initials">
+              {{ item.other_user.first_name|first|upper }}{{ item.other_user.last_name|first|upper }}
+            </div>
+          {% endif %}
+        {% endwith %}
+      {% else %}
+        <div class="ib-avatar-initials">?</div>
+      {% endif %}
+
+      <!-- Body -->
+      <div class="ib-body">
+        <div class="ib-top">
+          <span class="ib-name">
+            {% if item.other_user %}{{ item.other_user.get_full_name|default:item.other_user.username }}{% else %}Unknown{% endif %}
+          </span>
+          <span class="ib-time">
+            {% if item.last_msg %}{{ item.last_msg.timestamp|timesince }} ago{% endif %}
+          </span>
+        </div>
+        <p class="ib-preview">
+          {% if item.last_msg %}
+            {% if item.last_msg.sender == request.user %}You: {% endif %}
+            {{ item.last_msg.content }}
+          {% else %}
+            No messages yet
+          {% endif %}
+        </p>
+      </div>
+
+      <!-- Unread dot -->
+      {% if item.unread %}<span class="ib-dot"></span>{% endif %}
+
+    </a>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="ib-empty">
+    <div class="ib-empty__icon">✉️</div>
+    <div class="ib-empty__title">No conversations yet</div>
+    <p class="ib-empty__sub">Connect with innovators or investors to start a conversation.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

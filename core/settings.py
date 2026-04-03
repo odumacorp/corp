@@ -78,6 +78,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.user_profile',
                 'core.context_processors.unread_message_count',
+                'core.context_processors.unread_notification_count',
+                'core.context_processors.admin_view_mode',
 
                 'django.template.context_processors.request',  # REQUIRED
 
@@ -227,3 +229,5 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
+
+ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')

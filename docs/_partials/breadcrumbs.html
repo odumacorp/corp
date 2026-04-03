@@ -1,0 +1,20 @@
+{# Usage: {% include '_partials/breadcrumbs.html' with crumbs=crumbs %}
+   crumbs is a list of dicts: [{'label': 'Home', 'url': '/'}, ..., {'label': 'Current Page'}]
+   The last crumb has no 'url' and is rendered as plain text (current page).
+#}
+{% if crumbs %}
+<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="oc-breadcrumbs__list">
+    {% for crumb in crumbs %}
+      <li class="oc-breadcrumbs__item">
+        {% if crumb.url %}
+          <a href="{{ crumb.url }}" class="oc-breadcrumbs__link">{{ crumb.label }}</a>
+          <span class="oc-breadcrumbs__sep" aria-hidden="true">›</span>
+        {% else %}
+          <span class="oc-breadcrumbs__current" aria-current="page">{{ crumb.label }}</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+</nav>
+{% endif %}

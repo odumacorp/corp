@@ -1,0 +1,40 @@
+{% load static %}
+{% with type=notif.notification_type %}
+<div class="nf-item{% if not notif.is_read %} unread{% endif %}">
+
+  <!-- Icon -->
+  <div class="nf-icon
+    {% if type == 'connected' %}nf-icon--connected
+    {% elif type == 'message_sent' %}nf-icon--message
+    {% else %}nf-icon--other{% endif %}">
+    {% if type == 'connected' %}🤝
+    {% elif type == 'message_sent' %}💬
+    {% elif notif.action_type == 'contact' %}📧
+    {% else %}🔔{% endif %}
+  </div>
+
+  <!-- Body -->
+  <div class="nf-body">
+    <div class="nf-body__msg">{{ notif.message }}</div>
+    <div class="nf-body__meta">
+      <span class="nf-body__time">{{ notif.created_at|timesince }} ago</span>
+      <span class="nf-type-chip
+        {% if type == 'connected' %}nf-type-chip--connected
+        {% elif type == 'message_sent' %}nf-type-chip--message
+        {% else %}nf-type-chip--other{% endif %}">
+        {% if type == 'connected' %}Connection
+        {% elif type == 'message_sent' %}Message
+        {% else %}{{ notif.action_type|default:"Update" }}{% endif %}
+      </span>
+    </div>
+  </div>
+
+  <!-- Action link -->
+  {% if notif.link %}
+  <div class="nf-action">
+    <a href="{{ notif.link }}">View →</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endwith %}

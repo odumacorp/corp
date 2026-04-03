@@ -24,23 +24,40 @@ from .models import Project, Attachment, Patent
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['title', 'industry', 'description', 'website_link', 'image', 'status']
+        fields = [
+            'title', 'industry', 'category', 'description',
+            'keywords', 'website_link', 'status',
+            'video', 'video_name', 'video_description',
+            # Investment profile / pitch deck
+            'problem_statement', 'solution_overview', 'market_opportunity',
+            'business_model', 'traction', 'funding_requirement',
+            'funding_stage', 'use_of_funds', 'team_overview',
+        ]
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 4}),
+            'description':         forms.Textarea(attrs={'rows': 5, 'placeholder': 'Brief overview of your project…'}),
+            'keywords':            forms.TextInput(attrs={'placeholder': 'e.g. fintech, mobile, payments'}),
+            'video_description':   forms.Textarea(attrs={'rows': 2, 'placeholder': 'Brief description of the video…'}),
+            'video_name':          forms.TextInput(attrs={'placeholder': 'e.g. Product Demo v2'}),
+            'problem_statement':   forms.Textarea(attrs={'rows': 4, 'placeholder': 'What problem does your project solve? Who suffers from it and why does it matter?'}),
+            'solution_overview':   forms.Textarea(attrs={'rows': 4, 'placeholder': 'How does your product or service solve the problem? What is the core technology or approach?'}),
+            'market_opportunity':  forms.Textarea(attrs={'rows': 4, 'placeholder': 'How big is the market? TAM / SAM / SOM? Who are your target customers?'}),
+            'business_model':      forms.Textarea(attrs={'rows': 4, 'placeholder': 'How do you make money? Subscriptions, licensing, hardware, B2B, marketplace…'}),
+            'traction':            forms.Textarea(attrs={'rows': 4, 'placeholder': 'Pilots, revenue, users, partnerships, awards, IP filed, media coverage…'}),
+            'funding_requirement': forms.TextInput(attrs={'placeholder': 'e.g. $250,000 seed round'}),
+            'use_of_funds':        forms.Textarea(attrs={'rows': 4, 'placeholder': 'How will the investment be allocated? e.g. 40% product, 30% marketing, 30% ops…'}),
+            'team_overview':       forms.Textarea(attrs={'rows': 4, 'placeholder': 'Who is building this? Roles, relevant experience, why this team?'}),
         }
-    def clean_image(self):
-        image = self.cleaned_data.get('image')
-        if image:
-            # You can add some validation here if necessary, e.g., for file size or type
-            pass
-        return image
 
 from .models import ProjectImage
 
 class ProjectImageForm(forms.ModelForm):
     class Meta:
         model = ProjectImage
-        fields = ['image', 'name', 'description']
+        fields = ['image', 'name', 'description', 'is_main']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Image name (shown as caption, used for SEO)'}),
+            'description': forms.TextInput(attrs={'placeholder': 'Short alt text / description'}),
+        }
         
         
 class PatentForm(forms.ModelForm):
@@ -76,6 +93,11 @@ class CustomUserCreationForm(UserCreationForm):
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter phone number'})
     )
+    # Restrict registration to innovator and investor only — admin accounts are created by staff
+    user_type = forms.ChoiceField(
+        choices=[('innovator', 'Innovator'), ('investor', 'Investor')],
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
 
     class Meta:
         model = CustomUser
@@ -84,7 +106,6 @@ class CustomUserCreationForm(UserCreationForm):
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter email'}),
             'password1': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter password'}),
             'password2': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm password'}),
-            'user_type': forms.Select(attrs={'class': 'form-control'})
         }
 
     def save(self, commit=True):
