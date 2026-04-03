@@ -2896,6 +2896,18 @@ def admin_change_project_status(request, project_id):
 
 @login_required
 def admin_change_role(request, user_id):
+    from django.http import JsonResponse
+    if request.user.user_type != 'admin':
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'error': 'Forbidden'}, status=403)
+        return redirect('app')
+    user_obj = get_object_or_404(CustomUser, pk=user_id)
+    new_role = request.POST.get('role', '')
+    if new_role in ('innovator', 'investor', 'admin') and user_obj != request.user:
+        user_obj.user_type = new_role
+        user_obj.save(update_fields=['user_type'])
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True, 'role': user_obj.user_type})
     return _admin_post_redirect(request)
 
 @login_required
@@ -2996,10 +3008,32 @@ def admin_toggle_hide_project(request, project_id):
 
 @login_required
 def admin_toggle_hide_user(request, user_id):
+    from django.http import JsonResponse
+    if request.user.user_type != 'admin':
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'error': 'Forbidden'}, status=403)
+        return redirect('app')
+    user_obj = get_object_or_404(CustomUser, pk=user_id)
+    if user_obj != request.user:
+        user_obj.is_hidden = not user_obj.is_hidden
+        user_obj.save(update_fields=['is_hidden'])
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True, 'is_hidden': user_obj.is_hidden})
     return _admin_post_redirect(request)
 
 @login_required
 def admin_toggle_user(request, user_id):
+    from django.http import JsonResponse
+    if request.user.user_type != 'admin':
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'error': 'Forbidden'}, status=403)
+        return redirect('app')
+    user_obj = get_object_or_404(CustomUser, pk=user_id)
+    if user_obj != request.user:
+        user_obj.is_active = not user_obj.is_active
+        user_obj.save(update_fields=['is_active'])
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True, 'is_active': user_obj.is_active})
     return _admin_post_redirect(request)
 
 @login_required

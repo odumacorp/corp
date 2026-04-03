@@ -605,15 +605,13 @@
               </td>
               <td>
                 <!-- Change role -->
-                <form method="post" action="{% url 'admin_change_role' u.id %}" class="adm-role-form">
-                  {% csrf_token %}
-                  <select name="role" class="adm-role-select" onchange="this.form.submit()"
-                    {% if u.id == request.user.id %}disabled title="Cannot change own role"{% endif %}>
-                    <option value="innovator" {% if u.user_type == 'innovator' %}selected{% endif %}>Innovator</option>
-                    <option value="investor"  {% if u.user_type == 'investor'  %}selected{% endif %}>Investor</option>
-                    <option value="admin"     {% if u.user_type == 'admin'     %}selected{% endif %}>Admin</option>
-                  </select>
-                </form>
+                <select class="adm-role-select" data-user-id="{{ u.id }}" data-action="change-role"
+                  onchange="adminAjaxAction('{% url 'admin_change_role' u.id %}', {role: this.value}, this)"
+                  {% if u.id == request.user.id %}disabled title="Cannot change own role"{% endif %}>
+                  <option value="innovator" {% if u.user_type == 'innovator' %}selected{% endif %}>Innovator</option>
+                  <option value="investor"  {% if u.user_type == 'investor'  %}selected{% endif %}>Investor</option>
+                  <option value="admin"     {% if u.user_type == 'admin'     %}selected{% endif %}>Admin</option>
+                </select>
               </td>
               <td>
                 {% if u.is_active %}
@@ -636,14 +634,12 @@
 
                   <!-- Toggle active -->
                   {% if u.id != request.user.id %}
-                  <form method="post" action="{% url 'admin_toggle_user' u.id %}" style="display:inline">
-                    {% csrf_token %}
-                    {% if u.is_active %}
-                      <button type="submit" class="adm-act-btn adm-btn-warn">Deactivate</button>
-                    {% else %}
-                      <button type="submit" class="adm-act-btn adm-btn-success">Activate</button>
-                    {% endif %}
-                  </form>
+                  <button type="button"
+                    class="adm-act-btn {% if u.is_active %}adm-btn-warn{% else %}adm-btn-success{% endif %}"
+                    data-toggle-url="{% url 'admin_toggle_user' u.id %}"
+                    onclick="adminToggleUser(this, '{% url 'admin_toggle_user' u.id %}')">
+                    {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
+                  </button>
 
                   <!-- Delete user -->
                   <button type="button" class="adm-act-btn adm-btn-danger"
@@ -652,14 +648,12 @@
                   </button>
 
                   <!-- Hide / Unhide user -->
-                  <form method="post" action="{% url 'admin_toggle_hide_user' u.id %}" style="display:inline">
-                    {% csrf_token %}
-                    {% if u.is_hidden %}
-                      <button type="submit" class="adm-act-btn adm-btn-success">Unhide</button>
-                    {% else %}
-                      <button type="submit" class="adm-act-btn" style="border-color:#7c3aed;color:#7c3aed;">Hide</button>
-                    {% endif %}
-                  </form>
+                  <button type="button"
+                    class="adm-act-btn {% if u.is_hidden %}adm-btn-success{% else %}adm-act-btn{% endif %}"
+                    style="{% if not u.is_hidden %}border-color:#7c3aed;color:#7c3aed;{% endif %}"
+                    onclick="adminToggleHide(this, '{% url 'admin_toggle_hide_user' u.id %}')">
+                    {% if u.is_hidden %}Unhide{% else %}Hide{% endif %}
+                  </button>
 
                   <!-- Reset password (email temp) -->
                   <form method="post" action="{% url 'admin_reset_user_password' u.id %}" style="display:inline">
@@ -2700,6 +2694,77 @@ document.getElementById('an-modal').addEventListener('click', function(e){ if(e.
     }).catch(function(){});
   });
 })();
+
+// ── Admin AJAX helpers (no page reload) ──────────────────────────────
+function _getCsrf() {
+  var c = document.cookie.split(';').find(function(s){ return s.trim().startsWith('csrftoken='); });
+  return c ? c.trim().split('=')[1] : '';
+}
+
+function adminAjaxAction(url, data, triggerEl) {
+  var body = new URLSearchParams(data);
+  fetch(url, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': _getCsrf(), 'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString()
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    if (!res.ok && triggerEl) triggerEl.style.outline = '2px solid red';
+  })
+  .catch(function(){ if (triggerEl) triggerEl.style.outline = '2px solid red'; });
+}
+
+function adminToggleUser(btn, url) {
+  fetch(url, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': _getCsrf(), 'X-Requested-With': 'XMLHttpRequest' }
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    if (res.ok) {
+      if (res.is_active) {
+        btn.textContent = 'Deactivate';
+        btn.className = 'adm-act-btn adm-btn-warn';
+        var row = btn.closest('tr');
+        if (row) {
+          var badge = row.querySelector('.adm-inactive-badge');
+          if (badge) { badge.className = 'adm-active-badge'; badge.textContent = 'Active'; }
+        }
+      } else {
+        btn.textContent = 'Activate';
+        btn.className = 'adm-act-btn adm-btn-success';
+        var row = btn.closest('tr');
+        if (row) {
+          var badge = row.querySelector('.adm-active-badge');
+          if (badge) { badge.className = 'adm-inactive-badge'; badge.textContent = 'Inactive'; }
+        }
+      }
+    }
+  });
+}
+
+function adminToggleHide(btn, url) {
+  fetch(url, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': _getCsrf(), 'X-Requested-With': 'XMLHttpRequest' }
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    if (res.ok) {
+      if (res.is_hidden) {
+        btn.textContent = 'Unhide';
+        btn.className = 'adm-act-btn adm-btn-success';
+        btn.style = '';
+      } else {
+        btn.textContent = 'Hide';
+        btn.className = 'adm-act-btn';
+        btn.style = 'border-color:#7c3aed;color:#7c3aed;';
+      }
+    }
+  });
+}
 
 // ── Init: load last 30 days on tab open ─────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
