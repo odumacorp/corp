@@ -479,35 +479,65 @@
 
 <script>
 (function () {
-  function closeAll() {
-    ['oc-explore-dropdown', 'oc-profile-dropdown'].forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el) el.classList.remove('open');
-    });
-    var expToggle = document.getElementById('oc-explore-toggle');
-    var profToggle = document.getElementById('oc-profile-toggle');
-    if (expToggle)  expToggle.setAttribute('aria-expanded', 'false');
-    if (profToggle) profToggle.setAttribute('aria-expanded', 'false');
+  /* Use inline style.display so Bootstrap/other CSS cannot override it */
+  function showMenu(menu) { menu.style.setProperty('display', 'block', 'important'); }
+  function hideMenu(menu) { menu.style.setProperty('display', 'none',  'important'); }
+
+  function closeExplore() {
+    var dd = document.getElementById('oc-explore-dropdown');
+    if (!dd) return;
+    var menu = dd.querySelector('.oc-navbar__dropdown-menu');
+    if (menu) hideMenu(menu);
+    dd.classList.remove('open');
+    var btn = document.getElementById('oc-explore-toggle');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
   }
 
+  function closeProfile() {
+    var dd = document.getElementById('oc-profile-dropdown');
+    if (!dd) return;
+    dd.classList.remove('open');
+    var btn = document.getElementById('oc-profile-toggle');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+
+  function closeAll() { closeExplore(); closeProfile(); }
+
+  /* ── Explore dropdown ── */
   var exploreDD  = document.getElementById('oc-explore-dropdown');
   var exploreBtn = document.getElementById('oc-explore-toggle');
-  if (exploreBtn && exploreDD) {
-    exploreBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var opening = !exploreDD.classList.contains('open');
-      closeAll();
-      if (opening) {
-        exploreDD.classList.add('open');
-        exploreBtn.setAttribute('aria-expanded', 'true');
-      }
+  if (exploreDD) {
+    var exploreMenu = exploreDD.querySelector('.oc-navbar__dropdown-menu');
+    if (exploreMenu) hideMenu(exploreMenu); /* ensure hidden on load */
+
+    /* hover */
+    exploreDD.addEventListener('mouseenter', function () {
+      if (exploreMenu) showMenu(exploreMenu);
+      exploreDD.classList.add('open');
+      if (exploreBtn) exploreBtn.setAttribute('aria-expanded', 'true');
     });
     exploreDD.addEventListener('mouseleave', function () {
+      if (exploreMenu) hideMenu(exploreMenu);
       exploreDD.classList.remove('open');
-      exploreBtn.setAttribute('aria-expanded', 'false');
+      if (exploreBtn) exploreBtn.setAttribute('aria-expanded', 'false');
     });
+
+    /* click toggle */
+    if (exploreBtn) {
+      exploreBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var isOpen = exploreDD.classList.contains('open');
+        closeAll();
+        if (!isOpen && exploreMenu) {
+          showMenu(exploreMenu);
+          exploreDD.classList.add('open');
+          exploreBtn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    }
   }
 
+  /* ── Profile dropdown ── */
   var profileDD  = document.getElementById('oc-profile-dropdown');
   var profileBtn = document.getElementById('oc-profile-toggle');
   if (profileBtn && profileDD) {
@@ -524,22 +554,18 @@
 
   document.addEventListener('click', closeAll);
 
-  var mobileToggle = document.getElementById('oc-mobile-explore-toggle');
-  var mobilePanel  = document.getElementById('oc-mobile-explore-panel');
-  if (mobileToggle && mobilePanel) {
-    mobileToggle.addEventListener('click', function () {
-      var isOpen = mobilePanel.classList.toggle('open');
-      mobileToggle.classList.toggle('open', isOpen);
-    });
-  }
-
-  var mobileToggleGuest = document.getElementById('oc-mobile-explore-toggle-guest');
-  var mobilePanelGuest  = document.getElementById('oc-mobile-explore-panel-guest');
-  if (mobileToggleGuest && mobilePanelGuest) {
-    mobileToggleGuest.addEventListener('click', function () {
-      var isOpen = mobilePanelGuest.classList.toggle('open');
-      mobileToggleGuest.classList.toggle('open', isOpen);
-    });
-  }
+  /* ── Mobile accordions ── */
+  [['oc-mobile-explore-toggle', 'oc-mobile-explore-panel'],
+   ['oc-mobile-explore-toggle-guest', 'oc-mobile-explore-panel-guest']
+  ].forEach(function(pair) {
+    var toggle = document.getElementById(pair[0]);
+    var panel  = document.getElementById(pair[1]);
+    if (toggle && panel) {
+      toggle.addEventListener('click', function () {
+        var isOpen = panel.classList.toggle('open');
+        toggle.classList.toggle('open', isOpen);
+      });
+    }
+  });
 })();
 </script>
