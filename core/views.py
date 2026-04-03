@@ -1862,7 +1862,7 @@ def register(request):
                 )
 
             # Log the user in
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
 
             # Success message
             messages.success(request, "Registration successful!")
