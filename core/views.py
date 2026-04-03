@@ -3123,7 +3123,6 @@ def admin_remove_sub_admin(request, user_id):
     return redirect('admin_panel')
 
 # --- companies / businesses ---
-@login_required
 def companies_list(request):
     from .models import Company
     companies = Company.objects.all().order_by('-created_at')
