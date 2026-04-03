@@ -36,35 +36,67 @@ from django.db.models import Q
 
 @login_required
 def project_list(request):
+    from django.db.models import Avg, Count
+
     query = request.GET.get("q", "")
     industry = request.GET.get("industry", "")
-    user_id = request.GET.get("user", "")
+    status = request.GET.get("status", "")
+    sort = request.GET.get("sort", "")
 
-    projects = Post.objects.all().order_by("-created_at")
+    ALLOWED_SORTS = {
+        "newest": "-created_at",
+        "oldest": "created_at",
+        "rating": "-avg_rating",
+        "popular": "-likes_count",
+        "title": "title",
+    }
+
+    qs = (
+        Project.objects
+        .select_related("owner")
+        .prefetch_related("images")
+        .annotate(
+            avg_rating=Avg("ratings__value"),
+            likes_count=Count("liked_by", distinct=True),
+        )
+        .order_by(ALLOWED_SORTS.get(sort, "-created_at"))
+    )
 
     if query:
-        projects = projects.filter(Q(title__icontains=query) | Q(content__icontains=query))
+        qs = qs.filter(Q(title__icontains=query) | Q(description__icontains=query))
     if industry:
-        projects = projects.filter(industry=industry)
-    if user_id:
-        projects = projects.filter(user__id=user_id)
+        qs = qs.filter(industry=industry)
+    if status:
+        qs = qs.filter(status=status)
 
-    # Pagination
-    paginator = Paginator(projects, 10)  # 10 per page
+    total_count = qs.count()
+    paginator = Paginator(qs, 12)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    # attach main image to each project
+    for proj in page_obj.object_list:
+        proj.main_img = proj.get_main_image_url()
+
+    industry_choices = [
+        ("tech", "Technology"),
+        ("health", "Healthcare"),
+        ("finance", "Finance"),
+        ("education", "Education"),
+        ("energy", "Energy"),
+    ]
+
     context = {
-        "projects": page_obj.object_list,
         "page_obj": page_obj,
         "paginator": paginator,
         "is_paginated": page_obj.has_other_pages(),
+        "total_count": total_count,
         "current_query": query,
         "current_industry": industry,
-        "current_user": user_id,
-        "industries": Post.objects.values_list("industry", flat=True).distinct(),
-        "users": CustomUser.objects.all(),
-        "my_posts": Post.objects.filter(user=request.user),
+        "current_status": status,
+        "current_sort": sort,
+        "industry_choices": industry_choices,
+        "status_choices": Project.STATUS_CHOICES,
     }
 
     return render(request, "project_list.html", context)
@@ -876,8 +908,36 @@ from .models import Project
 
 
 def project_detail(request, pk):
-    project = get_object_or_404(Project, pk=pk)
-    return render(request, 'project_detail.html', {'project': project})
+    from django.db.models import Q as DQ, Avg
+    project = get_object_or_404(Project.objects.select_related("owner").prefetch_related("images", "attachments"), pk=pk)
+    images = project.images.all()
+    attachments = project.attachments.all()
+    avg_rating = project.average_rating()
+    likes_count = project.liked_by.count()
+    user_has_liked = request.user.is_authenticated and project.liked_by.filter(pk=request.user.pk).exists()
+
+    is_connected = False
+    if request.user.is_authenticated:
+        if getattr(request.user, 'user_type', '') == 'admin':
+            is_connected = True
+        elif request.user != project.owner:
+            is_connected = Connection.objects.filter(
+                DQ(initiator=request.user, target=project.owner) |
+                DQ(initiator=project.owner, target=request.user)
+            ).exists()
+        else:
+            is_connected = True  # owner always sees their own project
+
+    context = {
+        'project': project,
+        'images': images,
+        'attachments': attachments,
+        'avg_rating': avg_rating,
+        'likes_count': likes_count,
+        'user_has_liked': user_has_liked,
+        'is_connected': is_connected,
+    }
+    return render(request, 'project_detail.html', context)
 
 # def project_detail(request, pk):
 #     # Get the project by its ID (pk)
