@@ -429,7 +429,7 @@ p { margin-bottom: 0; }
   flex: 1;
   margin-inline: var(--oc-space-5);
   flex-wrap: nowrap;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .oc-navbar__link {
