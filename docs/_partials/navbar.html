@@ -506,21 +506,34 @@
   /* ── Explore dropdown ── */
   var exploreDD  = document.getElementById('oc-explore-dropdown');
   var exploreBtn = document.getElementById('oc-explore-toggle');
+  var exploreHideTimer = null;
+
+  function openExploreMenu() {
+    clearTimeout(exploreHideTimer);
+    if (!exploreDD) return;
+    var menu = exploreDD.querySelector('.oc-navbar__dropdown-menu');
+    if (menu) showMenu(menu);
+    exploreDD.classList.add('open');
+    if (exploreBtn) exploreBtn.setAttribute('aria-expanded', 'true');
+  }
+
+  function scheduleCloseExplore() {
+    exploreHideTimer = setTimeout(function () { closeExplore(); }, 150);
+  }
+
   if (exploreDD) {
     var exploreMenu = exploreDD.querySelector('.oc-navbar__dropdown-menu');
-    if (exploreMenu) hideMenu(exploreMenu); /* ensure hidden on load */
+    if (exploreMenu) {
+      hideMenu(exploreMenu);
 
-    /* hover */
-    exploreDD.addEventListener('mouseenter', function () {
-      if (exploreMenu) showMenu(exploreMenu);
-      exploreDD.classList.add('open');
-      if (exploreBtn) exploreBtn.setAttribute('aria-expanded', 'true');
-    });
-    exploreDD.addEventListener('mouseleave', function () {
-      if (exploreMenu) hideMenu(exploreMenu);
-      exploreDD.classList.remove('open');
-      if (exploreBtn) exploreBtn.setAttribute('aria-expanded', 'false');
-    });
+      /* Keep open while mouse is over the menu itself */
+      exploreMenu.addEventListener('mouseenter', function () { clearTimeout(exploreHideTimer); });
+      exploreMenu.addEventListener('mouseleave', scheduleCloseExplore);
+    }
+
+    /* hover on the toggle/container */
+    exploreDD.addEventListener('mouseenter', openExploreMenu);
+    exploreDD.addEventListener('mouseleave', scheduleCloseExplore);
 
     /* click toggle */
     if (exploreBtn) {
@@ -528,11 +541,7 @@
         e.stopPropagation();
         var isOpen = exploreDD.classList.contains('open');
         closeAll();
-        if (!isOpen && exploreMenu) {
-          showMenu(exploreMenu);
-          exploreDD.classList.add('open');
-          exploreBtn.setAttribute('aria-expanded', 'true');
-        }
+        if (!isOpen) openExploreMenu();
       });
     }
   }
