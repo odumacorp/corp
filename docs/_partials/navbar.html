@@ -257,7 +257,17 @@
 
         {% endwith %}
       {% else %}
-        <a href="{% url 'innovators' %}" class="oc-navbar__link">Explore</a>
+        <div class="oc-navbar__dropdown" id="oc-explore-dropdown">
+          <span class="oc-navbar__link oc-navbar__dropdown-toggle"
+                role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" id="oc-explore-toggle">
+            Explore <span class="oc-dropdown-caret">▼</span>
+          </span>
+          <div class="oc-navbar__dropdown-menu" role="menu">
+            <a href="{% url 'innovators' %}" role="menuitem"><span class="oc-dd-icon">💡</span> Innovators</a>
+            <a href="{% url 'investors' %}"  role="menuitem"><span class="oc-dd-icon">💼</span> Investors</a>
+            <a href="{% url 'companies_list' %}" role="menuitem"><span class="oc-dd-icon">🏢</span> Businesses</a>
+          </div>
+        </div>
         <a href="{% url 'about' %}"      class="oc-navbar__link">About</a>
         <a href="{% url 'services' %}"   class="oc-navbar__link">Services</a>
         <a href="{% url 'training_hub' %}"   class="oc-navbar__link">Training</a>
@@ -444,7 +454,16 @@
 
       {% endwith %}
     {% else %}
-      <a href="{% url 'innovators' %}"  class="oc-mobile-menu__link">Explore</a>
+      <button type="button" class="oc-mobile-menu__link oc-mobile-accordion-toggle"
+              id="oc-mobile-explore-toggle-guest"
+              style="background:none;border:none;width:100%;text-align:left;cursor:pointer;color:inherit;">
+        Explore <span class="oc-dropdown-caret">▼</span>
+      </button>
+      <div class="oc-mobile-menu__accordion" id="oc-mobile-explore-panel-guest">
+        <a href="{% url 'innovators' %}"    class="oc-mobile-menu__link">💡 Innovators</a>
+        <a href="{% url 'investors' %}"     class="oc-mobile-menu__link">💼 Investors</a>
+        <a href="{% url 'companies_list' %}" class="oc-mobile-menu__link">🏢 Businesses</a>
+      </div>
       <a href="{% url 'about' %}"       class="oc-mobile-menu__link">About</a>
       <a href="{% url 'services' %}"    class="oc-mobile-menu__link">Services</a>
       <a href="{% url 'events' %}"      class="oc-mobile-menu__link">Events</a>
@@ -511,6 +530,15 @@
     mobileToggle.addEventListener('click', function () {
       var isOpen = mobilePanel.classList.toggle('open');
       mobileToggle.classList.toggle('open', isOpen);
+    });
+  }
+
+  var mobileToggleGuest = document.getElementById('oc-mobile-explore-toggle-guest');
+  var mobilePanelGuest  = document.getElementById('oc-mobile-explore-panel-guest');
+  if (mobileToggleGuest && mobilePanelGuest) {
+    mobileToggleGuest.addEventListener('click', function () {
+      var isOpen = mobilePanelGuest.classList.toggle('open');
+      mobileToggleGuest.classList.toggle('open', isOpen);
     });
   }
 })();
