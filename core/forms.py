@@ -250,7 +250,7 @@ class EditProfileForm(forms.ModelForm):
 
 class ProfileEditForm(forms.ModelForm):
     first_name = forms.CharField(max_length=50, required=True)
-    last_name = forms.CharField(max_length=50, required=True)
+    last_name = forms.CharField(max_length=50, required=False)
     email = forms.EmailField(required=True)
 
     class Meta:
@@ -271,7 +271,7 @@ class ProfileEditForm(forms.ModelForm):
         profile = super().save(commit=False)
         user = profile.user
         user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
+        user.last_name = self.cleaned_data.get('last_name') or 'admin'
         user.email = self.cleaned_data['email']
         if commit:
             user.save()
