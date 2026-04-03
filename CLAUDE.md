@@ -9,8 +9,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Setup
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+python -m venv env
+source env/bin/activate
 pip install -r requirements.txt
 cp .env.example .env   # set SECRET_KEY, DEBUG=True, and email config
 python manage.py migrate
