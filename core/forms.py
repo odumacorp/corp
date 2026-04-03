@@ -90,8 +90,8 @@ class CustomUserCreationForm(UserCreationForm):
     )
     phone_number = forms.CharField(
         max_length=15,
-        required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter phone number'})
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter phone number (optional)'})
     )
     # Restrict registration to innovator and investor only — admin accounts are created by staff
     user_type = forms.ChoiceField(

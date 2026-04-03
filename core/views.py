@@ -1853,7 +1853,11 @@ def register(request):
                     recipient=user,
                     content=(
                         f"Hi {first_name}, welcome to Oduma Connect! 👋\n\n"
-                        "I'm part of the Oduma team. Here's how to get started:\n\n"
+                        "Here are your login details — keep them safe:\n\n"
+                        f"📧 Email: {user.email}\n"
+                        f"👤 Username: {user.username}\n\n"
+                        "You can log in using either your email or username.\n\n"
+                        "Here's how to get started:\n"
                         "1️⃣ Complete your profile — add a photo, bio, and your industry.\n"
                         "2️⃣ Post your first project (innovators) or browse opportunities (investors).\n"
                         "3️⃣ Connect with people in your industry and start collaborating.\n\n"
