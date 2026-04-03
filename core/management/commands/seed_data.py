@@ -132,7 +132,7 @@ class Command(BaseCommand):
             username='odu',
             defaults={
                 'first_name': 'Odu', 'last_name': 'Bot',
-                'email': 'odu@odumaconnect.com',
+                'email': 'odu@odumacorp.com',
                 'user_type': 'admin', 'is_staff': False,
             }
         )

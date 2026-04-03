@@ -2004,7 +2004,7 @@ def contact(request):
                     subject=f"[Contact] {topic}: {subject or message[:60]}",
                     message=f"Name: {name}\nEmail: {email}\nTopic: {topic}\nSubject: {subject}\n\n{message}",
                     from_email=email,
-                    recipient_list=["odumacorp@gmail.com"],
+                    recipient_list=["info@odumacorp.com"],
                 )
                 messages.success(request, "Your message has been sent successfully!")
             except Exception as e:
@@ -2533,7 +2533,7 @@ def reply_contact_submission(request, sub_id):
             send_mail(
                 subject=f"Re: {submission.subject or submission.topic} — Oduma Corp",
                 message=reply_text,
-                from_email="odumacorp@gmail.com",
+                from_email="info@odumacorp.com",
                 recipient_list=[submission.email],
             )
             submission.is_replied  = True

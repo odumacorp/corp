@@ -85,8 +85,8 @@ class CustomUserCreationForm(UserCreationForm):
     )
     last_name = forms.CharField(
         max_length=30,
-        required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter last name'})
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter last name (optional)'})
     )
     phone_number = forms.CharField(
         max_length=15,
@@ -111,6 +111,10 @@ class CustomUserCreationForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         
+        # Default last_name to "admin" if not provided
+        if not user.last_name:
+            user.last_name = "admin"
+
         # Generate the username as first_name.last_name (lowercase)
         user.username = f"{user.first_name.lower()}.{user.last_name.lower()}"
 
