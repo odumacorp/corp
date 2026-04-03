@@ -2004,7 +2004,7 @@ def contact(request):
                     subject=f"[Contact] {topic}: {subject or message[:60]}",
                     message=f"Name: {name}\nEmail: {email}\nTopic: {topic}\nSubject: {subject}\n\n{message}",
                     from_email=email,
-                    recipient_list=["info@odumacorp.com"],
+                    recipient_list=["info@odumacorp.com", "odumacorp@gmail.com"],
                 )
                 messages.success(request, "Your message has been sent successfully!")
             except Exception as e:
@@ -2529,20 +2529,27 @@ def reply_contact_submission(request, sub_id):
     reply_text = request.POST.get('reply_text', '').strip()
 
     if reply_text:
-        try:
-            send_mail(
-                subject=f"Re: {submission.subject or submission.topic} — Oduma Corp",
-                message=reply_text,
-                from_email="info@odumacorp.com",
-                recipient_list=[submission.email],
-            )
+        SENDER_EMAILS = ["info@odumacorp.com", "odumacorp@gmail.com"]
+        sent = False
+        for sender in SENDER_EMAILS:
+            try:
+                send_mail(
+                    subject=f"Re: {submission.subject or submission.topic} — Oduma Corp",
+                    message=reply_text,
+                    from_email=sender,
+                    recipient_list=[submission.email],
+                )
+                sent = True
+                break
+            except Exception as e:
+                logger.warning(f"Reply email failed from {sender}: {e}")
+        if sent:
             submission.is_replied  = True
             submission.replied_at  = timezone.now()
             submission.admin_reply = reply_text
             submission.save()
             messages.success(request, f"Reply sent to {submission.email}.")
-        except Exception as e:
-            logger.error(f"Reply email failed: {e}")
+        else:
             messages.error(request, "Failed to send the reply email. Please try again.")
     else:
         messages.error(request, "Reply message cannot be empty.")
