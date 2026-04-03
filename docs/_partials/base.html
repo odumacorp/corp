@@ -531,19 +531,20 @@
   <style>
     .odu-fab {
       position: fixed; bottom: 24px; right: 24px; z-index: 1500;
-      width: 52px; height: 52px; border-radius: 50%;
+      width: auto; height: 45px; border-radius: 50%;
       background: var(--oc-primary, #004AAD); color: #fff;
       border: none; cursor: pointer; font-size: 1.3rem;
       box-shadow: 0 4px 18px rgba(0,74,173,0.35);
       display: flex; align-items: center; justify-content: center;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.2s, 
+      box-shadow 0.2s;
     }
     .odu-fab:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(0,74,173,0.45); }
     .odu-panel {
       position: fixed; bottom: 88px; right: 24px; z-index: 1499;
       width: 340px; max-width: calc(100vw - 32px);
       background: #fff; border-radius: 16px;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.16);
+      box-shadow: 0 1px 10px rgba(0,0,0,0.16);
       display: none; flex-direction: column; overflow: hidden;
       max-height: 480px;
     }
