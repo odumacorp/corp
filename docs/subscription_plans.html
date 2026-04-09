@@ -1,0 +1,545 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Pricing & Plans | Oduma Corp{% endblock %}
+
+{% block content %}
+<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+  <ol class="oc-breadcrumbs__list">
+    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Pricing</span></li>
+  </ol>
+</nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
+
+<style>
+  :root {
+    --ink: #0A1628; --blue: #1B5EC7; --blue-lt: #eff6ff;
+    --muted: #6b7280; --border: #e5e7eb;
+    --ff-head: 'Jacques Francois', serif;
+    --ff-body: 'Jaldi', sans-serif;
+    --ff-ui: 'Space Grotesk', sans-serif;
+  }
+  .sp-page { max-width: 1080px; margin: 0 auto; padding: 0 16px 80px; }
+
+  /* ── Hero ── */
+  .sp-hero { text-align: center; padding: 48px 20px 36px; }
+  .sp-hero-eyebrow {
+    display: inline-block;
+    background: var(--blue-lt); color: var(--blue);
+    font-family: var(--ff-body); font-size: .8rem; font-weight: 700;
+    padding: 4px 14px; border-radius: 20px; margin-bottom: 14px;
+    text-transform: uppercase; letter-spacing: .08em;
+  }
+  .sp-hero-title {
+    font-family: var(--ff-head); font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--ink); margin: 0 0 12px;
+  }
+  .sp-hero-sub { font-family: var(--ff-body); font-size: 1rem; color: var(--muted); max-width: 520px; margin: 0 auto 28px; }
+
+  /* ── Toggle: Monthly / Yearly ── */
+  .sp-toggle {
+    display: inline-flex; background: #f3f4f6; border-radius: 12px; padding: 4px; gap: 4px;
+    margin-bottom: 40px;
+  }
+  .sp-toggle-btn {
+    padding: 8px 22px; border-radius: 9px; border: none; cursor: pointer;
+    font-family: var(--ff-ui); font-size: .88rem; font-weight: 700;
+    background: transparent; color: var(--muted); transition: all .2s;
+  }
+  .sp-toggle-btn.active { background: var(--ink); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+  .sp-save-badge {
+    display: inline-block; background: #dcfce7; color: #166534;
+    font-family: var(--ff-body); font-size: .72rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 10px; margin-left: 6px;
+  }
+
+  /* ── Plan grid ── */
+  .sp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    align-items: start;
+  }
+  .sp-card {
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 22px;
+    padding: 32px 28px;
+    position: relative;
+    transition: transform .18s, box-shadow .18s;
+  }
+  .sp-card:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(0,0,0,.09); }
+  .sp-card--featured {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(27,94,199,.12), 0 10px 32px rgba(27,94,199,.12);
+  }
+  .sp-card--current { border-color: #059669; }
+  .sp-featured-label {
+    position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+    background: var(--blue); color: #fff;
+    font-family: var(--ff-ui); font-size: .72rem; font-weight: 800;
+    padding: 4px 16px; border-radius: 20px; white-space: nowrap;
+    text-transform: uppercase; letter-spacing: .06em;
+  }
+  .sp-current-label {
+    position: absolute; top: -13px; right: 20px;
+    background: #059669; color: #fff;
+    font-family: var(--ff-ui); font-size: .72rem; font-weight: 800;
+    padding: 4px 12px; border-radius: 20px; white-space: nowrap;
+  }
+  .sp-plan-name {
+    font-family: var(--ff-head); font-size: 1.3rem; color: var(--ink); margin: 0 0 4px;
+  }
+  .sp-plan-tagline { font-family: var(--ff-body); font-size: .85rem; color: var(--muted); margin: 0 0 20px; }
+  .sp-price-row { display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px; }
+  .sp-price-currency { font-family: var(--ff-ui); font-size: 1.1rem; font-weight: 700; color: var(--ink); }
+  .sp-price-amount {
+    font-family: var(--ff-ui); font-size: 2.6rem; font-weight: 800; color: var(--ink); line-height: 1;
+  }
+  .sp-price-period { font-family: var(--ff-body); font-size: .85rem; color: var(--muted); }
+  .sp-price-yearly-note {
+    font-family: var(--ff-body); font-size: .78rem; color: var(--muted); margin-bottom: 20px; min-height: 1.2em;
+  }
+  .sp-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  .sp-features { list-style: none; padding: 0; margin: 0 0 24px; display: flex; flex-direction: column; gap: 8px; }
+  .sp-feature {
+    font-family: var(--ff-body); font-size: .88rem; color: #374151;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .sp-feature-check { color: #059669; font-size: .9rem; flex-shrink: 0; margin-top: 1px; }
+
+  /* CTA buttons */
+  .sp-btn {
+    display: block; width: 100%; padding: 13px 20px; border-radius: 12px;
+    font-family: var(--ff-ui); font-size: .95rem; font-weight: 700;
+    text-align: center; border: none; cursor: pointer; text-decoration: none;
+    transition: opacity .18s, transform .15s;
+  }
+  .sp-btn:hover { opacity: .88; transform: translateY(-1px); text-decoration: none; }
+  .sp-btn--primary { background: linear-gradient(135deg, #1B5EC7, #0A1628); color: #fff; }
+  .sp-btn--featured { background: var(--blue); color: #fff; box-shadow: 0 4px 16px rgba(27,94,199,.35); }
+  .sp-btn--outline { background: #fff; border: 2px solid var(--border); color: var(--ink); }
+  .sp-btn--current { background: #f0fdf4; border: 2px solid #059669; color: #059669; cursor: default; }
+  .sp-btn--current:hover { opacity: 1; transform: none; }
+
+  /* ── FAQ / Feature table ── */
+  .sp-compare { margin-top: 60px; }
+  .sp-compare-title {
+    font-family: var(--ff-head); font-size: 1.4rem; color: var(--ink);
+    text-align: center; margin-bottom: 28px;
+  }
+  .sp-table { width: 100%; border-collapse: collapse; }
+  .sp-table th {
+    font-family: var(--ff-ui); font-size: .85rem; font-weight: 700;
+    color: var(--ink); padding: 12px 16px; text-align: center;
+    border-bottom: 2px solid var(--border);
+  }
+  .sp-table th:first-child { text-align: left; }
+  .sp-table td {
+    padding: 11px 16px; border-bottom: 1px solid #f3f4f6;
+    font-family: var(--ff-body); font-size: .88rem; text-align: center; color: #374151;
+  }
+  .sp-table td:first-child { text-align: left; color: var(--ink); font-weight: 600; }
+  .sp-table tr:last-child td { border-bottom: none; }
+  .sp-table .yes { color: #059669; font-size: 1.1rem; }
+  .sp-table .no  { color: #d1d5db; font-size: 1.1rem; }
+  .sp-table .val { font-weight: 700; color: var(--blue); }
+
+  /* ── Upgrade modal ── */
+  .sp-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(10,22,40,.55); backdrop-filter: blur(4px);
+    z-index: 9000; align-items: center; justify-content: center; padding: 20px;
+  }
+  .sp-modal-overlay.open { display: flex; }
+  .sp-modal {
+    background: #fff; border-radius: 20px; padding: 36px 32px;
+    max-width: 440px; width: 100%;
+    box-shadow: 0 24px 60px rgba(0,0,0,.18);
+    animation: spIn .25s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes spIn {
+    from { opacity:0; transform:scale(.9) translateY(16px); }
+    to   { opacity:1; transform:scale(1)  translateY(0);    }
+  }
+  .sp-modal-title { font-family: var(--ff-head); font-size: 1.3rem; color: var(--ink); margin: 0 0 6px; }
+  .sp-modal-sub   { font-family: var(--ff-body); font-size: .88rem; color: var(--muted); margin: 0 0 22px; }
+  .sp-modal-price {
+    background: var(--blue-lt); border-radius: 12px; padding: 14px 18px;
+    margin-bottom: 20px; text-align: center;
+  }
+  .sp-modal-price strong { font-family: var(--ff-ui); font-size: 1.5rem; font-weight: 800; color: var(--ink); }
+  .sp-modal-price span   { font-family: var(--ff-body); font-size: .85rem; color: var(--muted); }
+  .sp-modal-note {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px;
+    padding: 10px 14px; font-family: var(--ff-body); font-size: .82rem; color: #92400e;
+    margin-bottom: 20px; line-height: 1.5;
+  }
+  .sp-modal-actions { display: flex; gap: 10px; }
+  .sp-modal-btn {
+    flex: 1; padding: 12px; border-radius: 10px; border: none; cursor: pointer;
+    font-family: var(--ff-ui); font-size: .9rem; font-weight: 700;
+    transition: opacity .15s;
+  }
+  .sp-modal-btn:hover { opacity: .85; }
+  .sp-modal-btn--confirm { background: var(--blue); color: #fff; }
+  .sp-modal-btn--cancel  { background: #f3f4f6; color: var(--ink); }
+  .sp-cycle-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .sp-cycle-opt {
+    flex: 1; border: 2px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; cursor: pointer; text-align: center;
+    transition: border-color .15s, background .15s;
+  }
+  .sp-cycle-opt input { display: none; }
+  .sp-cycle-opt.selected { border-color: var(--blue); background: var(--blue-lt); }
+  .sp-cycle-opt-name { font-family: var(--ff-ui); font-size: .85rem; font-weight: 700; color: var(--ink); }
+  .sp-cycle-opt-price { font-family: var(--ff-body); font-size: .78rem; color: var(--muted); }
+
+  @media (max-width: 560px) {
+    .sp-grid { grid-template-columns: 1fr; }
+    .sp-table { font-size: .78rem; }
+  }
+</style>
+
+<div class="sp-page">
+
+  <!-- ── Hero ── -->
+  <div class="sp-hero">
+    <div class="sp-hero-eyebrow">Simple, transparent pricing</div>
+    <h1 class="sp-hero-title">Choose the plan that fits your journey</h1>
+    <p class="sp-hero-sub">From first-time innovators to large investment teams — Oduma Corp has a plan for every stage.</p>
+
+    <!-- Billing toggle -->
+    <div class="sp-toggle">
+      <button class="sp-toggle-btn active" id="btn-monthly" onclick="spSetCycle('monthly')">Monthly</button>
+      <button class="sp-toggle-btn" id="btn-yearly" onclick="spSetCycle('yearly')">
+        Yearly <span class="sp-save-badge">Save ~17%</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Plan cards ── -->
+  <div class="sp-grid">
+    {% for plan in plans %}
+    <div class="sp-card {% if plan.slug == 'pro' %}sp-card--featured{% endif %} {% if current_plan and current_plan.id == plan.id %}sp-card--current{% endif %}">
+      {% if plan.slug == 'pro' %}<span class="sp-featured-label">Most Popular</span>{% endif %}
+      {% if current_plan and current_plan.id == plan.id %}<span class="sp-current-label">✓ Current</span>{% endif %}
+
+      <h2 class="sp-plan-name">{{ plan.name }}</h2>
+      <p class="sp-plan-tagline">{{ plan.tagline }}</p>
+
+      <!-- Price display (monthly) -->
+      <div class="sp-price-row" id="price-row-{{ plan.slug }}">
+        {% if plan.price_monthly == 0 %}
+          <span class="sp-price-amount">Free</span>
+        {% else %}
+          <span class="sp-price-currency">$</span>
+          <span class="sp-price-amount sp-price-m" data-monthly="{{ plan.price_monthly }}" data-yearly="{{ plan.price_yearly }}">{{ plan.price_monthly }}</span>
+          <span class="sp-price-period sp-period">/month</span>
+        {% endif %}
+      </div>
+      <div class="sp-price-yearly-note sp-yearly-note" data-slug="{{ plan.slug }}" data-yearly="{{ plan.price_yearly }}" data-savings="{{ plan.yearly_savings }}">
+        {% if plan.price_monthly > 0 %}&nbsp;{% endif %}
+      </div>
+
+      <hr class="sp-divider">
+
+      <ul class="sp-features">
+        {% for feature in plan.features %}
+        <li class="sp-feature">
+          <span class="sp-feature-check">✓</span>
+          {{ feature }}
+        </li>
+        {% endfor %}
+      </ul>
+
+      {% if user.is_authenticated %}
+        {% if current_plan and current_plan.id == plan.id %}
+          <a href="{% url 'my_subscription' %}" class="sp-btn sp-btn--current">✓ Current Plan</a>
+        {% elif plan.slug == 'starter' %}
+          <button class="sp-btn sp-btn--outline" onclick="spOpenModal('{{ plan.slug }}','{{ plan.name }}',0,0)">
+            Switch to Free
+          </button>
+        {% elif plan.slug == 'pro' %}
+          <button class="sp-btn sp-btn--featured" onclick="spOpenModal('{{ plan.slug }}','{{ plan.name }}',{{ plan.price_monthly }},{{ plan.price_yearly }})">
+            Upgrade to Pro →
+          </button>
+        {% else %}
+          <button class="sp-btn sp-btn--primary" onclick="spOpenModal('{{ plan.slug }}','{{ plan.name }}',{{ plan.price_monthly }},{{ plan.price_yearly }})">
+            Get {{ plan.name }} →
+          </button>
+        {% endif %}
+      {% else %}
+        <a href="{% url 'register' %}" class="sp-btn {% if plan.slug == 'pro' %}sp-btn--featured{% elif plan.slug == 'starter' %}sp-btn--outline{% else %}sp-btn--primary{% endif %}">
+          {% if plan.slug == 'starter' %}Get Started Free{% else %}Get Started →{% endif %}
+        </a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ── Feature comparison table ── -->
+  <div class="sp-compare">
+    <h2 class="sp-compare-title">Full Feature Comparison</h2>
+    <div style="overflow-x:auto;">
+    <table class="sp-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Starter</th>
+          <th>Pro</th>
+          <th>Business</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Projects</td>
+          <td class="val">3</td>
+          <td class="val">Unlimited</td>
+          <td class="val">Unlimited</td>
+        </tr>
+        <tr>
+          <td>Connections</td>
+          <td class="val">20</td>
+          <td class="val">Unlimited</td>
+          <td class="val">Unlimited</td>
+        </tr>
+        <tr>
+          <td>Direct Messaging</td>
+          <td class="yes">✓</td>
+          <td class="yes">✓</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Community Feed</td>
+          <td class="yes">✓</td>
+          <td class="yes">✓</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Join Groups</td>
+          <td class="val">Up to 3</td>
+          <td class="yes">✓</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Zoom Video Meetings</td>
+          <td class="no">✗</td>
+          <td class="yes">✓</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Send & Receive Proposals</td>
+          <td class="no">✗</td>
+          <td class="yes">✓</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Mentorship Access</td>
+          <td class="no">✗</td>
+          <td class="yes">✓</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Investment Readiness Analytics</td>
+          <td class="no">✗</td>
+          <td class="yes">✓</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Company Pages</td>
+          <td class="no">✗</td>
+          <td class="val">1</td>
+          <td class="val">Unlimited</td>
+        </tr>
+        <tr>
+          <td>Featured in Directories</td>
+          <td class="no">✗</td>
+          <td class="no">✗</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Consulting Service Access</td>
+          <td class="no">✗</td>
+          <td class="no">✗</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Team Seats</td>
+          <td class="val">1</td>
+          <td class="val">1</td>
+          <td class="val">Up to 5</td>
+        </tr>
+        <tr>
+          <td>Priority Support</td>
+          <td class="no">✗</td>
+          <td class="no">Email</td>
+          <td class="yes">✓ Priority</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ── Trust bar ── -->
+  <div style="text-align:center;margin-top:56px;padding:32px;background:#f8fafc;border-radius:18px;">
+    <p style="font-family:'Jaldi',sans-serif;font-size:.9rem;color:#6b7280;margin:0 0 12px;">
+      Secure payments &nbsp;·&nbsp; Cancel anytime &nbsp;·&nbsp; No hidden fees
+    </p>
+    <p style="font-family:'Jaldi',sans-serif;font-size:.85rem;color:#9ca3af;margin:0;">
+      Questions? <a href="{% url 'contact' %}" style="color:#1B5EC7;font-weight:700;text-decoration:none;">Contact us</a> — we reply within 24 hours.
+    </p>
+  </div>
+
+</div>
+
+<!-- ── Upgrade modal ── -->
+<div class="sp-modal-overlay" id="sp-modal-overlay">
+  <div class="sp-modal">
+    <h2 class="sp-modal-title" id="sp-modal-title">Upgrade to Pro</h2>
+    <p class="sp-modal-sub" id="sp-modal-sub">Choose your billing cycle below.</p>
+
+    <!-- Cycle selector -->
+    <div class="sp-cycle-row" id="sp-cycle-row">
+      <label class="sp-cycle-opt selected" id="opt-monthly" onclick="spSelectCycle('monthly')">
+        <input type="radio" name="cycle" value="monthly" checked>
+        <div class="sp-cycle-opt-name">Monthly</div>
+        <div class="sp-cycle-opt-price" id="opt-monthly-price">$0/mo</div>
+      </label>
+      <label class="sp-cycle-opt" id="opt-yearly" onclick="spSelectCycle('yearly')">
+        <input type="radio" name="cycle" value="yearly">
+        <div class="sp-cycle-opt-name">Yearly <span class="sp-save-badge">Save ~17%</span></div>
+        <div class="sp-cycle-opt-price" id="opt-yearly-price">$0/yr</div>
+      </label>
+    </div>
+
+    <div class="sp-modal-price">
+      <strong id="sp-modal-amount">$0</strong>
+      <span id="sp-modal-period">/month</span>
+    </div>
+
+    <div class="sp-modal-note">
+      <strong>Payment gateway coming soon.</strong> Your plan will activate immediately.
+      Our team will follow up with payment instructions within 24 hours.
+    </div>
+
+    <form method="POST" action="{% url 'upgrade_subscription' %}" id="sp-upgrade-form">
+      {% csrf_token %}
+      <input type="hidden" name="plan_slug" id="sp-plan-slug" value="">
+      <input type="hidden" name="billing_cycle" id="sp-billing-cycle" value="monthly">
+      <div class="sp-modal-actions">
+        <button type="button" class="sp-modal-btn sp-modal-btn--cancel" onclick="spCloseModal()">Cancel</button>
+        <button type="submit" class="sp-modal-btn sp-modal-btn--confirm" id="sp-confirm-btn">Confirm Upgrade</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+var spCycle = 'monthly';
+var spModalPlanSlug = '';
+var spModalMonthly = 0;
+var spModalYearly  = 0;
+
+function spSetCycle(cycle) {
+  spCycle = cycle;
+  document.getElementById('btn-monthly').classList.toggle('active', cycle === 'monthly');
+  document.getElementById('btn-yearly').classList.toggle('active', cycle === 'yearly');
+
+  // Update displayed prices
+  document.querySelectorAll('.sp-price-m').forEach(function(el) {
+    var monthly = parseFloat(el.dataset.monthly);
+    var yearly  = parseFloat(el.dataset.yearly);
+    if (cycle === 'yearly' && yearly > 0) {
+      el.textContent = (yearly / 12).toFixed(0);
+    } else {
+      el.textContent = monthly;
+    }
+  });
+
+  document.querySelectorAll('.sp-period').forEach(function(el) {
+    el.textContent = cycle === 'yearly' ? '/month (billed yearly)' : '/month';
+  });
+
+  document.querySelectorAll('.sp-yearly-note').forEach(function(el) {
+    var slug = el.dataset.slug;
+    var yearly = parseFloat(el.dataset.yearly);
+    var savings = parseFloat(el.dataset.savings);
+    if (slug === 'starter') { el.innerHTML = '&nbsp;'; return; }
+    if (cycle === 'yearly') {
+      el.innerHTML = 'Billed $' + yearly + '/year — save $' + savings.toFixed(0) + '';
+    } else {
+      el.innerHTML = '&nbsp;';
+    }
+  });
+}
+
+function spOpenModal(slug, name, monthly, yearly) {
+  spModalPlanSlug = slug;
+  spModalMonthly  = monthly;
+  spModalYearly   = yearly;
+  document.getElementById('sp-plan-slug').value = slug;
+  document.getElementById('sp-modal-title').textContent = slug === 'starter' ? 'Switch to Starter (Free)' : 'Upgrade to ' + name;
+  document.getElementById('sp-modal-sub').textContent = slug === 'starter'
+    ? 'Your current paid subscription will be cancelled and you will move to the free Starter plan.'
+    : 'Select your billing cycle and confirm your upgrade.';
+
+  // Show/hide cycle row for free plan
+  document.getElementById('sp-cycle-row').style.display = (slug === 'starter') ? 'none' : '';
+
+  // Set confirm button text
+  document.getElementById('sp-confirm-btn').textContent = slug === 'starter' ? 'Switch to Free Plan' : 'Confirm & Activate';
+
+  spSelectCycle(spCycle);
+  document.getElementById('sp-modal-overlay').classList.add('open');
+}
+
+function spCloseModal() {
+  document.getElementById('sp-modal-overlay').classList.remove('open');
+}
+
+function spSelectCycle(cycle) {
+  spCycle = cycle;
+  document.getElementById('sp-billing-cycle').value = cycle;
+  document.getElementById('opt-monthly').classList.toggle('selected', cycle === 'monthly');
+  document.getElementById('opt-yearly').classList.toggle('selected', cycle === 'yearly');
+
+  var amount = cycle === 'yearly' ? spModalYearly : spModalMonthly;
+  var period = cycle === 'yearly' ? '/year' : '/month';
+  document.getElementById('sp-modal-amount').textContent = spModalPlanSlug === 'starter' ? 'Free' : '$' + amount;
+  document.getElementById('sp-modal-period').textContent = spModalPlanSlug === 'starter' ? '' : period;
+  document.getElementById('opt-monthly-price').textContent = '$' + spModalMonthly + '/mo';
+  document.getElementById('opt-yearly-price').textContent = '$' + spModalYearly + '/yr';
+}
+
+// Close on overlay click
+document.getElementById('sp-modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) spCloseModal();
+});
+
+// Restore cycle toggle on load
+spSetCycle('monthly');
+
+// Auto-open upgrade modal if ?selected=<slug> is in the URL
+(function() {
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var sel = params.get('selected');
+    if (!sel) return;
+    // Find the upgrade button for this plan by matching onclick attribute
+    var btns = document.querySelectorAll('[onclick^="spOpenModal"]');
+    for (var i = 0; i < btns.length; i++) {
+      var onclickStr = btns[i].getAttribute('onclick');
+      if (onclickStr && onclickStr.indexOf("'" + sel + "'") !== -1) {
+        btns[i].click();
+        break;
+      }
+    }
+  } catch(e) {}
+})();
+</script>
+{% endblock %}
