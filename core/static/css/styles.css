@@ -251,6 +251,7 @@ html button {
 }
 html button:hover {
   box-shadow: 2px 2px 4px 0.5px rgba(8, 8, 8, 0.3);
+  /* box-shadow: unset; */
   transform: translateY(-1.5px);
 }
 html .actions {

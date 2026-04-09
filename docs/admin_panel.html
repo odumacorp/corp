@@ -120,12 +120,16 @@
   /* ---- Stats ---- */
   .adm-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; margin-bottom: 32px; }
   .adm-stat {
-    background: #fff; border-radius: 14px; padding: 18px 16px;
-    border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    background:  transparent;
+    /* box-shadow: var(--stat-accent); */
+    border-radius: 14px; padding: 18px 16px;
+    border: 1px dashed var(--border); 
+    /* box-shadow: 0 2px 8px var(--stat-accent); */
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--stat-accent) 20%, transparent);
     transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden;
   }
   .adm-stat:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,74,173,0.09); }
-  .adm-stat::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--stat-accent, var(--blue)); border-radius: 4px 0 0 4px; }
+  /* .adm-stat::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--stat-accent, var(--blue)); border-radius: 4px 0 0 4px; } */
   .adm-stat-icon { font-size: 1.3rem; margin-bottom: 8px; }
   .adm-stat-value { font-family: var(--ff-serif); font-size: 1.9rem; color: var(--text); line-height: 1; margin-bottom: 3px; }
   .adm-stat-label { font-family: var(--ff-sans); font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -245,9 +249,11 @@
     font-family: var(--ff-sans); font-size: 0.85rem; color: var(--muted); cursor: pointer;
     white-space: nowrap; display: flex; align-items: center; gap: 5px; margin-bottom: -2px;
     transition: color 0.15s, border-color 0.15s;
+    max-width: 20px;
+    justify-content: center;
   }
-  .adm-tab-btn:hover { color: var(--blue); }
-  .adm-tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 700; }
+  .adm-tab-btn:hover { color: var(--blue); box-shadow: none }
+  .adm-tab-btn.active { color: var(--blue); border-bottom-color: none; font-weight: 700; background-color:rgba(0, 102, 255, 0.329);}
 
   /* ---- Filter buttons ---- */
   .adm-filter-btn {
