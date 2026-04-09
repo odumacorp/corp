@@ -1,7 +1,7 @@
 {% extends '_partials/base.html' %}
 {% load static %}
 
-{% block title %}{{ company.name }} | Oduma Connect
+{% block title %}{{ company.name }} | Oduma Corp
 {% endblock %}
 
 {% block content %}
@@ -473,6 +473,10 @@
         <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">{{ company.name }}</span></li>
       </ol>
     </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
   </div>
 
   <!-- Cover Image -->
@@ -524,7 +528,7 @@
         <button class="oc-save-btn {% if is_saved %}saved{% endif %}"
                 onclick="ocToggleReadLater('company', {{ company.pk }}, this)"
                 title="{% if is_saved %}Remove from Read Later{% else %}Save to Read Later{% endif %}">
-          {% if is_saved %}🔖 Saved{% else %}🔖 Read Later{% endif %}
+          {% if is_saved %}Saved{% else %}Read Later{% endif %}
         </button>
         <button class="oc-share-btn"
                 onclick="ocShare('{{ company.name|escapejs }}', '{{ request.scheme }}://{{ request.get_host }}{% url 'company_profile' company.pk %}', 'company', {{ company.pk }}, this)">

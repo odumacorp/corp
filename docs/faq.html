@@ -1,7 +1,7 @@
 {% extends '_partials/base.html' %}
 {% load static %}
 
-{% block title %}FAQ — Oduma Connect
+{% block title %}FAQ — Oduma Corp
 {% endblock %}
 
 {% block content %}
@@ -11,6 +11,10 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">FAQ</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <style>
 :root {
   --blue: #004AAD;
@@ -214,7 +218,7 @@
   <div class="faq-hero">
     <div class="faq-hero-icon"><i class="fi fi-rr-interrogation"></i></div>
     <h1>Frequently Asked Questions</h1>
-    <p>Find answers to common questions about Oduma Connect. Can't find what you're looking for? Chat with Odu, our AI assistant.</p>
+    <p>Find answers to common questions about Oduma Corp. Can't find what you're looking for? Chat with Odu, our AI assistant.</p>
     <div class="faq-search-wrap">
       <i class="fi fi-rr-search fi-sm"></i>
       <input type="text" id="faq-search" placeholder="Search questions…" oninput="faqSearch()" autocomplete="off">
@@ -247,11 +251,11 @@
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">
-        What is Oduma Connect?
+        What is Oduma Corp?
         <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
       </div>
       <div class="faq-a">
-        Oduma Connect is Africa's innovation and investment platform. It connects <strong>innovators</strong> — people with ideas, inventions, and projects — with <strong>investors</strong> who are looking for opportunities to fund and collaborate. Users can share projects, exchange messages, attend virtual meetings, and build professional networks.
+        Oduma Corp is Africa's innovation and investment platform. It connects <strong>innovators</strong> — people with ideas, inventions, and projects — with <strong>investors</strong> who are looking for opportunities to fund and collaborate. Users can share projects, exchange messages, attend virtual meetings, and build professional networks.
       </div>
     </div>
 
@@ -294,7 +298,7 @@
 
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">
-        Can I use Oduma Connect on my phone or tablet?
+        Can I use Oduma Corp on my phone or tablet?
         <span class="faq-q-icon"><i class="fi fi-rr-angle-down fi-xs"></i></span>
       </div>
       <div class="faq-a">

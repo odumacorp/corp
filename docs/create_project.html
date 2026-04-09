@@ -1,7 +1,7 @@
 {% extends '_partials/base.html' %}
 {% load static %}
 
-{% block title %}Create Project — Oduma Connect{% endblock %}
+{% block title %}Create Project — Oduma Corp{% endblock %}
 {% block meta_description %}Submit your innovation or invention project to connect with investors.{% endblock %}
 
 {% block content %}
@@ -15,6 +15,10 @@
       <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Create Project</span></li>
     </ol>
   </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 
   <div class="cp-card">
     <h1 class="cp-title">Submit Your Project</h1>
@@ -71,7 +75,7 @@
             <button type="button" id="toggle-questionnaire"
                     onclick="toggleQuestionnaire()"
                     style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
-              ✨ Use AI to write my description
+              Use AI to write my description
             </button>
           </div>
 
@@ -186,7 +190,7 @@
             <div style="margin-top:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
               <button type="button" id="generate-btn" onclick="generateDescription()"
                       style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:.875rem;font-weight:700;cursor:pointer;">
-                ✨ Generate Description
+                Generate Description
               </button>
               <span id="generate-spinner" style="display:none;font-size:.8rem;color:#6b7280;">Analyzing your project…</span>
               <span id="generate-error" style="display:none;font-size:.8rem;color:#dc2626;"></span>
@@ -196,7 +200,7 @@
           <!-- ── AI result panel (shown after generation) ── -->
           <div id="ai-result-panel" style="display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:20px;margin-bottom:16px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-              <span style="font-size:.875rem;font-weight:700;color:#14532d;">✨ AI-Generated Description</span>
+              <span style="font-size:.875rem;font-weight:700;color:#14532d;">AI-Generated Description</span>
               <span style="font-size:.75rem;color:#6b7280;">You can edit it before using</span>
             </div>
             <textarea id="ai-description-text" rows="7"
@@ -227,7 +231,7 @@
                       rows="6"
                       placeholder="Describe your project — what problem it solves, how it works, and what stage it's at.
 
-💡 Tip: Click 'Use AI to write my description' above to answer a few questions and get a professional description generated automatically."
+Tip: Click 'Use AI to write my description' above to answer a few questions and get a professional description generated automatically."
                       required>{{ form.description.value|default:'' }}</textarea>
             {% if form.description.errors %}<span class="cp-err">{{ form.description.errors|join:", " }}</span>{% endif %}
           </div>
@@ -261,7 +265,7 @@
 
         <div class="cp-drop-zone" id="img-drop-zone" onclick="document.getElementById('id_images').click()">
           <div id="img-placeholder">
-            <span style="font-size:2rem;">🖼</span>
+            <span style="display:flex;justify-content:center;color:#9ca3af;margin-bottom:8px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
             <p>Click or drag &amp; drop up to 10 photos</p>
           </div>
           <input type="file" id="id_images" name="images" accept="image/*" multiple style="display:none">
@@ -385,57 +389,126 @@
       <fieldset class="cp-section" id="pitch-deck">
         <legend class="cp-legend">
           Investment Profile
-          <span class="cp-hint-inline">pitch deck sections — attract serious investors</span>
+          <span class="cp-hint-inline">pitch deck — attract serious investors</span>
         </legend>
-        <div class="cp-pitch-banner">
-          <span class="cp-pitch-banner__icon">📊</span>
-          <div>
-            <strong>Build your investment pitch</strong>
-            <p>Completing all 8 sections unlocks the <em>Investment Ready</em> badge on your project page. Investors filter by completeness.</p>
+
+        <!-- Pitch builder header -->
+        <div class="pb-header">
+          <div class="pb-header__left">
+            <div class="pb-header__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg></div>
+            <div>
+              <div class="pb-header__title">Pitch Builder</div>
+              <div class="pb-header__sub">Complete all 8 slides to unlock the <strong>Investment Ready</strong> badge</div>
+            </div>
+          </div>
+          <div class="pb-header__right">
+            <div class="pb-progress-ring">
+              <svg width="52" height="52" viewBox="0 0 52 52">
+                <circle cx="26" cy="26" r="21" fill="none" stroke="#e5e7eb" stroke-width="5"/>
+                <circle id="pb-ring-fill" cx="26" cy="26" r="21" fill="none" stroke="#1B5EC7" stroke-width="5"
+                  stroke-dasharray="131.9" stroke-dashoffset="131.9" stroke-linecap="round"
+                  transform="rotate(-90 26 26)" style="transition:stroke-dashoffset .4s;"/>
+              </svg>
+              <span id="pb-ring-pct" class="pb-progress-ring__pct">0%</span>
+            </div>
           </div>
         </div>
 
-        <div class="cp-field">
-          <label class="cp-label">1. Problem Statement</label>
-          <span class="cp-hint">What pain point or gap does your project address? Why does it matter?</span>
-          <textarea name="problem_statement" class="oc-textarea" rows="4"
-            placeholder="What problem does your project solve? Who suffers from it and why does it matter?">{{ form.problem_statement.value|default:'' }}</textarea>
+        <!-- Slide 1: Problem -->
+        <div class="pb-slide" data-slide="1">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--1">1</span>
+            <div class="pb-slide__icon pb-icon--1" style="background:#fee2e2;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-4 4-4 9a4 4 0 0 0 8 0c0-5-4-9-4-9z"/><path d="M12 11c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Problem Statement</div>
+              <div class="pb-slide__inv">Investors ask: <em>"Why does this problem need solving right now?"</em></div>
+            </div>
+            <span class="pb-slide__check" id="pb-check-problem_statement">○</span>
+          </div>
+          <textarea name="problem_statement" class="oc-textarea pb-textarea" rows="4" id="pb-ta-problem_statement"
+            oninput="pbUpdate()"
+            placeholder="What pain point are you solving? Who suffers from it and at what scale? What happens if it goes unsolved?">{{ form.problem_statement.value|default:'' }}</textarea>
         </div>
 
-        <div class="cp-field">
-          <label class="cp-label">2. Solution Overview</label>
-          <span class="cp-hint">How does your product or service solve the problem?</span>
-          <textarea name="solution_overview" class="oc-textarea" rows="4"
-            placeholder="How does your product or service solve the problem? What is the core technology or approach?">{{ form.solution_overview.value|default:'' }}</textarea>
+        <!-- Slide 2: Solution -->
+        <div class="pb-slide" data-slide="2">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--2">2</span>
+            <div class="pb-slide__icon pb-icon--2" style="background:#fef9c3;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><path d="M12 22v-4M4.22 4.22l2.83 2.83M18.95 4.22l-2.83 2.83M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Solution Overview</div>
+              <div class="pb-slide__inv">Investors ask: <em>"What is the core technology or insight that makes this work?"</em></div>
+            </div>
+            <span class="pb-slide__check" id="pb-check-solution_overview">○</span>
+          </div>
+          <textarea name="solution_overview" class="oc-textarea pb-textarea" rows="4" id="pb-ta-solution_overview"
+            oninput="pbUpdate()"
+            placeholder="Describe your product or service. What's the core technology or approach? What's your key differentiator vs. alternatives?">{{ form.solution_overview.value|default:'' }}</textarea>
         </div>
 
-        <div class="cp-field">
-          <label class="cp-label">3. Market Opportunity</label>
-          <span class="cp-hint">TAM / SAM / SOM — how big is the prize?</span>
-          <textarea name="market_opportunity" class="oc-textarea" rows="4"
-            placeholder="How big is the market? TAM / SAM / SOM? Who are your target customers?">{{ form.market_opportunity.value|default:'' }}</textarea>
+        <!-- Slide 3: Market -->
+        <div class="pb-slide" data-slide="3">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--3">3</span>
+            <div class="pb-slide__icon pb-icon--3" style="background:#dcfce7;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Market Opportunity</div>
+              <div class="pb-slide__inv">Investors ask: <em>"How big is the prize? Is this worth a $100M outcome?"</em></div>
+            </div>
+            <span class="pb-slide__check" id="pb-check-market_opportunity">○</span>
+          </div>
+          <textarea name="market_opportunity" class="oc-textarea pb-textarea" rows="4" id="pb-ta-market_opportunity"
+            oninput="pbUpdate()"
+            placeholder="Total Addressable Market (TAM), Serviceable Market (SAM), initial target segment (SOM). Who is your ideal customer? Include data sources.">{{ form.market_opportunity.value|default:'' }}</textarea>
         </div>
 
-        <div class="cp-field">
-          <label class="cp-label">4. Business Model</label>
-          <span class="cp-hint">How will you generate revenue?</span>
-          <textarea name="business_model" class="oc-textarea" rows="4"
-            placeholder="How do you make money? Subscriptions, licensing, hardware, B2B, marketplace…">{{ form.business_model.value|default:'' }}</textarea>
+        <!-- Slide 4: Business Model -->
+        <div class="pb-slide" data-slide="4">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--4">4</span>
+            <div class="pb-slide__icon pb-icon--4" style="background:#d1fae5;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Business Model</div>
+              <div class="pb-slide__inv">Investors ask: <em>"How do you make money, and can it scale?"</em></div>
+            </div>
+            <span class="pb-slide__check" id="pb-check-business_model">○</span>
+          </div>
+          <textarea name="business_model" class="oc-textarea pb-textarea" rows="4" id="pb-ta-business_model"
+            oninput="pbUpdate()"
+            placeholder="Revenue streams (subscriptions, licensing, hardware, marketplace, B2B SaaS…). Unit economics. Pricing strategy. Path to profitability.">{{ form.business_model.value|default:'' }}</textarea>
         </div>
 
-        <div class="cp-field">
-          <label class="cp-label">5. Traction &amp; Validation</label>
-          <span class="cp-hint">Proof points — customers, pilots, revenue, partnerships, press.</span>
-          <textarea name="traction" class="oc-textarea" rows="4"
-            placeholder="Pilots, revenue, users, partnerships, awards, IP filed, media coverage…">{{ form.traction.value|default:'' }}</textarea>
+        <!-- Slide 5: Traction -->
+        <div class="pb-slide" data-slide="5">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--5">5</span>
+            <div class="pb-slide__icon pb-icon--5" style="background:#fef3c7;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 21 12 17 16 21"/><path d="M5 3h14M5 3a2 2 0 0 0-2 2 7 7 0 0 0 6 6.9"/><path d="M19 3a2 2 0 0 1 2 2 7 7 0 0 1-6 6.9"/><path d="M9 9.9V17h6V9.9"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Traction &amp; Validation</div>
+              <div class="pb-slide__inv">Investors ask: <em>"Has the market proven this is real?"</em></div>
+            </div>
+            <span class="pb-slide__check" id="pb-check-traction">○</span>
+          </div>
+          <textarea name="traction" class="oc-textarea pb-textarea" rows="4" id="pb-ta-traction"
+            oninput="pbUpdate()"
+            placeholder="Paying customers, pilots, LOIs, revenue figures, user growth, partnerships, awards, media coverage, IP filed. Numbers over adjectives.">{{ form.traction.value|default:'' }}</textarea>
         </div>
 
-        <div class="cp-field">
-          <label class="cp-label">6. Funding Requirement</label>
-          <span class="cp-hint">How much are you raising and at what stage?</span>
-          <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;">
-            <input type="text" name="funding_requirement" class="oc-input"
-              placeholder="e.g. $250,000 seed round" value="{{ form.funding_requirement.value|default:'' }}" />
+        <!-- Slide 6: Funding Ask -->
+        <div class="pb-slide" data-slide="6">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--6">6</span>
+            <div class="pb-slide__icon pb-icon--6" style="background:#ede9fe;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Funding Requirement</div>
+              <div class="pb-slide__inv">Investors ask: <em>"How much, what stage, and what does it buy?"</em></div>
+            </div>
+            <span class="pb-slide__check" id="pb-check-funding_requirement">○</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;margin-top:4px;">
+            <input type="text" name="funding_requirement" class="oc-input" id="pb-ta-funding_requirement"
+              oninput="pbUpdate()"
+              placeholder="e.g. $500,000 seed round" value="{{ form.funding_requirement.value|default:'' }}" />
             <select name="funding_stage" class="oc-select" style="min-width:150px;">
               <option value="">Funding Stage</option>
               <option value="pre_seed" {% if form.funding_stage.value == 'pre_seed' %}selected{% endif %}>Pre-Seed</option>
@@ -448,19 +521,38 @@
           </div>
         </div>
 
-        <div class="cp-field">
-          <label class="cp-label">7. Use of Funds</label>
-          <span class="cp-hint">How will the investment be allocated?</span>
-          <textarea name="use_of_funds" class="oc-textarea" rows="4"
-            placeholder="How will the investment be allocated? e.g. 40% product, 30% marketing, 30% ops…">{{ form.use_of_funds.value|default:'' }}</textarea>
+        <!-- Slide 7: Use of Funds -->
+        <div class="pb-slide" data-slide="7">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--7">7</span>
+            <div class="pb-slide__icon pb-icon--7" style="background:#dbeafe;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Use of Funds</div>
+              <div class="pb-slide__inv">Investors ask: <em>"Will this money actually move the needle?"</em></div>
+            </div>
+            <span class="pb-slide__check" id="pb-check-use_of_funds">○</span>
+          </div>
+          <textarea name="use_of_funds" class="oc-textarea pb-textarea" rows="4" id="pb-ta-use_of_funds"
+            oninput="pbUpdate()"
+            placeholder="Breakdown by category: e.g. 40% product &amp; engineering, 30% sales &amp; marketing, 20% operations, 10% working capital. Include key milestones this funding achieves.">{{ form.use_of_funds.value|default:'' }}</textarea>
         </div>
 
-        <div class="cp-field">
-          <label class="cp-label">8. Team</label>
-          <span class="cp-hint">Who is building this? Why this team?</span>
-          <textarea name="team_overview" class="oc-textarea" rows="4"
-            placeholder="Who is building this? Roles, relevant experience, why this team?">{{ form.team_overview.value|default:'' }}</textarea>
+        <!-- Slide 8: Team -->
+        <div class="pb-slide" data-slide="8">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--8">8</span>
+            <div class="pb-slide__icon pb-icon--8" style="background:#f0fdf4;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Team</div>
+              <div class="pb-slide__inv">Investors ask: <em>"Is this the right team to win this market?"</em></div>
+            </div>
+            <span class="pb-slide__check" id="pb-check-team_overview">○</span>
+          </div>
+          <textarea name="team_overview" class="oc-textarea pb-textarea" rows="4" id="pb-ta-team_overview"
+            oninput="pbUpdate()"
+            placeholder="Co-founders and key hires: name, role, relevant experience, notable credentials. Advisors. Why this team has the domain expertise and execution ability to win.">{{ form.team_overview.value|default:'' }}</textarea>
         </div>
+
       </fieldset>
 
       <div class="cp-form-actions">
@@ -512,20 +604,101 @@
 .cp-doc-slot__num { font-family: 'Jacques Francois', serif; font-size: 0.88rem; color: #374151; }
 .cp-doc-remove { background: none; border: none; color: #ef4444; font-family: 'Jaldi', sans-serif; font-size: 0.8rem; cursor: pointer; padding: 0; }
 
-/* Investment Profile pitch banner */
-.cp-pitch-banner {
-  display: flex; align-items: flex-start; gap: 14px;
-  background: linear-gradient(135deg, #f0f7ff 0%, #e8f2ff 100%);
-  border: 1px solid #c3d4ec; border-radius: 10px;
-  padding: 16px 18px; margin-bottom: 20px;
+/* ── Pitch Builder ── */
+.pb-header {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  background: linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
+  border-radius: 14px; padding: 18px 22px; margin-bottom: 20px; color: #0A1628;
 }
-.cp-pitch-banner__icon { font-size: 1.8rem; flex-shrink: 0; margin-top: 2px; }
-.cp-pitch-banner strong { display: block; font-size: .9rem; color: #1a1a2e; margin-bottom: 3px; }
-.cp-pitch-banner p { font-size: .82rem; color: #6b7280; margin: 0; line-height: 1.5; }
-.cp-pitch-banner em { color: #1B5EC7; font-style: normal; font-weight: 700; }
+.pb-header__left { display: flex; align-items: center; gap: 14px; }
+.pb-header__icon { width:44px; height:44px; border-radius:12px; background:rgba(27,94,199,.12); display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+.pb-header__title { font-family: 'Jacques Francois', serif; font-size: 1rem; font-weight: 700; }
+.pb-header__sub { font-family: 'Jaldi', sans-serif; font-size: .8rem; color: #93c5fd; margin-top: 2px; }
+.pb-header__sub strong { color: #60a5fa; }
+.pb-progress-ring { position: relative; width: 52px; height: 52px; }
+.pb-progress-ring__pct {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: 'Jaldi', sans-serif; font-size: .72rem; font-weight: 700; color: #fff;
+}
+
+.pb-slide {
+  background: #fff; border: 1.5px solid #e5e7eb; border-radius: 14px;
+  padding: 18px 20px; margin-bottom: 14px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.pb-slide:focus-within {
+  border-color: #1B5EC7; box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+}
+.pb-slide.pb-slide--filled { border-color: #10b981; }
+
+.pb-slide__head {
+  display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;
+}
+.pb-slide__num {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Jacques Francois', serif; font-size: .8rem; font-weight: 700; color: #0A1628;
+  margin-top: 1px;
+}
+.pb-num--1 { background: #ef4444; }
+.pb-num--2 { background: #f59e0b; }
+.pb-num--3 { background: #3b82f6; }
+.pb-num--4 { background: #10b981; }
+.pb-num--5 { background: #8b5cf6; }
+.pb-num--6 { background: #06b6d4; }
+.pb-num--7 { background: #f97316; }
+.pb-num--8 { background: #ec4899; }
+
+.pb-slide__icon { width:28px; height:28px; border-radius:7px; display:flex; align-items:center; justify-content:center; margin-top:1px; flex-shrink:0; }
+.pb-slide__meta { flex: 1; min-width: 0; }
+.pb-slide__title { font-family: 'Jaldi', sans-serif; font-size: .92rem; font-weight: 700; color: #1a1a2e; }
+.pb-slide__inv { font-family: 'Jaldi', sans-serif; font-size: .78rem; color: #9ca3af; margin-top: 2px; }
+.pb-slide__inv em { font-style: italic; color: #6b7280; }
+.pb-slide__check {
+  flex-shrink: 0; font-size: 1.1rem; line-height: 1; margin-top: 2px;
+  transition: opacity .2s;
+}
+.pb-slide__check.filled { color: #10b981; }
+
+.pb-textarea { background: #fafafa !important; transition: background .2s; }
+.pb-slide:focus-within .pb-textarea { background: #fff !important; }
 </style>
 
 <script>
+/* ── Pitch Builder live progress ── */
+var PB_FIELDS = ['problem_statement','solution_overview','market_opportunity',
+                 'business_model','traction','funding_requirement','use_of_funds','team_overview'];
+
+function pbUpdate() {
+  var filled = 0;
+  PB_FIELDS.forEach(function(name) {
+    var el = document.getElementById('pb-ta-' + name);
+    var chk = document.getElementById('pb-check-' + name);
+    var slide = el && el.closest('.pb-slide');
+    var isFilled = el && el.value.trim().length > 0;
+    if (isFilled) {
+      filled++;
+      if (chk) { chk.textContent = '✓'; chk.classList.add('filled'); }
+      if (slide) slide.classList.add('pb-slide--filled');
+    } else {
+      if (chk) { chk.textContent = '○'; chk.classList.remove('filled'); }
+      if (slide) slide.classList.remove('pb-slide--filled');
+    }
+  });
+  var pct = Math.round(filled / PB_FIELDS.length * 100);
+  var ring = document.getElementById('pb-ring-fill');
+  var pctEl = document.getElementById('pb-ring-pct');
+  if (ring) {
+    var circumference = 131.9;
+    ring.style.strokeDashoffset = circumference - (circumference * pct / 100);
+    ring.style.stroke = pct === 100 ? '#10b981' : '#1B5EC7';
+  }
+  if (pctEl) pctEl.textContent = pct + '%';
+}
+
+// Run on load to reflect any pre-filled values (e.g. form errors)
+document.addEventListener('DOMContentLoaded', pbUpdate);
+
 /* ── Photo multi-upload ── */
 var photoFiles = [];   // Array of {file, name}
 var MAX_PHOTOS = 10;
@@ -666,7 +839,7 @@ function toggleQuestionnaire() {
   var btn   = document.getElementById('toggle-questionnaire');
   var open  = panel.style.display !== 'none';
   panel.style.display = open ? 'none' : 'block';
-  btn.textContent = open ? '✨ Use AI to write my description' : '✕ Close questionnaire';
+  btn.textContent = open ? 'Use AI to write my description' : '✕ Close questionnaire';
 }
 
 function generateDescription() {
@@ -710,7 +883,7 @@ function generateDescription() {
   .then(function(r) { return r.json(); })
   .then(function(data) {
     btn.disabled = false;
-    btn.textContent = '✨ Generate Description';
+    btn.textContent = 'Generate Description';
     spinner.style.display = 'none';
 
     if (data.error) {
@@ -726,7 +899,7 @@ function generateDescription() {
   })
   .catch(function() {
     btn.disabled = false;
-    btn.textContent = '✨ Generate Description';
+    btn.textContent = 'Generate Description';
     spinner.style.display = 'none';
     document.getElementById('generate-error').textContent = 'Network error. Please try again.';
     document.getElementById('generate-error').style.display = 'inline';
@@ -736,14 +909,14 @@ function generateDescription() {
 function useAIDescription() {
   var aiText = document.getElementById('ai-description-text').value.trim();
   document.getElementById('id_description').value = aiText;
-  document.getElementById('description-source-label').textContent = '✅ Using AI-generated description (you can still edit below)';
+  document.getElementById('description-source-label').textContent = 'Using AI-generated description (you can still edit below)';
   document.getElementById('description-source-label').style.color = '#16a34a';
   // Scroll to description field
   document.getElementById('id_description').scrollIntoView({ behavior: 'smooth', block: 'center' });
   document.getElementById('id_description').focus();
   // Close the questionnaire panel
   document.getElementById('questionnaire-panel').style.display = 'none';
-  document.getElementById('toggle-questionnaire').textContent = '✨ Use AI to write my description';
+  document.getElementById('toggle-questionnaire').textContent = 'Use AI to write my description';
 }
 
 function keepOwnDescription() {

@@ -1,6 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}Investor Matches — {{ project.title }} | Oduma Connect{% endblock %}
+{% block title %}Investor Matches — {{ project.title }} | Oduma Corp{% endblock %}
 
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
@@ -11,10 +11,14 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Investor Matches</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <div style="max-width:800px;margin:40px auto;padding:0 24px 64px;">
   <a href="{% url 'project_detail' project.pk %}" style="font-size:.85rem;color:#1B5EC7;text-decoration:none;display:inline-block;margin-bottom:16px;">← Back to project</a>
 
-  <div style="background:linear-gradient(135deg,#0A1628,#1B5EC7);border-radius:16px;padding:28px 36px;color:#fff;margin-bottom:28px;">
+  <div style="background:linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);border-radius:16px;padding:28px 36px;color:#0A1628;margin-bottom:28px;">
     <div style="font-size:.75rem;font-weight:700;opacity:.7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Intelligent Matching</div>
     <h1 style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;margin:0 0 6px;">Best Investors for</h1>
     <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;margin:0;opacity:.9;">{{ project.title }}</h2>
@@ -59,8 +63,8 @@
       {% with ip=match.investor.userprofile %}
       <div style="font-size:.8rem;color:#6b7280;display:flex;flex-wrap:wrap;gap:10px;">
         {% if ip.preferred_sectors %}<span>Sectors: {{ ip.preferred_sectors }}</span>{% endif %}
-        {% if ip.geography_focus %}<span>📍 {{ ip.geography_focus }}</span>{% endif %}
-        {% if ip.ticket_size_min or ip.ticket_size_max %}<span>💰 ${{ ip.ticket_size_min|default:"?" }}–${{ ip.ticket_size_max|default:"?" }}</span>{% endif %}
+        {% if ip.geography_focus %}<span>{{ ip.geography_focus }}</span>{% endif %}
+        {% if ip.ticket_size_min or ip.ticket_size_max %}<span>${{ ip.ticket_size_min|default:"?" }}–${{ ip.ticket_size_max|default:"?" }}</span>{% endif %}
       </div>
       {% if ip.investment_thesis %}
       <div style="font-size:.78rem;color:#374151;margin-top:6px;font-style:italic;">"{{ ip.investment_thesis|truncatewords:20 }}"</div>
@@ -71,7 +75,7 @@
     <!-- Actions -->
     <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
       <a href="{% url 'profile_view' id=match.investor.id %}"
-         style="background:#1B5EC7;color:#fff;padding:7px 16px;border-radius:8px;font-size:.8rem;font-weight:700;text-decoration:none;text-align:center;">View Profile</a>
+         style="background:#1B5EC7;color:#0A1628;padding:7px 16px;border-radius:8px;font-size:.8rem;font-weight:700;text-decoration:none;text-align:center;">View Profile</a>
       <a href="{% url 'message_investor' investor_id=match.investor.id %}"
          style="background:#fff;color:#374151;border:1.5px solid #d1d5db;padding:7px 16px;border-radius:8px;font-size:.8rem;font-weight:700;text-decoration:none;text-align:center;">Message</a>
     </div>
@@ -79,7 +83,7 @@
   {% endfor %}
   {% else %}
   <div style="background:#f4f7fb;border:1.5px dashed #c3d4ec;border-radius:12px;padding:48px;text-align:center;color:#6b7280;">
-    <p style="font-size:1.5rem;margin-bottom:8px;">🎯</p>
+    <p style="margin-bottom:8px;color:#9ca3af;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></p>
     <p style="font-weight:700;">No investor matches found</p>
     <p style="font-size:.85rem;">Complete your project pitch profile to improve matching accuracy.</p>
     <a href="{% url 'edit_project' project.pk %}" style="color:#1B5EC7;font-weight:600;font-size:.875rem;">Complete Profile →</a>

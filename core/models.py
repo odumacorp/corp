@@ -112,6 +112,9 @@ class UserProfile(models.Model):
         null=True, blank=True, related_name='verifications_granted'
     )
 
+    # ── Location ─────────────────────────────────────────────────────────
+    location = models.CharField(max_length=150, blank=True, default='', help_text='City and/or country (e.g. Nairobi, Kenya)')
+
     # ── Investor-specific preference fields ──────────────────────────────
     ticket_size_min   = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True, help_text='Minimum cheque size in USD')
     ticket_size_max   = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True, help_text='Maximum cheque size in USD')
@@ -568,17 +571,25 @@ class Conversation(models.Model):
     created_at    = models.DateTimeField(auto_now_add=True)
 
 class Message(models.Model):
-    sender      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
-    recipient   = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_messages')
-    reply_to    = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='replies')
-    content     = models.TextField()
-    timestamp   = models.DateTimeField(auto_now_add=True)
-    is_read     = models.BooleanField(default=False)
-    is_flagged  = models.BooleanField(default=False)
-    flag_reason = models.TextField(blank=True, null=True)
-    flagged_by  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='admin_flagged_messages')
-    is_hidden   = models.BooleanField(default=False)
-    conversation = models.ForeignKey(Conversation, null=True, blank=True, on_delete=models.CASCADE, related_name='messages')
+    MSG_TYPE_CHOICES = [
+        ('text',            'Text'),
+        ('post_share',      'Shared Post'),
+        ('project_share',   'Shared Project'),
+    ]
+    sender         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
+    recipient      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_messages')
+    reply_to       = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='replies')
+    content        = models.TextField()
+    message_type   = models.CharField(max_length=20, choices=MSG_TYPE_CHOICES, default='text')
+    shared_post    = models.ForeignKey('Post',    on_delete=models.SET_NULL, null=True, blank=True, related_name='chat_shares')
+    shared_project = models.ForeignKey('Project', on_delete=models.SET_NULL, null=True, blank=True, related_name='chat_shares')
+    timestamp      = models.DateTimeField(auto_now_add=True)
+    is_read        = models.BooleanField(default=False)
+    is_flagged     = models.BooleanField(default=False)
+    flag_reason    = models.TextField(blank=True, null=True)
+    flagged_by     = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='admin_flagged_messages')
+    is_hidden      = models.BooleanField(default=False)
+    conversation   = models.ForeignKey(Conversation, null=True, blank=True, on_delete=models.CASCADE, related_name='messages')
 
     def __str__(self):
         return f"From {self.sender} to {self.recipient} at {self.timestamp}"
@@ -1367,6 +1378,108 @@ class ConsultingRequest(models.Model):
 
     def __str__(self):
         return f"{self.user.username} — {self.get_category_display()}"
+
+
+# ── Subscription Plans ────────────────────────────────────────────
+
+class SubscriptionPlan(models.Model):
+    SLUG_CHOICES = [('starter', 'Starter'), ('pro', 'Pro'), ('business', 'Business')]
+    slug          = models.CharField(max_length=20, unique=True, choices=SLUG_CHOICES)
+    name          = models.CharField(max_length=50)
+    tagline       = models.CharField(max_length=120, blank=True)
+    description   = models.TextField(blank=True)
+    price_monthly = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    price_yearly  = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    max_projects      = models.IntegerField(default=3,  help_text='0 = unlimited')
+    max_connections   = models.IntegerField(default=10, help_text='0 = unlimited')
+    max_company_pages = models.IntegerField(default=0,  help_text='0 = none, -1 = unlimited')
+    features      = models.JSONField(default=list, blank=True,
+                                     help_text='List of feature strings shown on pricing page')
+    is_active     = models.BooleanField(default=True)
+    order         = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def yearly_savings(self):
+        """Monthly * 12 minus yearly price."""
+        monthly_total = self.price_monthly * 12
+        if monthly_total > 0:
+            return monthly_total - self.price_yearly
+        return 0
+
+
+class UserSubscription(models.Model):
+    STATUS_CHOICES = [
+        ('active',    'Active'),
+        ('cancelled', 'Cancelled'),
+        ('expired',   'Expired'),
+        ('trial',     'Trial'),
+    ]
+    CYCLE_CHOICES = [('monthly', 'Monthly'), ('yearly', 'Yearly')]
+
+    user          = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                         related_name='subscription')
+    plan          = models.ForeignKey(SubscriptionPlan, on_delete=models.PROTECT,
+                                      related_name='subscriptions')
+    status        = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    billing_cycle = models.CharField(max_length=10, choices=CYCLE_CHOICES, default='monthly')
+    started_at    = models.DateTimeField(auto_now_add=True)
+    expires_at    = models.DateTimeField(null=True, blank=True)
+    cancelled_at  = models.DateTimeField(null=True, blank=True)
+    auto_renew    = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.user.username} — {self.plan.name}"
+
+    @property
+    def is_active(self):
+        if self.status not in ('active', 'trial'):
+            return False
+        if self.expires_at and self.expires_at < timezone.now():
+            return False
+        return True
+
+    @property
+    def plan_slug(self):
+        return self.plan.slug
+
+    @property
+    def is_pro_or_higher(self):
+        return self.plan.slug in ('pro', 'business')
+
+    @property
+    def is_business(self):
+        return self.plan.slug == 'business'
+
+
+class SubscriptionOrder(models.Model):
+    """Records an upgrade/downgrade request. Admin can mark paid to activate."""
+    STATUS_CHOICES = [
+        ('pending',   'Pending Payment'),
+        ('paid',      'Paid'),
+        ('failed',    'Failed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    user          = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                      related_name='subscription_orders')
+    plan          = models.ForeignKey(SubscriptionPlan, on_delete=models.PROTECT)
+    billing_cycle = models.CharField(max_length=10, default='monthly')
+    amount        = models.DecimalField(max_digits=8, decimal_places=2)
+    status        = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    reference     = models.CharField(max_length=100, blank=True, help_text='Payment reference/tx ID')
+    created_at    = models.DateTimeField(auto_now_add=True)
+    paid_at       = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} → {self.plan.name} ({self.status})"
 
 
 # ── Event type extension (added via migration) ────────────────────

@@ -10,17 +10,21 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">{{ course.title }}</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <style>
 .cd-wrap { max-width:900px; margin:0 auto; padding:36px 24px 64px; }
-.cd-header { background:linear-gradient(135deg,#0A1628,#1B5EC7); border-radius:16px;
-  padding:36px 40px; color:#fff; margin-bottom:32px; }
-.cd-header h1 { font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:800; margin:0 0 8px; }
-.cd-header p { opacity:.85; font-size:.9rem; margin:0 0 20px; }
+.cd-header { background:linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%); border-radius:16px;
+  padding:36px 40px; color:#0A1628; margin-bottom:32px; }
+.cd-header h1 { font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:800; margin:0 0 8px; color:#0A1628; }
+.cd-header p { font-size:.9rem; margin:0 0 20px; color:#6b7280; }
 .cd-meta-row { display:flex; flex-wrap:wrap; gap:16px; font-size:.82rem; opacity:.8; }
 .cd-meta-item { display:flex; align-items:center; gap:5px; }
 .cd-progress-wrap { margin-top:18px; }
-.cd-progress-bar { height:8px; background:rgba(255,255,255,.2); border-radius:4px; overflow:hidden; }
-.cd-progress-fill { height:100%; background:#fff; border-radius:4px; transition:width .5s ease; }
+.cd-progress-bar { height:8px; background:#d0dff0; border-radius:4px; overflow:hidden; }
+.cd-progress-fill { height:100%; background:#1B5EC7; border-radius:4px; transition:width .5s ease; }
 .cd-section-title { font-family:'Space Grotesk',sans-serif; font-size:1rem; font-weight:800;
   color:#0A1628; margin:0 0 14px; }
 .cd-module { border:1px solid #e0e8f4; border-radius:10px; padding:16px 20px; margin-bottom:10px;
@@ -50,10 +54,10 @@
     <p>{{ course.description }}</p>
     {% endif %}
     <div class="cd-meta-row">
-      <div class="cd-meta-item">👤 {{ course.instructor_name }}</div>
+      <div class="cd-meta-item">{{ course.instructor_name }}</div>
       {% if course.duration_hours %}<div class="cd-meta-item">⏱ {{ course.duration_hours }}h total</div>{% endif %}
-      <div class="cd-meta-item">👥 {{ course.enrolled_count }} enrolled</div>
-      <div class="cd-meta-item">💰 {% if course.is_free %}Free{% else %}${{ course.price }}{% endif %}</div>
+      <div class="cd-meta-item">{{ course.enrolled_count }} enrolled</div>
+      <div class="cd-meta-item">{% if course.is_free %}Free{% else %}${{ course.price }}{% endif %}</div>
     </div>
 
     {% if enrollment %}
@@ -93,7 +97,7 @@
         border-radius:8px;font-weight:700;cursor:pointer;font-size:.85rem;">Save</button>
     </form>
     {% if enrollment.status == 'completed' %}
-    <p style="color:#059669;font-size:.85rem;font-weight:700;margin:10px 0 0;">🎉 Course completed!</p>
+    <p style="color:#059669;font-size:.85rem;font-weight:700;margin:10px 0 0;">Course completed!</p>
     {% endif %}
   </div>
   {% endif %}
@@ -146,7 +150,7 @@ if (slider) {
     });
     const data = await res.json();
     if (data.status === 'completed') {
-      sliderVal.textContent = '100% — Completed! 🎉';
+      sliderVal.textContent = '100% — Completed!';
     }
   });
 }

@@ -1,6 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}Training Hub | Oduma Connect{% endblock %}
+{% block title %}Training Hub | Oduma Corp{% endblock %}
 
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
@@ -9,15 +9,19 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Training Hub</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <style>
 :root { --th-blue:#1B5EC7; --th-navy:#0A1628; --th-bg:#F4F7FB; }
 .th-wrap { max-width:1200px; margin:0 auto; padding:36px 24px 64px; }
-.th-hero { background:linear-gradient(135deg,#0A1628 0%,#1B5EC7 100%);
-  border-radius:16px; padding:40px 48px; color:#fff; margin-bottom:36px; position:relative; overflow:hidden; }
+.th-hero { background:linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
+  border-radius:16px; padding:40px 48px; color:#0A1628; margin-bottom:36px; position:relative; overflow:hidden; }
 .th-hero::after { content:''; position:absolute; right:-60px; top:-60px; width:280px; height:280px;
-  background:rgba(255,255,255,.05); border-radius:50%; }
-.th-hero h1 { font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:800; margin:0 0 8px; }
-.th-hero p  { opacity:.85; font-size:.95rem; margin:0; }
+  background:rgba(27,94,199,.06); border-radius:50%; }
+.th-hero h1 { font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:800; margin:0 0 8px; color:#0A1628; }
+.th-hero p  { font-size:.95rem; margin:0; color:#6b7280; }
 .th-filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:28px; }
 .th-filter-btn { padding:7px 18px; border-radius:20px; font-size:.82rem; font-weight:600;
   text-decoration:none; border:1.5px solid #d1d5db; color:#374151; background:#fff;
@@ -119,7 +123,7 @@
         {% if course.cover_image %}
         <img src="{{ course.cover_image.url }}" alt="{{ course.title }}">
         {% else %}
-        <span>📚</span>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;color:#7c3aed"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         {% endif %}
         <span class="th-card-level">{{ course.get_level_display }}</span>
       </div>
@@ -145,7 +149,7 @@
   </div>
   {% else %}
   <div class="th-empty">
-    <p style="font-size:1.5rem;margin-bottom:8px;">📚</p>
+    <p style="margin-bottom:8px;opacity:.4;color:#6b7280;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></p>
     <p style="font-weight:700;margin-bottom:4px;">No courses available yet</p>
     <p style="font-size:.85rem;">Check back soon — the Oduma team is adding new content regularly.</p>
   </div>

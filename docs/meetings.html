@@ -1,5 +1,5 @@
 {% extends '_partials/base.html' %}
-{% block title %}Meetings | Oduma Connect
+{% block title %}Meetings | Oduma Corp
 {% endblock %}
 
 {% block content %}
@@ -9,6 +9,10 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Meetings</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <style>
   :root {
     --blue: #004AAD; --blue-dark: #003490;

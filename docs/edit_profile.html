@@ -1,75 +1,216 @@
 {% extends "_partials/base.html" %}
 {% load static %}
-{% block title %}Edit Profile | Oduma Connect{% endblock %}
+{% block title %}Edit Profile — Oduma Corp{% endblock %}
 
 {% block extra_head %}
 <style>
-:root{--navy:#0A1628;--blue:#1B5EC7;--blue-d:#144FA8;}
-
-.ep-page{max-width:860px;margin:0 auto;padding:40px 24px 80px;}
-
-/* Header */
-.ep-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:32px;}
-.ep-header h1{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:800;color:var(--navy);margin:0;}
-.ep-back{display:inline-flex;align-items:center;gap:6px;font-size:.84rem;font-weight:600;color:#6b7280;text-decoration:none;transition:color .15s;}
-.ep-back:hover{color:var(--navy);}
-
-/* Card */
-.ep-card{background:#fff;border:1px solid #e0e8f4;border-radius:16px;overflow:hidden;box-shadow:0 2px 20px rgba(10,22,40,0.06);}
-
-/* Avatar section */
-.ep-avatar-section{background:linear-gradient(135deg,#0A1628,#1B5EC7);padding:28px 32px;display:flex;align-items:center;gap:22px;}
-.ep-avatar-wrap{position:relative;flex-shrink:0;}
-.ep-avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.25);}
-.ep-avatar-initials{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.15);border:3px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;}
-.ep-avatar-upload{position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:#fff;border:2px solid #e0e8f4;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.75rem;}
-.ep-avatar-info h2{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:800;color:#fff;margin:0 0 4px;}
-.ep-avatar-info p{font-size:.82rem;color:rgba(255,255,255,0.65);margin:0 0 10px;}
-.ep-avatar-label{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:.78rem;font-weight:700;padding:6px 14px;border-radius:8px;cursor:pointer;transition:background .18s;}
-.ep-avatar-label:hover{background:rgba(255,255,255,0.2);}
-#ep-pic-input{display:none;}
-
-/* Sections */
-.ep-sections{padding:28px 32px;display:flex;flex-direction:column;gap:28px;}
-.ep-section{}
-.ep-section-title{font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-.ep-section-title::after{content:'';flex:1;height:1px;background:#f0f4f8;}
-
-.ep-grid{display:grid;gap:16px;}
-.ep-grid-2{grid-template-columns:1fr 1fr;}
-.ep-grid-1{grid-template-columns:1fr;}
-
-.ep-field label{display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:6px;letter-spacing:.01em;}
-.ep-field input,.ep-field textarea,.ep-field select{
-  width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:11px 14px;
-  font-size:.875rem;font-family:inherit;color:#0A1628;background:#fafbff;
-  transition:border-color .18s,box-shadow .18s;outline:none;box-sizing:border-box;}
-.ep-field input:focus,.ep-field textarea:focus,.ep-field select:focus{
-  border-color:#1B5EC7;box-shadow:0 0 0 3px rgba(27,94,199,0.1);background:#fff;}
-.ep-field textarea{resize:vertical;line-height:1.65;}
-.ep-field .ep-hint{font-size:.72rem;color:#9ca3af;margin-top:5px;}
-
-/* Error display */
-.ep-field-errors{margin-top:5px;}
-.ep-field-errors li{font-size:.78rem;color:#dc2626;list-style:none;}
-
-/* Footer actions */
-.ep-actions{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-top:1px solid #f0f4f8;flex-wrap:wrap;gap:12px;}
-.ep-btn-save{background:#1B5EC7;color:#fff;border:none;padding:12px 32px;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:background .18s,transform .18s;}
-.ep-btn-save:hover{background:#144FA8;transform:translateY(-1px);}
-.ep-btn-cancel{color:#6b7280;font-size:.875rem;font-weight:600;text-decoration:none;padding:12px 20px;border-radius:10px;transition:background .15s;}
-.ep-btn-cancel:hover{background:#f0f4f8;color:var(--navy);}
-
-/* Success message */
-.ep-alert{display:flex;align-items:center;gap:10px;background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;padding:13px 16px;border-radius:10px;font-size:.875rem;font-weight:600;margin-bottom:24px;}
-
-@media(max-width:640px){
-  .ep-page{padding:24px 16px 60px;}
-  .ep-sections{padding:20px 20px;}
-  .ep-actions{padding:16px 20px;}
-  .ep-grid-2{grid-template-columns:1fr;}
-  .ep-avatar-section{padding:22px 20px;flex-wrap:wrap;}
+:root {
+  --ink:#0A1628; --blue:#1B5EC7; --blue-d:#144FA8;
+  --blue-lt:#eff6ff; --muted:#6b7280; --border:#e5e7eb;
+  --ff:'Space Grotesk',sans-serif;
 }
+
+.ep-page { max-width: 900px; margin: 0 auto; padding: 28px 20px 80px; }
+
+/* ── Header ── */
+.ep-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 28px;
+}
+.ep-topbar h1 {
+  font-family: var(--ff); font-size: 1.45rem; font-weight: 800;
+  color: var(--ink); margin: 0;
+}
+.ep-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: .84rem; font-weight: 600; color: var(--muted);
+  text-decoration: none; transition: color .15s;
+}
+.ep-back:hover { color: var(--ink); }
+
+/* ── Alert ── */
+.ep-alert {
+  display: flex; align-items: center; gap: 10px;
+  background: #f0fdf4; border: 1px solid #bbf7d0;
+  color: #15803d; padding: 13px 16px; border-radius: 10px;
+  font-size: .875rem; font-weight: 600; margin-bottom: 22px;
+}
+
+/* ── Layout ── */
+.ep-layout {
+  display: grid; grid-template-columns: 220px 1fr;
+  gap: 22px; align-items: start;
+}
+@media (max-width: 680px) { .ep-layout { grid-template-columns: 1fr; } }
+
+/* ── Sidebar card ── */
+.ep-sidebar {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 18px; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,.05);
+  position: sticky; top: 76px;
+}
+.ep-sidebar-hero {
+  background: linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
+  padding: 28px 20px 22px; text-align: center;
+}
+.ep-avatar-wrap {
+  position: relative; width: 84px; height: 84px;
+  margin: 0 auto 12px; cursor: pointer;
+}
+.ep-avatar-wrap:hover .ep-avatar-overlay { opacity: 1; }
+.ep-avatar {
+  width: 84px; height: 84px; border-radius: 50%;
+  object-fit: cover; border: 3px solid #b8d0f0;
+  display: block;
+}
+.ep-avatar-initials {
+  width: 84px; height: 84px; border-radius: 50%;
+  background: #1B5EC7; border: 3px solid #b8d0f0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ff); font-size: 1.7rem; font-weight: 800; color: #fff;
+}
+.ep-avatar-overlay {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: rgba(0,0,0,.45); display: flex; align-items: center;
+  justify-content: center; opacity: 0; transition: opacity .2s;
+}
+.ep-avatar-overlay svg { color: #fff; }
+#ep-pic-input { display: none; }
+.ep-sidebar-name {
+  font-family: var(--ff); font-size: .95rem; font-weight: 800;
+  color: #0A1628; margin: 0 0 3px;
+}
+.ep-sidebar-role {
+  font-size: .75rem; color: #6b7280; margin: 0 0 14px;
+}
+.ep-change-photo-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(27,94,199,.08); border: 1px solid #b8d0f0;
+  color: #1B5EC7; font-family: var(--ff); font-size: .75rem; font-weight: 700;
+  padding: 6px 14px; border-radius: 8px; cursor: pointer;
+  transition: background .18s;
+}
+.ep-change-photo-btn:hover { background: rgba(27,94,199,.15); }
+
+/* Completion */
+.ep-completion { padding: 16px 18px; border-top: 1px solid #d0dff0; }
+.ep-comp-label {
+  font-size: .68rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .06em; color: #6b7280; margin-bottom: 8px;
+}
+.ep-comp-bar-bg {
+  height: 6px; background: #d0dff0;
+  border-radius: 100px; overflow: hidden; margin-bottom: 5px;
+}
+.ep-comp-bar-fill {
+  height: 100%; border-radius: 100px;
+  background: linear-gradient(90deg,#3b82f6,#60a5fa);
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+.ep-comp-foot {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ep-comp-pct { font-family: var(--ff); font-size: .72rem; font-weight: 700; color: #374151; }
+.ep-comp-tip { font-size: .68rem; color: #9ca3af; }
+
+/* Sidebar links */
+.ep-sidebar-links { padding: 12px 0; }
+.ep-sidebar-link {
+  display: flex; align-items: center; gap: 10px; padding: 9px 18px;
+  font-size: .82rem; color: var(--muted); text-decoration: none;
+  transition: background .15s, color .15s; cursor: pointer;
+}
+.ep-sidebar-link:hover { background: var(--blue-lt); color: var(--blue); }
+.ep-sidebar-link.active { background: var(--blue-lt); color: var(--blue); font-weight: 700; }
+.ep-sidebar-link-icon { width: 20px; text-align: center; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+
+/* ── Main form ── */
+.ep-form { display: flex; flex-direction: column; gap: 16px; }
+
+.ep-section {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+.ep-section-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 15px 22px; border-bottom: 1px solid #f0f4fa;
+}
+.ep-section-icon {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.ep-section-icon--blue   { background: #dbeafe; }
+.ep-section-icon--green  { background: #d1fae5; }
+.ep-section-icon--purple { background: #ede9fe; }
+.ep-section-icon--amber  { background: #fef3c7; }
+.ep-section-title {
+  font-family: var(--ff); font-size: .92rem; font-weight: 700;
+  color: var(--ink); margin: 0;
+}
+.ep-section-sub { font-size: .73rem; color: var(--muted); margin: 0; }
+.ep-section-body { padding: 20px 22px; }
+
+.ep-grid {
+  display: grid; gap: 14px;
+}
+.ep-grid-2 { grid-template-columns: 1fr 1fr; }
+.ep-grid-1 { grid-template-columns: 1fr; }
+@media (max-width: 520px) { .ep-grid-2 { grid-template-columns: 1fr; } }
+
+.ep-field { display: flex; flex-direction: column; gap: 5px; }
+.ep-field label {
+  font-family: var(--ff); font-size: .76rem; font-weight: 700;
+  color: #374151; letter-spacing: .01em;
+}
+.ep-field label .req { color: #dc2626; margin-left: 2px; }
+.ep-field input,
+.ep-field select,
+.ep-field textarea {
+  width: 100%; padding: 10px 13px;
+  border: 1.5px solid var(--border); border-radius: 9px;
+  font-size: .875rem; font-family: inherit; color: var(--ink);
+  background: #fafbff; box-sizing: border-box;
+  transition: border-color .18s, box-shadow .18s; outline: none;
+}
+.ep-field input:focus,
+.ep-field select:focus,
+.ep-field textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(27,94,199,.08);
+  background: #fff;
+}
+.ep-field textarea { resize: vertical; line-height: 1.65; }
+.ep-field .ep-hint { font-size: .71rem; color: #9ca3af; }
+.ep-field-errors { margin-top: 4px; list-style: none; padding: 0; }
+.ep-field-errors li { font-size: .75rem; color: #dc2626; }
+.ep-field-foot { display: flex; justify-content: space-between; }
+
+/* ── Actions ── */
+.ep-actions {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 16px; padding: 16px 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+  box-shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+.ep-btn-save {
+  background: var(--blue); color: #fff; border: none;
+  padding: 11px 30px; border-radius: 10px;
+  font-family: var(--ff); font-size: .9rem; font-weight: 700;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+  transition: background .18s, transform .15s;
+}
+.ep-btn-save:hover { background: var(--blue-d); transform: translateY(-1px); }
+.ep-btn-cancel {
+  color: var(--muted); text-decoration: none;
+  font-family: var(--ff); font-size: .875rem; font-weight: 600;
+  padding: 11px 18px; border-radius: 10px;
+  border: 1.5px solid var(--border);
+  transition: background .15s, color .15s;
+}
+.ep-btn-cancel:hover { background: #f3f4f6; color: var(--ink); text-decoration: none; }
 </style>
 {% endblock %}
 
@@ -77,156 +218,315 @@
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
     <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><a href="{% url 'my_profile' %}" class="oc-breadcrumbs__link">Profile</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% url 'profile_view' id=request.user.id %}" class="oc-breadcrumbs__link">Profile</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Edit Profile</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
+
 <div class="ep-page">
 
-  <!-- Header -->
-  <div class="ep-header">
+  <div class="ep-topbar">
     <h1>Edit Profile</h1>
-    <a href="{% url 'profile_view' id=request.user.id %}" class="ep-back">← Back to Profile</a>
+    <a href="{% url 'profile_view' id=request.user.id %}" class="ep-back">← Back to profile</a>
   </div>
 
   {% if messages %}
     {% for message in messages %}
-      <div class="ep-alert">✓ {{ message }}</div>
+    <div class="ep-alert">✓ {{ message }}</div>
     {% endfor %}
   {% endif %}
 
-  <form method="POST" enctype="multipart/form-data">
+  <form method="POST" enctype="multipart/form-data" id="ep-form">
     {% csrf_token %}
+    <div class="ep-layout">
 
-    <div class="ep-card">
+      <!-- ── Sidebar ── -->
+      <div class="ep-sidebar">
+        <div class="ep-sidebar-hero">
 
-      <!-- Avatar / identity strip -->
-      <div class="ep-avatar-section">
-        <div class="ep-avatar-wrap">
-          {% if form.instance.profile_pics %}
-            <img src="{{ form.instance.profile_pics.url }}" alt="Avatar" class="ep-avatar" id="ep-avatar-preview">
-          {% else %}
-            <div class="ep-avatar-initials" id="ep-avatar-initials">
-              {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+          <!-- Avatar -->
+          <div class="ep-avatar-wrap" onclick="document.getElementById('ep-pic-input').click()">
+            {% if form.instance.profile_pics %}
+              <img src="{{ form.instance.profile_pics.url }}" class="ep-avatar" id="ep-avatar-preview" alt="">
+            {% else %}
+              <div class="ep-avatar-initials" id="ep-avatar-initials">
+                {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+              </div>
+            {% endif %}
+            <div class="ep-avatar-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
             </div>
-          {% endif %}
-          <div class="ep-avatar-upload" onclick="document.getElementById('ep-pic-input').click()">📷</div>
-        </div>
-        <div class="ep-avatar-info">
-          <h2>{{ request.user.get_full_name|default:request.user.username }}</h2>
-          <p>{{ request.user.email }}</p>
-          <label class="ep-avatar-label" for="ep-pic-input">
-            ↑ Change Photo
+          </div>
+          <input type="file" name="profile_pics" id="ep-pic-input"
+                 accept="image/*" onchange="epPreview(this)">
+
+          <div class="ep-sidebar-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+          <div class="ep-sidebar-role">
+            {{ request.user.user_type|capfirst }}
+            {% if up.industry %} · {{ up.get_industry_display }}{% endif %}
+          </div>
+          <label class="ep-change-photo-btn" for="ep-pic-input">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Change photo
           </label>
-          <input type="file" name="profile_pics" id="ep-pic-input" accept="image/*"
-                 onchange="previewAvatar(this)">
+        </div>
+
+        <!-- Profile completion -->
+        <div class="ep-completion">
+          <div class="ep-comp-label">Profile strength</div>
+          <div class="ep-comp-bar-bg">
+            <div class="ep-comp-bar-fill" style="width:{{ profile_completion }}%;"></div>
+          </div>
+          <div class="ep-comp-foot">
+            <span class="ep-comp-pct">{{ profile_completion }}% complete</span>
+            <span class="ep-comp-tip">
+              {% if profile_completion == 100 %}Full ✓
+              {% elif profile_completion >= 80 %}Almost there
+              {% elif profile_completion >= 50 %}Halfway
+              {% else %}Keep going
+              {% endif %}
+            </span>
+          </div>
+        </div>
+
+        <!-- Nav links (scroll-to) -->
+        <div class="ep-sidebar-links">
+          <a class="ep-sidebar-link active" onclick="epScrollTo('sec-personal')">
+            <span class="ep-sidebar-link-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> Personal Info
+          </a>
+          <a class="ep-sidebar-link" onclick="epScrollTo('sec-professional')">
+            <span class="ep-sidebar-link-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span> Professional
+          </a>
+          <a class="ep-sidebar-link" onclick="epScrollTo('sec-bio')">
+            <span class="ep-sidebar-link-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg></span> Bio
+          </a>
+          {% if request.user.user_type == 'investor' %}
+          <a class="ep-sidebar-link" onclick="epScrollTo('sec-investor')">
+            <span class="ep-sidebar-link-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span> Investor Settings
+          </a>
+          {% endif %}
         </div>
       </div>
 
-      <!-- Form sections -->
-      <div class="ep-sections">
+      <!-- ── Main form ── -->
+      <div class="ep-form">
 
         <!-- Personal Info -->
-        <div class="ep-section">
-          <div class="ep-section-title">Personal Information</div>
-          <div class="ep-grid ep-grid-2">
-            <div class="ep-field">
-              <label for="{{ form.first_name.id_for_label }}">First Name</label>
-              <input type="text" name="first_name" id="{{ form.first_name.id_for_label }}"
-                     value="{{ form.first_name.value|default:'' }}" placeholder="Jane">
-              {% if form.first_name.errors %}<ul class="ep-field-errors">{% for e in form.first_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        <div class="ep-section" id="sec-personal">
+          <div class="ep-section-head">
+            <div class="ep-section-icon ep-section-icon--blue"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <div>
+              <div class="ep-section-title">Personal Information</div>
+              <div class="ep-section-sub">Your name and contact details</div>
             </div>
-            <div class="ep-field">
-              <label for="{{ form.last_name.id_for_label }}">Last Name</label>
-              <input type="text" name="last_name" id="{{ form.last_name.id_for_label }}"
-                     value="{{ form.last_name.value|default:'' }}" placeholder="Okafor">
-              {% if form.last_name.errors %}<ul class="ep-field-errors">{% for e in form.last_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-            </div>
-            <div class="ep-field">
-              <label for="{{ form.email.id_for_label }}">Email Address</label>
-              <input type="email" name="email" id="{{ form.email.id_for_label }}"
-                     value="{{ form.email.value|default:'' }}" placeholder="jane@example.com">
-              {% if form.email.errors %}<ul class="ep-field-errors">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-            </div>
-            <div class="ep-field">
-              <label for="{{ form.phone_number.id_for_label }}">Phone Number</label>
-              <input type="tel" name="phone_number" id="{{ form.phone_number.id_for_label }}"
-                     value="{{ form.phone_number.value|default:'' }}" placeholder="+234 800 000 0000">
-              {% if form.phone_number.errors %}<ul class="ep-field-errors">{% for e in form.phone_number.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+          <div class="ep-section-body">
+            <div class="ep-grid ep-grid-2">
+              <div class="ep-field">
+                <label for="{{ form.first_name.id_for_label }}">First name <span class="req">*</span></label>
+                <input type="text" name="first_name" id="{{ form.first_name.id_for_label }}"
+                       value="{{ form.first_name.value|default:'' }}" placeholder="Jane">
+                {% if form.first_name.errors %}<ul class="ep-field-errors">{% for e in form.first_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+              </div>
+              <div class="ep-field">
+                <label for="{{ form.last_name.id_for_label }}">Last name</label>
+                <input type="text" name="last_name" id="{{ form.last_name.id_for_label }}"
+                       value="{{ form.last_name.value|default:'' }}" placeholder="Okafor">
+                {% if form.last_name.errors %}<ul class="ep-field-errors">{% for e in form.last_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+              </div>
+              <div class="ep-field">
+                <label for="{{ form.email.id_for_label }}">Email address <span class="req">*</span></label>
+                <input type="email" name="email" id="{{ form.email.id_for_label }}"
+                       value="{{ form.email.value|default:'' }}" placeholder="jane@example.com" required>
+                {% if form.email.errors %}<ul class="ep-field-errors">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+              </div>
+              <div class="ep-field">
+                <label for="{{ form.phone_number.id_for_label }}">Phone number</label>
+                <input type="tel" name="phone_number" id="{{ form.phone_number.id_for_label }}"
+                       value="{{ form.phone_number.value|default:'' }}" placeholder="+254 700 000 000">
+                {% if form.phone_number.errors %}<ul class="ep-field-errors">{% for e in form.phone_number.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+              </div>
+              <div class="ep-field">
+                <label for="id_location">Location</label>
+                <input type="text" name="location" id="id_location"
+                       value="{{ up.location|default:'' }}"
+                       placeholder="e.g. Nairobi, Kenya">
+                <span class="ep-hint">City and country where you are based</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Professional -->
-        <div class="ep-section">
-          <div class="ep-section-title">Professional Details</div>
-          <div class="ep-grid ep-grid-2">
-            <div class="ep-field">
-              <label for="{{ form.company.id_for_label }}">Company / Organisation</label>
-              <input type="text" name="company" id="{{ form.company.id_for_label }}"
-                     value="{{ form.company.value|default:'' }}" placeholder="Acme Ltd.">
-              {% if form.company.errors %}<ul class="ep-field-errors">{% for e in form.company.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        <!-- Professional Details -->
+        <div class="ep-section" id="sec-professional">
+          <div class="ep-section-head">
+            <div class="ep-section-icon ep-section-icon--green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+            <div>
+              <div class="ep-section-title">Professional Details</div>
+              <div class="ep-section-sub">Shown to investors and collaborators</div>
             </div>
-            <div class="ep-field">
-              <label for="{{ form.industry.id_for_label }}">Industry</label>
-              <select name="industry" id="{{ form.industry.id_for_label }}">
-                <option value="">— Select industry —</option>
-                {% for val, label in form.fields.industry.choices %}
-                  {% if val %}
+          </div>
+          <div class="ep-section-body">
+            <div class="ep-grid ep-grid-2">
+              <div class="ep-field">
+                <label for="{{ form.company.id_for_label }}">Company / Organisation</label>
+                <input type="text" name="company" id="{{ form.company.id_for_label }}"
+                       value="{{ form.company.value|default:'' }}" placeholder="e.g. Oduma Ventures">
+                {% if form.company.errors %}<ul class="ep-field-errors">{% for e in form.company.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+              </div>
+              <div class="ep-field">
+                <label for="{{ form.industry.id_for_label }}">Industry</label>
+                <select name="industry" id="{{ form.industry.id_for_label }}">
+                  <option value="">— Select industry —</option>
+                  {% for val, label in form.fields.industry.choices %}
+                    {% if val %}
                     <option value="{{ val }}" {% if form.industry.value == val %}selected{% endif %}>{{ label }}</option>
-                  {% endif %}
-                {% endfor %}
-              </select>
-              {% if form.industry.errors %}<ul class="ep-field-errors">{% for e in form.industry.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    {% endif %}
+                  {% endfor %}
+                </select>
+                {% if form.industry.errors %}<ul class="ep-field-errors">{% for e in form.industry.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Bio -->
-        <div class="ep-section">
-          <div class="ep-section-title">About You</div>
-          <div class="ep-grid ep-grid-1">
+        <div class="ep-section" id="sec-bio">
+          <div class="ep-section-head">
+            <div class="ep-section-icon ep-section-icon--purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg></div>
+            <div>
+              <div class="ep-section-title">Bio</div>
+              <div class="ep-section-sub">Your pitch to investors and collaborators</div>
+            </div>
+          </div>
+          <div class="ep-section-body">
             <div class="ep-field">
-              <label for="{{ form.bio.id_for_label }}">Bio</label>
+              <label for="{{ form.bio.id_for_label }}">About you</label>
               <textarea name="bio" id="{{ form.bio.id_for_label }}" rows="5"
-                placeholder="Tell the community who you are, what you're building, and what you're looking for…">{{ form.bio.value|default:'' }}</textarea>
-              <p class="ep-hint">A strong bio helps investors and innovators find and connect with you.</p>
+                        maxlength="600"
+                        placeholder="What's your background? What are you building or investing in?&#10;Be specific — vague bios get ignored."
+                        oninput="epCountBio(this)">{{ form.bio.value|default:'' }}</textarea>
+              <div class="ep-field-foot">
+                <span class="ep-hint">A strong bio helps the right people find you.</span>
+                <span class="ep-hint" id="ep-bio-count">0 / 600</span>
+              </div>
               {% if form.bio.errors %}<ul class="ep-field-errors">{% for e in form.bio.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
             </div>
           </div>
         </div>
 
-      </div><!-- /ep-sections -->
+        <!-- Investor Settings (investor-only) -->
+        {% if request.user.user_type == 'investor' %}
+        <div class="ep-section" id="sec-investor">
+          <div class="ep-section-head">
+            <div class="ep-section-icon ep-section-icon--amber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            <div>
+              <div class="ep-section-title">Investor Preferences</div>
+              <div class="ep-section-sub">Used by our matching engine to surface relevant deals</div>
+            </div>
+          </div>
+          <div class="ep-section-body">
+            <div class="ep-grid ep-grid-2">
+              <div class="ep-field">
+                <label>Min ticket size (USD)</label>
+                <input type="number" name="ticket_size_min"
+                       value="{{ up.ticket_size_min|default:'' }}"
+                       placeholder="e.g. 10000" min="0">
+              </div>
+              <div class="ep-field">
+                <label>Max ticket size (USD)</label>
+                <input type="number" name="ticket_size_max"
+                       value="{{ up.ticket_size_max|default:'' }}"
+                       placeholder="e.g. 500000" min="0">
+              </div>
+            </div>
+            <div class="ep-grid ep-grid-1" style="margin-top:14px;">
+              <div class="ep-field">
+                <label>Preferred sectors</label>
+                <input type="text" name="preferred_sectors"
+                       value="{{ up.preferred_sectors|default:'' }}"
+                       placeholder="e.g. tech, health, agriculture">
+                <span class="ep-hint">Comma-separated. Used for intelligent project matching.</span>
+              </div>
+              <div class="ep-field" style="margin-top:14px;">
+                <label>Geography focus</label>
+                <input type="text" name="geography_focus"
+                       value="{{ up.geography_focus|default:'' }}"
+                       placeholder="e.g. Kenya, East Africa, Pan-African, global">
+              </div>
+              <div class="ep-field" style="margin-top:14px;">
+                <label>Investment thesis</label>
+                <textarea name="investment_thesis" rows="3"
+                  placeholder="Briefly describe what you look for in a deal…">{{ up.investment_thesis|default:'' }}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
 
-      <!-- Action bar -->
-      <div class="ep-actions">
-        <a href="{% url 'profile_view' id=request.user.id %}" class="ep-btn-cancel">Cancel</a>
-        <button type="submit" class="ep-btn-save">Save Changes</button>
-      </div>
+        <!-- Actions -->
+        <div class="ep-actions">
+          <a href="{% url 'profile_view' id=request.user.id %}" class="ep-btn-cancel">Cancel</a>
+          <button type="submit" class="ep-btn-save">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Save Changes
+          </button>
+        </div>
 
-    </div><!-- /ep-card -->
+      </div><!-- /ep-form -->
+    </div><!-- /ep-layout -->
   </form>
-
 </div>
 
 <script>
-function previewAvatar(input) {
+function epPreview(input) {
   if (!input.files || !input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    // Replace initials div with an img if needed
-    const initials = document.getElementById('ep-avatar-initials');
-    let img = document.getElementById('ep-avatar-preview');
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var initials = document.getElementById('ep-avatar-initials');
+    var img = document.getElementById('ep-avatar-preview');
     if (initials) {
       img = document.createElement('img');
       img.id = 'ep-avatar-preview';
       img.className = 'ep-avatar';
-      img.alt = 'Avatar';
+      img.alt = '';
       initials.replaceWith(img);
     }
     img.src = e.target.result;
   };
   reader.readAsDataURL(input.files[0]);
 }
+
+function epCountBio(el) {
+  document.getElementById('ep-bio-count').textContent = el.value.length + ' / 600';
+}
+
+function epScrollTo(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.ep-sidebar-link').forEach(function(l) { l.classList.remove('active'); });
+  event.currentTarget.classList.add('active');
+}
+
+// Init bio counter
+(function() {
+  var bio = document.getElementById('{{ form.bio.id_for_label }}');
+  if (bio) epCountBio(bio);
+
+  // Also save investor fields manually if investor
+  var form = document.getElementById('ep-form');
+  if (!form) return;
+})();
 </script>
 {% endblock %}

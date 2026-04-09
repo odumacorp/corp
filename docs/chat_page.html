@@ -1,11 +1,12 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}Chat with {{ participant_name }} | Oduma Connect{% endblock %}
+{% block title %}Chat with {{ participant_name }} | Oduma Corp{% endblock %}
 
 {% block extra_head %}
 <style>
 /* ── Shell ── */
 .ch-shell{display:flex;flex-direction:column;height:calc(100vh - 62px);max-width:800px;margin:0 auto;background:#f4f7fb;}
+.ch-shell--project{border-top:3px solid #1B5EC7;}
 
 /* ── Header ── */
 .ch-header{display:flex;align-items:center;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40,0.05);}
@@ -18,6 +19,7 @@
 .ch-hdr-sub{font-size:.72rem;color:#9ca3af;margin-top:1px;}
 .ch-icon-btn{width:34px;height:34px;border-radius:9px;border:1px solid #e8edf4;background:#f8faff;display:flex;align-items:center;justify-content:center;color:#6b7280;cursor:pointer;text-decoration:none;transition:background .15s,color .15s;flex-shrink:0;}
 .ch-icon-btn:hover{background:#1B5EC7;color:#fff;border-color:#1B5EC7;}
+.ch-icon-btn.active{background:#1B5EC7;color:#fff;border-color:#1B5EC7;}
 
 /* ── Messages ── */
 .ch-messages{flex:1;overflow-y:auto;padding:20px 20px 12px;display:flex;flex-direction:column;gap:2px;}
@@ -48,6 +50,207 @@
 .ch-bubble{padding:10px 14px;font-size:.875rem;line-height:1.6;word-break:break-word;position:relative;}
 .ch-row--theirs .ch-bubble{background:#fff;color:#1a202c;border-radius:4px 16px 16px 16px;border:1px solid #e8edf4;box-shadow:0 1px 4px rgba(10,22,40,0.05);}
 .ch-row--mine .ch-bubble{background:linear-gradient(135deg,#1B5EC7,#1451aa);color:#fff;border-radius:16px 4px 16px 16px;}
+
+/* ══════════════════════════════════════════════
+   Shared content cards — posts vs projects
+   deliberately styled very differently from each other
+   and from regular message bubbles
+══════════════════════════════════════════════ */
+
+/* Caption bubble that sits above the share card */
+.ch-share-caption-bubble {
+  font-size: .84rem; line-height: 1.55;
+  padding: 8px 13px;
+  border-radius: 14px 14px 4px 14px;
+  background: linear-gradient(135deg,#1B5EC7,#1451aa);
+  color: #fff;
+  margin-bottom: 6px;
+  max-width: 100%;
+  word-break: break-word;
+}
+.ch-row--theirs .ch-share-caption-bubble {
+  border-radius: 4px 14px 14px 14px;
+  background: #fff;
+  color: #1a202c;
+  border: 1px solid #e8edf4;
+  box-shadow: 0 1px 4px rgba(10,22,40,.05);
+}
+
+/* ── POST share card — editorial / feed style ── */
+.ch-post-card {
+  width: 300px; max-width: 100%;
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  text-decoration: none;
+  display: block;
+  box-shadow: 0 2px 12px rgba(10,22,40,.08);
+  transition: box-shadow .18s, transform .18s;
+  border: 1.5px solid #e8edf4;
+}
+.ch-post-card:hover { box-shadow: 0 6px 24px rgba(10,22,40,.13); transform: translateY(-2px); }
+
+/* Coloured type strip at the top */
+.ch-post-strip {
+  height: 5px; width: 100%;
+}
+.ch-post-strip--idea         { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.ch-post-strip--article      { background: linear-gradient(90deg, #6b7280, #9ca3af); }
+.ch-post-strip--update       { background: linear-gradient(90deg, #1B5EC7, #3b82f6); }
+.ch-post-strip--announcement { background: linear-gradient(90deg, #059669, #10b981); }
+.ch-post-strip--question     { background: linear-gradient(90deg, #7c3aed, #8b5cf6); }
+
+.ch-post-img { width: 100%; height: 120px; object-fit: cover; display: block; }
+
+.ch-post-body { padding: 12px 14px 8px; }
+
+.ch-post-meta-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.ch-post-avatar {
+  width: 24px; height: 24px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+}
+.ch-post-avatar-init {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(135deg,#1B5EC7,#0A1628);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .55rem; font-weight: 800; color: #fff; flex-shrink: 0;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.ch-post-author { font-size: .72rem; font-weight: 700; color: #374151; }
+.ch-post-type-pill {
+  font-size: .6rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .07em; padding: 2px 7px; border-radius: 20px;
+  margin-left: auto; white-space: nowrap;
+}
+.ch-post-type-pill--idea         { background: #fef3c7; color: #92400e; }
+.ch-post-type-pill--article      { background: #f3f4f6; color: #374151; }
+.ch-post-type-pill--update       { background: #dbeafe; color: #1e40af; }
+.ch-post-type-pill--announcement { background: #dcfce7; color: #166534; }
+.ch-post-type-pill--question     { background: #f3e8ff; color: #6d28d9; }
+
+.ch-post-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .9rem; font-weight: 800; color: #0A1628;
+  margin: 0 0 5px; line-height: 1.3;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.ch-post-excerpt {
+  font-size: .78rem; color: #4b5563; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  margin: 0;
+}
+.ch-post-stats {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 14px; border-top: 1px solid #f0f2f5;
+  font-size: .7rem; color: #9ca3af; font-weight: 600;
+}
+.ch-post-cta {
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 14px; border-top: 1px solid #f0f2f5;
+  font-size: .74rem; font-weight: 800; color: #1B5EC7;
+  letter-spacing: .01em;
+}
+
+/* ── PROJECT share card — pitch deck / VC style ── */
+.ch-proj-card {
+  width: 300px; max-width: 100%;
+  background: #0A1628;
+  border-radius: 14px;
+  overflow: hidden;
+  text-decoration: none;
+  display: block;
+  box-shadow: 0 4px 18px rgba(10,22,40,.22);
+  transition: box-shadow .18s, transform .18s;
+  border: 1.5px solid rgba(27,94,199,.35);
+}
+.ch-proj-card:hover { box-shadow: 0 8px 30px rgba(27,94,199,.3); transform: translateY(-2px); }
+
+.ch-proj-img { width: 100%; height: 120px; object-fit: cover; display: block; position: relative; }
+.ch-proj-img-placeholder {
+  width: 100%; height: 120px;
+  background: linear-gradient(135deg, #0d2244 0%, #1B5EC7 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.8rem;
+  position: relative;
+}
+.ch-proj-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(10,22,40,.7) 0%, transparent 60%);
+}
+
+.ch-proj-badges {
+  display: flex; gap: 5px; padding: 10px 12px 4px; flex-wrap: wrap;
+}
+.ch-proj-badge {
+  font-size: .6rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .07em; padding: 2px 8px; border-radius: 20px;
+  white-space: nowrap;
+}
+.ch-proj-badge--industry { background: rgba(27,94,199,.3); color: #93c5fd; border: 1px solid rgba(27,94,199,.4); }
+.ch-proj-badge--stage    { background: rgba(16,185,129,.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
+.ch-proj-badge--verified { background: rgba(16,185,129,.15); color: #34d399; }
+
+.ch-proj-body { padding: 4px 12px 10px; }
+.ch-proj-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .95rem; font-weight: 900; color: #fff;
+  margin: 0 0 6px; line-height: 1.25; letter-spacing: -.02em;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.ch-proj-problem {
+  font-size: .75rem; color: rgba(255,255,255,.6); line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  margin: 0 0 10px;
+}
+
+/* Three data cells: Problem / Market / Ask */
+.ch-proj-data {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px; background: rgba(255,255,255,.08);
+  border-radius: 8px; overflow: hidden; margin-bottom: 10px;
+}
+.ch-proj-data-cell { background: rgba(255,255,255,.04); padding: 7px 8px; }
+.ch-proj-data-key {
+  font-size: .56rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: rgba(255,255,255,.4); margin-bottom: 3px;
+}
+.ch-proj-data-val {
+  font-size: .72rem; font-weight: 700; color: rgba(255,255,255,.85);
+  line-height: 1.3; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.ch-proj-data-val--ask { color: #6ee7b7; font-family: 'Space Grotesk', sans-serif; font-weight: 900; }
+
+.ch-proj-founder {
+  display: flex; align-items: center; gap: 6px;
+  font-size: .7rem; color: rgba(255,255,255,.5);
+  padding-bottom: 2px;
+}
+.ch-proj-founder-av {
+  width: 18px; height: 18px; border-radius: 50%; object-fit: cover;
+}
+.ch-proj-founder-av-init {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .48rem; font-weight: 800; color: rgba(255,255,255,.7);
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.ch-proj-cta {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 12px; border-top: 1px solid rgba(255,255,255,.08);
+  font-size: .74rem; font-weight: 800; color: #93c5fd;
+}
+.ch-proj-readiness {
+  display: flex; align-items: center; gap: 5px;
+}
+.ch-proj-readiness-bar {
+  width: 50px; height: 3px; background: rgba(255,255,255,.12);
+  border-radius: 3px; overflow: hidden;
+}
+.ch-proj-readiness-fill { height: 100%; border-radius: 3px; background: #6ee7b7; }
 
 /* Time + receipt */
 .ch-meta{display:flex;align-items:center;gap:4px;margin-top:3px;justify-content:flex-end;}
@@ -201,11 +404,195 @@
 .ch-send:hover{background:#144FA8;}
 .ch-send svg{fill:#fff;width:18px;height:18px;}
 
+/* ── Project context banner (shown when chat is about a project) ── */
+.ch-proj-banner{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;flex-shrink:0;
+  background:linear-gradient(90deg,#0A1628 0%,#0f2040 100%);
+  border-bottom:1px solid rgba(27,94,199,.4);
+  position:relative;overflow:hidden;
+}
+.ch-proj-banner::before{
+  content:'';position:absolute;inset:0;
+  background:url('') center/cover no-repeat;opacity:.07;
+}
+.ch-proj-banner-img{
+  width:42px;height:42px;border-radius:8px;object-fit:cover;flex-shrink:0;
+  border:1.5px solid rgba(255,255,255,.15);
+}
+.ch-proj-banner-placeholder{
+  width:42px;height:42px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,#1B5EC7,#0d2244);
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+  border:1.5px solid rgba(255,255,255,.15);
+}
+.ch-proj-banner-info{flex:1;min-width:0;}
+.ch-proj-banner-label{
+  font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;
+  color:rgba(255,255,255,.45);margin-bottom:1px;
+}
+.ch-proj-banner-title{
+  font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:800;
+  color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ch-proj-banner-meta{
+  font-size:.68rem;color:rgba(255,255,255,.5);margin-top:1px;
+  display:flex;align-items:center;gap:8px;
+}
+.ch-proj-banner-chip{
+  font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  padding:1px 7px;border-radius:20px;
+  background:rgba(27,94,199,.35);color:#93c5fd;border:1px solid rgba(27,94,199,.4);
+}
+.ch-proj-banner-ask{
+  font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:900;
+  color:#6ee7b7;white-space:nowrap;flex-shrink:0;
+}
+.ch-proj-banner-link{
+  flex-shrink:0;width:30px;height:30px;border-radius:8px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.7);text-decoration:none;font-size:.8rem;
+  transition:background .15s,color .15s;
+}
+.ch-proj-banner-link:hover{background:rgba(27,94,199,.6);color:#fff;}
+
+/* Project chat messages get a subtle blue left accent on "theirs" bubbles */
+.ch-shell--project .ch-row--theirs .ch-bubble{
+  border-left:3px solid rgba(27,94,199,.35);
+}
+/* Project chat input placeholder */
+.ch-shell--project .ch-inputbar textarea::placeholder{
+  color:#7ba3df;
+}
+
 @media(max-width:600px){
   .ch-shell{height:calc(100vh - 56px);}
   .ch-messages{padding:14px 12px 6px;}
   .ch-inputbar{padding:10px 12px;}
   .ch-msg-wrap{max-width:82%;}
+}
+
+/* ── Profile context panel ── */
+.ch-panel-overlay{
+  position:fixed;inset:0;background:rgba(10,22,40,.35);z-index:400;
+  opacity:0;pointer-events:none;transition:opacity .22s;
+}
+.ch-panel-overlay.open{opacity:1;pointer-events:auto;}
+
+.ch-panel{
+  position:fixed;top:0;right:0;bottom:0;width:320px;max-width:92vw;
+  background:#fff;z-index:401;
+  display:flex;flex-direction:column;
+  box-shadow:-4px 0 32px rgba(10,22,40,.14);
+  transform:translateX(100%);transition:transform .26s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+.ch-panel.open{transform:translateX(0);}
+
+.ch-panel-head{
+  padding:18px 20px 14px;
+  background:linear-gradient(135deg,#0A1628 0%,#1B3A6B 100%);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  flex-shrink:0;position:relative;
+}
+.ch-panel-close{
+  position:absolute;top:14px;right:14px;
+  width:28px;height:28px;border-radius:8px;border:none;
+  background:rgba(255,255,255,.12);color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:.8rem;
+  transition:background .15s;
+}
+.ch-panel-close:hover{background:rgba(255,255,255,.22);}
+
+.ch-panel-av{
+  width:64px;height:64px;border-radius:50%;
+  border:2.5px solid rgba(255,255,255,.3);object-fit:cover;
+}
+.ch-panel-av-init{
+  width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#1B5EC7,#0A1628);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;
+  border:2.5px solid rgba(255,255,255,.2);
+}
+.ch-panel-name{
+  font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;
+  color:#fff;text-align:center;
+}
+.ch-panel-role{
+  font-size:.72rem;color:rgba(255,255,255,.6);margin-top:-6px;text-align:center;
+  display:flex;align-items:center;gap:6px;
+}
+.ch-panel-verified{
+  display:inline-flex;align-items:center;gap:3px;
+  background:rgba(16,185,129,.25);color:#6ee7b7;
+  font-size:.64rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  padding:2px 8px;border-radius:20px;
+}
+
+.ch-panel-actions{
+  display:flex;gap:8px;margin-top:4px;
+}
+.ch-panel-btn{
+  flex:1;padding:7px 12px;border-radius:10px;border:none;cursor:pointer;
+  font-family:'Space Grotesk',sans-serif;font-size:.74rem;font-weight:700;
+  text-decoration:none;text-align:center;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.ch-panel-btn--primary{background:#1B5EC7;color:#fff;}
+.ch-panel-btn--primary:hover{background:#144FA8;color:#fff;}
+.ch-panel-btn--secondary{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);}
+.ch-panel-btn--secondary:hover{background:rgba(255,255,255,.2);color:#fff;}
+.ch-panel-btn--connected{background:rgba(16,185,129,.2);color:#6ee7b7;border:1px solid rgba(16,185,129,.3);}
+.ch-panel-btn--pending{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.25);cursor:default;}
+
+.ch-panel-body{flex:1;overflow-y:auto;padding:0;}
+.ch-panel-body::-webkit-scrollbar{width:3px;}
+.ch-panel-body::-webkit-scrollbar-thumb{background:#e0e6f0;border-radius:3px;}
+
+.ch-panel-section{padding:16px 18px;border-bottom:1px solid #f0f4f8;}
+.ch-panel-section:last-child{border-bottom:none;}
+.ch-panel-section-title{
+  font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+  color:#9ca3af;margin-bottom:10px;
+}
+.ch-panel-bio{font-size:.82rem;color:#4b5563;line-height:1.6;}
+.ch-panel-bio em{color:#9ca3af;}
+
+/* Investor-specific stat chips */
+.ch-panel-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.ch-panel-chip{
+  font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:20px;
+  background:#f0f4ff;color:#1B5EC7;border:1px solid #dbeafe;
+}
+.ch-panel-chip--sector{background:#f0fdf4;color:#166534;border-color:#bbf7d0;}
+.ch-panel-chip--geo{background:#fef9c3;color:#854d0e;border-color:#fde68a;}
+
+.ch-panel-ticket{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.05rem;font-weight:900;color:#0A1628;margin-bottom:3px;
+}
+.ch-panel-thesis{font-size:.8rem;color:#4b5563;line-height:1.55;}
+
+/* Project mini-card */
+.ch-panel-proj{
+  display:flex;gap:10px;align-items:flex-start;padding:10px 0;
+  border-bottom:1px solid #f5f7fb;text-decoration:none;
+}
+.ch-panel-proj:last-child{border-bottom:none;}
+.ch-panel-proj-img{
+  width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;
+  background:linear-gradient(135deg,#0d2244,#1B5EC7);
+}
+.ch-panel-proj-info{flex:1;min-width:0;}
+.ch-panel-proj-title{
+  font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;
+  color:#0A1628;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-bottom:2px;
+}
+.ch-panel-proj-meta{font-size:.68rem;color:#9ca3af;}
+.ch-panel-proj-ask{
+  font-size:.72rem;font-weight:700;color:#059669;white-space:nowrap;flex-shrink:0;
 }
 </style>
 {% endblock %}
@@ -215,7 +602,7 @@
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
   Back
 </button>
-<div class="ch-shell">
+<div class="ch-shell{% if is_project_chat %} ch-shell--project{% endif %}">
 
   <!-- Header -->
   <div class="ch-header">
@@ -229,14 +616,47 @@
     {% endif %}
     <div class="ch-hdr-info">
       <div class="ch-hdr-name">{{ participant_name }}</div>
-      <div class="ch-hdr-sub">{% if participant_profile.company %}{{ participant_profile.company }} · {% endif %}{{ participant.user_type|default:"Member"|capfirst }}</div>
+      <div class="ch-hdr-sub">
+        {% if is_project_chat and project_context %}
+          Re: {{ project_context.title|truncatechars:30 }}
+        {% else %}
+          {% if participant_profile.company %}{{ participant_profile.company }} · {% endif %}{{ participant.user_type|default:"Member"|capfirst }}
+        {% endif %}
+      </div>
     </div>
     {% if participant %}
-    <a href="{% url 'profile_view' id=participant.id %}" class="ch-icon-btn" title="View profile">
+    <button class="ch-icon-btn" title="Profile info" onclick="togglePanel()" id="ch-panel-btn">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-    </a>
+    </button>
     {% endif %}
   </div>
+
+  <!-- Project context banner -->
+  {% if is_project_chat and project_context %}
+  {% with p=project_context %}
+  <div class="ch-proj-banner">
+    {% if p.get_main_image_url %}
+      <img src="{{ p.get_main_image_url }}" class="ch-proj-banner-img" alt="">
+    {% else %}
+      <div class="ch-proj-banner-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg></div>
+    {% endif %}
+    <div class="ch-proj-banner-info">
+      <div class="ch-proj-banner-label">Project Discussion</div>
+      <div class="ch-proj-banner-title">{{ p.title }}</div>
+      <div class="ch-proj-banner-meta">
+        <span class="ch-proj-banner-chip">{{ p.industry }}</span>
+        <span>{{ p.get_pipeline_stage_display }}</span>
+      </div>
+    </div>
+    {% if p.funding_requirement %}
+      <div class="ch-proj-banner-ask">{{ p.funding_requirement }}</div>
+    {% endif %}
+    <a href="{% url 'project_detail' p.pk %}" class="ch-proj-banner-link" title="View project" target="_blank">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </a>
+  </div>
+  {% endwith %}
+  {% endif %}
 
   <!-- Messages -->
   <div class="ch-messages" id="ch-messages">
@@ -254,8 +674,8 @@
 
             <!-- Hover action bar -->
             <div class="ch-actions">
-              <button class="ch-act-btn" title="React" onclick="toggleEmojiPicker({{ msg.id }}, event)">😊</button>
-              <button class="ch-act-btn" title="Copy" onclick="copyMsg('{{ msg.content|escapejs }}')">📋</button>
+              <button class="ch-act-btn" title="React" onclick="toggleEmojiPicker({{ msg.id }}, event)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
+              <button class="ch-act-btn" title="Copy" onclick="copyMsg('{{ msg.content|escapejs }}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
             </div>
 
             <!-- Emoji picker (full grid) -->
@@ -269,7 +689,138 @@
             </div>
             {% endif %}
 
-            <div class="ch-bubble">{{ msg.content }}</div>
+            {% if msg.message_type == 'post_share' and msg.shared_post %}
+              {% with p=msg.shared_post %}
+
+              {# Caption bubble above the card #}
+              {% if msg.content and not msg.content|slice:":8" == "Shared a" %}
+              <div class="ch-share-caption-bubble">{{ msg.content }}</div>
+              {% endif %}
+
+              {# Post card — editorial style #}
+              <a href="{% url 'post_detail' p.pk %}" class="ch-post-card" target="_blank">
+                {# Coloured type strip #}
+                <div class="ch-post-strip ch-post-strip--{{ p.post_type|default:'article' }}"></div>
+
+                {# Optional image #}
+                {% if p.image %}<img src="{{ p.image.url }}" class="ch-post-img" alt="">{% endif %}
+
+                <div class="ch-post-body">
+                  {# Author row + type pill #}
+                  <div class="ch-post-meta-row">
+                    {% if p.user.userprofile.profile_pics %}
+                      <img src="{{ p.user.userprofile.profile_pics.url }}" class="ch-post-avatar" alt="">
+                    {% else %}
+                      <div class="ch-post-avatar-init">{{ p.user.first_name|slice:":1"|upper }}{{ p.user.last_name|slice:":1"|upper }}</div>
+                    {% endif %}
+                    <span class="ch-post-author">{{ p.user.get_full_name|default:p.user.username }}</span>
+                    <span class="ch-post-type-pill ch-post-type-pill--{{ p.post_type|default:'article' }}">
+                      {% if p.post_type == 'idea' %}Idea
+                      {% elif p.post_type == 'update' %}Update
+                      {% elif p.post_type == 'announcement' %}News
+                      {% elif p.post_type == 'question' %}Question
+                      {% else %}Article{% endif %}
+                    </span>
+                  </div>
+                  {# Title + excerpt #}
+                  {% if p.title %}<div class="ch-post-title">{{ p.title }}</div>{% endif %}
+                  <p class="ch-post-excerpt">{{ p.content|truncatechars:120 }}</p>
+                </div>
+
+                {# Engagement stats #}
+                <div class="ch-post-stats">
+                  <span>{{ p.likes.count }} likes</span>
+                  <span>{{ p.comments.count }} comments</span>
+                  {% if p.industry %}<span style="margin-left:auto;font-size:.65rem;">{{ p.industry }}</span>{% endif %}
+                </div>
+
+                <div class="ch-post-cta">Read post →</div>
+              </a>
+              {% endwith %}
+
+            {% elif msg.message_type == 'project_share' and msg.shared_project %}
+              {% with p=msg.shared_project cmp=msg.shared_project.completeness_score %}
+
+              {# Caption bubble above the card #}
+              {% if msg.content and not msg.content|slice:":9" == "Check out" %}
+              <div class="ch-share-caption-bubble">{{ msg.content }}</div>
+              {% endif %}
+
+              {# Project card — pitch deck / dark VC style #}
+              <a href="{% url 'project_detail' p.pk %}" class="ch-proj-card" target="_blank">
+
+                {# Cover image or gradient placeholder #}
+                {% if p.get_main_image_url %}
+                  <div style="position:relative;">
+                    <img src="{{ p.get_main_image_url }}" class="ch-proj-img" alt="">
+                    <div class="ch-proj-img-overlay"></div>
+                  </div>
+                {% else %}
+                  <div class="ch-proj-img-placeholder">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg>
+                    <div class="ch-proj-img-overlay"></div>
+                  </div>
+                {% endif %}
+
+                {# Badges: industry + stage + verified #}
+                <div class="ch-proj-badges">
+                  <span class="ch-proj-badge ch-proj-badge--industry">{{ p.industry }}</span>
+                  <span class="ch-proj-badge ch-proj-badge--stage">{{ p.get_pipeline_stage_display }}</span>
+                  {% with op=p.owner.userprofile %}
+                  {% if op.verification_status == 'verified' %}
+                  <span class="ch-proj-badge ch-proj-badge--verified">✓ Verified</span>
+                  {% endif %}
+                  {% endwith %}
+                </div>
+
+                <div class="ch-proj-body">
+                  <div class="ch-proj-title">{{ p.title }}</div>
+
+                  {# Three-cell data row: Problem / Market / Ask #}
+                  <div class="ch-proj-data">
+                    <div class="ch-proj-data-cell">
+                      <div class="ch-proj-data-key">Problem</div>
+                      <div class="ch-proj-data-val">{% if p.problem_statement %}{{ p.problem_statement|truncatewords:6 }}{% else %}—{% endif %}</div>
+                    </div>
+                    <div class="ch-proj-data-cell">
+                      <div class="ch-proj-data-key">Market</div>
+                      <div class="ch-proj-data-val">{% if p.market_opportunity %}{{ p.market_opportunity|truncatewords:6 }}{% else %}—{% endif %}</div>
+                    </div>
+                    <div class="ch-proj-data-cell">
+                      <div class="ch-proj-data-key">Ask</div>
+                      <div class="ch-proj-data-val ch-proj-data-val--ask">{% if p.funding_requirement %}{{ p.funding_requirement }}{% else %}—{% endif %}</div>
+                    </div>
+                  </div>
+
+                  {# Founder line #}
+                  <div class="ch-proj-founder">
+                    {% if p.owner.userprofile.profile_pics %}
+                      <img src="{{ p.owner.userprofile.profile_pics.url }}" class="ch-proj-founder-av" alt="">
+                    {% else %}
+                      <div class="ch-proj-founder-av-init">{{ p.owner.first_name|slice:":1"|upper }}</div>
+                    {% endif %}
+                    <span>by {{ p.owner.get_full_name|default:p.owner.username }}</span>
+                    <span style="margin-left:auto;">{{ p.created_at|timesince }} ago</span>
+                  </div>
+                </div>
+
+                {# CTA + readiness bar #}
+                <div class="ch-proj-cta">
+                  <span>View pitch →</span>
+                  <div class="ch-proj-readiness">
+                    <span style="font-size:.62rem;color:rgba(255,255,255,.4);">{{ cmp }}%</span>
+                    <div class="ch-proj-readiness-bar">
+                      <div class="ch-proj-readiness-fill" style="width:{{ cmp }}%;"></div>
+                    </div>
+                  </div>
+                </div>
+
+              </a>
+              {% endwith %}
+
+            {% else %}
+              <div class="ch-bubble">{{ msg.content }}</div>
+            {% endif %}
 
             <div class="ch-meta">
               <span class="ch-time">{{ msg.timestamp|date:"H:i" }}</span>
@@ -312,8 +863,8 @@
 
             <!-- Hover action bar -->
             <div class="ch-actions">
-              <button class="ch-act-btn" title="React" onclick="toggleEmojiPicker({{ msg.id }}, event)">😊</button>
-              <button class="ch-act-btn" title="Copy" onclick="copyMsg('{{ msg.content|escapejs }}')">📋</button>
+              <button class="ch-act-btn" title="React" onclick="toggleEmojiPicker({{ msg.id }}, event)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
+              <button class="ch-act-btn" title="Copy" onclick="copyMsg('{{ msg.content|escapejs }}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
             </div>
 
             <!-- Emoji picker (full grid) -->
@@ -327,7 +878,138 @@
             </div>
             {% endif %}
 
-            <div class="ch-bubble">{{ msg.content }}</div>
+            {% if msg.message_type == 'post_share' and msg.shared_post %}
+              {% with p=msg.shared_post %}
+
+              {# Caption bubble above the card #}
+              {% if msg.content and not msg.content|slice:":8" == "Shared a" %}
+              <div class="ch-share-caption-bubble">{{ msg.content }}</div>
+              {% endif %}
+
+              {# Post card — editorial style #}
+              <a href="{% url 'post_detail' p.pk %}" class="ch-post-card" target="_blank">
+                {# Coloured type strip #}
+                <div class="ch-post-strip ch-post-strip--{{ p.post_type|default:'article' }}"></div>
+
+                {# Optional image #}
+                {% if p.image %}<img src="{{ p.image.url }}" class="ch-post-img" alt="">{% endif %}
+
+                <div class="ch-post-body">
+                  {# Author row + type pill #}
+                  <div class="ch-post-meta-row">
+                    {% if p.user.userprofile.profile_pics %}
+                      <img src="{{ p.user.userprofile.profile_pics.url }}" class="ch-post-avatar" alt="">
+                    {% else %}
+                      <div class="ch-post-avatar-init">{{ p.user.first_name|slice:":1"|upper }}{{ p.user.last_name|slice:":1"|upper }}</div>
+                    {% endif %}
+                    <span class="ch-post-author">{{ p.user.get_full_name|default:p.user.username }}</span>
+                    <span class="ch-post-type-pill ch-post-type-pill--{{ p.post_type|default:'article' }}">
+                      {% if p.post_type == 'idea' %}Idea
+                      {% elif p.post_type == 'update' %}Update
+                      {% elif p.post_type == 'announcement' %}News
+                      {% elif p.post_type == 'question' %}Question
+                      {% else %}Article{% endif %}
+                    </span>
+                  </div>
+                  {# Title + excerpt #}
+                  {% if p.title %}<div class="ch-post-title">{{ p.title }}</div>{% endif %}
+                  <p class="ch-post-excerpt">{{ p.content|truncatechars:120 }}</p>
+                </div>
+
+                {# Engagement stats #}
+                <div class="ch-post-stats">
+                  <span>{{ p.likes.count }} likes</span>
+                  <span>{{ p.comments.count }} comments</span>
+                  {% if p.industry %}<span style="margin-left:auto;font-size:.65rem;">{{ p.industry }}</span>{% endif %}
+                </div>
+
+                <div class="ch-post-cta">Read post →</div>
+              </a>
+              {% endwith %}
+
+            {% elif msg.message_type == 'project_share' and msg.shared_project %}
+              {% with p=msg.shared_project cmp=msg.shared_project.completeness_score %}
+
+              {# Caption bubble above the card #}
+              {% if msg.content and not msg.content|slice:":9" == "Check out" %}
+              <div class="ch-share-caption-bubble">{{ msg.content }}</div>
+              {% endif %}
+
+              {# Project card — pitch deck / dark VC style #}
+              <a href="{% url 'project_detail' p.pk %}" class="ch-proj-card" target="_blank">
+
+                {# Cover image or gradient placeholder #}
+                {% if p.get_main_image_url %}
+                  <div style="position:relative;">
+                    <img src="{{ p.get_main_image_url }}" class="ch-proj-img" alt="">
+                    <div class="ch-proj-img-overlay"></div>
+                  </div>
+                {% else %}
+                  <div class="ch-proj-img-placeholder">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg>
+                    <div class="ch-proj-img-overlay"></div>
+                  </div>
+                {% endif %}
+
+                {# Badges: industry + stage + verified #}
+                <div class="ch-proj-badges">
+                  <span class="ch-proj-badge ch-proj-badge--industry">{{ p.industry }}</span>
+                  <span class="ch-proj-badge ch-proj-badge--stage">{{ p.get_pipeline_stage_display }}</span>
+                  {% with op=p.owner.userprofile %}
+                  {% if op.verification_status == 'verified' %}
+                  <span class="ch-proj-badge ch-proj-badge--verified">✓ Verified</span>
+                  {% endif %}
+                  {% endwith %}
+                </div>
+
+                <div class="ch-proj-body">
+                  <div class="ch-proj-title">{{ p.title }}</div>
+
+                  {# Three-cell data row: Problem / Market / Ask #}
+                  <div class="ch-proj-data">
+                    <div class="ch-proj-data-cell">
+                      <div class="ch-proj-data-key">Problem</div>
+                      <div class="ch-proj-data-val">{% if p.problem_statement %}{{ p.problem_statement|truncatewords:6 }}{% else %}—{% endif %}</div>
+                    </div>
+                    <div class="ch-proj-data-cell">
+                      <div class="ch-proj-data-key">Market</div>
+                      <div class="ch-proj-data-val">{% if p.market_opportunity %}{{ p.market_opportunity|truncatewords:6 }}{% else %}—{% endif %}</div>
+                    </div>
+                    <div class="ch-proj-data-cell">
+                      <div class="ch-proj-data-key">Ask</div>
+                      <div class="ch-proj-data-val ch-proj-data-val--ask">{% if p.funding_requirement %}{{ p.funding_requirement }}{% else %}—{% endif %}</div>
+                    </div>
+                  </div>
+
+                  {# Founder line #}
+                  <div class="ch-proj-founder">
+                    {% if p.owner.userprofile.profile_pics %}
+                      <img src="{{ p.owner.userprofile.profile_pics.url }}" class="ch-proj-founder-av" alt="">
+                    {% else %}
+                      <div class="ch-proj-founder-av-init">{{ p.owner.first_name|slice:":1"|upper }}</div>
+                    {% endif %}
+                    <span>by {{ p.owner.get_full_name|default:p.owner.username }}</span>
+                    <span style="margin-left:auto;">{{ p.created_at|timesince }} ago</span>
+                  </div>
+                </div>
+
+                {# CTA + readiness bar #}
+                <div class="ch-proj-cta">
+                  <span>View pitch →</span>
+                  <div class="ch-proj-readiness">
+                    <span style="font-size:.62rem;color:rgba(255,255,255,.4);">{{ cmp }}%</span>
+                    <div class="ch-proj-readiness-bar">
+                      <div class="ch-proj-readiness-fill" style="width:{{ cmp }}%;"></div>
+                    </div>
+                  </div>
+                </div>
+
+              </a>
+              {% endwith %}
+
+            {% else %}
+              <div class="ch-bubble">{{ msg.content }}</div>
+            {% endif %}
 
             <div class="ch-meta">
               <span class="ch-time">{{ msg.timestamp|date:"H:i" }}</span>
@@ -356,9 +1038,15 @@
       {% endfor %}
     {% else %}
       <div class="ch-empty">
-        <div class="ch-empty__icon">💬</div>
-        <div class="ch-empty__title">Start the conversation</div>
-        <p class="ch-empty__sub">Say hello to {{ participant_name }}. Your messages are private.</p>
+        {% if is_project_chat and project_context %}
+          <div class="ch-empty__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg></div>
+          <div class="ch-empty__title">Start the project discussion</div>
+          <p class="ch-empty__sub">Ask {{ participant_name }} about <strong>{{ project_context.title }}</strong>. This conversation is private.</p>
+        {% else %}
+          <div class="ch-empty__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="ch-empty__title">Start the conversation</div>
+          <p class="ch-empty__sub">Say hello to {{ participant_name }}. Your messages are private.</p>
+        {% endif %}
       </div>
     {% endif %}
   </div>
@@ -380,7 +1068,7 @@
       <textarea
         name="content"
         id="ch-input"
-        placeholder="Type a message…"
+        placeholder="{% if is_project_chat and project_context %}Ask about {{ project_context.title|truncatechars:30 }}…{% else %}Type a message…{% endif %}"
         rows="1"
         autocomplete="off"
         onkeydown="handleEnter(event)"
@@ -393,6 +1081,170 @@
   </div>
 
 </div>
+
+{% if participant %}
+<!-- Profile context panel overlay -->
+<div class="ch-panel-overlay" id="ch-panel-overlay" onclick="closePanel()"></div>
+
+<!-- Profile context panel -->
+<div class="ch-panel" id="ch-panel">
+
+  <!-- Header -->
+  <div class="ch-panel-head">
+    <button class="ch-panel-close" onclick="closePanel()">✕</button>
+
+    {% if participant_profile and participant_profile.profile_pics %}
+      <img src="{{ participant_profile.profile_pics.url }}" alt="{{ participant_name }}" class="ch-panel-av">
+    {% else %}
+      <div class="ch-panel-av-init">{{ participant.first_name|first|upper }}{{ participant.last_name|first|upper }}</div>
+    {% endif %}
+
+    <div class="ch-panel-name">{{ participant_name }}</div>
+
+    <div class="ch-panel-role">
+      {% if participant_profile and participant_profile.company %}{{ participant_profile.company }} · {% endif %}
+      {{ participant.user_type|capfirst }}
+      {% if participant_profile and participant_profile.verification_status == 'verified' %}
+        <span class="ch-panel-verified">✓ Verified</span>
+      {% endif %}
+    </div>
+
+    <!-- Action buttons -->
+    <div class="ch-panel-actions">
+      <a href="{% url 'profile_view' id=participant.id %}" class="ch-panel-btn ch-panel-btn--secondary">
+        View Profile
+      </a>
+      {% if is_connected %}
+        <span class="ch-panel-btn ch-panel-btn--connected">✓ Connected</span>
+      {% elif connection_pending_sent %}
+        <span class="ch-panel-btn ch-panel-btn--pending">Request Sent</span>
+      {% else %}
+        <a href="{% url 'connect_user' participant.id %}" class="ch-panel-btn ch-panel-btn--primary">+ Connect</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="ch-panel-body">
+
+    <!-- Project section (pinned top when project chat) -->
+    {% if is_project_chat and project_context %}
+    {% with p=project_context %}
+    <div class="ch-panel-section" style="background:#f8faff;border-left:3px solid #1B5EC7;">
+      <div class="ch-panel-section-title" style="color:#1B5EC7;">This Conversation Is About</div>
+      <a href="{% url 'project_detail' p.pk %}" class="ch-panel-proj" target="_blank" style="padding-top:0;border-bottom:none;">
+        {% if p.get_main_image_url %}
+          <img src="{{ p.get_main_image_url }}" class="ch-panel-proj-img" alt="">
+        {% else %}
+          <div class="ch-panel-proj-img" style="display:flex;align-items:center;justify-content:center;color:#1B5EC7;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg></div>
+        {% endif %}
+        <div class="ch-panel-proj-info">
+          <div class="ch-panel-proj-title">{{ p.title }}</div>
+          <div class="ch-panel-proj-meta">{{ p.industry }} · {{ p.get_pipeline_stage_display }}</div>
+        </div>
+        {% if p.funding_requirement %}
+          <span class="ch-panel-proj-ask">{{ p.funding_requirement }}</span>
+        {% endif %}
+      </a>
+      {% if p.problem_statement %}
+      <p style="font-size:.78rem;color:#4b5563;margin:8px 0 0;line-height:1.55;">{{ p.problem_statement|truncatechars:140 }}</p>
+      {% endif %}
+    </div>
+    {% endwith %}
+    {% endif %}
+
+    <!-- Bio -->
+    {% with bio=participant_profile.bio|default:participant.bio %}
+    {% if bio %}
+    <div class="ch-panel-section">
+      <div class="ch-panel-section-title">About</div>
+      <p class="ch-panel-bio">{{ bio|truncatechars:200 }}</p>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% if participant.user_type == 'investor' %}
+      <!-- Ticket size -->
+      {% if participant_profile and participant_profile.ticket_size_min %}
+      <div class="ch-panel-section">
+        <div class="ch-panel-section-title">Investment Range</div>
+        <div class="ch-panel-ticket">
+          ${{ participant_profile.ticket_size_min|floatformat:0 }}
+          {% if participant_profile.ticket_size_max %} – ${{ participant_profile.ticket_size_max|floatformat:0 }}{% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Thesis -->
+      {% if participant_profile and participant_profile.investment_thesis %}
+      <div class="ch-panel-section">
+        <div class="ch-panel-section-title">Investment Thesis</div>
+        <p class="ch-panel-thesis">{{ participant_profile.investment_thesis|truncatechars:300 }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Preferred sectors -->
+      {% if participant_profile and participant_profile.preferred_sectors %}
+      <div class="ch-panel-section">
+        <div class="ch-panel-section-title">Focus Areas</div>
+        <div class="ch-panel-chips">
+          {% for sector in participant_profile.preferred_sectors.split %}
+            {% if sector %}<span class="ch-panel-chip ch-panel-chip--sector">{{ sector|title }}</span>{% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Geography -->
+      {% if participant_profile and participant_profile.geography_focus %}
+      <div class="ch-panel-section">
+        <div class="ch-panel-section-title">Geography</div>
+        <div class="ch-panel-chips">
+          {% for geo in participant_profile.geography_focus.split %}
+            {% if geo %}<span class="ch-panel-chip ch-panel-chip--geo">{{ geo }}</span>{% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+    {% elif participant.user_type == 'innovator' %}
+      <!-- Projects -->
+      {% if participant_projects %}
+      <div class="ch-panel-section">
+        <div class="ch-panel-section-title">Active Projects</div>
+        {% for proj in participant_projects %}
+        <a href="{% url 'project_detail' proj.pk %}" class="ch-panel-proj" target="_blank">
+          {% if proj.get_main_image_url %}
+            <img src="{{ proj.get_main_image_url }}" class="ch-panel-proj-img" alt="">
+          {% else %}
+            <div class="ch-panel-proj-img" style="display:flex;align-items:center;justify-content:center;color:#1B5EC7;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg></div>
+          {% endif %}
+          <div class="ch-panel-proj-info">
+            <div class="ch-panel-proj-title">{{ proj.title }}</div>
+            <div class="ch-panel-proj-meta">{{ proj.industry }} · {{ proj.get_pipeline_stage_display }}</div>
+          </div>
+          {% if proj.funding_requirement %}
+            <span class="ch-panel-proj-ask">{{ proj.funding_requirement }}</span>
+          {% endif %}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Industry -->
+      {% if participant_profile and participant_profile.industry %}
+      <div class="ch-panel-section">
+        <div class="ch-panel-section-title">Industry</div>
+        <div class="ch-panel-chips">
+          <span class="ch-panel-chip">{{ participant_profile.get_industry_display }}</span>
+        </div>
+      </div>
+      {% endif %}
+    {% endif %}
+
+  </div>
+</div>
+{% endif %}
 
 <script>
 var CSRF = '{{ csrf_token }}';
@@ -695,6 +1547,23 @@ function reactTo(msgId, emoji, e) {
     if (data.reactions) applyReactions(msgId, data.reactions, emoji);
   })
   .catch(function(){ showToast('Could not save reaction'); });
+}
+
+// ── Profile panel ──
+function openPanel() {
+  document.getElementById('ch-panel').classList.add('open');
+  document.getElementById('ch-panel-overlay').classList.add('open');
+  document.getElementById('ch-panel-btn') && document.getElementById('ch-panel-btn').classList.add('active');
+}
+function closePanel() {
+  document.getElementById('ch-panel').classList.remove('open');
+  document.getElementById('ch-panel-overlay').classList.remove('open');
+  document.getElementById('ch-panel-btn') && document.getElementById('ch-panel-btn').classList.remove('active');
+}
+function togglePanel() {
+  var panel = document.getElementById('ch-panel');
+  if (panel && panel.classList.contains('open')) closePanel();
+  else openPanel();
 }
 </script>
 {% endblock %}

@@ -77,7 +77,7 @@ def create_meeting(title, scheduled_at=None, duration_minutes=60, host_email=Non
       topic       — meeting title
     """
     payload = {
-        'topic': title or 'Oduma Connect Meeting',
+        'topic': title or 'Oduma Corp Meeting',
         'type': 2 if scheduled_at else 1,   # 1 = instant, 2 = scheduled
         'duration': duration_minutes,
         'settings': {

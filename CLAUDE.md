@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Oduma Connect** is a Django 5.1 web platform connecting innovators and investors across Africa. Users register with one of three roles (`innovator`, `investor`, `admin`) and can post projects, send messages, connect with each other, rate/like projects, collaborate on proposals, join groups, follow company pages, schedule meetings, take courses, and access mentorship and consulting services.
+**Oduma Corp** is a Django 5.1 web platform connecting innovators and investors across Africa. Users register with one of three roles (`innovator`, `investor`, `admin`) and can post projects, send messages, connect with each other, rate/like projects, collaborate on proposals, join groups, follow company pages, schedule meetings, take courses, and access mentorship and consulting services.
 
 The platform includes an **Odu** system bot (auto-created user) that sends welcome messages to new users and powers a built-in chatbot.
 

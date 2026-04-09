@@ -11,6 +11,10 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Verification Queue</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <div style="max-width:1100px;margin:40px auto;padding:0 24px;">
 
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
@@ -46,7 +50,7 @@
             <div>
               <div style="font-weight:700;color:#0a1628;font-size:.95rem;">{{ vr.user.get_full_name|default:vr.user.username }}</div>
               <div style="color:#6b7280;font-size:.8rem;">{{ vr.user.email }} · {{ vr.user.user_type|title }}</div>
-              <div style="color:#9ca3af;font-size:.78rem;">Submitted {{ vr.submitted_at|date:"M j, Y" }}</div>
+              <div style="color:#6b7280;font-size:.78rem;">Submitted {{ vr.submitted_at|date:"M j, Y" }}</div>
             </div>
           </div>
 
@@ -125,7 +129,7 @@
           <tr>
             <td>
               <div style="font-weight:600;color:#0a1628;">{{ vr.user.get_full_name|default:vr.user.username }}</div>
-              <div style="color:#9ca3af;font-size:.78rem;">{{ vr.user.user_type|title }}</div>
+              <div style="color:#6b7280;font-size:.78rem;">{{ vr.user.user_type|title }}</div>
             </td>
             <td>
               {% if vr.status == 'approved' %}
@@ -143,7 +147,7 @@
       </table>
     </div>
     {% else %}
-    <p style="color:#9ca3af;font-size:.875rem;">No decisions made yet.</p>
+    <p style="color:#6b7280;font-size:.875rem;">No decisions made yet.</p>
     {% endif %}
   </section>
 

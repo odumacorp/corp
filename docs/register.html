@@ -1,6 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}Create Account | Oduma Connect{% endblock %}
+{% block title %}Create Account | Oduma Corp{% endblock %}
 
 {% block content %}
 <style>
@@ -63,7 +63,7 @@
     position: relative;
   }
   .role-card input[type=radio] { position: absolute; opacity: 0; }
-  .role-card .role-icon { font-size: 1.5rem; margin-bottom: 6px; }
+  .role-card .role-icon { margin-bottom: 6px; display:flex; align-items:center; justify-content:center; }
   .role-card .role-name { font-size: .82rem; font-weight: 700; color: var(--oc-text-primary); }
   .role-card .role-desc { font-size: .72rem; color: var(--oc-text-muted); margin-top: 2px; }
   .role-card { border-radius: 8px !important; }
@@ -133,14 +133,14 @@
           <label class="role-card {% if form.user_type.value == 'innovator' %}selected{% endif %}" id="role-innovator">
             <input type="radio" name="user_type" value="innovator"
               {% if form.user_type.value == 'innovator' or not form.user_type.value %}checked{% endif %}>
-            <div class="role-icon">💡</div>
+            <div class="role-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg></div>
             <div class="role-name">Innovator</div>
             <div class="role-desc">I have ideas & projects</div>
           </label>
           <label class="role-card {% if form.user_type.value == 'investor' %}selected{% endif %}" id="role-investor">
             <input type="radio" name="user_type" value="investor"
               {% if form.user_type.value == 'investor' %}checked{% endif %}>
-            <div class="role-icon">💼</div>
+            <div class="role-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
             <div class="role-name">Investor</div>
             <div class="role-desc">I fund great ideas</div>
           </label>
@@ -156,6 +156,62 @@
     </p>
   </div>
 </div>
+
+{% if already_logged_in %}
+<!-- Already-logged-in modal -->
+<div id="alm-overlay" style="
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(10,22,40,.55);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="
+    background:#fff;border-radius:20px;padding:40px 36px;
+    max-width:420px;width:100%;text-align:center;
+    box-shadow:0 24px 60px rgba(0,0,0,.18);
+    animation:almIn .28s cubic-bezier(.34,1.56,.64,1);">
+    <div style="
+      width:68px;height:68px;border-radius:18px;margin:0 auto 18px;
+      background:linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 6px 20px rgba(27,94,199,.3);color:#fff;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:800;color:#0A1628;margin:0 0 8px;">
+      You're already a member!
+    </h2>
+    <p style="font-family:'Jaldi',sans-serif;font-size:.95rem;color:#6b7280;margin:0 0 24px;line-height:1.5;">
+      You're currently logged in as <strong style="color:#0A1628;">{{ request.user.get_full_name|default:request.user.username }}</strong>.
+      Head back to the app or log out if you want to switch accounts.
+    </p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <a href="{% url 'app' %}"
+         style="display:block;background:linear-gradient(135deg,#1B5EC7,#0A1628);color:#fff;
+                padding:13px 24px;border-radius:12px;font-family:'Space Grotesk',sans-serif;
+                font-weight:700;font-size:.95rem;text-decoration:none;
+                transition:opacity .18s;">
+        Go to My Feed →
+      </a>
+      <a href="{% url 'dashboard' %}"
+         style="display:block;background:#f3f6fb;color:#0A1628;
+                padding:12px 24px;border-radius:12px;font-family:'Jaldi',sans-serif;
+                font-weight:700;font-size:.9rem;text-decoration:none;border:1.5px solid #e5e7eb;">
+        Open Dashboard
+      </a>
+      <a href="{% url 'logout' %}"
+         style="display:block;color:#dc2626;font-family:'Jaldi',sans-serif;
+                font-size:.85rem;font-weight:700;text-decoration:none;
+                padding:8px;margin-top:2px;">
+        Log out &amp; create new account
+      </a>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes almIn {
+  from { opacity:0; transform:scale(.88) translateY(18px); }
+  to   { opacity:1; transform:scale(1)   translateY(0);     }
+}
+</style>
+{% endif %}
 
 <script>
 function togglePw(id, btn) {

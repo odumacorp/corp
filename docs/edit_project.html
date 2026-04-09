@@ -14,6 +14,35 @@
       <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Edit</span></li>
     </ol>
   </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
+
+  <!-- ── Project hero banner ── -->
+  <div class="ep-hero">
+    <div class="ep-hero-thumb">
+      {% if project.get_main_image_url %}
+        <img src="{{ project.get_main_image_url }}" alt="{{ project.title }}">
+      {% else %}
+        <span class="ep-hero-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg></span>
+      {% endif %}
+    </div>
+    <div class="ep-hero-info">
+      <div class="ep-hero-badge">Editing</div>
+      <h1 class="ep-hero-title">{{ project.title }}</h1>
+      <p class="ep-hero-sub">{{ project.get_industry_display }}{% if project.category %} · {{ project.get_category_display|default:project.category }}{% endif %}</p>
+    </div>
+    <a href="{% url 'project_detail' project.pk %}" class="ep-hero-view">View Live</a>
+  </div>
+
+  <!-- ── Section nav ── -->
+  <div class="ep-sidenav">
+    <a href="#sect-basic" class="ep-sidenav__link">Basic Info</a>
+    <a href="#sect-seo" class="ep-sidenav__link">SEO</a>
+    <a href="#sect-video" class="ep-sidenav__link">Video</a>
+    <a href="#sect-pitch" class="ep-sidenav__link">Pitch Deck</a>
+  </div>
 
   <div class="ep-card">
     <h1 class="ep-title">Edit Project</h1>
@@ -28,7 +57,7 @@
       {% csrf_token %}
 
       <!-- ── Basic info ── -->
-      <fieldset class="ep-section">
+      <fieldset class="ep-section" id="sect-basic">
         <legend class="ep-legend">Basic Information</legend>
 
         <div class="ep-field">
@@ -74,7 +103,7 @@
       </fieldset>
 
       <!-- ── SEO ── -->
-      <fieldset class="ep-section">
+      <fieldset class="ep-section" id="sect-seo">
         <legend class="ep-legend">SEO &amp; Discovery</legend>
         <div class="ep-field">
           <label class="ep-label">
@@ -86,7 +115,7 @@
       </fieldset>
 
       <!-- ── Video ── -->
-      <fieldset class="ep-section">
+      <fieldset class="ep-section" id="sect-video">
         <legend class="ep-legend">Video</legend>
         {% if project.video %}
         <div class="ep-current-video">
@@ -116,67 +145,134 @@
       </fieldset>
 
       <!-- ── Investment Profile / Pitch Deck ── -->
-      <fieldset class="ep-section" id="pitch-deck">
+      <fieldset class="ep-section" id="sect-pitch">
         <legend class="ep-legend">
           Investment Profile
           <span style="font-size:.75rem;font-weight:400;color:#6b7280;margin-left:8px;">— pitch deck sections</span>
         </legend>
 
+        <!-- Pitch builder header with server-side baseline + live ring -->
         {% with score=project.completeness_score readiness=project.investment_readiness %}
-        <div style="display:flex;align-items:center;gap:12px;background:#f4f7fb;border:1px solid #e0e8f4;border-radius:10px;padding:14px 18px;margin-bottom:20px;flex-wrap:wrap;">
-          <span class="ir-badge ir-badge--{{ readiness.1 }}">{{ readiness.0 }}</span>
-          <div style="flex:1;min-width:120px;">
-            <div style="display:flex;justify-content:space-between;font-size:.75rem;font-weight:700;color:#6b7280;margin-bottom:5px;">
-              <span>Profile completeness</span><span style="color:#1B5EC7;">{{ score }}%</span>
+        <div class="pb-header">
+          <div class="pb-header__left">
+            <div class="pb-header__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg></div>
+            <div>
+              <div class="pb-header__title">Pitch Builder</div>
+              <div class="pb-header__sub">
+                <span class="ir-badge ir-badge--{{ readiness.1 }}" style="margin-right:6px;">{{ readiness.0 }}</span>
+                Complete all 8 slides to unlock <strong>Investment Ready</strong>
+              </div>
             </div>
-            <div style="height:6px;background:#e5e7eb;border-radius:4px;overflow:hidden;">
-              <div style="height:100%;border-radius:4px;background:linear-gradient(90deg,#1B5EC7,#3b82f6);width:{{ score }}%;transition:width .4s;"></div>
+          </div>
+          <div class="pb-header__right">
+            <div class="pb-progress-ring">
+              <svg width="52" height="52" viewBox="0 0 52 52">
+                <circle cx="26" cy="26" r="21" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="5"/>
+                <circle id="pb-ring-fill" cx="26" cy="26" r="21" fill="none" stroke="#60a5fa" stroke-width="5"
+                  stroke-dasharray="131.9" stroke-dashoffset="131.9"
+                  stroke-linecap="round" transform="rotate(-90 26 26)" style="transition:stroke-dashoffset .4s;"/>
+              </svg>
+              <span id="pb-ring-pct" class="pb-progress-ring__pct">{{ score }}%</span>
             </div>
           </div>
         </div>
         {% endwith %}
 
-        <div class="ep-field">
-          <label class="ep-label">1. Problem Statement</label>
-          <span class="ep-hint">What pain point or gap does your project address?</span>
-          <textarea name="problem_statement" class="oc-textarea" rows="4"
-            placeholder="What problem does your project solve? Who suffers from it and why does it matter?">{{ project.problem_statement }}</textarea>
+        <!-- Slide 1: Problem -->
+        <div class="pb-slide {% if project.problem_statement %}pb-slide--filled{% endif %}" data-slide="1">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--1">1</span>
+            <div class="pb-slide__icon pb-icon--1" style="background:#fee2e2;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-4 4-4 9a4 4 0 0 0 8 0c0-5-4-9-4-9z"/><path d="M12 11c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Problem Statement</div>
+              <div class="pb-slide__inv">Investors ask: <em>"Why does this problem need solving right now?"</em></div>
+            </div>
+            <span class="pb-slide__check {% if project.problem_statement %}filled{% endif %}" id="pb-check-problem_statement">{% if project.problem_statement %}✓{% else %}○{% endif %}</span>
+          </div>
+          <textarea name="problem_statement" class="oc-textarea pb-textarea" rows="4" id="pb-ta-problem_statement"
+            oninput="pbUpdate()"
+            placeholder="What pain point are you solving? Who suffers from it and at what scale? What happens if it goes unsolved?">{{ project.problem_statement }}</textarea>
         </div>
 
-        <div class="ep-field">
-          <label class="ep-label">2. Solution Overview</label>
-          <span class="ep-hint">How does your product or service solve the problem?</span>
-          <textarea name="solution_overview" class="oc-textarea" rows="4"
-            placeholder="Core technology, approach, key differentiator…">{{ project.solution_overview }}</textarea>
+        <!-- Slide 2: Solution -->
+        <div class="pb-slide {% if project.solution_overview %}pb-slide--filled{% endif %}" data-slide="2">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--2">2</span>
+            <div class="pb-slide__icon pb-icon--2" style="background:#fef9c3;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><path d="M12 22v-4M4.22 4.22l2.83 2.83M18.95 4.22l-2.83 2.83M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Solution Overview</div>
+              <div class="pb-slide__inv">Investors ask: <em>"What is the core technology or insight that makes this work?"</em></div>
+            </div>
+            <span class="pb-slide__check {% if project.solution_overview %}filled{% endif %}" id="pb-check-solution_overview">{% if project.solution_overview %}✓{% else %}○{% endif %}</span>
+          </div>
+          <textarea name="solution_overview" class="oc-textarea pb-textarea" rows="4" id="pb-ta-solution_overview"
+            oninput="pbUpdate()"
+            placeholder="Describe your product or service. What's the core technology or approach? What's your key differentiator vs. alternatives?">{{ project.solution_overview }}</textarea>
         </div>
 
-        <div class="ep-field">
-          <label class="ep-label">3. Market Opportunity</label>
-          <span class="ep-hint">TAM / SAM / SOM and target customer profile.</span>
-          <textarea name="market_opportunity" class="oc-textarea" rows="4"
-            placeholder="How big is the market? Who are your target customers?">{{ project.market_opportunity }}</textarea>
+        <!-- Slide 3: Market -->
+        <div class="pb-slide {% if project.market_opportunity %}pb-slide--filled{% endif %}" data-slide="3">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--3">3</span>
+            <div class="pb-slide__icon pb-icon--3" style="background:#dcfce7;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Market Opportunity</div>
+              <div class="pb-slide__inv">Investors ask: <em>"How big is the prize? Is this worth a $100M outcome?"</em></div>
+            </div>
+            <span class="pb-slide__check {% if project.market_opportunity %}filled{% endif %}" id="pb-check-market_opportunity">{% if project.market_opportunity %}✓{% else %}○{% endif %}</span>
+          </div>
+          <textarea name="market_opportunity" class="oc-textarea pb-textarea" rows="4" id="pb-ta-market_opportunity"
+            oninput="pbUpdate()"
+            placeholder="Total Addressable Market (TAM), Serviceable Market (SAM), initial target segment (SOM). Who is your ideal customer? Include data sources.">{{ project.market_opportunity }}</textarea>
         </div>
 
-        <div class="ep-field">
-          <label class="ep-label">4. Business Model</label>
-          <span class="ep-hint">How will you generate revenue?</span>
-          <textarea name="business_model" class="oc-textarea" rows="4"
-            placeholder="Subscriptions, licensing, hardware, B2B, marketplace…">{{ project.business_model }}</textarea>
+        <!-- Slide 4: Business Model -->
+        <div class="pb-slide {% if project.business_model %}pb-slide--filled{% endif %}" data-slide="4">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--4">4</span>
+            <div class="pb-slide__icon pb-icon--4" style="background:#d1fae5;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Business Model</div>
+              <div class="pb-slide__inv">Investors ask: <em>"How do you make money, and can it scale?"</em></div>
+            </div>
+            <span class="pb-slide__check {% if project.business_model %}filled{% endif %}" id="pb-check-business_model">{% if project.business_model %}✓{% else %}○{% endif %}</span>
+          </div>
+          <textarea name="business_model" class="oc-textarea pb-textarea" rows="4" id="pb-ta-business_model"
+            oninput="pbUpdate()"
+            placeholder="Revenue streams (subscriptions, licensing, hardware, marketplace, B2B SaaS…). Unit economics. Pricing strategy. Path to profitability.">{{ project.business_model }}</textarea>
         </div>
 
-        <div class="ep-field">
-          <label class="ep-label">5. Traction &amp; Validation</label>
-          <span class="ep-hint">Proof points — customers, pilots, revenue, partnerships, press.</span>
-          <textarea name="traction" class="oc-textarea" rows="4"
-            placeholder="Pilots, revenue, users, partnerships, awards, IP filed…">{{ project.traction }}</textarea>
+        <!-- Slide 5: Traction -->
+        <div class="pb-slide {% if project.traction %}pb-slide--filled{% endif %}" data-slide="5">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--5">5</span>
+            <div class="pb-slide__icon pb-icon--5" style="background:#fef3c7;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 21 12 17 16 21"/><path d="M5 3h14M5 3a2 2 0 0 0-2 2 7 7 0 0 0 6 6.9"/><path d="M19 3a2 2 0 0 1 2 2 7 7 0 0 1-6 6.9"/><path d="M9 9.9V17h6V9.9"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Traction &amp; Validation</div>
+              <div class="pb-slide__inv">Investors ask: <em>"Has the market proven this is real?"</em></div>
+            </div>
+            <span class="pb-slide__check {% if project.traction %}filled{% endif %}" id="pb-check-traction">{% if project.traction %}✓{% else %}○{% endif %}</span>
+          </div>
+          <textarea name="traction" class="oc-textarea pb-textarea" rows="4" id="pb-ta-traction"
+            oninput="pbUpdate()"
+            placeholder="Paying customers, pilots, LOIs, revenue figures, user growth, partnerships, awards, media coverage, IP filed. Numbers over adjectives.">{{ project.traction }}</textarea>
         </div>
 
-        <div class="ep-field">
-          <label class="ep-label">6. Funding Requirement</label>
-          <span class="ep-hint">How much are you raising and at what stage?</span>
-          <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;">
-            <input type="text" name="funding_requirement" class="oc-input"
-              placeholder="e.g. $250,000 seed round" value="{{ project.funding_requirement }}" />
+        <!-- Slide 6: Funding Ask -->
+        <div class="pb-slide {% if project.funding_requirement %}pb-slide--filled{% endif %}" data-slide="6">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--6">6</span>
+            <div class="pb-slide__icon pb-icon--6" style="background:#ede9fe;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Funding Requirement</div>
+              <div class="pb-slide__inv">Investors ask: <em>"How much, what stage, and what does it buy?"</em></div>
+            </div>
+            <span class="pb-slide__check {% if project.funding_requirement %}filled{% endif %}" id="pb-check-funding_requirement">{% if project.funding_requirement %}✓{% else %}○{% endif %}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;margin-top:4px;">
+            <input type="text" name="funding_requirement" class="oc-input" id="pb-ta-funding_requirement"
+              oninput="pbUpdate()"
+              placeholder="e.g. $500,000 seed round" value="{{ project.funding_requirement }}" />
             <select name="funding_stage" class="oc-select" style="min-width:150px;">
               <option value="">Funding Stage</option>
               <option value="pre_seed" {% if project.funding_stage == 'pre_seed' %}selected{% endif %}>Pre-Seed</option>
@@ -189,19 +285,38 @@
           </div>
         </div>
 
-        <div class="ep-field">
-          <label class="ep-label">7. Use of Funds</label>
-          <span class="ep-hint">How will the investment be allocated?</span>
-          <textarea name="use_of_funds" class="oc-textarea" rows="4"
-            placeholder="e.g. 40% product, 30% marketing, 30% operations…">{{ project.use_of_funds }}</textarea>
+        <!-- Slide 7: Use of Funds -->
+        <div class="pb-slide {% if project.use_of_funds %}pb-slide--filled{% endif %}" data-slide="7">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--7">7</span>
+            <div class="pb-slide__icon pb-icon--7" style="background:#dbeafe;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Use of Funds</div>
+              <div class="pb-slide__inv">Investors ask: <em>"Will this money actually move the needle?"</em></div>
+            </div>
+            <span class="pb-slide__check {% if project.use_of_funds %}filled{% endif %}" id="pb-check-use_of_funds">{% if project.use_of_funds %}✓{% else %}○{% endif %}</span>
+          </div>
+          <textarea name="use_of_funds" class="oc-textarea pb-textarea" rows="4" id="pb-ta-use_of_funds"
+            oninput="pbUpdate()"
+            placeholder="Breakdown by category: e.g. 40% product &amp; engineering, 30% sales &amp; marketing, 20% operations, 10% working capital. Include key milestones this funding achieves.">{{ project.use_of_funds }}</textarea>
         </div>
 
-        <div class="ep-field">
-          <label class="ep-label">8. Team</label>
-          <span class="ep-hint">Who is building this? Why this team?</span>
-          <textarea name="team_overview" class="oc-textarea" rows="4"
-            placeholder="Roles, relevant experience, why this team?">{{ project.team_overview }}</textarea>
+        <!-- Slide 8: Team -->
+        <div class="pb-slide {% if project.team_overview %}pb-slide--filled{% endif %}" data-slide="8">
+          <div class="pb-slide__head">
+            <span class="pb-slide__num pb-num--8">8</span>
+            <div class="pb-slide__icon pb-icon--8" style="background:#f0fdf4;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div class="pb-slide__meta">
+              <div class="pb-slide__title">Team</div>
+              <div class="pb-slide__inv">Investors ask: <em>"Is this the right team to win this market?"</em></div>
+            </div>
+            <span class="pb-slide__check {% if project.team_overview %}filled{% endif %}" id="pb-check-team_overview">{% if project.team_overview %}✓{% else %}○{% endif %}</span>
+          </div>
+          <textarea name="team_overview" class="oc-textarea pb-textarea" rows="4" id="pb-ta-team_overview"
+            oninput="pbUpdate()"
+            placeholder="Co-founders and key hires: name, role, relevant experience, notable credentials. Advisors. Why this team has the domain expertise and execution ability to win.">{{ project.team_overview }}</textarea>
         </div>
+
       </fieldset>
 
       <div class="ep-actions">
@@ -222,11 +337,11 @@
       <form method="POST" action="{% url 'project_detail' project.pk %}" class="ep-att-item">
         {% comment %}Inline edit per attachment — uses a sub-form posted to a separate update endpoint if you add one{% endcomment %}
         <div class="ep-att-icon">
-          {% if att.doc_type == 'financial' %}💰
-          {% elif att.doc_type == 'legal' %}⚖️
-          {% elif att.doc_type == 'pitch' %}📊
-          {% elif att.doc_type == 'technical' %}🔧
-          {% else %}📎{% endif %}
+          {% if att.doc_type == 'financial' %}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          {% elif att.doc_type == 'legal' %}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          {% elif att.doc_type == 'pitch' %}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          {% elif att.doc_type == 'technical' %}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          {% else %}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>{% endif %}
         </div>
         <div class="ep-att-info">
           <span class="ep-att-name">{{ att.title|default:att.file.name }}</span>
@@ -278,6 +393,91 @@
 </div>
 
 <style>
+/* Hero banner */
+.ep-hero {
+  background: linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
+  border-radius: 20px;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 18px;
+  overflow: hidden;
+  position: relative;
+}
+.ep-hero-thumb {
+  width: 72px; height: 72px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2.5px solid rgba(255,255,255,.25);
+  flex-shrink: 0;
+  background: rgba(255,255,255,.08);
+  display: flex; align-items: center; justify-content: center;
+}
+.ep-hero-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.ep-hero-placeholder { display:flex; align-items:center; justify-content:center; color:rgba(27,94,199,.5); }
+.ep-hero-info { flex: 1; min-width: 0; }
+.ep-hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,.15);
+  color: rgba(255,255,255,.85);
+  font-family: 'Jaldi', sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin-bottom: 6px;
+}
+.ep-hero-title {
+  font-family: 'Jacques Francois', serif;
+  font-size: 1.2rem;
+  color: #fff;
+  margin: 0 0 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ep-hero-sub {
+  font-family: 'Jaldi', sans-serif;
+  font-size: .82rem;
+  color: rgba(255,255,255,.65);
+  margin: 0;
+}
+.ep-hero-view {
+  background: rgba(255,255,255,.12);
+  border: 1.5px solid rgba(255,255,255,.25);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 9px;
+  font-family: 'Jaldi', sans-serif;
+  font-size: .82rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .2s;
+}
+.ep-hero-view:hover { background: rgba(27,94,199,.15); color: #1B5EC7; text-decoration: none; }
+
+/* Section quick-nav */
+.ep-sidenav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.ep-sidenav__link {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: 'Jaldi', sans-serif;
+  font-size: .82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background .15s, border-color .15s;
+}
+.ep-sidenav__link:hover { background: #eff6ff; border-color: #1B5EC7; color: #1B5EC7; text-decoration: none; }
+
 .ep-page { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
 .ep-card { background: #fff; border-radius: 20px; padding: 28px; box-shadow: 0 2px 16px rgba(0,0,0,.07); }
 .ep-title { font-family: 'Jacques Francois', serif; font-size: 1.5rem; color: #1a1a2e; margin: 0 0 20px; }
@@ -298,7 +498,7 @@
 
 .ep-att-list { display: flex; flex-direction: column; gap: 10px; }
 .ep-att-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #f8fafc; border-radius: 10px; }
-.ep-att-icon { font-size: 1.3rem; flex-shrink: 0; }
+.ep-att-icon { flex-shrink: 0; width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:7px; background:#eef4ff; color:#1B5EC7; }
 .ep-att-info { flex: 1; min-width: 0; }
 .ep-att-name { display: block; font-family: 'Jaldi', sans-serif; font-weight: 700; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ep-att-desc { display: block; font-family: 'Jaldi', sans-serif; font-size: 0.78rem; color: #6b7280; }
@@ -322,5 +522,86 @@
 .ir-badge--developing{ background: #dbeafe; color: #1e40af; }
 .ir-badge--early     { background: #fef9c3; color: #854d0e; }
 .ir-badge--starter   { background: #f3f4f6; color: #6b7280; }
+
+/* ── Pitch Builder ── */
+.pb-header {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  background: linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
+  border-radius: 14px; padding: 18px 22px; margin-bottom: 20px; color: #fff;
+}
+.pb-header__left { display: flex; align-items: center; gap: 14px; }
+.pb-header__icon { width:44px; height:44px; border-radius:12px; background:rgba(27,94,199,.12); display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+.pb-header__title { font-family: 'Jacques Francois', serif; font-size: 1rem; font-weight: 700; }
+.pb-header__sub { font-family: 'Jaldi', sans-serif; font-size: .8rem; color: #93c5fd; margin-top: 4px; }
+.pb-header__sub strong { color: #60a5fa; }
+.pb-progress-ring { position: relative; width: 52px; height: 52px; }
+.pb-progress-ring__pct {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: 'Jaldi', sans-serif; font-size: .72rem; font-weight: 700; color: #fff;
+}
+.pb-slide {
+  background: #fff; border: 1.5px solid #e5e7eb; border-radius: 14px;
+  padding: 18px 20px; margin-bottom: 14px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.pb-slide:focus-within { border-color: #1B5EC7; box-shadow: 0 0 0 3px rgba(27,94,199,.1); }
+.pb-slide.pb-slide--filled { border-color: #10b981; }
+.pb-slide__head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+.pb-slide__num {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Jacques Francois', serif; font-size: .8rem; color: #0A1628; margin-top: 1px;
+}
+.pb-num--1 { background: #ef4444; }
+.pb-num--2 { background: #f59e0b; }
+.pb-num--3 { background: #3b82f6; }
+.pb-num--4 { background: #10b981; }
+.pb-num--5 { background: #8b5cf6; }
+.pb-num--6 { background: #06b6d4; }
+.pb-num--7 { background: #f97316; }
+.pb-num--8 { background: #ec4899; }
+.pb-slide__icon { width:28px; height:28px; border-radius:7px; display:flex; align-items:center; justify-content:center; margin-top:1px; flex-shrink:0; }
+.pb-slide__meta { flex: 1; min-width: 0; }
+.pb-slide__title { font-family: 'Jaldi', sans-serif; font-size: .92rem; font-weight: 700; color: #1a1a2e; }
+.pb-slide__inv { font-family: 'Jaldi', sans-serif; font-size: .78rem; color: #9ca3af; margin-top: 2px; }
+.pb-slide__inv em { font-style: italic; color: #6b7280; }
+.pb-slide__check { flex-shrink: 0; font-size: 1.1rem; line-height: 1; margin-top: 2px; }
+.pb-slide__check.filled { color: #10b981; }
+.pb-textarea { background: #fafafa !important; transition: background .2s; }
+.pb-slide:focus-within .pb-textarea { background: #fff !important; }
 </style>
+
+<script>
+/* ── Pitch Builder live progress (edit page) ── */
+var PB_FIELDS = ['problem_statement','solution_overview','market_opportunity',
+                 'business_model','traction','funding_requirement','use_of_funds','team_overview'];
+
+function pbUpdate() {
+  var filled = 0;
+  PB_FIELDS.forEach(function(name) {
+    var el = document.getElementById('pb-ta-' + name);
+    var chk = document.getElementById('pb-check-' + name);
+    var slide = el && el.closest('.pb-slide');
+    var isFilled = el && el.value.trim().length > 0;
+    if (isFilled) {
+      filled++;
+      if (chk) { chk.textContent = '✓'; chk.classList.add('filled'); }
+      if (slide) slide.classList.add('pb-slide--filled');
+    } else {
+      if (chk) { chk.textContent = '○'; chk.classList.remove('filled'); }
+      if (slide) slide.classList.remove('pb-slide--filled');
+    }
+  });
+  var pct = Math.round(filled / PB_FIELDS.length * 100);
+  var ring = document.getElementById('pb-ring-fill');
+  var pctEl = document.getElementById('pb-ring-pct');
+  if (ring) {
+    var circumference = 131.9;
+    ring.style.strokeDashoffset = circumference - (circumference * pct / 100);
+    ring.style.stroke = pct === 100 ? '#10b981' : '#60a5fa';
+  }
+  if (pctEl) pctEl.textContent = pct + '%';
+}
+document.addEventListener('DOMContentLoaded', pbUpdate);
+</script>
 {% endblock %}

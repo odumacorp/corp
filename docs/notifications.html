@@ -1,6 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}Notifications | Oduma Connect{% endblock %}
+{% block title %}Notifications | Oduma Corp{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -31,7 +31,7 @@
 .nf-item:hover{box-shadow:0 4px 20px rgba(10,22,40,0.08);border-color:#d0dbf0;}
 .nf-item.unread::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blue);border-radius:3px 0 0 3px;}
 
-.nf-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.nf-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#374151;}
 .nf-icon--connected{background:#ede9fe;}
 .nf-icon--message{background:#dbeafe;}
 .nf-icon--other{background:#f0fdf4;}
@@ -52,7 +52,7 @@
 
 /* Empty state */
 .nf-empty{text-align:center;padding:60px 20px;}
-.nf-empty__icon{width:72px;height:72px;border-radius:20px;background:#f0f4f8;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 16px;}
+.nf-empty__icon{width:72px;height:72px;border-radius:20px;background:#f0f4f8;color:#9ca3af;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
 .nf-empty__title{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#374151;margin-bottom:6px;}
 .nf-empty__sub{font-size:.875rem;color:#9ca3af;}
 
@@ -72,6 +72,10 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Notifications</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <div class="nf-page">
 
   <!-- Header -->

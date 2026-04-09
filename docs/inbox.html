@@ -1,6 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}Inbox | Oduma Connect{% endblock %}
+{% block title %}Inbox | Oduma Corp{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -47,6 +47,72 @@
 .ib-preview{font-size:.82rem;color:#6b7280;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;}
 .ib-tile--unread .ib-preview{color:#374151;font-weight:500;}
 
+/* Context labels */
+.ib-ctx{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  padding:2px 8px;border-radius:20px;margin-top:4px;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.ib-ctx--project{background:#dbeafe;color:#1e40af;}
+.ib-ctx--post{background:#fef3c7;color:#92400e;}
+.ib-ctx--proposal{background:#f3e8ff;color:#6d28d9;}
+.ib-ctx--collab{background:#dcfce7;color:#166534;}
+
+/* Project tile — distinct blue gradient background */
+.ib-tile--project{
+  background:linear-gradient(100deg,#eef4ff 0%,#f5f8ff 100%);
+  border:1px solid #c7d8f8;
+  border-left:4px solid #1B5EC7;
+}
+.ib-tile--project:hover{
+  background:linear-gradient(100deg,#e0ecff 0%,#eef4ff 100%);
+  border-color:#93c5fd;
+  box-shadow:0 4px 20px rgba(27,94,199,0.13);
+}
+.ib-tile--project .ib-name{color:#1e3a6e;}
+.ib-tile--project .ib-time{color:#6b93d6;}
+.ib-tile--project .ib-preview{color:#3b5ea6;}
+
+/* Post tile — amber tint */
+.ib-tile--post{
+  background:linear-gradient(100deg,#fffbeb 0%,#fffdf5 100%);
+  border:1px solid #fde68a;
+  border-left:4px solid #f59e0b;
+}
+.ib-tile--post:hover{
+  background:linear-gradient(100deg,#fef3c7 0%,#fffbeb 100%);
+  border-color:#fcd34d;
+  box-shadow:0 4px 20px rgba(245,158,11,0.12);
+}
+.ib-tile--post .ib-name{color:#78350f;}
+.ib-tile--post .ib-time{color:#b45309;}
+.ib-tile--post .ib-preview{color:#92400e;}
+
+/* Proposal — purple tint */
+.ib-tile--proposal{
+  background:linear-gradient(100deg,#faf5ff 0%,#fdf9ff 100%);
+  border:1px solid #e9d5ff;
+  border-left:4px solid #7c3aed;
+}
+.ib-tile--proposal:hover{
+  background:linear-gradient(100deg,#f3e8ff 0%,#faf5ff 100%);
+  border-color:#c4b5fd;
+  box-shadow:0 4px 20px rgba(124,58,237,0.1);
+}
+
+/* Collab — green tint */
+.ib-tile--collab{
+  background:linear-gradient(100deg,#f0fdf4 0%,#f7fef9 100%);
+  border:1px solid #bbf7d0;
+  border-left:4px solid #059669;
+}
+.ib-tile--collab:hover{
+  background:linear-gradient(100deg,#dcfce7 0%,#f0fdf4 100%);
+  border-color:#86efac;
+  box-shadow:0 4px 20px rgba(5,150,105,0.1);
+}
+
 /* Unread dot */
 .ib-dot{
   width:9px;height:9px;border-radius:50%;background:#1B5EC7;
@@ -58,7 +124,7 @@
   text-align:center;padding:64px 20px;
   background:#fff;border:1px solid #e8edf4;border-radius:16px;
 }
-.ib-empty__icon{font-size:2.8rem;margin-bottom:14px;}
+.ib-empty__icon{display:flex;justify-content:center;color:#9ca3af;margin-bottom:14px;}
 .ib-empty__title{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#374151;margin-bottom:6px;}
 .ib-empty__sub{font-size:.875rem;color:#9ca3af;}
 
@@ -76,6 +142,10 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Messages</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <div class="ib-page">
 
   <div class="ib-header">
@@ -88,8 +158,9 @@
   {% if inbox_items %}
   <div class="ib-list">
     {% for item in inbox_items %}
+    {% with ctx=item.conversation.context_type %}
     <a href="{% url 'chat_page' conversation_id=item.conversation.id %}"
-       class="ib-tile {% if item.unread %}ib-tile--unread{% endif %}">
+       class="ib-tile {% if item.unread %}ib-tile--unread{% endif %} {% if ctx == 'project' %}ib-tile--project{% elif ctx == 'post' %}ib-tile--post{% elif ctx == 'proposal' %}ib-tile--proposal{% elif ctx == 'collab' %}ib-tile--collab{% endif %}">
 
       <!-- Avatar -->
       {% if item.other_user %}
@@ -124,18 +195,28 @@
             No messages yet
           {% endif %}
         </p>
+        {% if ctx == 'project' and item.conversation.project %}
+          <span class="ib-ctx ib-ctx--project">{{ item.conversation.project.title|truncatechars:30 }}</span>
+        {% elif ctx == 'post' and item.conversation.post %}
+          <span class="ib-ctx ib-ctx--post">{{ item.conversation.post.title|default:item.conversation.post.content|truncatechars:30 }}</span>
+        {% elif ctx == 'proposal' %}
+          <span class="ib-ctx ib-ctx--proposal">Proposal</span>
+        {% elif ctx == 'collab' %}
+          <span class="ib-ctx ib-ctx--collab">Collaboration</span>
+        {% endif %}
       </div>
 
       <!-- Unread dot -->
       {% if item.unread %}<span class="ib-dot"></span>{% endif %}
 
     </a>
+    {% endwith %}
     {% endfor %}
   </div>
 
   {% else %}
   <div class="ib-empty">
-    <div class="ib-empty__icon">✉️</div>
+    <div class="ib-empty__icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
     <div class="ib-empty__title">No conversations yet</div>
     <p class="ib-empty__sub">Connect with innovators or investors to start a conversation.</p>
   </div>

@@ -1,7 +1,7 @@
 {% extends '_partials/base.html' %}
 {% load static %}
 
-{% block title %}Admin Panel | Oduma Connect{% endblock %}
+{% block title %}Admin Panel | Oduma Corp{% endblock %}
 
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
@@ -10,6 +10,10 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Admin</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
 <style>
   /* ── Quill editor overrides ── */
@@ -339,7 +343,7 @@
         <span>Contact Submissions</span>
       </a>
       <a href="{% url 'admin_stage_approvals' %}" class="adm-nav-link">
-        <span class="nav-icon">🚀</span>
+        <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg></span>
         <span>Stage Approvals</span>
         {% if pending_stage_count %}<span class="adm-nav-count">{{ pending_stage_count }}</span>{% endif %}
       </a>
@@ -349,7 +353,7 @@
         {% if pending_verification_count %}<span class="adm-nav-count">{{ pending_verification_count }}</span>{% endif %}
       </a>
       <a href="{% url 'admin_project_review_queue' %}" class="adm-nav-link">
-        <span class="nav-icon">🔍</span>
+        <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
         <span>Project Reviews</span>
         {% if pending_review_count %}<span class="adm-nav-count">{{ pending_review_count }}</span>{% endif %}
       </a>
@@ -393,6 +397,7 @@
       <button class="adm-tab-btn" data-tab="analytics" onclick="showTab('analytics')"><i class="fi fi-rr-chart-histogram fi-sm"></i> Analytics</button>
       <button class="adm-tab-btn" data-tab="survey" onclick="showTab('survey')"><i class="fi fi-rr-star fi-sm"></i> Survey <span class="adm-nav-count">{{ survey.total }}</span></button>
       <button class="adm-tab-btn" data-tab="shares" onclick="showTab('shares')"><i class="fi fi-rr-share fi-sm"></i> Shares <span class="adm-nav-count">{{ shares.total }}</span></button>
+      <button class="adm-tab-btn" data-tab="locations" onclick="showTab('locations')"><i class="fi fi-rr-map-marker fi-sm"></i> Locations <span class="adm-nav-count">{{ total_with_location }}</span></button>
     </div>
 
     <!-- ===== Dashboard / Stats ===== -->
@@ -2423,6 +2428,138 @@
       })();
       </script>
     </div><!-- /section-shares -->
+
+    <!-- ===== Locations / Map ===== -->
+    <div id="section-locations" class="adm-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+        <h2 class="adm-section-title">User Locations</h2>
+        <span style="font-size:.83rem;color:#6b7280;">{{ total_with_location }} user{{ total_with_location|pluralize }} with location set</span>
+      </div>
+
+      <!-- Leaflet map -->
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WPnI=" crossorigin=""></script>
+
+      <div id="loc-map" style="height:420px;border-radius:12px;border:1px solid #e0e8f4;margin-bottom:24px;z-index:0;"></div>
+
+      <script>
+      (function() {
+        var locData = {{ locations_json|safe }};
+
+        var map = L.map('loc-map', { scrollWheelZoom: false }).setView([5, 20], 3);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          maxZoom: 18,
+        }).addTo(map);
+
+        var geocodeCache = {};
+        var pending = locData.slice(); // copy
+        var delay = 0;
+
+        function addMarker(item, lat, lng) {
+          var r = Math.max(10, Math.min(40, 10 + item.total * 4));
+          var circle = L.circleMarker([lat, lng], {
+            radius: r,
+            fillColor: item.investors > 0 && item.innovators > 0 ? '#1B5EC7'
+                       : item.investors > 0 ? '#059669' : '#C9A44A',
+            color: '#fff',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.82,
+          }).addTo(map);
+          circle.bindPopup(
+            '<strong style="font-size:.9rem;">' + item.location + '</strong><br>' +
+            '<span style="font-size:.8rem;color:#374151;">' +
+            item.total + ' user' + (item.total !== 1 ? 's' : '') +
+            (item.innovators ? ' · ' + item.innovators + ' innovator' + (item.innovators !== 1 ? 's' : '') : '') +
+            (item.investors  ? ' · ' + item.investors  + ' investor'  + (item.investors  !== 1 ? 's' : '') : '') +
+            '</span>'
+          );
+        }
+
+        function geocodeNext() {
+          if (!pending.length) return;
+          var item = pending.shift();
+          var q = encodeURIComponent(item.location);
+          fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1', {
+            headers: { 'Accept-Language': 'en' }
+          })
+          .then(function(r){ return r.json(); })
+          .then(function(data) {
+            if (data && data.length) {
+              addMarker(item, parseFloat(data[0].lat), parseFloat(data[0].lon));
+            }
+            setTimeout(geocodeNext, 1100); // Nominatim rate limit: 1 req/sec
+          })
+          .catch(function() { setTimeout(geocodeNext, 1100); });
+        }
+
+        if (locData.length) {
+          geocodeNext();
+        } else {
+          map.remove();
+          document.getElementById('loc-map').innerHTML =
+            '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9ca3af;font-size:.9rem;">No location data yet — users can add their location in profile settings.</div>';
+        }
+
+        // Legend
+        var legend = L.control({ position: 'bottomright' });
+        legend.onAdd = function() {
+          var div = L.DomUtil.create('div');
+          div.style.cssText = 'background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.12);font-size:.78rem;line-height:1.8;';
+          div.innerHTML =
+            '<strong style="display:block;margin-bottom:4px;font-size:.8rem;">User type</strong>' +
+            '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#C9A44A;margin-right:6px;vertical-align:middle;"></span>Innovators<br>' +
+            '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#059669;margin-right:6px;vertical-align:middle;"></span>Investors<br>' +
+            '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#1B5EC7;margin-right:6px;vertical-align:middle;"></span>Both';
+          return div;
+        };
+        legend.addTo(map);
+      })();
+      </script>
+
+      <!-- Location breakdown table -->
+      {% if location_list %}
+      <table style="width:100%;border-collapse:collapse;font-size:.875rem;">
+        <thead>
+          <tr style="background:#f4f7fb;">
+            <th style="text-align:left;padding:10px 14px;font-weight:700;color:#374151;border-bottom:2px solid #e0e8f4;">Location</th>
+            <th style="padding:10px 14px;font-weight:700;color:#374151;border-bottom:2px solid #e0e8f4;text-align:center;">Total</th>
+            <th style="padding:10px 14px;font-weight:700;color:#374151;border-bottom:2px solid #e0e8f4;text-align:center;">Innovators</th>
+            <th style="padding:10px 14px;font-weight:700;color:#374151;border-bottom:2px solid #e0e8f4;text-align:center;">Investors</th>
+            <th style="padding:10px 14px;font-weight:700;color:#374151;border-bottom:2px solid #e0e8f4;">Share</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for loc, data in location_list %}
+          <tr style="border-bottom:1px solid #f0f0f0;">
+            <td style="padding:11px 14px;font-weight:600;color:#0A1628;">
+              <span style="display:inline-flex;align-items:center;gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1B5EC7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ loc }}
+              </span>
+            </td>
+            <td style="padding:11px 14px;text-align:center;font-weight:700;color:#1B5EC7;">{{ data.total }}</td>
+            <td style="padding:11px 14px;text-align:center;color:#374151;">{{ data.innovators }}</td>
+            <td style="padding:11px 14px;text-align:center;color:#374151;">{{ data.investors }}</td>
+            <td style="padding:11px 14px;min-width:120px;">
+              <div style="background:#e0e8f4;border-radius:4px;height:8px;overflow:hidden;">
+                {% if total_with_location %}
+                <div style="background:#1B5EC7;height:100%;width:{% widthratio data.total total_with_location 100 %}%;border-radius:4px;transition:width .4s;"></div>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div style="text-align:center;padding:48px 24px;background:#f9fafb;border-radius:12px;border:1px dashed #d1d5db;">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 12px;display:block;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <p style="color:#6b7280;font-size:.9rem;margin:0;">No users have set a location yet.</p>
+      </div>
+      {% endif %}
+    </div><!-- /section-locations -->
 
     <!-- Drill-down modal -->
     <div id="an-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9990;align-items:center;justify-content:center;">

@@ -120,6 +120,8 @@ urlpatterns = [
 
     path('start_conversation/<int:user_id>/', views.start_conversation, name='start_conversation'),
     path('chat/<int:conversation_id>/', views.chat_page, name='chat_page'),
+    path('project-chat/<int:project_id>/', views.start_project_conversation, name='start_project_conversation'),
+    path('quick-message/', views.quick_message, name='quick_message'),
 
 
 
@@ -354,6 +356,15 @@ urlpatterns = [
     path('collaborations/<int:collab_id>/agree/',   views.agree_to_collaboration, name='agree_to_collaboration'),
     path('collaborations/<int:collab_id>/decline/', views.decline_collaboration,  name='decline_collaboration'),
     path('patent-requests/<int:pr_id>/agree/', views.agree_to_patent_request, name='agree_to_patent_request'),
+
+    # Share to chat
+    path('chat/share/', views.share_to_chat, name='share_to_chat'),
+
+    # Subscription
+    path('subscription/',          views.subscription_plans,    name='subscription_plans'),
+    path('subscription/my-plan/',  views.my_subscription,       name='my_subscription'),
+    path('subscription/upgrade/',  views.upgrade_subscription,  name='upgrade_subscription'),
+    path('subscription/cancel/',   views.cancel_subscription,   name='cancel_subscription'),
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

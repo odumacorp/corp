@@ -9,6 +9,10 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Search Results</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <div style="max-width:900px;margin:32px auto;padding:0 16px;">
 
   <!-- Search form -->
@@ -36,7 +40,7 @@
   {% if project_results %}
   <section style="margin-bottom:32px;">
     <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-      🚀 Projects <span class="oc-badge oc-badge-primary">{{ project_results|length }}</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg> Projects <span class="oc-badge oc-badge-primary">{{ project_results|length }}</span>
     </h3>
     <div style="display:flex;flex-direction:column;gap:12px;">
       {% for project in project_results %}
@@ -61,7 +65,7 @@
   {% if post_results %}
   <section style="margin-bottom:32px;">
     <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-      📝 Posts <span class="oc-badge oc-badge-primary">{{ post_results|length }}</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Posts <span class="oc-badge oc-badge-primary">{{ post_results|length }}</span>
     </h3>
     <div style="display:flex;flex-direction:column;gap:12px;">
       {% for post in post_results %}
@@ -82,7 +86,7 @@
   {% if group_results %}
   <section style="margin-bottom:32px;">
     <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-      👥 Groups <span class="oc-badge oc-badge-primary">{{ group_results|length }}</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Groups <span class="oc-badge oc-badge-primary">{{ group_results|length }}</span>
     </h3>
     <div style="display:flex;flex-direction:column;gap:12px;">
       {% for group in group_results %}
@@ -102,7 +106,7 @@
   {% if page_results %}
   <section style="margin-bottom:32px;">
     <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-      📄 Pages <span class="oc-badge oc-badge-primary">{{ page_results|length }}</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg> Pages <span class="oc-badge oc-badge-primary">{{ page_results|length }}</span>
     </h3>
     <div style="display:flex;flex-direction:column;gap:12px;">
       {% for page in page_results %}
@@ -122,7 +126,7 @@
   {% if job_results %}
   <section style="margin-bottom:32px;">
     <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-      🧳 Jobs <span class="oc-badge oc-badge-primary">{{ job_results|length }}</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> Jobs <span class="oc-badge oc-badge-primary">{{ job_results|length }}</span>
     </h3>
     <div style="display:flex;flex-direction:column;gap:12px;">
       {% for job in job_results %}
@@ -140,7 +144,7 @@
   {% if event_results %}
   <section style="margin-bottom:32px;">
     <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-      📅 Events <span class="oc-badge oc-badge-primary">{{ event_results|length }}</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Events <span class="oc-badge oc-badge-primary">{{ event_results|length }}</span>
     </h3>
     <div style="display:flex;flex-direction:column;gap:12px;">
       {% for event in event_results %}
@@ -156,7 +160,7 @@
 
   {% if total_count == 0 %}
   <div style="text-align:center;padding:60px 20px;color:#6b7280;">
-    <div style="font-size:2rem;margin-bottom:12px;">🔍</div>
+    <div style="margin-bottom:12px;color:#9ca3af;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
     <p style="font-size:1.1rem;font-weight:600;margin-bottom:6px;">No results found</p>
     <p style="font-size:.875rem;">Try a different search term or filter.</p>
   </div>

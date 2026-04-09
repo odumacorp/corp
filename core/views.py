@@ -115,25 +115,45 @@ from django.views.generic import DetailView
 
 # ##Edit profile pic
 @login_required
+@login_required
 def edit_profile(request):
     user = request.user
-
-    # Ensure the user has a profile
-    if not hasattr(user, 'userprofile'):
-        UserProfile.objects.create(user=user)
-
-    profile = user.userprofile  # Get the actual profile
+    up, _ = UserProfile.objects.get_or_create(user=user)
 
     if request.method == 'POST':
-        form = ProfileEditForm(request.POST, request.FILES, instance=profile)
+        form = ProfileEditForm(request.POST, request.FILES, instance=up)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Profile updated successfully')
+            # Location field (all user types)
+            up.location = request.POST.get('location', '').strip()
+            up.save(update_fields=['location'])
+            # Investor-specific fields not in ProfileEditForm
+            if user.user_type == 'investor':
+                up.ticket_size_min   = request.POST.get('ticket_size_min') or None
+                up.ticket_size_max   = request.POST.get('ticket_size_max') or None
+                up.preferred_sectors = request.POST.get('preferred_sectors', '')
+                up.geography_focus   = request.POST.get('geography_focus', '')
+                up.investment_thesis = request.POST.get('investment_thesis', '')
+                up.save(update_fields=[
+                    'ticket_size_min', 'ticket_size_max',
+                    'preferred_sectors', 'geography_focus', 'investment_thesis',
+                ])
+            messages.success(request, 'Profile updated successfully.')
             return redirect('profile_view', id=user.id)
     else:
-        form = ProfileEditForm(instance=profile)
+        form = ProfileEditForm(instance=up)
 
-    return render(request, 'edit_profile.html', {'form': form})
+    # Profile completion
+    _pc = [bool(up.bio), bool(up.industry), bool(up.company), bool(up.phone_number),
+           bool(up.profile_pics), bool(user.first_name), bool(user.last_name),
+           bool(up.investment_thesis or up.preferred_sectors)]
+    profile_completion = int(sum(_pc) / len(_pc) * 100)
+
+    return render(request, 'edit_profile.html', {
+        'form': form,
+        'up': up,
+        'profile_completion': profile_completion,
+    })
 
 
 
@@ -354,15 +374,93 @@ def dashboard(request, user_id=None):
         project_form = ProjectForm()
         attachment_form = AttachmentForm()
 
-    projects = Project.objects.filter(owner=request.user).order_by('-created_at')
+    from .models import (
+        Post, Connection, ProfileView, GroupMembership, Group, Page,
+        Notification, ProjectView, Company
+    )
+    from django.db.models import Sum, Count
+
+    user = request.user
+    projects = Project.objects.filter(owner=user).order_by('-created_at')
     for project in projects:
         project.main_image = project.get_main_image_url()
+
+    # Stats
+    posts_count = Post.objects.filter(user=user).count()
+    accepted = Connection.objects.filter(
+        Q(initiator=user, status='accepted') | Q(target=user, status='accepted')
+    )
+    connections_count = accepted.count()
+    profile_views_count = ProfileView.objects.filter(profile_user=user).count()
+    project_views_count = ProjectView.objects.filter(project__owner=user).count()
+    groups_count = GroupMembership.objects.filter(user=user, status='accepted').count()
+    pages_owned = Page.objects.filter(owner=user).count()
+    companies_owned = Company.objects.filter(owner=user).count()
+    notifications_unread = Notification.objects.filter(user=user, is_read=False).count()
+
+    # Recent posts (latest 5)
+    recent_posts = Post.objects.filter(user=user).order_by('-created_at')[:5]
+
+    # Profile completion (based on UserProfile fields that exist)
+    up = getattr(user, 'userprofile', None)
+    _pc_checks = [
+        bool(up and up.bio),
+        bool(up and up.industry),
+        bool(up and up.company),
+        bool(up and up.phone_number),
+        bool(up and up.profile_pics),
+        bool(user.first_name),
+        bool(user.last_name),
+        bool(up and (up.investment_thesis or up.preferred_sectors)),
+    ]
+    pc_filled = sum(_pc_checks)
+    profile_completion = int((pc_filled / len(_pc_checks)) * 100)
+
+    # Investor interest alerts: projects that have new interested investors
+    investor_interest_alerts = []
+    for p in projects:
+        cnt = p.interested.count()
+        if cnt:
+            investor_interest_alerts.append({'project': p, 'count': cnt})
+    investor_interest_alerts.sort(key=lambda x: x['count'], reverse=True)
+
+    # Suggested next actions (use absolute paths as href)
+    from django.urls import reverse
+    suggested_actions = []
+    if profile_completion < 80:
+        suggested_actions.append({'icon': '👤', 'text': 'Complete your profile to attract investors', 'href': reverse('update_profile'), 'priority': 'high'})
+    if not projects.exists():
+        suggested_actions.append({'icon': '🚀', 'text': 'Post your first project and start raising capital', 'href': reverse('create_project'), 'priority': 'high'})
+    else:
+        incomplete = [p for p in projects if p.completeness_score() < 80]
+        if incomplete:
+            suggested_actions.append({'icon': '📊', 'text': f'Complete pitch deck — "{incomplete[0].title[:28]}"', 'href': reverse('edit_project', args=[incomplete[0].pk]), 'priority': 'medium'})
+    if connections_count == 0:
+        suggested_actions.append({'icon': '🌐', 'text': 'Build your network — connect with investors', 'href': reverse('networks'), 'priority': 'medium'})
+    if not investor_interest_alerts:
+        if projects.exists():
+            suggested_actions.append({'icon': '🎯', 'text': 'Submit a project for review to attract investors', 'href': reverse('project_list'), 'priority': 'low'})
+    else:
+        total_interested = sum(a['count'] for a in investor_interest_alerts)
+        suggested_actions.append({'icon': '🔔', 'text': f'{total_interested} investor(s) expressed interest in your projects', 'href': reverse('notifications'), 'priority': 'high'})
 
     return render(request, 'dashboard.html', {
         'project_form': project_form,
         'attachment_form': attachment_form,
         'projects': projects,
         'industry_choices': Project._meta.get_field('industry').choices,
+        'posts_count': posts_count,
+        'connections_count': connections_count,
+        'profile_views_count': profile_views_count,
+        'project_views_count': project_views_count,
+        'groups_count': groups_count,
+        'pages_owned': pages_owned,
+        'companies_owned': companies_owned,
+        'notifications_unread': notifications_unread,
+        'recent_posts': recent_posts,
+        'profile_completion': profile_completion,
+        'investor_interest_alerts': investor_interest_alerts,
+        'suggested_actions': suggested_actions[:4],
     })
 
 
@@ -529,16 +627,102 @@ def user_messages(request):
 ##networks.html
 @login_required
 def networks(request):
+    from .models import Company, Group, Page, GroupMembership, CustomUser, Event, EventRegistration
+    from datetime import date as _date
+
+    user = request.user
+
+    # ── Accepted connections ──────────────────────────────────────────────
     accepted = Connection.objects.filter(
-        Q(initiator=request.user, status='accepted') | Q(target=request.user, status='accepted')
-    ).select_related('initiator', 'target')
+        Q(initiator=user, status='accepted') | Q(target=user, status='accepted')
+    ).select_related('initiator', 'target', 'initiator__userprofile', 'target__userprofile')
     connections = [
-        c.target if c.initiator == request.user else c.initiator
+        c.target if c.initiator == user else c.initiator
         for c in accepted
     ]
+    connected_ids = {u.id for u in connections}
+
+    # ── Pending: incoming requests ─────────────────────────────────────
+    pending_incoming = Connection.objects.filter(
+        target=user, status='pending'
+    ).select_related('initiator', 'initiator__userprofile').order_by('-created_at')
+
+    # ── Pending: sent by user ─────────────────────────────────────────
+    pending_sent_ids = set(
+        Connection.objects.filter(initiator=user, status='pending').values_list('target_id', flat=True)
+    )
+
+    # ── Suggested people ──────────────────────────────────────────────
+    exclude_people = connected_ids | pending_sent_ids | {user.id}
+    suggested_innovators = CustomUser.objects.filter(
+        is_active=True, user_type='innovator'
+    ).exclude(id__in=exclude_people).select_related('userprofile').order_by('?')[:8]
+
+    suggested_investors = CustomUser.objects.filter(
+        is_active=True, user_type='investor'
+    ).exclude(id__in=exclude_people).select_related('userprofile').order_by('?')[:8]
+
+    # ── Your groups (joined) ──────────────────────────────────────────
+    your_memberships = GroupMembership.objects.filter(
+        user=user, status='accepted'
+    ).select_related('group').order_by('-created_at')[:8]
+    your_groups = [m.group for m in your_memberships]
+    joined_group_ids = list(GroupMembership.objects.filter(user=user).values_list('group_id', flat=True))
+    suggested_groups = Group.objects.filter(
+        is_hidden=False
+    ).exclude(id__in=joined_group_ids).order_by('?')[:8]
+
+    # ── Your companies (followed + owned) ─────────────────────────────
+    followed_companies = Company.objects.filter(followers=user).order_by('-created_at')[:8]
+    owned_companies    = Company.objects.filter(owner=user).order_by('-created_at')[:4]
+    followed_company_ids = list(followed_companies.values_list('id', flat=True))
+    owned_company_ids    = list(owned_companies.values_list('id', flat=True))
+    exclude_company_ids  = followed_company_ids + owned_company_ids
+    suggested_companies  = Company.objects.exclude(id__in=exclude_company_ids).order_by('?')[:8]
+
+    # ── Your pages (followed + owned) ────────────────────────────────
+    followed_pages = Page.objects.filter(followers=user, is_hidden=False).order_by('-created_at')[:8]
+    owned_pages    = Page.objects.filter(owner=user, is_hidden=False).order_by('-created_at')[:4]
+    followed_page_ids = list(followed_pages.values_list('id', flat=True))
+    owned_page_ids    = list(owned_pages.values_list('id', flat=True))
+    exclude_page_ids  = followed_page_ids + owned_page_ids
+    suggested_pages   = Page.objects.filter(is_hidden=False).exclude(id__in=exclude_page_ids).order_by('?')[:8]
+
+    # ── Upcoming events ────────────────────────────────────────────────
+    upcoming_events = Event.objects.filter(
+        is_hidden=False, date__gte=_date.today()
+    ).order_by('date')[:4]
+    registered_event_ids = set(
+        EventRegistration.objects.filter(user=user).values_list('event_id', flat=True)
+    )
+
     context = {
-        "page_title": "Networks", "page_name": "Networks",
-        "connections": connections,
+        "page_title": "My Network", "page_name": "Networks",
+        # Connections
+        "connections":          connections,
+        "connections_count":    len(connections),
+        "connected_ids":        connected_ids,
+        # Pending
+        "pending_incoming":     pending_incoming,
+        "pending_incoming_count": pending_incoming.count(),
+        "pending_sent_ids":     pending_sent_ids,
+        # Suggested people
+        "suggested_innovators": suggested_innovators,
+        "suggested_investors":  suggested_investors,
+        # Groups
+        "your_groups":          your_groups,
+        "suggested_groups":     suggested_groups,
+        # Companies
+        "followed_companies":   followed_companies,
+        "owned_companies":      owned_companies,
+        "suggested_companies":  suggested_companies,
+        # Pages
+        "followed_pages":       followed_pages,
+        "owned_pages":          owned_pages,
+        "suggested_pages":      suggested_pages,
+        # Events
+        "upcoming_events":      upcoming_events,
+        "registered_event_ids": registered_event_ids,
     }
     return render(request, 'networks.html', context)
 ##notifications.html
@@ -696,7 +880,7 @@ def inbox(request):
     # Get all conversations this user is part of, newest message first
     conversations = Conversation.objects.filter(
         participants=request.user
-    ).prefetch_related('participants', 'messages').order_by('-created_at')
+    ).select_related('project', 'post').prefetch_related('participants', 'messages').order_by('-created_at')
 
     inbox_items = []
     total_unread = 0
@@ -725,6 +909,61 @@ def inbox(request):
 def sent_items(request):
     sent = Message.objects.filter(sender=request.user).order_by('-timestamp')
     return render(request, 'sent_items.html', {'messages': sent, 'page_name': 'Sent'})
+
+@login_required
+def share_to_chat(request):
+    """
+    POST: share a post or project as a rich card into a direct conversation.
+    Params: content_type ('post'|'project'), content_id, recipient_id, caption (optional)
+    Returns JSON: {ok, conversation_id}
+    """
+    from .models import Post, Project, Conversation, Message, CustomUser
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    content_type = request.POST.get('content_type', '').strip()
+    content_id   = request.POST.get('content_id', '').strip()
+    recipient_id = request.POST.get('recipient_id', '').strip()
+    caption      = request.POST.get('caption', '').strip()
+
+    if not content_type or not content_id or not recipient_id:
+        return JsonResponse({'error': 'Missing parameters'}, status=400)
+
+    recipient = get_object_or_404(CustomUser, pk=recipient_id)
+
+    # Find or create a direct conversation between the two users
+    conv = (
+        Conversation.objects
+        .filter(participants=request.user, context_type='direct')
+        .filter(participants=recipient)
+        .first()
+    )
+    if not conv:
+        conv = Conversation.objects.create(context_type='direct')
+        conv.participants.add(request.user, recipient)
+
+    if content_type == 'post':
+        obj = get_object_or_404(Post, pk=content_id)
+        msg_text = caption or f'Shared a post: {obj.content[:100]}'
+        Message.objects.create(
+            sender=request.user, recipient=recipient,
+            conversation=conv, content=msg_text,
+            message_type='post_share', shared_post=obj,
+        )
+    elif content_type == 'project':
+        obj = get_object_or_404(Project, pk=content_id)
+        msg_text = caption or f'Check out this project: {obj.title}'
+        Message.objects.create(
+            sender=request.user, recipient=recipient,
+            conversation=conv, content=msg_text,
+            message_type='project_share', shared_project=obj,
+        )
+    else:
+        return JsonResponse({'error': 'Invalid content_type'}, status=400)
+
+    return JsonResponse({'ok': True, 'conversation_id': conv.id})
+
 
 @login_required
 def send_message(request, recipient_id):
@@ -845,24 +1084,23 @@ from django.core.mail import send_mail  # For email messaging, or use your prefe
 
 @login_required
 def message_innovator(request, user_id):
-    recipient = get_object_or_404(UserProfile, id=user_id)
+    """
+    Legacy entry point: /message_innovator/<userprofile_id>/
+    Finds or creates a Conversation and redirects to the proper chat page.
+    """
+    recipient_profile = get_object_or_404(UserProfile, id=user_id)
+    other_user = recipient_profile.user
 
-    # Get or create past conversation
-    messages = Message.objects.filter(
-        Q(sender=request.user, recipient=recipient.user) |
-        Q(sender=recipient.user, recipient=request.user)
-    ).order_by('timestamp')
+    conversation = (
+        Conversation.objects.filter(participants=request.user)
+        .filter(participants=other_user)
+        .first()
+    )
+    if not conversation:
+        conversation = Conversation.objects.create(context_type='direct')
+        conversation.participants.add(request.user, other_user)
 
-    if request.method == "POST":
-        content = request.POST.get("content")
-        if content:
-            Message.objects.create(sender=request.user, recipient=recipient.user, content=content)
-            return redirect('message_innovator', user_id=recipient.id)
-
-    return render(request, 'messages/message_thread.html', {
-        'recipient': recipient,
-        'messages': messages,
-    })
+    return redirect('chat_page', conversation_id=conversation.id)
 
 
 # #  
@@ -968,15 +1206,86 @@ from .models import Conversation, Message
 def start_conversation(request, user_id):
     other_user = get_object_or_404(CustomUser, pk=user_id)
 
-    # Try to find existing conversation
-    conversation = Conversation.objects.filter(participants=request.user).filter(participants=other_user).first()
+    # Try to find existing direct conversation
+    conversation = (
+        Conversation.objects.filter(participants=request.user)
+        .filter(participants=other_user)
+        .filter(context_type='direct')
+        .first()
+    )
 
-    # Create new if none found
     if not conversation:
-        conversation = Conversation.objects.create()
+        conversation = Conversation.objects.create(context_type='direct')
         conversation.participants.add(request.user, other_user)
 
     return redirect('chat_page', conversation_id=conversation.id)
+
+
+@login_required
+def start_project_conversation(request, project_id):
+    """Start or resume a project-linked conversation with the project owner."""
+    from .models import Project as _Proj
+    project = get_object_or_404(_Proj, pk=project_id)
+    owner = project.owner
+
+    if owner == request.user:
+        # Can't start a conversation with yourself — just redirect to project
+        return redirect('project_detail', pk=project_id)
+
+    # Find existing project conversation between these two users about this project
+    conversation = (
+        Conversation.objects.filter(participants=request.user)
+        .filter(participants=owner)
+        .filter(context_type='project', project=project)
+        .first()
+    )
+
+    if not conversation:
+        conversation = Conversation.objects.create(context_type='project', project=project)
+        conversation.participants.add(request.user, owner)
+
+    return redirect('chat_page', conversation_id=conversation.id)
+
+
+@login_required
+def quick_message(request):
+    """AJAX: find/create a direct conversation and send a quick message from listing pages."""
+    import json
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        data = request.POST
+
+    recipient_id = data.get('recipient_id')
+    content = str(data.get('content', '')).strip()
+
+    if not recipient_id or not content:
+        return JsonResponse({'error': 'Missing fields'}, status=400)
+
+    recipient = get_object_or_404(CustomUser, pk=recipient_id)
+    if recipient == request.user:
+        return JsonResponse({'error': 'Cannot message yourself'}, status=400)
+
+    conversation = (
+        Conversation.objects.filter(participants=request.user)
+        .filter(participants=recipient)
+        .filter(context_type='direct')
+        .first()
+    )
+    if not conversation:
+        conversation = Conversation.objects.create(context_type='direct')
+        conversation.participants.add(request.user, recipient)
+
+    Message.objects.create(
+        sender=request.user,
+        recipient=recipient,
+        conversation=conversation,
+        content=content,
+    )
+
+    return JsonResponse({'ok': True, 'conversation_id': conversation.id})
 
 @login_required
 @login_required
@@ -1016,12 +1325,31 @@ def chat_page(request, conversation_id):
     ).select_related(
         'sender', 'sender__userprofile',
         'reply_to', 'reply_to__sender',
+        'shared_post', 'shared_project',
     ).prefetch_related('reactions', 'reactions__user').order_by('timestamp')
 
     # Mark incoming messages as read
     chat_messages.filter(recipient=request.user, is_read=False).update(is_read=True)
 
     participant_profile = getattr(participant, 'userprofile', None) if participant else None
+
+    # Profile panel extras
+    participant_projects = []
+    if participant and participant.user_type == 'innovator':
+        from .models import Project as _Proj
+        participant_projects = list(
+            _Proj.objects.filter(owner=participant, review_status__in=['approved', 'featured'])
+            .order_by('-created_at')[:3]
+        )
+
+    is_connected = Connection.objects.filter(
+        Q(initiator=request.user, target=participant, status='accepted') |
+        Q(initiator=participant, target=request.user, status='accepted')
+    ).exists() if participant else False
+
+    connection_pending_sent = Connection.objects.filter(
+        initiator=request.user, target=participant, status='pending'
+    ).exists() if participant else False
 
     # Attach reaction summary directly to each message object
     from collections import defaultdict
@@ -1036,13 +1364,18 @@ def chat_page(request, conversation_id):
         ]
 
     context = {
-        'conversation':        conversation,
-        'participant':         participant,
-        'participant_name':    participant.get_full_name() if participant else 'Unknown',
-        'participant_profile': participant_profile,
-        'chat_messages':       messages_list,
-        'form':                form,
-        'room_name':           str(conversation_id),
+        'conversation':            conversation,
+        'participant':             participant,
+        'participant_name':        participant.get_full_name() if participant else 'Unknown',
+        'participant_profile':     participant_profile,
+        'chat_messages':           messages_list,
+        'form':                    form,
+        'room_name':               str(conversation_id),
+        'participant_projects':    participant_projects,
+        'is_connected':            is_connected,
+        'connection_pending_sent': connection_pending_sent,
+        'project_context':         conversation.project if conversation.context_type == 'project' else None,
+        'is_project_chat':         conversation.context_type == 'project',
     }
     return render(request, 'chat_page.html', context)
 
@@ -1233,6 +1566,22 @@ def app_view(request):
     # Industry choices for filter
     industry_choices = [c[0] for c in Post._meta.get_field('industry').choices]
 
+    # Subscription plans for pricing tab
+    from .models import SubscriptionPlan, UserSubscription
+    sub_plans = SubscriptionPlan.objects.filter(is_active=True).order_by('order')
+    try:
+        user_sub = user.subscription
+    except UserSubscription.DoesNotExist:
+        user_sub = None
+
+    # Connections list for share-to-chat modal
+    share_connections = [
+        c.target if c.initiator == user else c.initiator
+        for c in Connection.objects.filter(
+            Q(initiator=user, status='accepted') | Q(target=user, status='accepted')
+        ).select_related('initiator', 'initiator__userprofile', 'target', 'target__userprofile')
+    ]
+
     context = {
         'page_name': 'Home',
         'posts': posts,
@@ -1252,6 +1601,10 @@ def app_view(request):
         'industry_choices': industry_choices,
         'industry_filter': industry_filter,
         'date_filter': date_filter,
+        'sub_plans': sub_plans,
+        'user_sub': user_sub,
+        'share_connections': share_connections,
+        'show_confetti': request.GET.get('welcome') == '1',
     }
     return render(request, 'app.html', context)
 
@@ -1375,6 +1728,11 @@ def project_detail(request, pk):
         project=project, status='accepted'
     ).select_related('from_user')
 
+    is_interested = False
+    if request.user.is_authenticated:
+        is_interested = project.interested.filter(pk=request.user.pk).exists()
+    interest_count = project.interested.count()
+
     return render(request, 'project_detail.html', {
         'project': project,
         'main_image': main_image,
@@ -1388,6 +1746,8 @@ def project_detail(request, pk):
         'user_type': user_type,
         'attachments': attachments,
         'collaborators': collaborators,
+        'is_interested': is_interested,
+        'interest_count': interest_count,
     })
 
 # def project_detail(request, pk):
@@ -1425,17 +1785,47 @@ def filter_by_date(request, date):
 #
 
 ##profile pic update
+@login_required
 def update_profile(request):
+    return redirect('edit_profile')
+
+@login_required
+def _update_profile_unused(request):
+    user = request.user
+    up, _ = UserProfile.objects.get_or_create(user=user)
+
     if request.method == "POST":
-        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.userprofile)
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
-            messages.success(request, "Profile picture updated successfully!")
-            return redirect('profile')  # Redirect to the profile page
+            # Also save UserProfile-specific fields
+            up.phone_number = request.POST.get('phone_number', up.phone_number or '')
+            up.industry     = request.POST.get('industry', up.industry or '')
+            up.company      = request.POST.get('company', up.company or '')
+            if 'profile_pic_up' in request.FILES:
+                up.profile_pics = request.FILES['profile_pic_up']
+            up.save()
+            messages.success(request, "Profile updated successfully!")
+            return redirect('profile')
     else:
-        form = ProfileUpdateForm()
+        form = ProfileUpdateForm(instance=user)
 
-    return render(request, "update_profile.html", {"form": form})
+    # Profile completion for sidebar bar
+    _pc_checks = [
+        bool(up.bio), bool(up.industry), bool(up.company),
+        bool(up.phone_number), bool(up.profile_pics),
+        bool(user.first_name), bool(user.last_name),
+        bool(up.investment_thesis or up.preferred_sectors),
+    ]
+    pc = int(sum(_pc_checks) / len(_pc_checks) * 100)
+
+    return render(request, "update_profile.html", {
+        "form": form,
+        "up": up,
+        "profile": up,
+        "profile_completion": pc,
+        "industry_choices": UserProfile._meta.get_field('industry').choices,
+    })
 
 
 ########################
@@ -1504,7 +1894,7 @@ def delete_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     if request.method == "POST":
         project.delete()
-        return redirect('innovators')  # Redirect back to the innovator page
+        return redirect('dashboard')
     return render(request, 'confirm_delete.html', {'project': project})
 
 #####Edit from dashboard
@@ -1816,7 +2206,7 @@ from .models import UserProfile
 
 def register(request):
     if request.user.is_authenticated:
-        return redirect('app')
+        return render(request, 'register.html', {'already_logged_in': True})
     context = {"page_title": "App Center"}
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
@@ -1838,7 +2228,7 @@ def register(request):
                 user=user,
                 notification_type='other',
                 message=(
-                    f"Welcome to Oduma Connect, {first_name}! 🎉 "
+                    f"Welcome to Oduma Corp, {first_name}! 🎉 "
                     "Your account is ready. Complete your profile to start connecting with innovators and investors across Africa."
                 ),
                 link='/app/',
@@ -1854,7 +2244,7 @@ def register(request):
                     sender=admin,
                     recipient=user,
                     content=(
-                        f"Hi {first_name}, welcome to Oduma Connect! 👋\n\n"
+                        f"Hi {first_name}, welcome to Oduma Corp! 👋\n\n"
                         "Here are your login details — keep them safe:\n\n"
                         f"📧 Email: {user.email}\n"
                         f"👤 Username: {user.username}\n\n"
@@ -1872,7 +2262,7 @@ def register(request):
 
             # Success message
             messages.success(request, "Registration successful!")
-            return redirect("app")  # or whatever your post-registration redirect is
+            return redirect('/app/?welcome=1')
         else:
             # Error message for invalid form
             messages.error(request, "Registration failed. Please check your details.")
@@ -2178,7 +2568,7 @@ def create_meeting(request):
     from .zoom_api import create_meeting as zoom_create, ZoomConfigError, ZoomAPIError
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'POST required'}, status=405)
-    title        = request.POST.get('title', '').strip() or 'Oduma Connect Meeting'
+    title        = request.POST.get('title', '').strip() or 'Oduma Corp Meeting'
     other_id     = request.POST.get('other_user_id', '')
     scheduled_at_str = request.POST.get('scheduled_at', '').strip()
     scheduled_at = None
@@ -2312,13 +2702,12 @@ def investor_dashboard(request):
     pitched_project_ids = set(my_pitch_requests.values_list('project_id', flat=True))
 
     # ── Intelligent Matching: top matches for this investor ─────────────────
-    from .matching import get_top_matches
+    from .matching import get_top_matches_with_breakdown, compute_match_score, score_label as _score_label
     match_pool = Project.objects.filter(
         is_hidden=False
     ).exclude(owner=user).exclude(status='draft').select_related('owner', 'owner__userprofile')[:80]
-    top_matches = get_top_matches(profile, match_pool, n=6)
+    top_matches = get_top_matches_with_breakdown(profile, match_pool, n=6)
     # Also score deal_flow_projects in-place
-    from .matching import compute_match_score, score_label as _score_label
     for p in deal_flow_projects:
         p.match_score = compute_match_score(profile, p)
         p.match_label, p.match_css = _score_label(p.match_score)
@@ -2851,6 +3240,32 @@ def admin_panel(request):
     pending_verification_count = VerificationRequest.objects.filter(status='pending').count()
     pending_review_count       = Project.objects.filter(review_status='under_review').count()
 
+    # ── User locations for map ─────────────────────────────────────────
+    location_qs = (
+        UserProfile.objects
+        .exclude(location='')
+        .values('location', 'user_type')
+        .annotate(count=Count('id'))
+        .order_by('-count')
+    )
+    location_summary = {}
+    for row in location_qs:
+        loc = row['location'].strip()
+        if not loc:
+            continue
+        if loc not in location_summary:
+            location_summary[loc] = {'total': 0, 'innovators': 0, 'investors': 0}
+        location_summary[loc]['total'] += row['count']
+        if row['user_type'] == 'innovator':
+            location_summary[loc]['innovators'] += row['count']
+        elif row['user_type'] == 'investor':
+            location_summary[loc]['investors'] += row['count']
+    location_list = sorted(location_summary.items(), key=lambda x: -x[1]['total'])
+    locations_json = _json.dumps([
+        {'location': loc, **data} for loc, data in location_list
+    ])
+    total_with_location = sum(d['total'] for _, d in location_list)
+
     return render(request, 'admin_panel.html', {
         # core data
         'users':               users,
@@ -2902,6 +3317,10 @@ def admin_panel(request):
         'pending_stage_count':        pending_stage_count,
         'pending_verification_count': pending_verification_count,
         'pending_review_count':       pending_review_count,
+        # location map
+        'locations_json':        locations_json,
+        'location_list':         location_list,
+        'total_with_location':   total_with_location,
         'page_name': 'Admin Panel',
     })
 
@@ -3786,6 +4205,216 @@ Write only the project description, nothing else."""
         return JsonResponse({'error': 'AI generation failed. Please write your description manually.'}, status=500)
 
 
+def _odu_local_reply(message, user):
+    """Return a quick local reply for common patterns, or None to fall through to AI."""
+    import re
+    m = message.lower().strip()
+
+    # ── Greetings ──
+    if re.match(r'^(hi|hello|hey|howdy|good\s*(morning|afternoon|evening)|sup|what\'?s up)\b', m):
+        name = user.first_name or user.username
+        return (
+            f"Hey {name}! 👋 I'm Odu, your Oduma Corp assistant. "
+            "I can help you navigate the platform, post projects, find investors, "
+            "connect with people, and much more. What would you like to do today?"
+        )
+
+    # ── Who/what is Odu ──
+    if re.search(r'\b(who are you|what are you|what is odu|tell me about yourself|introduce yourself)\b', m):
+        return (
+            "I'm **Odu** — the AI assistant built into Oduma Corp! 🤖\n\n"
+            "I'm here to help you get the most out of the platform. I can:\n"
+            "• Guide you to the right pages\n"
+            "• Explain platform features\n"
+            "• Help you connect with investors or innovators\n"
+            "• Answer questions about projects, groups, pages, and more\n\n"
+            "Just ask me anything!"
+        )
+
+    # ── What is Oduma Corp ──
+    if re.search(r'\b(what is oduma|what is this platform|what does oduma do|about oduma)\b', m):
+        return (
+            "**Oduma Corp** is a platform that bridges African innovators and investors. 🌍\n\n"
+            "Innovators can post projects, build pitch decks, collaborate, and get funded.\n"
+            "Investors can discover projects, send proposals, schedule meetings, and connect with teams.\n\n"
+            "The platform also has Groups, Pages, Companies, Jobs, Courses, Mentorship, and more!"
+        )
+
+    # ── Navigation: Dashboard ──
+    if re.search(r'\b(dashboard|my stats|my activity|overview)\b', m):
+        return (
+            "Your **Dashboard** is at `/dashboard/` — it shows all your stats: "
+            "posts, projects, connections, profile views, project views, groups, and pages. "
+            "You can also create posts, projects, groups, pages, companies, and meetings from there. 📊"
+        )
+
+    # ── Navigation: Feed / App ──
+    if re.search(r'\b(feed|home|app|main page|posts|news feed)\b', m):
+        return (
+            "The main **Feed** is at `/app/` — it has two tabs:\n"
+            "• **Posts** — updates and ideas from your network\n"
+            "• **Projects** — innovator projects you can explore, collaborate on, or invest in\n\n"
+            "You can write a post or create a new project right from there!"
+        )
+
+    # ── Navigation: Profile ──
+    if re.search(r'\b(my profile|view profile|edit profile|profile page)\b', m):
+        return (
+            f"Your profile is at `/profile/{user.id}/` — you can update your bio, "
+            "industry, photo, company, skills, and social links. "
+            "A complete profile gets more attention from investors! 👤"
+        )
+
+    # ── How to create a project ──
+    if re.search(r'\b(create|add|post|submit|upload)\b.*\bproject\b|\bproject\b.*\b(create|add|post|submit|upload)\b', m):
+        return (
+            "To **create a project**, go to `/projects/create/` or click *New Project* on your dashboard. 🚀\n\n"
+            "You'll fill in:\n"
+            "• Title, industry, category, description\n"
+            "• Problem statement, solution, market opportunity\n"
+            "• Funding requirement and business model\n"
+            "• Images, video, and pitch deck sections\n\n"
+            "A detailed project attracts more investor proposals!"
+        )
+
+    # ── How to find investors ──
+    if re.search(r'\b(find|browse|discover|connect with|meet)\b.*\binvestor\b|\binvestor\b.*\b(find|browse|discover)\b', m):
+        return (
+            "You can find investors at `/investors/` — browse profiles filtered by industry and location. "
+            "Click **Connect** on any investor profile to send a connection request. "
+            "Once connected, you can send a direct message or invite them to a meeting! 💼"
+        )
+
+    # ── How to find innovators ──
+    if re.search(r'\b(find|browse|discover)\b.*\binnovator\b|\binnovator\b.*\b(find|browse|discover)\b', m):
+        return (
+            "Browse innovators at `/innovators/` — you'll see profiles with their projects, "
+            "industry, bio, and ratings. Click **Connect** to send a request, "
+            "or **View Profile** to explore their work. 💡"
+        )
+
+    # ── Messaging / Inbox ──
+    if re.search(r'\b(message|inbox|chat|dm|direct message|send.*message|talk to)\b', m):
+        return (
+            "Your **Inbox** is at `/inbox/` — you can view all conversations and send messages "
+            "to anyone you're connected with. "
+            "You can also start a chat directly from someone's profile page. 💬"
+        )
+
+    # ── Meetings / Zoom ──
+    if re.search(r'\b(meeting|zoom|schedule|video call|call)\b', m):
+        return (
+            "You can schedule **Zoom meetings** at `/meetings/create/`. 📅\n\n"
+            "• Create a meeting with a title, time, and invite your connections\n"
+            "• The platform generates a Zoom link automatically\n"
+            "• You can view upcoming and past meetings at `/meetings/`"
+        )
+
+    # ── Groups ──
+    if re.search(r'\b(group|community|join group|create group)\b', m):
+        return (
+            "**Groups** are at `/groups/` — communities of innovators and investors around shared interests. 👥\n\n"
+            "• Browse and join groups in your industry\n"
+            "• Start discussions, share updates, and collaborate\n"
+            "• Create your own group at `/groups/create/`"
+        )
+
+    # ── Pages ──
+    if re.search(r'\b(page|brand page|company page|create page)\b', m):
+        return (
+            "**Pages** at `/pages/` are public brand profiles for businesses, startups, and organizations. 📄\n\n"
+            "• Create a page at `/pages/create/`\n"
+            "• Share updates and grow your following\n"
+            "• Followers see your posts in their feed"
+        )
+
+    # ── Companies ──
+    if re.search(r'\b(compan|business|startup|firm)\b', m):
+        return (
+            "You can list and discover **Companies** at `/companies/`. 🏢\n\n"
+            "• Browse companies by industry\n"
+            "• Follow companies to stay updated\n"
+            "• Add your own company at `/companies/create/`"
+        )
+
+    # ── Jobs ──
+    if re.search(r'\b(job|career|hiring|vacancy|work|employment)\b', m):
+        return (
+            "Check out **Jobs** on the platform — innovators and companies post open positions. 💼\n\n"
+            "You can browse available roles and apply directly through Oduma Corp."
+        )
+
+    # ── Courses / Training ──
+    if re.search(r'\b(course|training|learn|education|module)\b', m):
+        return (
+            "The **Training Hub** at `/training/` has courses to help you build skills in entrepreneurship, "
+            "fundraising, innovation, and more. 🎓\n\n"
+            "Enroll in a course and track your progress through the course modules."
+        )
+
+    # ── Mentorship ──
+    if re.search(r'\b(mentor|mentorship|coach|guidance)\b', m):
+        return (
+            "The **Mentorship** section connects you with experienced mentors. 🌟\n\n"
+            "• Browse mentor profiles and their areas of expertise\n"
+            "• Submit a mentorship request\n"
+            "• Once matched, your mentor can guide your project and growth"
+        )
+
+    # ── Notifications ──
+    if re.search(r'\b(notification|alert|updates|unread)\b', m):
+        return (
+            "Your **Notifications** are at `/notifications/` — you'll see alerts for "
+            "new connections, messages, project proposals, group invites, and platform updates. 🔔"
+        )
+
+    # ── Network / Connections ──
+    if re.search(r'\b(network|connection|connect|disconnect)\b', m):
+        return (
+            "Your **Network** is at `/networks/` — see all your connections and get suggestions for "
+            "people, companies, groups, and pages to follow. 🌐\n\n"
+            "To connect with someone, visit their profile and click **Connect**."
+        )
+
+    # ── How to get funding / investors ──
+    if re.search(r'\b(funding|raise|investment|pitch|investor.*interest|attract)\b', m):
+        return (
+            "To attract investors on Oduma Corp: 💰\n\n"
+            "1. **Post a detailed project** with a full pitch deck (problem, solution, market, financials)\n"
+            "2. **Complete your profile** — investors check the founder before the idea\n"
+            "3. **Browse investors** at `/investors/` and send connection requests\n"
+            "4. **Be active** — post updates, join groups, and engage with the community\n"
+            "5. **Schedule meetings** with interested investors via `/meetings/create/`"
+        )
+
+    # ── Password / account settings ──
+    if re.search(r'\b(password|change password|account settings|security)\b', m):
+        return (
+            "You can change your password at `/update_password/`. 🔒\n\n"
+            "For other account settings and profile updates, visit your profile at `/profile/{}/`.".format(user.id)
+        )
+
+    # ── Thank you ──
+    if re.match(r'^(thanks|thank you|thx|ty|appreciate it|cheers)\b', m):
+        return "You're welcome! 😊 Feel free to ask if you need anything else. I'm always here!"
+
+    # ── Help ──
+    if re.match(r'^(help|what can you do|commands|options)\b', m):
+        return (
+            "Here's what I can help you with: 🤖\n\n"
+            "• **Navigation** — finding any page on the platform\n"
+            "• **Projects** — creating, editing, pitching\n"
+            "• **Connections** — finding investors, innovators, companies\n"
+            "• **Meetings** — scheduling Zoom calls\n"
+            "• **Groups & Pages** — joining communities, building a brand\n"
+            "• **Training & Mentorship** — courses and guidance\n"
+            "• **Jobs** — finding or posting opportunities\n\n"
+            "Just type your question naturally!"
+        )
+
+    return None  # No local match — fall through to AI
+
+
 @login_required
 def odu_chat(request):
     """AJAX endpoint: POST {message} → {reply}"""
@@ -3800,28 +4429,42 @@ def odu_chat(request):
     if not user_message:
         return JsonResponse({'error': 'No message provided'}, status=400)
 
+    # Try local auto-reply first (fast, no API cost)
+    local_reply = _odu_local_reply(user_message, request.user)
+    if local_reply:
+        return JsonResponse({'reply': local_reply})
+
     api_key = getattr(settings, 'ANTHROPIC_API_KEY', '')
     if not api_key:
-        return JsonResponse({'reply': "I'm Odu! The chatbot service isn't configured yet. Please contact the admin."})
+        return JsonResponse({'reply': (
+            "I'm Odu! 👋 I can help you navigate Oduma Corp. "
+            "Try asking me about projects, connections, meetings, groups, or any platform feature!"
+        )})
 
-    SYSTEM_PROMPT = """You are Odu, the helpful assistant for Oduma Connect — a platform that connects African innovators and investors.
+    SYSTEM_PROMPT = """You are Odu, the friendly AI assistant for Oduma Corp — a platform connecting African innovators and investors.
 
-Platform overview:
-- Innovators can post projects, apply for patents, collaborate, and find investors
-- Investors can browse projects, send proposals, connect with innovators, and schedule meetings
-- Features: Projects, Posts, Inbox/Messaging, Network (Connections), Community (Groups), Dashboard, Events, Jobs, Companies, Pages
+Platform features:
+- Projects: innovators post pitch-ready projects; investors browse, send proposals, and collaborate
+- Posts: feed of ideas, updates, and discussions
+- Inbox/Messaging: direct messages between connected users
+- Network (/networks/): connections + suggestions for people, companies, groups, pages
+- Groups (/groups/): industry communities with discussions
+- Pages (/pages/): brand/company public pages with followers
+- Companies (/companies/): business directory with follow feature
+- Dashboard (/dashboard/): personal stats — posts, projects, connections, views
+- Meetings (/meetings/): Zoom video calls, scheduled through the platform
+- Training (/training/): courses and learning modules
+- Mentorship: mentor profiles, mentorship requests, and assignments
+- Jobs: job postings and applications
+- Consulting: consulting service requests
 
-Navigation help:
-- Home (/app/) — main feed with posts and projects
-- Explore (/innovators/) — browse innovators and investors
-- Inbox (/inbox/) — messages and conversations
-- Network (/networks/) — connections
-- Community (/groups/) — groups
-- Dashboard (/dashboard/) — your stats and activity
-- Profile (/profile/me/) — your profile
-- Meetings (/meetings/) — video calls with Zoom
+Navigation paths:
+/app/ | /projects/ | /projects/create/ | /innovators/ | /investors/
+/inbox/ | /networks/ | /groups/ | /groups/create/ | /pages/ | /pages/create/
+/companies/ | /companies/create/ | /dashboard/ | /meetings/ | /meetings/create/
+/training/ | /mentor/ | /notifications/ | /profile/<id>/
 
-Keep responses concise, friendly and helpful. If asked about specific features, explain them clearly. If asked to navigate somewhere, provide the URL path."""
+Tone: warm, concise, helpful. Use bullet points and markdown for clarity. Keep replies under 200 words unless detail is needed."""
 
     try:
         client = anthropic.Anthropic(api_key=api_key)
@@ -3831,9 +4474,14 @@ Keep responses concise, friendly and helpful. If asked about specific features, 
             system=SYSTEM_PROMPT,
             messages=[{'role': 'user', 'content': user_message}],
         )
-        reply = resp.content[0].text if resp.content else "I'm not sure how to help with that."
-    except Exception as e:
-        reply = "Sorry, I'm having trouble right now. Please try again later."
+        reply = resp.content[0].text if resp.content else "I'm not sure how to help with that. Try asking about a specific feature!"
+    except Exception:
+        reply = (
+            "Sorry, I'm having a moment! 😅 In the meantime, you can:\n"
+            "• Browse projects at `/projects/`\n"
+            "• Find investors at `/investors/`\n"
+            "• Check your dashboard at `/dashboard/`"
+        )
 
     return JsonResponse({'reply': reply})
 
@@ -3852,6 +4500,157 @@ def submit_feedback(request):
             section=request.POST.get('section', ''),
         )
     return JsonResponse({'ok': True})
+
+
+# ─── Subscription ──────────────────────────────────────────────────────────────
+
+def subscription_plans(request):
+    """Public pricing page — also shows current plan if logged in."""
+    from .models import SubscriptionPlan, UserSubscription
+    plans = SubscriptionPlan.objects.filter(is_active=True).order_by('order')
+    current_plan = None
+    current_sub = None
+    if request.user.is_authenticated:
+        try:
+            current_sub = request.user.subscription
+            current_plan = current_sub.plan
+        except UserSubscription.DoesNotExist:
+            pass
+    return render(request, 'subscription_plans.html', {
+        'plans': plans,
+        'current_plan': current_plan,
+        'current_sub': current_sub,
+    })
+
+
+@login_required
+def my_subscription(request):
+    """User's billing / subscription management page."""
+    from .models import SubscriptionPlan, UserSubscription, SubscriptionOrder
+    try:
+        sub = request.user.subscription
+    except UserSubscription.DoesNotExist:
+        free_plan = SubscriptionPlan.objects.filter(slug='starter').first()
+        sub = UserSubscription.objects.create(user=request.user, plan=free_plan)
+
+    orders = SubscriptionOrder.objects.filter(user=request.user)[:10]
+    plans = SubscriptionPlan.objects.filter(is_active=True).order_by('order')
+    return render(request, 'my_subscription.html', {
+        'sub': sub,
+        'orders': orders,
+        'plans': plans,
+    })
+
+
+@login_required
+def upgrade_subscription(request):
+    """POST: switch user to a new plan (creates SubscriptionOrder)."""
+    from .models import SubscriptionPlan, UserSubscription, SubscriptionOrder
+    from django.utils import timezone
+    import datetime
+
+    if request.method != 'POST':
+        return redirect('subscription_plans')
+
+    plan_slug     = request.POST.get('plan_slug', '').strip()
+    billing_cycle = request.POST.get('billing_cycle', 'monthly')
+
+    plan = SubscriptionPlan.objects.filter(slug=plan_slug, is_active=True).first()
+    if not plan:
+        messages.error(request, 'Invalid plan selected.')
+        return redirect('subscription_plans')
+
+    # Determine amount
+    if plan.slug == 'starter':
+        amount = 0
+    elif billing_cycle == 'yearly':
+        amount = plan.price_yearly
+    else:
+        amount = plan.price_monthly
+
+    # Get or create subscription record
+    try:
+        sub = request.user.subscription
+    except UserSubscription.DoesNotExist:
+        sub = None
+
+    # Downgrading to Starter is always free and immediate
+    if plan.slug == 'starter' or amount == 0:
+        if sub:
+            sub.plan = plan
+            sub.status = 'active'
+            sub.billing_cycle = billing_cycle
+            sub.expires_at = None
+            sub.cancelled_at = None
+            sub.save()
+        else:
+            UserSubscription.objects.create(user=request.user, plan=plan, billing_cycle=billing_cycle)
+        SubscriptionOrder.objects.create(
+            user=request.user, plan=plan, billing_cycle=billing_cycle,
+            amount=0, status='paid', paid_at=timezone.now(),
+        )
+        messages.success(request, f'You are now on the {plan.name} plan.')
+        return redirect('my_subscription')
+
+    # Paid plan — create order and activate (payment gateway to be integrated)
+    # For now: activate immediately; admin records payment externally
+    expires_delta = datetime.timedelta(days=365 if billing_cycle == 'yearly' else 30)
+    order = SubscriptionOrder.objects.create(
+        user=request.user, plan=plan, billing_cycle=billing_cycle,
+        amount=amount, status='paid',
+        paid_at=timezone.now(),
+    )
+
+    if sub:
+        sub.plan = plan
+        sub.status = 'active'
+        sub.billing_cycle = billing_cycle
+        sub.expires_at = timezone.now() + expires_delta
+        sub.cancelled_at = None
+        sub.auto_renew = True
+        sub.save()
+    else:
+        UserSubscription.objects.create(
+            user=request.user, plan=plan,
+            billing_cycle=billing_cycle,
+            status='active',
+            expires_at=timezone.now() + expires_delta,
+        )
+
+    messages.success(
+        request,
+        f'Welcome to {plan.name}! Your subscription is now active. '
+        'Please complete your payment via the billing details sent to your email.'
+    )
+    return redirect('my_subscription')
+
+
+@login_required
+def cancel_subscription(request):
+    """POST: cancel subscription and revert to Starter."""
+    from .models import SubscriptionPlan, UserSubscription
+    from django.utils import timezone
+    if request.method != 'POST':
+        return redirect('my_subscription')
+    try:
+        sub = request.user.subscription
+        if sub.plan.slug == 'starter':
+            messages.info(request, 'You are already on the free Starter plan.')
+            return redirect('my_subscription')
+        free_plan = SubscriptionPlan.objects.get(slug='starter')
+        sub.plan = free_plan
+        sub.status = 'cancelled'
+        sub.cancelled_at = timezone.now()
+        sub.expires_at = None
+        sub.auto_renew = False
+        sub.save()
+        # Immediately set to active on free plan
+        sub.status = 'active'
+        sub.save(update_fields=['status'])
+        messages.success(request, 'Your subscription has been cancelled. You are now on the Starter plan.')
+    except UserSubscription.DoesNotExist:
+        messages.error(request, 'No active subscription found.')
+    return redirect('my_subscription')
 
 
 # ─── Innovator Agreement Workflow ──────────────────────────────────────────────
@@ -4360,19 +5159,26 @@ def register_for_event(request, event_id):
 def top_matches_for_investor(request):
     """AJAX or full page: top matched projects for the current investor."""
     from .models import Project
-    from .matching import get_top_matches
+    from .matching import get_top_matches_with_breakdown
     from django.http import JsonResponse
     profile = getattr(request.user, 'userprofile', None)
     projects_qs = Project.objects.filter(
         is_hidden=False, review_status__in=['approved', 'featured']
     ).exclude(owner=request.user).select_related('owner', 'owner__userprofile')[:80]
 
-    matches = get_top_matches(profile, projects_qs, n=12)
+    matches = get_top_matches_with_breakdown(profile, projects_qs, n=12)
+    # Collect pitched project IDs for the template
+    from .models import ProjectProposal
+    pitched_ids = set(
+        ProjectProposal.objects.filter(from_user=request.user)
+        .values_list('project_id', flat=True)
+    ) if request.user.is_authenticated else set()
+
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         data = [{'id': m['project'].pk, 'title': m['project'].title,
                  'score': m['score'], 'label': m['label']} for m in matches]
         return JsonResponse({'matches': data})
-    return render(request, 'top_matches.html', {'matches': matches})
+    return render(request, 'top_matches.html', {'matches': matches, 'pitched_ids': pitched_ids})
 
 
 @login_required

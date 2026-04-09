@@ -1,7 +1,7 @@
 {% extends '_partials/base.html' %}
 {% load static %}
 
-{% block title %}Innovators | Oduma Connect{% endblock %}
+{% block title %}Innovators | Oduma Corp{% endblock %}
 
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
@@ -10,6 +10,10 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Innovators</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <style>
 :root {
   --ink:    #0A1628;
@@ -24,7 +28,7 @@
 
 /* ── Hero ───────────────────────────────────────────────────────── */
 .iv-hero {
-  background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 60%, #3b82f6 100%);
+  background: linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
   border-radius: 0 0 20px 20px;
   padding: 36px 32px 32px;
   margin-bottom: 28px;
@@ -41,9 +45,9 @@
 .iv-hero-title {
   font-family: 'Space Grotesk', sans-serif;
   font-size: clamp(1.4rem, 3vw, 2rem);
-  font-weight: 800; color: #fff; margin: 0 0 6px;
+  font-weight: 800; color: #0A1628; margin: 0 0 6px;
 }
-.iv-hero-sub { font-size: .9rem; color: rgba(255,255,255,.7); margin: 0 0 22px; }
+.iv-hero-sub { font-size: .9rem; color: #6b7280; margin: 0 0 22px; }
 
 /* Search */
 .iv-search-row { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -51,7 +55,7 @@
 .iv-search-wrap svg {
   position: absolute; left: 14px; top: 50%;
   transform: translateY(-50%);
-  color: rgba(255,255,255,.5); pointer-events: none;
+  color: #6b7280; pointer-events: none;
 }
 .iv-search-input {
   width: 100%; box-sizing: border-box;
@@ -59,11 +63,11 @@
   background: rgba(255,255,255,.15);
   border: 1.5px solid rgba(255,255,255,.25);
   border-radius: 11px;
-  font-size: .9rem; font-family: inherit; color: #fff; outline: none;
+  font-size: .9rem; font-family: inherit; color: #0A1628; outline: none;
   transition: border-color .18s, background .18s;
 }
-.iv-search-input::placeholder { color: rgba(255,255,255,.5); }
-.iv-search-input:focus { border-color: rgba(255,255,255,.6); background: rgba(255,255,255,.22); }
+.iv-search-input::placeholder { color: #9ca3af; }
+.iv-search-input:focus { border-color: #1B5EC7; background: #fff; }
 .iv-search-btn {
   padding: 11px 24px;
   background: #fff; color: var(--blue);
@@ -99,7 +103,7 @@
 }
 .iv-filter-select:focus { border-color: var(--blue); }
 .iv-filter-sep { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
-.iv-result-count { margin-left: auto; font-size: .8rem; color: #9ca3af; font-weight: 600; }
+.iv-result-count { margin-left: auto; font-size: .8rem; color: #6b7280; font-weight: 600; }
 
 /* ── Grid ───────────────────────────────────────────────────────── */
 .iv-grid {
@@ -142,7 +146,7 @@
   width: 54px; height: 54px; border-radius: 50%;
   background: linear-gradient(135deg, #1B5EC7, #3b82f6);
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.3rem; font-weight: 800; color: #fff;
+  font-size: 1.3rem; font-weight: 800; color: #0A1628;
   flex-shrink: 0;
 }
 .iv-card-name {
@@ -351,7 +355,7 @@
         {% if innovator.first_project.get_main_image_url %}
           <img src="{{ innovator.first_project.get_main_image_url }}" alt="" class="iv-project-thumb">
         {% else %}
-          <div class="iv-project-thumb-ph">💡</div>
+          <div class="iv-project-thumb-ph"><svg width="20" height="20" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.5" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
         {% endif %}
         <div style="flex:1;min-width:0;">
           <div class="iv-project-title">{{ innovator.first_project.title }}</div>
@@ -383,10 +387,10 @@
         <a href="{% url 'profile_view' id=innovator.id %}" class="iv-btn iv-btn--ghost">
           View Profile
         </a>
-        <form method="POST" action="{% url 'message_innovator' innovator.id %}" style="flex:1;display:flex;">
-          {% csrf_token %}
-          <button type="submit" class="iv-btn iv-btn--outline" style="flex:1;">Message</button>
-        </form>
+        <button class="iv-btn iv-btn--outline" style="flex:1;"
+          onclick="openQuickChat({{ innovator.id }},'{{ innovator.get_full_name|escapejs }}','{{ innovator.first_name|first|upper }}{{ innovator.last_name|first|upper }}','{% if innovator.userprofile.profile_pics %}{{ innovator.userprofile.profile_pics.url }}{% endif %}')">
+          Message
+        </button>
         {% with request.user.userprofile as cp %}
           {% with innovator.userprofile as tp %}
             <form method="POST" action="{% url 'connect_innovator' innovator.id %}" style="flex:1;display:flex;">
@@ -408,7 +412,7 @@
   </div>
   {% else %}
   <div class="iv-empty">
-    <div class="iv-empty-icon">🔍</div>
+    <div class="iv-empty-icon"><svg width="40" height="40" fill="none" stroke="#9ca3af" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
     <h3>No innovators found</h3>
     <p>Try adjusting your search or filters.</p>
   </div>

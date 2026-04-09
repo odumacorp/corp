@@ -1,6 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}My Support Requests | Oduma Connect{% endblock %}
+{% block title %}My Support Requests | Oduma Corp{% endblock %}
 
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
@@ -9,6 +9,10 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">My Consulting Requests</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <div style="max-width:800px;margin:40px auto;padding:0 24px 64px;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
     <h1 style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;color:#0A1628;margin:0;">My Support Requests</h1>
@@ -43,7 +47,7 @@
         </div>
       </div>
       <p style="color:#374151;font-size:.875rem;line-height:1.5;margin:0 0 8px;">{{ req.description|truncatewords:40 }}</p>
-      <div style="font-size:.78rem;color:#9ca3af;">Submitted {{ req.submitted_at|date:"M j, Y" }}</div>
+      <div style="font-size:.78rem;color:#6b7280;">Submitted {{ req.submitted_at|date:"M j, Y" }}</div>
       {% if req.admin_note %}
       <div style="margin-top:10px;padding:10px 14px;background:#f0f9f4;border-radius:8px;font-size:.82rem;color:#166534;">
         <strong>Team response:</strong> {{ req.admin_note }}
@@ -51,7 +55,7 @@
       {% endif %}
       {% if req.scheduled_at %}
       <div style="margin-top:8px;font-size:.82rem;color:#1B5EC7;font-weight:600;">
-        📅 Call scheduled: {{ req.scheduled_at|date:"N j, Y, g:i a" }}
+        Call scheduled: {{ req.scheduled_at|date:"N j, Y, g:i a" }}
       </div>
       {% endif %}
     </div>
@@ -59,7 +63,7 @@
   </div>
   {% else %}
   <div style="background:#f4f7fb;border:1.5px dashed #c3d4ec;border-radius:12px;padding:48px;text-align:center;color:#6b7280;">
-    <p style="font-size:1.5rem;margin-bottom:8px;">🧠</p>
+    <p style="margin-bottom:8px;color:#9ca3af;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></p>
     <p style="font-weight:700;margin-bottom:4px;">No support requests yet</p>
     <p style="font-size:.85rem;margin-bottom:16px;">Submit a consulting request and our team will help guide your innovation journey.</p>
     <a href="{% url 'request_consulting' %}"

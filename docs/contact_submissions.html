@@ -1,6 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}Contact Submissions | Admin | Oduma Connect{% endblock %}
+{% block title %}Contact Submissions | Admin | Oduma Corp{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -37,10 +37,10 @@
 .cs-layout.with-detail{grid-template-columns:1fr 400px;}
 
 .cs-detail{background:#fff;border:1px solid #e0e8f4;border-radius:14px;overflow:hidden;box-shadow:0 2px 16px rgba(10,22,40,0.06);position:sticky;top:20px;}
-.cs-detail__head{background:linear-gradient(135deg,#0A1628,#1B5EC7);padding:20px 22px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
-.cs-detail__head h2{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#fff;margin:0 0 2px;}
-.cs-detail__head p{font-size:.78rem;color:rgba(255,255,255,0.65);margin:0;}
-.cs-detail__close{background:rgba(255,255,255,0.1);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cs-detail__head{background:linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);padding:20px 22px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.cs-detail__head h2{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#0A1628;margin:0 0 2px;}
+.cs-detail__head p{font-size:.78rem;color:#6b7280;margin:0;}
+.cs-detail__close{background:rgba(0,0,0,0.08);border:1px solid #d1d5db;color:#374151;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .cs-detail__close:hover{background:rgba(255,255,255,0.2);}
 .cs-detail__body{padding:20px 22px;}
 
@@ -90,6 +90,10 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Contact Submissions</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <div class="cs-page">
 
   <!-- Page header -->
@@ -253,19 +257,19 @@ document.getElementById('js-replied-count').textContent = replied;
 const AUTO_REPLIES = {
   "General Inquiry": [
     "Hi {name},\n\nThank you for reaching out to Oduma Corp! We've received your message and our team will get back to you within 1–2 business days.\n\nIf you have any urgent questions, feel free to email us directly at info@odumacorp.com.\n\nBest regards,\nOduma Corp Team",
-    "Hi {name},\n\nThank you for contacting us. We appreciate your interest in Oduma Connect.\n\nOne of our team members will review your enquiry and respond shortly.\n\nWarm regards,\nOduma Corp",
+    "Hi {name},\n\nThank you for contacting us. We appreciate your interest in Oduma Corp.\n\nOne of our team members will review your enquiry and respond shortly.\n\nWarm regards,\nOduma Corp",
   ],
   "Partnership": [
     "Hi {name},\n\nThank you for your interest in partnering with Oduma Corp! We're always excited to explore meaningful collaborations that drive African innovation forward.\n\nOur partnerships team will review your proposal and reach out within 3–5 business days to schedule a discovery call.\n\nBest regards,\nOduma Corp Partnerships",
     "Hi {name},\n\nWe received your partnership inquiry and we're genuinely excited about the possibilities.\n\nPlease expect a follow-up from our team within the week. In the meantime, you can explore our services at odumacorp.com.\n\nLooking forward to connecting,\nOduma Corp",
   ],
   "Technical Support": [
-    "Hi {name},\n\nThank you for reporting this issue. We're sorry you're experiencing difficulties with the platform.\n\nOur technical team has been notified and will investigate promptly. Please expect a resolution update within 24 hours.\n\nIf the issue is urgent, please describe it in more detail by replying to this email.\n\nBest,\nOduma Connect Support",
-    "Hi {name},\n\nWe've received your technical support request and it's been escalated to our engineering team.\n\nWe'll keep you updated as we work to resolve the issue. Thank you for your patience.\n\nOduma Connect Support",
+    "Hi {name},\n\nThank you for reporting this issue. We're sorry you're experiencing difficulties with the platform.\n\nOur technical team has been notified and will investigate promptly. Please expect a resolution update within 24 hours.\n\nIf the issue is urgent, please describe it in more detail by replying to this email.\n\nBest,\nOduma Corp Support",
+    "Hi {name},\n\nWe've received your technical support request and it's been escalated to our engineering team.\n\nWe'll keep you updated as we work to resolve the issue. Thank you for your patience.\n\nOduma Corp Support",
   ],
   "Investment Inquiry": [
     "Hi {name},\n\nThank you for your investment inquiry! Oduma Corp is committed to connecting serious capital with Africa's most promising innovators.\n\nOur investment relations team will reach out within 2 business days to understand your investment thesis and explore how we can work together.\n\nBest regards,\nOduma Corp — Investment Relations",
-    "Hi {name},\n\nWe appreciate your interest in investment opportunities via Oduma Connect.\n\nA member of our team will schedule a call with you shortly to discuss the deal flow and partnership structures available on our platform.\n\nWarm regards,\nOduma Corp",
+    "Hi {name},\n\nWe appreciate your interest in investment opportunities via Oduma Corp.\n\nA member of our team will schedule a call with you shortly to discuss the deal flow and partnership structures available on our platform.\n\nWarm regards,\nOduma Corp",
   ],
   "Media / Press": [
     "Hi {name},\n\nThank you for reaching out regarding media and press matters. We're happy to assist with any coverage of Oduma Corp and the work we're doing for African innovation.\n\nOur communications team will get back to you within 1 business day with the information or comment you need.\n\nBest,\nOduma Corp Communications",

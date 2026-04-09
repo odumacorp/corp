@@ -1,6 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}{{ profile.user.get_full_name|default:profile.user.username }} | Oduma Connect{% endblock %}
+{% block title %}{{ profile.user.get_full_name|default:profile.user.username }} | Oduma Corp{% endblock %}
 
 {% block content %}
 <style>
@@ -141,7 +141,7 @@
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1.35rem; font-weight: 800; color: var(--ink); line-height: 1; margin-bottom: 4px;
 }
-.pf-stat-label { font-size: .68rem; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.pf-stat-label { font-size: .68rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
 
 /* ── Tabs ────────────────────────────────────────────────────── */
 .pf-tabs-bar {
@@ -215,7 +215,7 @@
 }
 .pf-post-title:hover { color: var(--blue); }
 .pf-post-excerpt { font-size: .8rem; color: #6b7280; line-height: 1.5; }
-.pf-post-meta { font-size: .72rem; color: #9ca3af; margin-top: 6px; }
+.pf-post-meta { font-size: .72rem; color: #6b7280; margin-top: 6px; }
 
 /* ── Project grid ────────────────────────────────────────────── */
 .pf-proj-grid {
@@ -236,7 +236,7 @@
   width: 100%; height: 130px;
   background: linear-gradient(135deg, #e0e8f4, #c3d4ec);
   display: flex; align-items: center; justify-content: center;
-  font-size: 2.2rem;
+  color: #1B5EC7; opacity: .5;
 }
 .pf-proj-body { padding: 12px 14px; flex: 1; }
 .pf-proj-name {
@@ -244,7 +244,7 @@
   font-size: .9rem; font-weight: 800; color: var(--ink); margin: 0 0 4px;
 }
 .pf-proj-desc { font-size: .78rem; color: #6b7280; line-height: 1.5; margin: 0 0 8px; }
-.pf-proj-meta { font-size: .72rem; color: #9ca3af; display: flex; gap: 10px; flex-wrap: wrap; }
+.pf-proj-meta { font-size: .72rem; color: #6b7280; display: flex; gap: 10px; flex-wrap: wrap; }
 .pf-proj-status {
   font-size: .68rem; font-weight: 700; padding: 2px 8px;
   border-radius: 20px; background: #e0fdf4; color: #065f46;
@@ -268,14 +268,14 @@
   width: 44px; height: 44px; border-radius: 8px;
   background: var(--blue-lt); color: var(--blue);
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.3rem; flex-shrink: 0;
+  flex-shrink: 0;
 }
 .pf-tile-info { flex: 1; min-width: 0; }
 .pf-tile-name {
   font-size: .875rem; font-weight: 700; color: var(--ink);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.pf-tile-sub { font-size: .75rem; color: #9ca3af; margin-top: 2px; }
+.pf-tile-sub { font-size: .75rem; color: #6b7280; margin-top: 2px; }
 .pf-tile-badge {
   font-size: .68rem; font-weight: 700; padding: 2px 8px;
   border-radius: 20px; background: var(--blue-lt); color: var(--blue);
@@ -291,7 +291,7 @@
 .pf-patent-item:hover { background: #f9fafb; }
 .pf-patent-name { font-size: .9rem; font-weight: 700; color: var(--ink); margin: 0 0 4px; }
 .pf-patent-desc { font-size: .8rem; color: #6b7280; }
-.pf-patent-date { font-size: .72rem; color: #9ca3af; margin-top: 4px; }
+.pf-patent-date { font-size: .72rem; color: #6b7280; margin-top: 4px; }
 
 /* ── Info rows ───────────────────────────────────────────────── */
 .pf-info-row {
@@ -299,14 +299,14 @@
   padding: 12px 22px; border-bottom: 1px solid #f5f5f5; gap: 10px;
 }
 .pf-info-row:last-child { border-bottom: none; }
-.pf-info-label { font-size: .78rem; color: #9ca3af; font-weight: 600; min-width: 110px; flex-shrink: 0; }
+.pf-info-label { font-size: .78rem; color: #6b7280; font-weight: 600; min-width: 110px; flex-shrink: 0; }
 .pf-info-val { font-size: .875rem; color: #374151; font-weight: 600; flex: 1; word-break: break-word; }
 
 /* ── Empty state ─────────────────────────────────────────────── */
 .pf-empty {
-  text-align: center; padding: 48px 22px; color: #9ca3af;
+  text-align: center; padding: 48px 22px; color: #6b7280;
 }
-.pf-empty-icon { font-size: 2.4rem; margin-bottom: 10px; }
+.pf-empty-icon { margin-bottom: 10px; opacity: .4; color: #6b7280; display: flex; justify-content: center; }
 .pf-empty-text { font-size: .9rem; font-weight: 600; color: #6b7280; }
 .pf-empty-sub { font-size: .8rem; margin-top: 4px; }
 
@@ -344,7 +344,7 @@
 .pf-proposal-item:last-child { border-bottom: none; }
 .pf-proposal-item:hover { background: #f9fafb; }
 .pf-proposal-title { font-size: .9rem; font-weight: 700; color: var(--ink); margin: 0 0 4px; }
-.pf-proposal-meta { font-size: .75rem; color: #9ca3af; }
+.pf-proposal-meta { font-size: .75rem; color: #6b7280; }
 .pf-proposal-status {
   font-size: .68rem; font-weight: 700; padding: 2px 8px;
   border-radius: 20px; margin-left: 8px;
@@ -397,29 +397,35 @@
         {% if profile.bio %}
           <p class="pf-bio">{{ profile.bio|truncatewords:50 }}</p>
         {% endif %}
+        {% if profile.location %}
+          <p style="display:inline-flex;align-items:center;gap:5px;font-size:.85rem;color:#6b7280;margin-top:6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            {{ profile.location }}
+          </p>
+        {% endif %}
       </div>
 
       <div class="pf-hero-actions">
         {% if request.user == profile.user %}
-          <a href="{% url 'edit_profile' %}" class="pf-btn pf-btn--outline">✏️ Edit Profile</a>
+          <a href="{% url 'edit_profile' %}" class="pf-btn pf-btn--outline">Edit Profile</a>
           {% if profile.user.user_type != 'investor' %}
-            <a href="{% url 'innovator_dashboard' %}" class="pf-btn pf-btn--primary">📊 Dashboard</a>
+            <a href="{% url 'innovator_dashboard' %}" class="pf-btn pf-btn--primary">Dashboard</a>
           {% else %}
-            <a href="{% url 'investor_dashboard' %}" class="pf-btn pf-btn--primary">📊 Dashboard</a>
+            <a href="{% url 'investor_dashboard' %}" class="pf-btn pf-btn--primary">Dashboard</a>
           {% endif %}
         {% elif request.user.is_authenticated %}
           {% if connection_status == 'accepted' %}
             <span class="pf-btn pf-btn--green">✓ Connected</span>
-            <a href="{% url 'start_conversation' profile.user.pk %}" class="pf-btn pf-btn--outline">✉️ Message</a>
+            <a href="{% url 'start_conversation' profile.user.pk %}" class="pf-btn pf-btn--outline">Message</a>
           {% elif connection_status == 'pending' %}
-            <span class="pf-btn pf-btn--pending">⏳ Pending</span>
-            <a href="{% url 'start_conversation' profile.user.pk %}" class="pf-btn pf-btn--outline">✉️ Message</a>
+            <span class="pf-btn pf-btn--pending">Pending</span>
+            <a href="{% url 'start_conversation' profile.user.pk %}" class="pf-btn pf-btn--outline">Message</a>
           {% else %}
             <form method="post" action="{% url 'connect_user' profile.user.pk %}" style="display:inline;">
               {% csrf_token %}
               <button type="submit" class="pf-btn pf-btn--primary">+ Connect</button>
             </form>
-            <a href="{% url 'start_conversation' profile.user.pk %}" class="pf-btn pf-btn--outline">✉️ Message</a>
+            <a href="{% url 'start_conversation' profile.user.pk %}" class="pf-btn pf-btn--outline">Message</a>
           {% endif %}
         {% endif %}
       </div>
@@ -514,8 +520,8 @@
             <p class="pf-post-excerpt">{{ post.content|truncatewords:20 }}</p>
             <div class="pf-post-meta">
               {{ post.created_at|timesince }} ago &nbsp;·&nbsp;
-              👍 {{ post.likes.count }} &nbsp;·&nbsp;
-              💬 {{ post.comments.count }}
+              {{ post.likes.count }} likes &nbsp;·&nbsp;
+              {{ post.comments.count }} comments
             </div>
           </div>
           {% endfor %}
@@ -535,18 +541,18 @@
               {% if proj.images.filter %}
                 {% with proj.images.first as img %}
                   {% if img %}<img src="{{ img.image.url }}" alt="{{ proj.title }}" class="pf-proj-thumb">
-                  {% else %}<div class="pf-proj-thumb-ph">🚀</div>{% endif %}
+                  {% else %}<div class="pf-proj-thumb-ph"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>{% endif %}
                 {% endwith %}
               {% else %}
-                <div class="pf-proj-thumb-ph">🚀</div>
+                <div class="pf-proj-thumb-ph"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
               {% endif %}
               <div class="pf-proj-body">
                 <span class="pf-proj-status">{{ proj.status|title }}</span>
                 <p class="pf-proj-name">{{ proj.title }}</p>
                 <p class="pf-proj-desc">{{ proj.description|truncatewords:14 }}</p>
                 <div class="pf-proj-meta">
-                  <span>⭐ {{ proj.ratings.count }}</span>
-                  <span>❤️ {{ proj.likes.count }}</span>
+                  <span>{{ proj.ratings.count }} ratings</span>
+                  <span>{{ proj.likes.count }} likes</span>
                 </div>
               </div>
             </a>
@@ -595,7 +601,7 @@
           {% if profile.verification_status == 'verified' %}
             <span style="background:#d1fae5;color:#065f46;font-size:.78rem;font-weight:700;padding:4px 12px;border-radius:20px;">✓ Verified {{ profile.user.user_type|title }}</span>
           {% elif profile.verification_status == 'pending' %}
-            <span style="background:#fef9c3;color:#92400e;font-size:.78rem;font-weight:700;padding:4px 12px;border-radius:20px;">⏳ Pending Review</span>
+            <span style="background:#fef9c3;color:#92400e;font-size:.78rem;font-weight:700;padding:4px 12px;border-radius:20px;">Pending Review</span>
             <p style="font-size:.78rem;color:#6b7280;margin-top:8px;">Your application is being reviewed.</p>
           {% elif profile.verification_status == 'rejected' %}
             <span style="background:#fee2e2;color:#991b1b;font-size:.78rem;font-weight:700;padding:4px 12px;border-radius:20px;">✗ Rejected</span>
@@ -615,6 +621,15 @@
           <div class="pf-info-row">
             <span class="pf-info-label">Phone</span>
             <span class="pf-info-val">{{ profile.phone_number }}</span>
+          </div>
+          {% endif %}
+          {% if profile.location %}
+          <div class="pf-info-row">
+            <span class="pf-info-label">Location</span>
+            <span class="pf-info-val" style="display:flex;align-items:center;gap:6px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              {{ profile.location }}
+            </span>
           </div>
           {% endif %}
           <div class="pf-info-row" style="flex-wrap:wrap;gap:8px;padding:14px 22px;">
@@ -653,7 +668,7 @@
           {% endif %}
           <div class="pf-info-row">
             <span class="pf-info-label">Username</span>
-            <span class="pf-info-val" style="color:#9ca3af;">@{{ profile.user.username }}</span>
+            <span class="pf-info-val" style="color:#6b7280;">@{{ profile.user.username }}</span>
           </div>
           <div class="pf-info-row">
             <span class="pf-info-label">Member since</span>
@@ -672,7 +687,7 @@
             {% for g in groups|slice:":3" %}
             <a href="{% url 'group_detail' g.pk %}" class="pf-tile">
               {% if g.cover_image %}<img src="{{ g.cover_image.url }}" class="pf-tile-img" alt="{{ g.name }}">
-              {% else %}<div class="pf-tile-icon">👥</div>{% endif %}
+              {% else %}<div class="pf-tile-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>{% endif %}
               <div class="pf-tile-info">
                 <div class="pf-tile-name">{{ g.name }}</div>
                 <div class="pf-tile-sub">{{ g.members.count }} members</div>
@@ -700,7 +715,7 @@
   <div class="pf-panel" id="tab-projects">
     <div class="pf-card">
       <div class="pf-card-head">
-        <h2 class="pf-card-title">Projects <span style="color:#9ca3af;font-weight:400;">({{ projects_count }})</span></h2>
+        <h2 class="pf-card-title">Projects <span style="color:#6b7280;font-weight:400;">({{ projects_count }})</span></h2>
       </div>
       {% if projects %}
       <div class="pf-proj-grid">
@@ -708,16 +723,16 @@
         <a href="{% url 'project_detail' proj.pk %}" class="pf-proj-card">
           {% with proj.images.first as img %}
             {% if img %}<img src="{{ img.image.url }}" alt="{{ proj.title }}" class="pf-proj-thumb">
-            {% else %}<div class="pf-proj-thumb-ph">🚀</div>{% endif %}
+            {% else %}<div class="pf-proj-thumb-ph"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>{% endif %}
           {% endwith %}
           <div class="pf-proj-body">
             <span class="pf-proj-status">{{ proj.status|title }}</span>
             <p class="pf-proj-name">{{ proj.title }}</p>
             <p class="pf-proj-desc">{{ proj.description|truncatewords:16 }}</p>
             <div class="pf-proj-meta">
-              <span>🏷️ {{ proj.industry|default:"—" }}</span>
-              <span>⭐ {{ proj.ratings.count }}</span>
-              <span>❤️ {{ proj.likes.count }}</span>
+              <span>{{ proj.industry|default:"—" }}</span>
+              <span>{{ proj.ratings.count }} ratings</span>
+              <span>{{ proj.likes.count }} likes</span>
             </div>
           </div>
         </a>
@@ -725,7 +740,7 @@
       </div>
       {% else %}
       <div class="pf-empty">
-        <div class="pf-empty-icon">🚀</div>
+        <div class="pf-empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
         <div class="pf-empty-text">No projects yet</div>
         {% if request.user == profile.user %}
         <div class="pf-empty-sub"><a href="{% url 'create_project' %}" style="color:var(--blue);font-weight:600;">Create your first project →</a></div>
@@ -740,7 +755,7 @@
   <div class="pf-panel" id="tab-posts">
     <div class="pf-card">
       <div class="pf-card-head">
-        <h2 class="pf-card-title">Posts <span style="color:#9ca3af;font-weight:400;">({{ posts|length }})</span></h2>
+        <h2 class="pf-card-title">Posts <span style="color:#6b7280;font-weight:400;">({{ posts|length }})</span></h2>
       </div>
       {% if posts %}
         {% for post in posts %}
@@ -750,14 +765,14 @@
           <p class="pf-post-excerpt">{{ post.content|truncatewords:30 }}</p>
           <div class="pf-post-meta">
             {{ post.created_at|timesince }} ago &nbsp;·&nbsp;
-            👍 {{ post.likes.count }} &nbsp;·&nbsp;
-            💬 {{ post.comments.count }}
+            {{ post.likes.count }} likes &nbsp;·&nbsp;
+            {{ post.comments.count }} comments
           </div>
         </div>
         {% endfor %}
       {% else %}
       <div class="pf-empty">
-        <div class="pf-empty-icon">📝</div>
+        <div class="pf-empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
         <div class="pf-empty-text">No posts yet</div>
       </div>
       {% endif %}
@@ -769,14 +784,14 @@
   <div class="pf-panel" id="tab-groups">
     <div class="pf-card">
       <div class="pf-card-head">
-        <h2 class="pf-card-title">Groups <span style="color:#9ca3af;font-weight:400;">({{ groups|length }})</span></h2>
+        <h2 class="pf-card-title">Groups <span style="color:#6b7280;font-weight:400;">({{ groups|length }})</span></h2>
       </div>
       {% if groups %}
       <div class="pf-tile-list">
         {% for g in groups %}
         <a href="{% url 'group_detail' g.pk %}" class="pf-tile">
           {% if g.cover_image %}<img src="{{ g.cover_image.url }}" class="pf-tile-img" alt="{{ g.name }}">
-          {% else %}<div class="pf-tile-icon">👥</div>{% endif %}
+          {% else %}<div class="pf-tile-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>{% endif %}
           <div class="pf-tile-info">
             <div class="pf-tile-name">{{ g.name }}</div>
             <div class="pf-tile-sub">{{ g.get_industry_display }} · {{ g.members.count }} members</div>
@@ -789,7 +804,7 @@
       </div>
       {% else %}
       <div class="pf-empty">
-        <div class="pf-empty-icon">👥</div>
+        <div class="pf-empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
         <div class="pf-empty-text">No groups joined</div>
       </div>
       {% endif %}
@@ -802,13 +817,13 @@
     {% if owned_pages %}
     <div class="pf-card">
       <div class="pf-card-head">
-        <h2 class="pf-card-title">Pages Owned <span style="color:#9ca3af;font-weight:400;">({{ owned_pages|length }})</span></h2>
+        <h2 class="pf-card-title">Pages Owned <span style="color:#6b7280;font-weight:400;">({{ owned_pages|length }})</span></h2>
       </div>
       <div class="pf-tile-list">
         {% for pg in owned_pages %}
         <a href="{% url 'page_detail' pg.pk %}" class="pf-tile">
           {% if pg.logo %}<img src="{{ pg.logo.url }}" class="pf-tile-img" alt="{{ pg.title }}">
-          {% else %}<div class="pf-tile-icon">📄</div>{% endif %}
+          {% else %}<div class="pf-tile-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>{% endif %}
           <div class="pf-tile-info">
             <div class="pf-tile-name">{{ pg.title }}</div>
             <div class="pf-tile-sub">{{ pg.get_industry_display }} · {{ pg.followers.count }} followers</div>
@@ -823,13 +838,13 @@
     {% if followed_pages %}
     <div class="pf-card">
       <div class="pf-card-head">
-        <h2 class="pf-card-title">Following <span style="color:#9ca3af;font-weight:400;">({{ followed_pages|length }})</span></h2>
+        <h2 class="pf-card-title">Following <span style="color:#6b7280;font-weight:400;">({{ followed_pages|length }})</span></h2>
       </div>
       <div class="pf-tile-list">
         {% for pg in followed_pages %}
         <a href="{% url 'page_detail' pg.pk %}" class="pf-tile">
           {% if pg.logo %}<img src="{{ pg.logo.url }}" class="pf-tile-img" alt="{{ pg.title }}">
-          {% else %}<div class="pf-tile-icon">📄</div>{% endif %}
+          {% else %}<div class="pf-tile-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>{% endif %}
           <div class="pf-tile-info">
             <div class="pf-tile-name">{{ pg.title }}</div>
             <div class="pf-tile-sub">{{ pg.get_industry_display }} · {{ pg.followers.count }} followers</div>
@@ -843,7 +858,7 @@
     {% if not owned_pages and not followed_pages %}
     <div class="pf-card">
       <div class="pf-empty">
-        <div class="pf-empty-icon">📄</div>
+        <div class="pf-empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
         <div class="pf-empty-text">No pages yet</div>
       </div>
     </div>
@@ -856,7 +871,7 @@
   <div class="pf-panel" id="tab-patents">
     <div class="pf-card">
       <div class="pf-card-head">
-        <h2 class="pf-card-title">Patents <span style="color:#9ca3af;font-weight:400;">({{ patents_count }})</span></h2>
+        <h2 class="pf-card-title">Patents <span style="color:#6b7280;font-weight:400;">({{ patents_count }})</span></h2>
       </div>
       {% for pat in patents %}
       <div class="pf-patent-item">
@@ -875,7 +890,7 @@
   <div class="pf-panel" id="tab-companies">
     <div class="pf-card">
       <div class="pf-card-head">
-        <h2 class="pf-card-title">Companies <span style="color:#9ca3af;font-weight:400;">({{ companies|length }})</span></h2>
+        <h2 class="pf-card-title">Companies <span style="color:#6b7280;font-weight:400;">({{ companies|length }})</span></h2>
       </div>
       <div class="pf-tile-list">
         {% for co in companies %}

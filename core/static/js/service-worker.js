@@ -1,5 +1,5 @@
 /**
- * Oduma Connect Service Worker
+ * Oduma Corp Service Worker
  * Caches the app shell + user-bookmarked pages for offline reading.
  */
 

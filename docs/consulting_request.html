@@ -1,6 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}Request Innovation Support | Oduma Connect{% endblock %}
+{% block title %}Request Innovation Support | Oduma Corp{% endblock %}
 
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
@@ -10,15 +10,19 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Consulting Request</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <div style="max-width:600px;margin:48px auto;padding:0 24px 64px;">
 
   <a href="{% if project %}{% url 'project_detail' project.pk %}{% else %}{% url 'services' %}{% endif %}"
      style="font-size:.85rem;color:#1B5EC7;text-decoration:none;display:inline-block;margin-bottom:20px;">← Back</a>
 
-  <div style="background:linear-gradient(135deg,#0A1628,#1B5EC7);border-radius:16px;padding:32px 36px;color:#fff;margin-bottom:28px;">
-    <div style="font-size:1.8rem;margin-bottom:10px;">🧠</div>
-    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;margin:0 0 8px;">Innovation Consulting</h1>
-    <p style="opacity:.85;font-size:.9rem;margin:0;">Tell us your challenge. Our consultants will reach out within 48 hours.</p>
+  <div style="background:linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);border-radius:16px;padding:32px 36px;color:#fff;margin-bottom:28px;">
+    <div style="margin-bottom:10px;color:#1B5EC7;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;margin:0 0 8px;color:#0A1628;">Innovation Consulting</h1>
+    <p style="font-size:.9rem;margin:0;color:#6b7280;">Tell us your challenge. Our consultants will reach out within 48 hours.</p>
   </div>
 
   {% if project %}
@@ -74,7 +78,7 @@
   </div>
 
   <div style="margin-top:20px;padding:16px 20px;background:#f4f7fb;border-radius:10px;font-size:.82rem;color:#6b7280;text-align:center;">
-    💬 Our team typically responds within <strong>1–2 business days</strong>. You can track your requests at <a href="{% url 'my_consulting_requests' %}" style="color:#1B5EC7;">My Requests</a>.
+    Our team typically responds within <strong>1–2 business days</strong>. You can track your requests at <a href="{% url 'my_consulting_requests' %}" style="color:#1B5EC7;">My Requests</a>.
   </div>
 </div>
 {% endblock %}

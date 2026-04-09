@@ -1,6 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}Projects | Oduma Connect{% endblock %}
+{% block title %}Projects | Oduma Corp{% endblock %}
 
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
@@ -9,6 +9,10 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Projects</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <style>
 /* ── Projects List Page ──────────────────────────────────────── */
 :root {
@@ -24,7 +28,7 @@
 
 /* ── Hero bar ─────────────────────────────────────────────────── */
 .pl-hero {
-  background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 60%, #3b82f6 100%);
+  background: linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
   border-radius: 0 0 20px 20px;
   padding: 36px 32px 32px;
   margin-bottom: 28px;
@@ -47,7 +51,7 @@
   color: #fff;
   margin: 0 0 6px;
 }
-.pl-hero-sub { font-size: .9rem; color: rgba(255,255,255,.7); margin: 0 0 22px; }
+.pl-hero-sub { font-size: .9rem; color: #6b7280; margin: 0 0 22px; }
 
 /* Search bar */
 .pl-search-row {
@@ -60,7 +64,7 @@
 .pl-search-wrap svg {
   position: absolute; left: 14px; top: 50%;
   transform: translateY(-50%);
-  color: rgba(255,255,255,.5); pointer-events: none;
+  color: #6b7280; pointer-events: none;
 }
 .pl-search-input {
   width: 100%; box-sizing: border-box;
@@ -73,8 +77,8 @@
   outline: none;
   transition: border-color .18s, background .18s;
 }
-.pl-search-input::placeholder { color: rgba(255,255,255,.5); }
-.pl-search-input:focus { border-color: rgba(255,255,255,.6); background: rgba(255,255,255,.22); }
+.pl-search-input::placeholder { color: #9ca3af; }
+.pl-search-input:focus { border-color: #1B5EC7; background: #fff; }
 .pl-search-btn {
   padding: 11px 24px;
   background: #fff; color: var(--blue);
@@ -102,7 +106,7 @@
 }
 .pl-filter-label {
   font-size: .75rem; font-weight: 700;
-  color: #9ca3af; text-transform: uppercase; letter-spacing: .04em;
+  color: #6b7280; text-transform: uppercase; letter-spacing: .04em;
   white-space: nowrap;
 }
 .pl-filter-select {
@@ -121,7 +125,7 @@
 }
 .pl-result-count {
   margin-left: auto;
-  font-size: .8rem; color: #9ca3af; font-weight: 600;
+  font-size: .8rem; color: #6b7280; font-weight: 600;
   white-space: nowrap;
 }
 .pl-add-btn {
@@ -168,7 +172,7 @@
   width: 100%; height: 180px;
   background: linear-gradient(135deg, #e0e8f4, #c3d4ec);
   display: flex; align-items: center; justify-content: center;
-  font-size: 3rem; flex-shrink: 0;
+  color: #8fafd6; flex-shrink: 0;
 }
 
 /* Review featured ribbon */
@@ -238,7 +242,7 @@
   margin-left: auto; flex-shrink: 0;
 }
 .pl-card-stat {
-  font-size: .72rem; color: #9ca3af;
+  font-size: .72rem; color: #6b7280;
   display: flex; align-items: center; gap: 3px;
 }
 
@@ -248,9 +252,9 @@
   background: #fff; border: 1px dashed var(--border);
   border-radius: 16px;
 }
-.pl-empty-icon { font-size: 3rem; margin-bottom: 12px; }
+.pl-empty-icon { margin-bottom: 12px; display:flex; justify-content:center; color:#6b7280; }
 .pl-empty-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--ink); margin: 0 0 6px; }
-.pl-empty-sub { font-size: .875rem; color: #9ca3af; }
+.pl-empty-sub { font-size: .875rem; color: #6b7280; }
 
 /* ── Pagination ───────────────────────────────────────────────── */
 .pl-pagination {
@@ -386,7 +390,7 @@
       {% if proj.main_img %}
         <img src="{{ proj.main_img.image.url }}" alt="{{ proj.title }}" class="pl-card-thumb" loading="lazy">
       {% else %}
-        <div class="pl-card-thumb-ph">🚀</div>
+        <div class="pl-card-thumb-ph"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg></div>
       {% endif %}
 
       <div class="pl-card-body">
@@ -416,9 +420,9 @@
           <span class="pl-card-owner-name">{{ proj.owner.get_full_name|default:proj.owner.username }}</span>
           <div class="pl-card-meta">
             {% if proj.avg_rating %}
-            <span class="pl-card-stat">⭐ {{ proj.avg_rating|floatformat:1 }}</span>
+            <span class="pl-card-stat">{{ proj.avg_rating|floatformat:1 }} ★</span>
             {% endif %}
-            <span class="pl-card-stat">❤️ {{ proj.likes_count }}</span>
+            <span class="pl-card-stat">{{ proj.likes_count }} likes</span>
           </div>
         </div>
       </div>
@@ -454,7 +458,7 @@
 
   {% else %}
   <div class="pl-empty">
-    <div class="pl-empty-icon">🔍</div>
+    <div class="pl-empty-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
     <div class="pl-empty-title">No projects found</div>
     <p class="pl-empty-sub">
       {% if current_query %}No results for "<strong>{{ current_query }}</strong>". Try different keywords.

@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
-from .models import CustomUser, UserProfile, Notification, Message, Conversation
+from .models import CustomUser, UserProfile, Notification, Message, Conversation, SubscriptionPlan, UserSubscription
 # from .models import Profile
 
 # @receiver(post_save, sender=User)
@@ -30,7 +30,7 @@ def create_user_profile(sender, instance, created, **kwargs):
                 user=instance,
                 notification_type='other',
                 message=(
-                    f"Welcome to Oduma Connect, {instance.first_name or instance.username}! "
+                    f"Welcome to Oduma Corp, {instance.first_name or instance.username}! "
                     "Your account is ready. Explore innovators and investors, post your projects, "
                     "and start connecting. Click 'Network' to find your first connection."
                 ),
@@ -49,12 +49,22 @@ def create_user_profile(sender, instance, created, **kwargs):
                     recipient=instance,
                     conversation=conv,
                     content=(
-                        f"Hi {instance.first_name or instance.username}, I'm Odu — your Oduma Connect assistant! "
+                        f"Hi {instance.first_name or instance.username}, I'm Odu — your Oduma Corp assistant! "
                         "I'm here to help you navigate the platform, answer questions, and connect you with the right people. "
                         "To get started: post a project, explore the Innovators page, or send a connection request. "
                         "Type /help anytime in this chat to see what I can do."
                     ),
                 )
+        except Exception:
+            pass
+
+@receiver(post_save, sender=CustomUser)
+def create_user_subscription(sender, instance, created, **kwargs):
+    """Auto-assign Starter plan to every new user."""
+    if created:
+        try:
+            free_plan = SubscriptionPlan.objects.get(slug='starter')
+            UserSubscription.objects.get_or_create(user=instance, defaults={'plan': free_plan})
         except Exception:
             pass
 

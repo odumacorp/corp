@@ -11,13 +11,22 @@
       <p class="oc-footer__brand-tagline">
         Connecting Africa's boldest innovators with the investors who back them. Deal flow, capital, and collaboration — structured for serious players.
       </p>
-      <div style="margin-top:20px;display:flex;gap:10px;">
-        <a href="#" style="width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:.75rem;transition:.15s;"
-           onmouseenter="this.style.background='rgba(255,255,255,0.12)';this.style.color='#fff';"
-           onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.5)';">𝕏</a>
-        <a href="#" style="width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:.75rem;transition:.15s;"
-           onmouseenter="this.style.background='rgba(255,255,255,0.12)';this.style.color='#fff';"
-           onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.5)';">in</a>
+      <div style="margin-top:12px;display:flex;gap:8px;">
+        <a href="#" aria-label="X / Twitter" style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);transition:.15s;"
+           onmouseenter="this.style.background='rgba(255,255,255,0.14)';this.style.color='#fff';"
+           onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.55)';">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.743l7.73-8.835L1.254 2.25H8.08l4.264 5.633 5.9-5.633Zm-1.161 17.52h1.833L7.084 4.126H5.117Z"/></svg>
+        </a>
+        <a href="#" aria-label="LinkedIn" style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);transition:.15s;"
+           onmouseenter="this.style.background='rgba(255,255,255,0.14)';this.style.color='#fff';"
+           onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.55)';">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <a href="#" aria-label="Instagram" style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);transition:.15s;"
+           onmouseenter="this.style.background='rgba(255,255,255,0.14)';this.style.color='#fff';"
+           onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.55)';">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
       </div>
     </div>
 
@@ -27,8 +36,10 @@
       <ul class="oc-footer__links">
         <li><a href="{% url 'innovators' %}">Browse Innovators</a></li>
         <li><a href="{% url 'investors' %}">Find Investors</a></li>
+        <li><a href="{% url 'companies_list' %}">Businesses</a></li>
         <li><a href="{% url 'jobs' %}">Jobs Board</a></li>
         <li><a href="{% url 'events' %}">Events</a></li>
+        <li><a href="{% url 'groups_list' %}">Community</a></li>
         {% if user.is_authenticated %}
           <li><a href="{% url 'networks' %}">My Network</a></li>
           <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
@@ -36,12 +47,23 @@
       </ul>
     </div>
 
+    <!-- Services column -->
+    <div>
+      <div class="oc-footer__col-title">Services</div>
+      <ul class="oc-footer__links">
+        <li><a href="{% url 'mentorship_hub' %}">Mentorship</a></li>
+        <li><a href="{% url 'training_hub' %}">Courses &amp; Training</a></li>
+        <li><a href="{% url 'services' %}">Consulting</a></li>
+        <li><a href="{% url 'proposals_list' %}">Proposals</a></li>
+        <li><a href="{% url 'search' %}">Search</a></li>
+      </ul>
+    </div>
+
     <!-- Company column -->
     <div>
       <div class="oc-footer__col-title">Company</div>
       <ul class="oc-footer__links">
-        <li><a href="{% url 'about' %}">About</a></li>
-        <li><a href="{% url 'services' %}">Services</a></li>
+        <li><a href="{% url 'about' %}">About Us</a></li>
         <li><a href="{% url 'contact' %}">Contact</a></li>
         <li><a href="{% url 'faq' %}">FAQ</a></li>
         <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>

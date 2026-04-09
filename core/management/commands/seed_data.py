@@ -107,7 +107,7 @@ GROUP_DATA = [
 ]
 
 PAGE_DATA = [
-    ('Oduma Connect Blog', 'tech', 'Official blog — stories, insights and platform updates'),
+    ('Oduma Corp Blog', 'tech', 'Official blog — stories, insights and platform updates'),
     ('African Innovation Weekly', 'tech', 'Curated newsletter on African tech and innovation'),
     ('Clean Energy Africa', 'energy', 'News and resources for clean energy projects in Africa'),
     ('Startup Funding Digest', 'finance', 'Funding news, grant opportunities and investor spotlights'),
@@ -265,7 +265,7 @@ class Command(BaseCommand):
                 message__startswith='Welcome',
                 defaults={
                     'notification_type': 'other',
-                    'message': f'Welcome to Oduma Connect, {user.first_name}! Your profile is set up.',
+                    'message': f'Welcome to Oduma Corp, {user.first_name}! Your profile is set up.',
                     'link': '/app/',
                 }
             )

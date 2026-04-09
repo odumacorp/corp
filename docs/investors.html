@@ -1,7 +1,7 @@
 {% extends '_partials/base.html' %}
 {% load static %}
 
-{% block title %}Investors | Oduma Connect{% endblock %}
+{% block title %}Investors | Oduma Corp{% endblock %}
 
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
@@ -10,6 +10,10 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Investors</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <div class="oc-container" style="padding-top:40px;padding-bottom:64px;">
 
   <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;">
@@ -97,10 +101,10 @@
               </form>
             {% endif %}
 
-            <form method="POST" action="{% url 'message_investor' investor.id %}" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" class="oc-btn oc-btn-ghost oc-btn-sm">✉ Message</button>
-            </form>
+            <button class="oc-btn oc-btn-ghost oc-btn-sm"
+              onclick="openQuickChat({{ investor.id }},'{{ investor.get_full_name|escapejs }}','{{ investor.first_name|first|upper }}{{ investor.last_name|first|upper }}','{% if investor.userprofile.profile_pics %}{{ investor.userprofile.profile_pics.url }}{% endif %}')">
+              Message
+            </button>
           {% endif %}
         </div>
       {% else %}
@@ -110,7 +114,9 @@
     </div>
   {% empty %}
     <div class="oc-card" style="text-align:center;padding:60px 20px;color:var(--oc-text-muted);grid-column:1/-1;">
-      <div style="font-size:3rem;margin-bottom:16px;">💼</div>
+      <div style="width:56px;height:56px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:#eef4ff;color:#1B5EC7;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      </div>
       <h3 style="font-size:1.1rem;font-weight:600;color:var(--oc-text-primary);margin-bottom:8px;">No investors found</h3>
       <p style="font-size:.875rem;">
         {% if selected_industry %}No investors in this industry yet. <a href="{% url 'investors' %}" style="color:var(--oc-primary);">Clear filter</a>{% else %}Check back soon.{% endif %}

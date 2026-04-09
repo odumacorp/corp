@@ -1,6 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}Mentorship | Oduma Connect{% endblock %}
+{% block title %}Mentorship | Oduma Corp{% endblock %}
 
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
@@ -9,14 +9,18 @@
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Mentorship</span></li>
   </ol>
 </nav>
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  Back
+</button>
 <style>
 .mh-wrap { max-width:1100px; margin:0 auto; padding:36px 24px 64px; }
 .mh-hero { background:linear-gradient(135deg,#0A1628,#0d7a5f); border-radius:16px;
   padding:36px 48px; color:#fff; margin-bottom:32px; }
-.mh-hero h1 { font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:800; margin:0 0 8px; }
-.mh-hero p { opacity:.85; font-size:.95rem; margin:0; }
+.mh-hero h1 { font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:800; margin:0 0 8px; color:#fff; }
+.mh-hero p { font-size:.95rem; margin:0; color:rgba(255,255,255,.85); }
 .mh-filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px; }
-.mh-filter-btn { padding:6px 16px; border-radius:20px; font-size:.82rem; font-weight:600;
+.mh-filter-btn { padding:6px 16px; border-radius:20px; font-size:.875rem; font-weight:600;
   text-decoration:none; border:1.5px solid #d1d5db; color:#374151; background:#fff; transition:all .2s; }
 .mh-filter-btn:hover, .mh-filter-btn.active { background:#1B5EC7; color:#fff; border-color:#1B5EC7; }
 .mh-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:20px; margin-bottom:40px; }
@@ -29,13 +33,13 @@
   font-size:1.1rem; flex-shrink:0; overflow:hidden; }
 .mh-avatar img { width:100%; height:100%; object-fit:cover; }
 .mh-card-name { font-family:'Space Grotesk',sans-serif; font-weight:800; color:#0A1628; font-size:.95rem; }
-.mh-card-role { font-size:.78rem; color:#6b7280; }
+.mh-card-role { font-size:.83rem; color:#6b7280; }
 .mh-expertise-tag { display:inline-block; background:#e0e8f4; color:#1B5EC7;
-  font-size:.72rem; font-weight:700; padding:3px 10px; border-radius:20px; margin-bottom:10px; }
-.mh-bio { font-size:.84rem; color:#374151; line-height:1.5; margin-bottom:14px; }
-.mh-avail { font-size:.78rem; color:#6b7280; margin-bottom:14px; }
+  font-size:.78rem; font-weight:700; padding:3px 10px; border-radius:20px; margin-bottom:10px; }
+.mh-bio { font-size:.9rem; color:#374151; line-height:1.55; margin-bottom:14px; }
+.mh-avail { font-size:.83rem; color:#6b7280; margin-bottom:14px; }
 .mh-btn { background:#1B5EC7; color:#fff; border:none; padding:8px 20px; border-radius:8px;
-  font-size:.82rem; font-weight:700; cursor:pointer; transition:background .2s; }
+  font-size:.875rem; font-weight:700; cursor:pointer; transition:background .2s; }
 .mh-btn:hover { background:#1448a3; }
 .mh-no-capacity { font-size:.78rem; color:#dc2626; font-weight:600; }
 /* Modal */
@@ -107,7 +111,7 @@
       <div class="mh-bio">{{ mentor.bio|truncatewords:25 }}</div>
       {% endif %}
       {% if mentor.availability %}
-      <div class="mh-avail">🕐 {{ mentor.availability }}</div>
+      <div class="mh-avail"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>{{ mentor.availability }}</div>
       {% endif %}
       <div style="font-size:.78rem;color:#6b7280;margin-bottom:14px;">
         {{ mentor.current_mentees }}/{{ mentor.max_mentees }} mentees
@@ -126,7 +130,7 @@
   </div>
   {% else %}
   <div style="background:#f4f7fb;border:1.5px dashed #c3d4ec;border-radius:12px;padding:40px;text-align:center;color:#6b7280;">
-    <p style="font-size:1.5rem;margin-bottom:8px;">🎓</p>
+    <p style="margin-bottom:8px;opacity:.4;color:#6b7280;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></p>
     <p style="font-weight:700;">No mentors match this filter.</p>
     <a href="{% url 'mentorship_hub' %}" style="color:#1B5EC7;font-size:.85rem;">Clear filters</a>
   </div>
@@ -150,9 +154,9 @@
         {% for req in my_requests %}
         <tr>
           <td style="font-weight:600;color:#0A1628;">{{ req.mentor.user.get_full_name|default:req.mentor.user.username }}</td>
-          <td style="color:#6b7280;font-size:.82rem;">{{ req.project.title|default:"—" }}</td>
+          <td style="color:#6b7280;font-size:.875rem;">{{ req.project.title|default:"—" }}</td>
           <td><span class="mh-status-badge mh-status-{{ req.status }}">{{ req.get_status_display }}</span></td>
-          <td style="color:#9ca3af;font-size:.78rem;">{{ req.created_at|date:"M j, Y" }}</td>
+          <td style="color:#6b7280;font-size:.78rem;">{{ req.created_at|date:"M j, Y" }}</td>
           <td style="color:#6b7280;font-size:.78rem;">{{ req.mentor_note|default:"—"|truncatechars:60 }}</td>
         </tr>
         {% endfor %}

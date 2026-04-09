@@ -1,5 +1,5 @@
 """
-Oduma Connect — Intelligent Matching Service
+Oduma Corp — Intelligent Matching Service
 ============================================
 Computes a 0–100 match score between an investor and a project.
 Designed as a pure service layer — no Django ORM calls inside;
@@ -207,6 +207,35 @@ def get_top_matches(investor_profile: 'UserProfile', projects, n: int = 6) -> li
         s = compute_match_score(investor_profile, p)
         label, css = score_label(s)
         scored.append({'project': p, 'score': s, 'label': label, 'css': css})
+    scored.sort(key=lambda x: x['score'], reverse=True)
+    return scored[:n]
+
+
+def compute_match_breakdown(investor_profile: 'UserProfile', project: 'Project') -> dict:
+    """
+    Return a breakdown dict of each factor's score and max for display.
+    {'industry': {'score':30,'max':30,'pct':100}, 'funding': ..., 'stage': ..., 'geography': ...}
+    """
+    ind = _industry_score(investor_profile, project)
+    fun = _funding_score(investor_profile, project)
+    sta = _stage_score(investor_profile, project)
+    geo = _geography_score(investor_profile, project)
+    return {
+        'industry':  {'score': ind, 'max': 30, 'pct': int(ind / 30 * 100)},
+        'funding':   {'score': fun, 'max': 25, 'pct': int(fun / 25 * 100)},
+        'stage':     {'score': sta, 'max': 25, 'pct': int(sta / 25 * 100)},
+        'geography': {'score': geo, 'max': 20, 'pct': int(geo / 20 * 100)},
+    }
+
+
+def get_top_matches_with_breakdown(investor_profile: 'UserProfile', projects, n: int = 6) -> list[dict]:
+    """Like get_top_matches but includes per-factor breakdown."""
+    scored = []
+    for p in projects:
+        s = compute_match_score(investor_profile, p)
+        label, css = score_label(s)
+        breakdown = compute_match_breakdown(investor_profile, p)
+        scored.append({'project': p, 'score': s, 'label': label, 'css': css, 'breakdown': breakdown})
     scored.sort(key=lambda x: x['score'], reverse=True)
     return scored[:n]
 

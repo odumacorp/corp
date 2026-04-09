@@ -1,6 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-{% block title %}Dashboard | Oduma Connect{% endblock %}
+{% block title %}Dashboard | Oduma Corp{% endblock %}
 
 {% block content %}
 <style>
@@ -35,7 +35,7 @@
 .idb-stat-card--gold::before   { background:var(--idb-gold); }
 .idb-stat-card--red::before    { background:var(--idb-red); }
 .idb-stat-card--purple::before { background:#7c3aed; }
-.idb-stat-icon { font-size:1.4rem; margin-bottom:8px; }
+.idb-stat-icon { width:36px;height:36px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;border-radius:9px;background:#eef4ff;color:#1B5EC7; }
 .idb-stat-val { font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:800;
   color:var(--idb-navy); line-height:1; margin-bottom:4px;
   /* animated counter */ display:inline-block; }
@@ -113,7 +113,7 @@
   font-size:.84rem; font-weight:700; transition:all .2s; }
 .idb-service-link:hover { border-color:var(--idb-blue); color:var(--idb-blue);
   background:#f0f5ff; box-shadow:0 2px 10px rgba(27,94,199,.1); }
-.idb-service-icon { font-size:1.3rem; }
+.idb-service-icon { width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border-radius:7px;background:#eef4ff;color:#1B5EC7;flex-shrink:0; }
 
 /* ── Events mini list ────────────────────────────────────────────── */
 .idb-event-item { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px;
@@ -161,30 +161,30 @@
   <!-- Analytics Cards -->
   <div class="idb-analytics">
     <div class="idb-stat-card idb-stat-card--blue">
-      <div class="idb-stat-icon">📁</div>
+      <div class="idb-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
       <div class="idb-stat-val" data-count="{{ total_projects }}">{{ total_projects }}</div>
       <div class="idb-stat-label">Total Projects</div>
       <div class="idb-stat-delta idb-stat-delta--up">{{ published_projects }} published</div>
     </div>
     <div class="idb-stat-card idb-stat-card--green">
-      <div class="idb-stat-icon">💼</div>
+      <div class="idb-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
       <div class="idb-stat-val" data-count="{{ pitch_count }}">{{ pitch_count }}</div>
       <div class="idb-stat-label">Pitch Requests</div>
       {% if pending_pitches %}<div class="idb-stat-delta idb-stat-delta--up">{{ pending_pitches }} pending response</div>{% endif %}
     </div>
     <div class="idb-stat-card idb-stat-card--gold">
-      <div class="idb-stat-icon">🤝</div>
+      <div class="idb-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
       <div class="idb-stat-val" data-count="{{ connections }}">{{ connections }}</div>
       <div class="idb-stat-label">Connections</div>
       {% if pending_connections %}<div class="idb-stat-delta idb-stat-delta--up">{{ pending_connections }} pending</div>{% endif %}
     </div>
     <div class="idb-stat-card idb-stat-card--purple">
-      <div class="idb-stat-icon">🎓</div>
+      <div class="idb-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
       <div class="idb-stat-val" data-count="{{ my_courses|length }}">{{ my_courses|length }}</div>
       <div class="idb-stat-label">Active Courses</div>
     </div>
     <div class="idb-stat-card idb-stat-card--blue">
-      <div class="idb-stat-icon">🔧</div>
+      <div class="idb-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
       <div class="idb-stat-val" data-count="{{ open_consulting }}">{{ open_consulting }}</div>
       <div class="idb-stat-label">Open Support Requests</div>
     </div>
@@ -260,7 +260,7 @@
           {% endfor %}
         {% else %}
         <div style="text-align:center;padding:28px;color:#6b7280;">
-          <p style="font-size:1.5rem;margin-bottom:8px;">🚀</p>
+          <p style="margin-bottom:8px;opacity:.4;color:#6b7280;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></p>
           <p style="font-weight:700;margin-bottom:4px;">No projects yet</p>
           <a href="{% url 'create_project' %}" class="idb-btn idb-btn--primary" style="margin-top:10px;display:inline-flex;">Create Your First Project</a>
         </div>
@@ -310,12 +310,12 @@
           {% for notif in recent_notifications %}
           <li class="idb-timeline-item">
             <div class="idb-timeline-dot">
-              {% if 'pitch' in notif.message|lower %}💼
-              {% elif 'view' in notif.message|lower %}👁
-              {% elif 'connect' in notif.message|lower %}🤝
-              {% elif 'interest' in notif.message|lower %}★
-              {% elif 'review' in notif.message|lower %}🔍
-              {% else %}🔔{% endif %}
+              {% if 'pitch' in notif.message|lower %}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+              {% elif 'view' in notif.message|lower %}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              {% elif 'connect' in notif.message|lower %}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              {% elif 'interest' in notif.message|lower %}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              {% elif 'review' in notif.message|lower %}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              {% else %}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>{% endif %}
             </div>
             <div class="idb-timeline-content">
               <div class="idb-timeline-text">{{ notif.message }}</div>
@@ -337,19 +337,19 @@
         <h2 class="idb-section-title" style="margin-bottom:14px;">Oduma Services</h2>
         <div class="idb-services">
           <a href="{% url 'training_hub' %}" class="idb-service-link">
-            <span class="idb-service-icon">📚</span> Training
+            <span class="idb-service-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span> Training
           </a>
           <a href="{% url 'mentorship_hub' %}" class="idb-service-link">
-            <span class="idb-service-icon">🎓</span> Mentorship
+            <span class="idb-service-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span> Mentorship
           </a>
           <a href="{% url 'request_consulting' %}" class="idb-service-link">
-            <span class="idb-service-icon">🧠</span> Consulting
+            <span class="idb-service-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span> Consulting
           </a>
           <a href="{% url 'events_hub' %}" class="idb-service-link">
-            <span class="idb-service-icon">📅</span> Events
+            <span class="idb-service-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span> Events
           </a>
           <a href="{% url 'top_matches_for_investor' %}" class="idb-service-link" style="grid-column:span 2;">
-            <span class="idb-service-icon">🎯</span> Find Investor Matches
+            <span class="idb-service-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span> Find Investor Matches
           </a>
         </div>
       </div>
@@ -360,7 +360,7 @@
         <h2 class="idb-section-title" style="margin-bottom:6px;">Get Verified</h2>
         <p style="font-size:.82rem;color:#6b7280;margin-bottom:14px;">A verified badge builds trust with investors.</p>
         {% if profile.verification_status == 'pending' %}
-        <span style="font-size:.8rem;font-weight:700;color:#854d0e;">⏳ Verification under review</span>
+        <span style="font-size:.8rem;font-weight:700;color:#854d0e;">Verification under review</span>
         {% else %}
         <a href="{% url 'my_profile' %}" class="idb-btn idb-btn--primary" style="font-size:.82rem;padding:8px 16px;">Apply for Verification</a>
         {% endif %}
@@ -384,7 +384,7 @@
       </div>
       {% else %}
       <div class="idb-section" style="border-style:dashed;border-color:#d1d5db;text-align:center;">
-        <p style="font-size:1.3rem;margin-bottom:6px;">🎓</p>
+        <p style="margin-bottom:6px;opacity:.4;color:#6b7280;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></p>
         <p style="font-size:.82rem;font-weight:700;margin-bottom:4px;">No mentor yet</p>
         <a href="{% url 'mentorship_hub' %}" class="idb-section-link">Find a mentor →</a>
       </div>
@@ -429,7 +429,7 @@
               {{ event.name }}
               <span class="idb-event-type-tag">{{ event.get_event_type_display }}</span>
             </div>
-            <div class="idb-event-loc">📍 {{ event.location }}</div>
+            <div class="idb-event-loc" style="display:flex;align-items:center;gap:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> {{ event.location }}</div>
             {% if event.id in registered_event_ids %}
             <span style="font-size:.72rem;color:#059669;font-weight:700;">✓ Registered</span>
             {% else %}
