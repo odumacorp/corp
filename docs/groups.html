@@ -225,101 +225,207 @@
     font-size: 0.95rem;
   }
 
-  /* ---- Create group modal ---- */
+  /* ── Create group modal ── */
   .grp-modal-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.45);
+    background: rgba(10,22,40,0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     z-index: 1000;
     align-items: center;
     justify-content: center;
+    padding: 20px;
   }
   .grp-modal-overlay.open { display: flex; }
+
   .grp-modal {
     background: #fff;
-    border-radius: 16px;
-    padding: 28px 32px;
+    border-radius: 20px;
     width: 100%;
-    max-width: 500px;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
     position: relative;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+    animation: grpModalIn .22s ease;
+  }
+  @keyframes grpModalIn {
+    from { opacity:0; transform: translateY(18px) scale(.97); }
+    to   { opacity:1; transform: translateY(0) scale(1); }
+  }
+
+  /* Header stripe */
+  .grp-modal-head {
+    background: linear-gradient(135deg, var(--blue) 0%, #0066ff 100%);
+    border-radius: 20px 20px 0 0;
+    padding: 22px 28px 20px;
+    color: #fff;
+    position: relative;
+  }
+  .grp-modal-head-title {
+    font-family: var(--ff-serif);
+    font-size: 1.25rem;
+    margin: 0 0 2px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .grp-modal-head-sub {
+    font-family: var(--ff-sans);
+    font-size: .82rem;
+    opacity: .82;
+    margin: 0;
   }
   .grp-modal-close {
     position: absolute;
     top: 14px;
-    right: 18px;
-    background: none;
+    right: 16px;
+    background: rgba(255,255,255,0.18);
     border: none;
-    font-size: 1.4rem;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    color: var(--muted);
+    color: #fff;
+    font-size: 1.1rem;
     line-height: 1;
+    transition: background .15s;
   }
-  .grp-modal h2 {
-    font-family: var(--ff-serif);
-    font-size: 1.3rem;
-    margin: 0 0 20px;
-    color: var(--text);
-  }
-  .grp-form-field {
-    margin-bottom: 16px;
-  }
-  .grp-form-field label {
+  .grp-modal-close:hover { background: rgba(255,255,255,0.30); }
+
+  /* Body */
+  .grp-modal-body { padding: 24px 28px 28px; }
+
+  .grp-form-field { margin-bottom: 18px; }
+  .grp-form-label {
     display: block;
     font-family: var(--ff-sans);
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin-bottom: 5px;
-    font-weight: 600;
+    font-size: .82rem;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 6px;
+    letter-spacing: .01em;
   }
-  .grp-form-field input,
-  .grp-form-field select,
-  .grp-form-field textarea {
+  .grp-form-label .req { color: var(--blue); margin-left: 2px; }
+
+  .grp-input,
+  .grp-textarea {
     width: 100%;
-    padding: 9px 14px;
-    border: 1.5px solid rgba(0,0,0,0.12);
-    border-radius: 8px;
+    padding: 10px 14px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
     font-family: var(--ff-sans);
-    font-size: 0.9rem;
+    font-size: .9rem;
     color: var(--text);
     box-sizing: border-box;
-    transition: border-color 0.2s;
-    background: #fafafa;
+    background: #fafbff;
+    transition: border-color .18s, box-shadow .18s;
   }
-  .grp-form-field input:focus,
-  .grp-form-field select:focus,
-  .grp-form-field textarea:focus {
+  .grp-input:focus, .grp-textarea:focus {
     outline: none;
     border-color: var(--blue);
     background: #fff;
+    box-shadow: 0 0 0 3px rgba(0,74,173,.08);
   }
-  .grp-form-field textarea { resize: vertical; min-height: 80px; }
-  .grp-form-check {
+  .grp-textarea { resize: vertical; min-height: 88px; }
+
+  /* two-col row */
+  .grp-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 480px) { .grp-form-row { grid-template-columns: 1fr; } }
+
+  /* Privacy toggle */
+  .grp-privacy-toggle {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    font-family: var(--ff-sans);
-    font-size: 0.9rem;
-    color: var(--text);
+    gap: 12px;
+    background: #f8faff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 14px;
     cursor: pointer;
+    user-select: none;
+    transition: border-color .18s;
+    margin-bottom: 22px;
   }
-  .grp-form-check input[type=checkbox] { width: 17px; height: 17px; accent-color: var(--blue); }
+  .grp-privacy-toggle:has(input:checked) { border-color: var(--blue); background: #f0f5ff; }
+  .grp-privacy-toggle input[type=checkbox] { display: none; }
+  .grp-privacy-switch {
+    width: 36px; height: 20px;
+    background: #d1d5db;
+    border-radius: 20px;
+    position: relative;
+    flex-shrink: 0;
+    transition: background .2s;
+  }
+  .grp-privacy-switch::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    top: 3px; left: 3px;
+    transition: transform .2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  }
+  .grp-privacy-toggle:has(input:checked) .grp-privacy-switch { background: var(--blue); }
+  .grp-privacy-toggle:has(input:checked) .grp-privacy-switch::after { transform: translateX(16px); }
+  .grp-privacy-info strong {
+    display: block;
+    font-family: var(--ff-sans);
+    font-size: .88rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .grp-privacy-info span {
+    font-family: var(--ff-sans);
+    font-size: .78rem;
+    color: var(--muted);
+  }
+
   .grp-modal-submit {
     width: 100%;
-    background: var(--blue);
+    background: linear-gradient(135deg, var(--blue), #0066ff);
     color: #fff;
     border: none;
     border-radius: 30px;
-    padding: 11px;
+    padding: 12px;
     font-family: var(--ff-sans);
-    font-size: 0.95rem;
+    font-size: .95rem;
     font-weight: 700;
     cursor: pointer;
-    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity .2s, transform .1s;
+    box-shadow: 0 4px 14px rgba(0,74,173,.25);
   }
-  .grp-modal-submit:hover { background: var(--blue-dark); }
+  .grp-modal-submit:hover { opacity: .92; }
+  .grp-modal-submit:active { transform: scale(.98); }
+
+  /* Combobox inside modal */
+  .grp-form-field .oc-combo__list { z-index: 1100; }
+  .grp-form-field .oc-combo__input {
+    padding: 10px 14px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    background: #fafbff;
+    font-size: .9rem;
+  }
+  .grp-form-field .oc-combo__input:focus {
+    border-color: var(--blue);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(0,74,173,.08);
+  }
 </style>
 
 <div class="grp-wrapper">
@@ -413,42 +519,99 @@
 
 <!-- Create group modal -->
 <div class="grp-modal-overlay" id="grpModalOverlay">
-  <div class="grp-modal">
-    <button class="grp-modal-close" onclick="closeCreateGroup()">&times;</button>
-    <h2>Create a Group</h2>
-    <form method="post" action="{% url 'group_create' %}" enctype="multipart/form-data">
-      {% csrf_token %}
-      <div class="grp-form-field">
-        <label>Group Name *</label>
-        <input type="text" name="name" required placeholder="e.g. Lagos Tech Innovators">
-      </div>
-      <div class="grp-form-field">
-        <label>Industry</label>
-        <select name="industry">
-          {% for value, label in industry_choices %}
-          <option value="{{ value }}">{{ label }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="grp-form-field">
-        <label>Description</label>
-        <textarea name="description" placeholder="What is this group about?"></textarea>
-      </div>
-      <div class="grp-form-field">
-        <label>Cover Image</label>
-        <input type="file" name="cover_image" accept="image/*">
-      </div>
-      <label class="grp-form-check">
-        <input type="checkbox" name="is_private" value="1"> Make this group private (join by invitation only)
-      </label>
-      <button type="submit" class="grp-modal-submit">Create Group</button>
-    </form>
+  <div class="grp-modal" role="dialog" aria-modal="true" aria-labelledby="grpModalTitle">
+
+    <!-- Header -->
+    <div class="grp-modal-head">
+      <h2 class="grp-modal-head-title" id="grpModalTitle">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Create a Group
+      </h2>
+      <p class="grp-modal-head-sub">Build a community around a shared industry or interest</p>
+      <button class="grp-modal-close" onclick="closeCreateGroup()" aria-label="Close">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="grp-modal-body">
+      <form method="post" action="{% url 'group_create' %}" enctype="multipart/form-data" id="grp-create-form">
+        {% csrf_token %}
+
+        <div class="grp-form-row">
+          <div class="grp-form-field" style="grid-column:1/-1;">
+            <label class="grp-form-label" for="grp-name-input">Group Name <span class="req">*</span></label>
+            <input type="text" name="name" id="grp-name-input" class="grp-input"
+                   required maxlength="255" placeholder="e.g. Lagos Tech Innovators"
+                   autocomplete="off">
+          </div>
+        </div>
+
+        <div class="grp-form-field" data-picker-wrap>
+          <label class="grp-form-label" for="grp-industry-input">Industry</label>
+          <input type="hidden" name="industry" id="grp-industry-hidden" value="other">
+          <div class="oc-combo" id="grp-industry-combo" data-hidden="grp-industry-hidden">
+            <input type="text" id="grp-industry-input" class="oc-combo__input"
+                   autocomplete="off" placeholder="Search or type a custom industry…">
+            <ul class="oc-combo__list" id="grp-industry-combo-list">
+              {% for val, label in industry_choices %}
+              <li class="oc-combo__item" data-value="{{ val }}">{{ label }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        <div class="grp-form-field">
+          <label class="grp-form-label" for="grp-desc">Description</label>
+          <textarea name="description" id="grp-desc" class="grp-textarea"
+                    placeholder="What is this group about? Who should join?"></textarea>
+        </div>
+
+        <!-- Cover image + avatar picker -->
+        <div class="grp-form-field" data-picker-wrap>
+          <label class="grp-form-label">Cover Image</label>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <label for="grp-cover-input" style="display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;border:1.5px dashed #d1d5db;border-radius:10px;padding:9px 16px;font-size:.82rem;font-weight:600;color:#374151;cursor:pointer;transition:border-color .15s;">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload image
+            </label>
+            <input type="file" name="cover_image" id="grp-cover-input" accept="image/*" style="display:none"
+                   onchange="grpCoverPreview(this)">
+            <button type="button" class="oc-pick-btn" style="margin:0;"
+                    onclick="ocPicker.open({inputId:'grp-cover-input',previewId:'grp-cover-prev',type:'cover',containerId:'grp-cover-picker'})">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              Choose gradient
+            </button>
+          </div>
+          <img id="grp-cover-prev" style="display:none;width:100%;height:70px;border-radius:10px;object-fit:cover;margin-top:8px;" alt="Cover preview">
+          <div id="grp-cover-picker" class="oc-picker-panel" style="display:none;margin-top:8px;"></div>
+        </div>
+
+        <!-- Privacy toggle -->
+        <label class="grp-privacy-toggle" id="grp-privacy-label">
+          <input type="checkbox" name="is_private" value="1" id="grp-private-cb"
+                 onchange="grpUpdatePrivacy(this)">
+          <div class="grp-privacy-switch"></div>
+          <div class="grp-privacy-info">
+            <strong id="grp-privacy-title">Open group</strong>
+            <span id="grp-privacy-desc">Anyone can find and join this group</span>
+          </div>
+        </label>
+
+        <button type="submit" class="grp-modal-submit">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Create Group
+        </button>
+      </form>
+    </div>
+
   </div>
 </div>
 
 <script>
   function openCreateGroup() {
     document.getElementById('grpModalOverlay').classList.add('open');
+    document.getElementById('grp-name-input').focus();
   }
   function closeCreateGroup() {
     document.getElementById('grpModalOverlay').classList.remove('open');
@@ -456,6 +619,30 @@
   document.getElementById('grpModalOverlay').addEventListener('click', function(e) {
     if (e.target === this) closeCreateGroup();
   });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeCreateGroup();
+  });
+  function grpCoverPreview(input) {
+    if (!input.files || !input.files[0]) return;
+    var r = new FileReader();
+    r.onload = function(e) {
+      var p = document.getElementById('grp-cover-prev');
+      p.src = e.target.result;
+      p.style.display = 'block';
+    };
+    r.readAsDataURL(input.files[0]);
+  }
+  function grpUpdatePrivacy(cb) {
+    var title = document.getElementById('grp-privacy-title');
+    var desc  = document.getElementById('grp-privacy-desc');
+    if (cb.checked) {
+      title.textContent = 'Private group';
+      desc.textContent  = 'Members can only join by invitation';
+    } else {
+      title.textContent = 'Open group';
+      desc.textContent  = 'Anyone can find and join this group';
+    }
+  }
 </script>
 
 

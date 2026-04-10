@@ -140,7 +140,7 @@
       <p class="ce-section-title">Basic Info</p>
       <div class="ce-field">
         <label>Company Name *</label>
-        <input type="text" name="name" value="{{ company.name }}" required>
+        <input type="text" name="name" id="ce-name-input" value="{{ company.name }}" required>
       </div>
       <div class="ce-field">
         <label>Tagline</label>
@@ -216,7 +216,16 @@
             <span>Current logo — upload a new file to replace</span>
           </div>
           {% endif %}
-          <input type="file" name="logo" accept="image/*">
+          <input type="file" name="logo" id="ce-logo-input" accept="image/*">
+          <div data-picker-wrap style="margin-top:6px;">
+            <button type="button" class="oc-pick-btn"
+                    onclick="ocPicker.open({inputId:'ce-logo-input',previewId:'ce-logo-prev',type:'logo',letterSrc:'ce-name-input',containerId:'ce-logo-picker'})">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              Choose logo avatar
+            </button>
+            <img id="ce-logo-prev" style="display:none;width:48px;height:48px;border-radius:8px;object-fit:cover;margin-left:8px;vertical-align:middle;" alt="">
+            <div id="ce-logo-picker" class="oc-picker-panel" style="display:none;"></div>
+          </div>
         </div>
         <div class="ce-field">
           <label>Cover Image</label>
@@ -226,7 +235,16 @@
             <span>Current cover — upload a new file to replace</span>
           </div>
           {% endif %}
-          <input type="file" name="cover_image" accept="image/*">
+          <input type="file" name="cover_image" id="ce-cover-input" accept="image/*">
+          <div data-picker-wrap style="margin-top:6px;">
+            <button type="button" class="oc-pick-btn"
+                    onclick="ocPicker.open({inputId:'ce-cover-input',previewId:'ce-cover-prev',type:'cover',containerId:'ce-cover-picker'})">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              Choose gradient cover
+            </button>
+            <img id="ce-cover-prev" style="display:none;width:88px;height:44px;border-radius:8px;object-fit:cover;margin-left:8px;vertical-align:middle;" alt="">
+            <div id="ce-cover-picker" class="oc-picker-panel" style="display:none;"></div>
+          </div>
         </div>
       </div>
 

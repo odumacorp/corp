@@ -1938,8 +1938,11 @@ def create_project(request):
             project.owner = request.user
             project.save()
 
-            # Handle up to 10 photos (multi-file input named 'images')
-            from .models import ProjectImage, Attachment
+            # Persist custom industry to DB so others can use it
+            from .models import ProjectImage, Attachment, CustomIndustry
+            preset_vals = [v for v, _ in project._meta.get_field('industry').choices]
+            if project.industry and project.industry not in preset_vals:
+                CustomIndustry.objects.get_or_create(name=project.industry)
             image_files = request.FILES.getlist('images')
             for i, img_file in enumerate(image_files[:10]):
                 img_name = request.POST.get(f'image_name_{i}', '')
@@ -1966,7 +1969,15 @@ def create_project(request):
             return redirect('project_detail', pk=project.pk)
     else:
         form = ProjectForm()
-    return render(request, 'create_project.html', {'form': form})
+    from .models import Project as _Proj, CustomIndustry
+    preset = list(_Proj._meta.get_field('industry').choices)
+    custom = list(CustomIndustry.objects.values_list('name', flat=True))
+    preset_vals = {v for v, _ in preset}
+    all_choices = preset + [(n, n) for n in custom if n not in preset_vals]
+    return render(request, 'create_project.html', {
+        'form': form,
+        'industry_choices': all_choices,
+    })
 
 
 # ── Pipeline Stage Progression ─────────────────────────────────────────────
@@ -3628,30 +3639,49 @@ def company_edit(request, company_id):
 
 
 @login_required
+@login_required
 def create_company(request):
-    from .models import Company
+    from .models import Company, CustomIndustry
     if request.method == 'POST':
-        company = Company(
-            owner        = request.user,
-            name         = request.POST.get('name', ''),
-            description  = request.POST.get('description', ''),
-            tagline      = request.POST.get('tagline', ''),
-            industry     = request.POST.get('industry', 'other'),
-            company_type = request.POST.get('company_type', 'startup'),
-            size         = request.POST.get('size', ''),
-            location     = request.POST.get('location', ''),
-            website      = request.POST.get('website', ''),
-            email        = request.POST.get('email', ''),
-            phone        = request.POST.get('phone', ''),
-        )
-        if 'logo' in request.FILES:
-            company.logo = request.FILES['logo']
-        if 'cover_image' in request.FILES:
-            company.cover_image = request.FILES['cover_image']
-        company.save()
-        messages.success(request, 'Business page created!')
-        return redirect('company_profile', company_id=company.id)
-    return render(request, 'create_company.html', {})
+        name = request.POST.get('name', '').strip()
+        description = request.POST.get('description', '').strip()
+        if not name or not description:
+            messages.error(request, 'Company name and description are required.')
+        else:
+            industry_val = request.POST.get('industry', 'other').strip()[:50]
+            # Persist custom industry
+            preset_vals = {v for v, _ in Company.INDUSTRY_CHOICES}
+            if industry_val and industry_val not in preset_vals:
+                CustomIndustry.objects.get_or_create(name=industry_val)
+            company = Company(
+                owner        = request.user,
+                name         = name,
+                description  = description,
+                tagline      = request.POST.get('tagline', ''),
+                industry     = industry_val,
+                company_type = request.POST.get('company_type', 'startup'),
+                size         = request.POST.get('size', ''),
+                location     = request.POST.get('location', ''),
+                website      = request.POST.get('website', ''),
+                email        = request.POST.get('email', ''),
+                phone        = request.POST.get('phone', ''),
+            )
+            if 'logo' in request.FILES:
+                company.logo = request.FILES['logo']
+            if 'cover_image' in request.FILES:
+                company.cover_image = request.FILES['cover_image']
+            company.save()
+            messages.success(request, 'Business page created!')
+            return redirect('company_profile', company_id=company.id)
+    preset = list(Company.INDUSTRY_CHOICES)
+    custom = list(CustomIndustry.objects.values_list('name', flat=True))
+    preset_vals = {v for v, _ in preset}
+    ctx = {
+        'industry_choices': preset + [(n, n) for n in custom if n not in preset_vals],
+        'type_choices':     Company.COMPANY_TYPE_CHOICES,
+        'size_choices':     Company.SIZE_CHOICES,
+    }
+    return render(request, 'create_company.html', ctx)
 
 
 @login_required
@@ -3724,10 +3754,53 @@ def company_delete_update(request, company_id, update_id):
 # --- groups ---
 @login_required
 def groups_list(request):
-    return render(request, 'groups.html', {})
+    from .models import Group, GroupMembership, CustomIndustry
+    my_groups    = []
+    other_groups = []
+    pending_invites = []
+    if request.user.is_authenticated:
+        my_groups = Group.objects.filter(members=request.user, is_hidden=False).order_by('-created_at')
+        other_groups = Group.objects.exclude(members=request.user).filter(is_hidden=False).order_by('-created_at')
+        pending_invites = GroupMembership.objects.filter(
+            user=request.user, status='invited'
+        ).select_related('group', 'invited_by') if hasattr(GroupMembership, 'status') else []
+    else:
+        other_groups = Group.objects.filter(is_hidden=False).order_by('-created_at')
+
+    preset = list(Group.INDUSTRY_CHOICES)
+    custom = list(CustomIndustry.objects.values_list('name', flat=True))
+    preset_vals = {v for v, _ in preset}
+    return render(request, 'groups.html', {
+        'my_groups':       my_groups,
+        'other_groups':    other_groups,
+        'pending_invites': pending_invites,
+        'industry_choices': preset + [(n, n) for n in custom if n not in preset_vals],
+    })
 
 @login_required
 def group_create(request):
+    from .models import Group, CustomIndustry
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        if name:
+            industry = request.POST.get('industry', 'other').strip()[:50]
+            preset_vals = {v for v, _ in Group.INDUSTRY_CHOICES}
+            if industry and industry not in preset_vals:
+                CustomIndustry.objects.get_or_create(name=industry)
+            group = Group.objects.create(
+                name=name,
+                creator=request.user,
+                description=request.POST.get('description', '').strip(),
+                industry=industry or 'other',
+                is_private=bool(request.POST.get('is_private')),
+            )
+            group.members.add(request.user)
+            if 'cover_image' in request.FILES:
+                group.cover_image = request.FILES['cover_image']
+                group.save()
+            messages.success(request, f'Group "{name}" created!')
+        else:
+            messages.error(request, 'Group name is required.')
     return redirect('groups_list')
 
 @login_required
@@ -3796,10 +3869,50 @@ def my_businesses(request):
 # --- pages ---
 @login_required
 def pages_list(request):
-    return render(request, 'pages.html', {})
+    from .models import Page, CustomIndustry
+    my_pages = followed_pages = discover_pages = []
+    if request.user.is_authenticated:
+        my_pages       = Page.objects.filter(owner=request.user, is_hidden=False).order_by('-created_at')
+        followed_pages = Page.objects.filter(followers=request.user, is_hidden=False).exclude(owner=request.user).order_by('-created_at')
+        discover_pages = Page.objects.filter(is_hidden=False).exclude(owner=request.user).exclude(followers=request.user).order_by('-created_at')
+    else:
+        discover_pages = Page.objects.filter(is_hidden=False).order_by('-created_at')
+
+    preset = list(Page.INDUSTRY_CHOICES)
+    custom = list(CustomIndustry.objects.values_list('name', flat=True))
+    preset_vals = {v for v, _ in preset}
+    return render(request, 'pages.html', {
+        'my_pages':       my_pages,
+        'followed_pages': followed_pages,
+        'discover_pages': discover_pages,
+        'industry_choices': preset + [(n, n) for n in custom if n not in preset_vals],
+    })
 
 @login_required
 def page_create(request):
+    from .models import Page, CustomIndustry
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        if title:
+            industry = request.POST.get('industry', 'other').strip()[:50]
+            preset_vals = {v for v, _ in Page.INDUSTRY_CHOICES}
+            if industry and industry not in preset_vals:
+                CustomIndustry.objects.get_or_create(name=industry)
+            page = Page.objects.create(
+                owner=request.user,
+                title=title,
+                description=request.POST.get('description', '').strip(),
+                industry=industry or 'other',
+                website=request.POST.get('website', '').strip(),
+            )
+            if 'logo' in request.FILES:
+                page.logo = request.FILES['logo']
+            if 'cover_image' in request.FILES:
+                page.cover_image = request.FILES['cover_image']
+            page.save()
+            messages.success(request, f'Page "{title}" created!')
+        else:
+            messages.error(request, 'Page title is required.')
     return redirect('pages_list')
 
 @login_required
@@ -4203,6 +4316,116 @@ Write only the project description, nothing else."""
         return JsonResponse({'description': description})
     except Exception as e:
         return JsonResponse({'error': 'AI generation failed. Please write your description manually.'}, status=500)
+
+
+@login_required
+def ai_assist(request):
+    """
+    General AI assist endpoint.
+    POST JSON: { type: 'project_title' | 'company_tagline' | 'company_description', ...fields }
+    Response: { suggestions: [...] } or { result: '...' } or { error: '...' }
+    """
+    import json, anthropic
+    from django.conf import settings as dj_settings
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    assist_type = data.get('type', '')
+    api_key = getattr(dj_settings, 'ANTHROPIC_API_KEY', '')
+    if not api_key:
+        return JsonResponse({'error': 'AI service not configured.'}, status=503)
+
+    if assist_type == 'project_title':
+        problem  = data.get('problem', '').strip()
+        solution = data.get('solution', '').strip()
+        industry = data.get('industry', '').strip()
+        if not problem and not solution:
+            return JsonResponse({'error': 'Please describe your problem or solution first.'}, status=400)
+        prompt = f"""You are a startup naming expert. Based on the details below, suggest exactly 5 short, memorable project/startup titles.
+
+Industry: {industry or 'not specified'}
+Problem: {problem or 'not specified'}
+Solution: {solution or 'not specified'}
+
+Rules:
+- Each title should be 2–6 words
+- Be creative, specific, and investor-friendly
+- Do NOT use generic words like "solution", "platform", "system" unless truly fitting
+- Output ONLY the 5 titles, one per line, no numbering, no extra text"""
+
+    elif assist_type == 'company_tagline':
+        name     = data.get('name', '').strip()
+        industry = data.get('industry', '').strip()
+        mission  = data.get('mission', '').strip()
+        if not name:
+            return JsonResponse({'error': 'Please enter a company name first.'}, status=400)
+        prompt = f"""You are a brand copywriter. Write exactly 5 punchy, memorable taglines for this company.
+
+Company name: {name}
+Industry: {industry or 'not specified'}
+Mission / what they do: {mission or 'not specified'}
+
+Rules:
+- Each tagline should be under 12 words
+- Be compelling and memorable — think Nike "Just Do It" energy
+- Vary the tone: one inspiring, one bold, one descriptive, one clever, one emotive
+- Output ONLY the 5 taglines, one per line, no numbering, no extra text"""
+
+    elif assist_type == 'company_description':
+        name     = data.get('name', '').strip()
+        industry = data.get('industry', '').strip()
+        tagline  = data.get('tagline', '').strip()
+        mission  = data.get('mission', '').strip()
+        location = data.get('location', '').strip()
+        size     = data.get('size', '').strip()
+        ctype    = data.get('company_type', '').strip()
+        if not name:
+            return JsonResponse({'error': 'Please enter a company name first.'}, status=400)
+        prompt = f"""You are a professional business writer. Write a compelling company description (2–3 paragraphs, ~120–200 words) for the company below. This will appear on their public profile for investors and innovators to read.
+
+Company name: {name}
+Industry: {industry or 'not specified'}
+Type: {ctype or 'not specified'}
+Team size: {size or 'not specified'}
+Location: {location or 'not specified'}
+Tagline: {tagline or 'not specified'}
+Mission / what they do: {mission or 'not specified'}
+
+The description should:
+1. Open with who they are and what they do
+2. Explain their mission and the problem they solve
+3. Close with what makes them stand out and their vision for Africa
+
+Write in third person. Professional but warm. No bullet points — flowing paragraphs only.
+Output ONLY the description text, nothing else."""
+
+    else:
+        return JsonResponse({'error': 'Unknown assist type.'}, status=400)
+
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        resp = client.messages.create(
+            model='claude-haiku-4-5-20251001',
+            max_tokens=500,
+            messages=[{'role': 'user', 'content': prompt}],
+        )
+        result = resp.content[0].text.strip() if resp.content else ''
+        if not result:
+            return JsonResponse({'error': 'No result generated. Please try again.'}, status=500)
+
+        if assist_type in ('project_title', 'company_tagline'):
+            suggestions = [line.strip() for line in result.split('\n') if line.strip()]
+            return JsonResponse({'suggestions': suggestions})
+        else:
+            return JsonResponse({'result': result})
+    except Exception:
+        return JsonResponse({'error': 'AI generation failed. Please try again.'}, status=500)
 
 
 def _odu_local_reply(message, user):

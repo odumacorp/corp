@@ -250,13 +250,8 @@
 
           <!-- Avatar -->
           <div class="ep-avatar-wrap" onclick="document.getElementById('ep-pic-input').click()">
-            {% if form.instance.profile_pics %}
-              <img src="{{ form.instance.profile_pics.url }}" class="ep-avatar" id="ep-avatar-preview" alt="">
-            {% else %}
-              <div class="ep-avatar-initials" id="ep-avatar-initials">
-                {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
-              </div>
-            {% endif %}
+            <img src="{% if form.instance.profile_pics %}{{ form.instance.profile_pics.url }}{% else %}{% static 'images/usericon.png' %}{% endif %}"
+                 class="ep-avatar" id="ep-avatar-preview" alt="" style="{% if not form.instance.profile_pics %}opacity:.5;{% endif %}">
             <div class="ep-avatar-overlay">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
@@ -272,10 +267,18 @@
             {{ request.user.user_type|capfirst }}
             {% if up.industry %} · {{ up.get_industry_display }}{% endif %}
           </div>
-          <label class="ep-change-photo-btn" for="ep-pic-input">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            Change photo
-          </label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px;" data-picker-wrap>
+            <label class="ep-change-photo-btn" for="ep-pic-input" style="margin:0;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Upload photo
+            </label>
+            <button type="button" class="oc-pick-btn" style="margin:0;"
+                    onclick="ocPicker.open({inputId:'ep-pic-input',previewId:'ep-avatar-preview',type:'person',containerId:'ep-pic-picker'})">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              Choose avatar
+            </button>
+          </div>
+          <div id="ep-pic-picker" class="oc-picker-panel" style="display:none;margin-top:10px;"></div>
         </div>
 
         <!-- Profile completion -->

@@ -1482,6 +1482,19 @@ class SubscriptionOrder(models.Model):
         return f"{self.user.username} → {self.plan.name} ({self.status})"
 
 
+class CustomIndustry(models.Model):
+    """User-submitted industry names that extend the preset choices."""
+    name       = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = 'Custom industries'
+
+    def __str__(self):
+        return self.name
+
+
 # ── Event type extension (added via migration) ────────────────────
 # event_type field added to existing Event model in migration 0086
 

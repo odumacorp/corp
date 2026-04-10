@@ -315,6 +315,9 @@ urlpatterns = [
     # Project AI description generator
     path('projects/generate-description/', views.generate_project_description, name='generate_project_description'),
 
+    # General AI assist (titles, taglines, descriptions)
+    path('ai/assist/', views.ai_assist, name='ai_assist'),
+
     # Odu chatbot + feedback
     path('odu/chat/', views.odu_chat, name='odu_chat'),
     path('odu/feedback/', views.submit_feedback, name='submit_feedback'),

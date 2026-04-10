@@ -22,6 +22,9 @@ from .models import Project, Attachment, Patent
 ##innovator page form
 
 class ProjectForm(forms.ModelForm):
+    # Allow free-text custom industry values (not limited to model choices)
+    industry = forms.CharField(max_length=100, required=True)
+
     class Meta:
         model = Project
         fields = [

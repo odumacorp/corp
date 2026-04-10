@@ -1,536 +1,632 @@
 {% extends '_partials/base.html' %}
 {% load static %}
 
-{% block title %}Create Company Page | Oduma Corp{% endblock %}
+{% block title %}Create Business Page | Oduma Corp{% endblock %}
 
 {% block content %}
-<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
-  <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><a href="{% url 'companies_list' %}" class="oc-breadcrumbs__link">Companies</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Create Company</span></li>
-  </ol>
-</nav>
-<button onclick="history.back()" class="oc-back-btn">
-  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-  Back
-</button>
-<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
 <style>
   :root {
-    --blue: #004AAD;
+    --blue:      #004AAD;
     --blue-dark: #003490;
-    --text: #1a1a2e;
-    --muted: #6b7280;
-    --border: rgba(0,0,0,0.1);
-    --card-bg: #fff;
-    --ff-serif: "Jacques Francois", serif;
-    --ff-sans: "Jaldi", sans-serif;
+    --blue-lt:   rgba(0,74,173,0.07);
+    --text:      #1a1a2e;
+    --muted:     #6b7280;
+    --border:    rgba(0,0,0,0.09);
+    --card-bg:   #ffffff;
+    --page-bg:   #f4f6fb;
+    --ff-serif:  "Jacques Francois", serif;
+    --ff-sans:   "Jaldi", sans-serif;
+    --radius:    14px;
   }
 
-  .cc-wrapper {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 48px 16px 64px;
+  .cc-page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 36px 20px 80px;
+  }
+
+  .cc-header { margin-bottom: 32px; }
+  .cc-header-title {
+    font-family: var(--ff-serif);
+    font-size: 2rem;
+    color: var(--text);
+    margin: 0 0 6px;
+  }
+  .cc-header-sub {
+    font-family: var(--ff-sans);
+    font-size: 1rem;
+    color: var(--muted);
+    margin: 0;
   }
 
   .cc-card {
     background: var(--card-bg);
-    border-radius: 20px;
-    box-shadow: 0 8px 40px rgba(0,74,173,0.12);
-    width: 100%;
-    max-width: 640px;
-    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
   }
-
-  /* Progress bar */
-  .cc-progress {
-    background: #eaf0ff;
-    padding: 20px 28px;
-    border-bottom: 1px solid var(--border);
-  }
-  .cc-progress-steps {
+  .cc-card-title {
+    font-family: var(--ff-serif);
+    font-size: 1.1rem;
+    color: var(--text);
+    margin: 0 0 22px;
+    padding-bottom: 12px;
+    border-bottom: 1.5px solid var(--border);
     display: flex;
-    gap: 0;
-    margin-bottom: 10px;
+    align-items: center;
+    gap: 8px;
   }
-  .cc-step-dot {
-    flex: 1;
+  .cc-card-title svg { color: var(--blue); flex-shrink: 0; }
+
+  /* Cover upload */
+  .cc-cover-upload {
+    width: 100%;
+    height: 150px;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    background: var(--blue-lt);
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative;
-  }
-  .cc-step-dot::before {
-    content: '';
-    position: absolute;
-    top: 14px;
-    left: 50%;
-    right: -50%;
-    height: 2px;
-    background: #d1d5db;
-    z-index: 0;
-  }
-  .cc-step-dot:last-child::before { display: none; }
-  .cc-step-dot.done::before,
-  .cc-step-dot.active::before { background: var(--blue); }
-  .cc-dot-circle {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 2px solid #d1d5db;
-    background: #fff;
-    display: flex;
-    align-items: center;
     justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: #9ca3af;
-    z-index: 1;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
     position: relative;
-    transition: all .25s;
-  }
-  .cc-step-dot.done .cc-dot-circle {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: #fff;
-  }
-  .cc-step-dot.active .cc-dot-circle {
-    border-color: var(--blue);
-    color: var(--blue);
-    background: #e8f0fe;
-  }
-  .cc-dot-label {
-    font-family: var(--ff-sans);
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 5px;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-  }
-  .cc-step-dot.active .cc-dot-label { color: var(--blue); font-weight: 700; }
-  .cc-step-dot.done .cc-dot-label { color: var(--blue); }
-
-  /* Step header */
-  .cc-header {
-    padding: 28px 32px 0;
-  }
-  .cc-step-tag {
-    display: inline-block;
-    background: #e8f0fe;
-    color: var(--blue);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 3px 10px;
-    border-radius: 20px;
-    margin-bottom: 10px;
-  }
-  .cc-header h2 {
-    font-family: var(--ff-serif);
-    font-size: 1.55rem;
-    color: var(--text);
-    margin: 0 0 6px;
-  }
-  .cc-header p {
-    font-family: var(--ff-sans);
-    color: var(--muted);
-    font-size: .95rem;
-    margin: 0;
-  }
-
-  /* Form body */
-  .cc-body {
-    padding: 24px 32px 32px;
-  }
-
-  .cc-field {
+    overflow: hidden;
     margin-bottom: 20px;
   }
-  .cc-field label {
+  .cc-cover-upload:hover { border-color: var(--blue); background: rgba(0,74,173,0.10); }
+  .cc-cover-upload input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .cc-cover-placeholder {
+    text-align: center;
+    pointer-events: none;
+    font-family: var(--ff-sans);
+    font-size: .92rem;
+    color: var(--muted);
+  }
+  .cc-cover-placeholder svg { display: block; margin: 0 auto 6px; color: var(--blue); opacity: .55; }
+  #cc-cover-preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+
+  /* Logo upload */
+  .cc-logo-row { display: flex; align-items: center; gap: 18px; }
+  .cc-logo-upload {
+    width: 80px; height: 80px; flex-shrink: 0;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    background: var(--blue-lt);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; position: relative; overflow: hidden;
+    transition: border-color .2s;
+  }
+  .cc-logo-upload:hover { border-color: var(--blue); }
+  .cc-logo-upload input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .cc-logo-upload svg { color: var(--blue); opacity: .5; pointer-events: none; }
+  #cc-logo-preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 10px; }
+  .cc-logo-hint { font-family: var(--ff-sans); font-size: .88rem; color: var(--muted); line-height: 1.55; }
+  .cc-logo-hint strong { display: block; font-size: .94rem; color: var(--text); margin-bottom: 2px; }
+
+  /* Fields */
+  .cc-field { margin-bottom: 18px; }
+  .cc-field:last-child { margin-bottom: 0; }
+  .cc-label {
     display: block;
     font-family: var(--ff-sans);
-    font-size: .85rem;
+    font-size: .88rem;
     font-weight: 700;
     color: var(--text);
     margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: .4px;
   }
-  .cc-field label span {
-    color: #e53e3e;
-  }
-  .cc-field input,
-  .cc-field textarea,
-  .cc-field select {
+  .cc-label .req { color: var(--blue); }
+  .cc-input, .cc-select, .cc-textarea {
     width: 100%;
+    box-sizing: border-box;
     padding: 10px 14px;
     border: 1.5px solid var(--border);
-    border-radius: 10px;
+    border-radius: 8px;
     font-family: var(--ff-sans);
     font-size: .97rem;
     color: var(--text);
-    background: #fafafa;
-    transition: border-color .2s;
-    box-sizing: border-box;
-  }
-  .cc-field input:focus,
-  .cc-field textarea:focus,
-  .cc-field select:focus {
+    background: #fafbff;
+    transition: border-color .2s, box-shadow .2s;
     outline: none;
+  }
+  .cc-input:focus, .cc-select:focus, .cc-textarea:focus {
     border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(0,74,173,0.10);
     background: #fff;
   }
-  .cc-field textarea { resize: vertical; min-height: 90px; }
-  .cc-field .hint {
-    font-size: .78rem;
-    color: var(--muted);
-    margin-top: 4px;
+  .cc-textarea { resize: vertical; min-height: 108px; line-height: 1.65; }
+  .cc-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    padding-right: 36px;
   }
+  .cc-hint { font-family: var(--ff-sans); font-size: .8rem; color: var(--muted); margin-top: 4px; }
+  .cc-char-row { display: flex; justify-content: flex-end; margin-top: 3px; }
+  .cc-char-count { font-family: var(--ff-sans); font-size: .78rem; color: var(--muted); }
 
-  /* Radio cards (for type/size) */
-  .cc-radio-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
-  }
-  .cc-radio-card input[type=radio] { display: none; }
-  .cc-radio-card label {
-    display: block;
-    padding: 10px 12px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    cursor: pointer;
-    font-family: var(--ff-sans);
-    font-size: .88rem;
-    color: var(--text);
-    text-align: center;
-    transition: all .2s;
-    background: #fafafa;
-    text-transform: none;
-    letter-spacing: 0;
-    font-weight: 500;
-  }
-  .cc-radio-card input[type=radio]:checked + label {
-    border-color: var(--blue);
-    background: #e8f0fe;
-    color: var(--blue);
-    font-weight: 700;
-  }
+  .cc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .cc-grid-2 { grid-template-columns: 1fr; } .cc-card { padding: 20px 18px; } }
 
-  /* Upload zones */
-  .cc-upload-zone {
-    border: 2px dashed #c7d2fe;
-    border-radius: 12px;
-    padding: 24px;
-    text-align: center;
-    cursor: pointer;
-    background: #f5f7ff;
-    transition: border-color .2s;
-    position: relative;
-  }
-  .cc-upload-zone:hover { border-color: var(--blue); }
-  .cc-upload-zone input[type=file] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-  }
-  .cc-upload-zone .cc-upload-icon {
-    font-size: 2rem;
-    color: var(--blue);
-    margin-bottom: 8px;
-  }
-  .cc-upload-zone p {
-    font-family: var(--ff-sans);
-    color: var(--muted);
-    font-size: .88rem;
-    margin: 0;
-  }
-  .cc-upload-zone strong {
-    color: var(--blue);
-  }
-  .cc-upload-preview {
-    margin-top: 10px;
-    max-width: 100%;
-    max-height: 120px;
-    border-radius: 8px;
-    display: none;
-    object-fit: contain;
-  }
-
-  /* Footer / CTA */
-  .cc-footer {
+  /* Actions */
+  .cc-actions {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 20px 32px 28px;
-    border-top: 1px solid var(--border);
     gap: 12px;
+    justify-content: flex-end;
   }
-  .cc-btn {
+  .cc-btn-cancel {
+    font-family: var(--ff-sans);
+    font-size: .97rem;
+    font-weight: 600;
+    color: var(--muted);
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    padding: 10px 26px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color .2s, color .2s;
+  }
+  .cc-btn-cancel:hover { border-color: #9ca3af; color: var(--text); }
+  .cc-btn-submit {
     font-family: var(--ff-sans);
     font-size: .97rem;
     font-weight: 700;
-    padding: 11px 28px;
-    border-radius: 50px;
+    color: #fff;
+    background: var(--blue);
     border: none;
+    border-radius: 50px;
+    padding: 11px 32px;
     cursor: pointer;
-    transition: all .2s;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    text-decoration: none;
+    transition: background .2s, transform .15s;
+    box-shadow: 0 2px 12px rgba(0,74,173,0.25);
   }
-  .cc-btn-primary {
-    background: var(--blue);
-    color: #fff;
-  }
-  .cc-btn-primary:hover { background: var(--blue-dark); color: #fff; }
-  .cc-btn-outline {
-    background: transparent;
-    color: var(--blue);
-    border: 1.5px solid var(--blue);
-  }
-  .cc-btn-outline:hover { background: #e8f0fe; }
-  .cc-btn-ghost {
-    background: transparent;
-    color: var(--muted);
-    border: 1.5px solid var(--border);
-  }
-  .cc-btn-ghost:hover { background: #f3f4f6; color: var(--text); }
+  .cc-btn-submit:hover { background: var(--blue-dark); transform: translateY(-1px); }
 
-  /* Two-col layout */
-  .cc-two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  @media (max-width: 500px) {
-    .cc-two-col { grid-template-columns: 1fr; }
-    .cc-header, .cc-body, .cc-footer { padding-left: 20px; padding-right: 20px; }
-  }
+  /* Django messages */
+  .cc-alerts { margin-bottom: 20px; }
+  .cc-alert { padding: 12px 16px; border-radius: 8px; font-family: var(--ff-sans); font-size: .92rem; margin-bottom: 8px; }
+  .cc-alert-error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  .cc-alert-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  .cc-alert-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
 </style>
 
-<div class="cc-wrapper">
-  <div class="cc-card">
+<div style="background: var(--page-bg); min-height: 100vh; padding-top: 4px;">
+<div class="cc-page">
 
-    <!-- Progress Steps -->
-    <div class="cc-progress">
-      <div class="cc-progress-steps">
-        {% for s in steps %}
-          {% if forloop.counter0 < step_index %}
-            <div class="cc-step-dot done">
-              <div class="cc-dot-circle"><i class="fi fi-rr-check"></i></div>
-              <span class="cc-dot-label">{{ s|title }}</span>
-            </div>
-          {% elif forloop.counter0 == step_index %}
-            <div class="cc-step-dot active">
-              <div class="cc-dot-circle">{{ forloop.counter }}</div>
-              <span class="cc-dot-label">{{ s|title }}</span>
-            </div>
-          {% else %}
-            <div class="cc-step-dot">
-              <div class="cc-dot-circle">{{ forloop.counter }}</div>
-              <span class="cc-dot-label">{{ s|title }}</span>
-            </div>
-          {% endif %}
-        {% endfor %}
+  <div class="cc-header">
+    <h1 class="cc-header-title">Create a Business Page</h1>
+    <p class="cc-header-sub">Set up your company's presence on Oduma Corp to connect with investors and innovators across Africa.</p>
+  </div>
+
+  {% if messages %}
+  <div class="cc-alerts">
+    {% for message in messages %}
+    <div class="cc-alert cc-alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Branding -->
+    <div class="cc-card">
+      <h2 class="cc-card-title">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+        Branding
+      </h2>
+
+      <div class="cc-field" data-picker-wrap>
+        <label class="cc-label">Cover Image</label>
+        <div class="cc-cover-upload" onclick="document.getElementById('cc-cover-input').click()">
+          <input type="file" name="cover_image" accept="image/*" id="cc-cover-input">
+          <img id="cc-cover-preview" alt="">
+          <div class="cc-cover-placeholder" id="cc-cover-placeholder">
+            <svg width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            Click to upload cover image
+            <span style="display:block;font-size:.78rem;margin-top:2px;opacity:.8;">Recommended 1200 × 300 px · JPG or PNG</span>
+          </div>
+        </div>
+        <button type="button" class="oc-pick-btn"
+                onclick="event.stopPropagation();ocPicker.open({inputId:'cc-cover-input',previewId:'cc-cover-preview',type:'cover',containerId:'cc-cover-picker'})">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          Choose gradient cover
+        </button>
+        <div id="cc-cover-picker" class="oc-picker-panel" style="display:none;"></div>
+      </div>
+
+      <div class="cc-logo-row" data-picker-wrap>
+        <div class="cc-logo-upload" onclick="document.getElementById('cc-logo-input').click()">
+          <input type="file" name="logo" accept="image/*" id="cc-logo-input">
+          <img id="cc-logo-preview" alt="">
+          <svg id="cc-logo-icon" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="cc-logo-hint">
+          <strong>Company Logo</strong>
+          Square image, at least 200 × 200 px.<br>PNG or JPG works best.
+          <button type="button" class="oc-pick-btn" style="margin-top:10px;"
+                  onclick="event.stopPropagation();ocPicker.open({inputId:'cc-logo-input',previewId:'cc-logo-preview',type:'logo',letterSrc:'id_name',containerId:'cc-logo-picker'})">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            Choose logo avatar
+          </button>
+          <div id="cc-logo-picker" class="oc-picker-panel" style="display:none;"></div>
+        </div>
       </div>
     </div>
 
-    {% if step == 'basics' %}
-    <!-- ── STEP 1: Basics ── -->
-    <div class="cc-header">
-      <span class="cc-step-tag">Step 1 of 4</span>
-      <h2>Company Basics</h2>
-      <p>Tell us the core details about your company.</p>
-    </div>
-    <form method="post" action="/create-company/">
-      {% csrf_token %}
-      <input type="hidden" name="step" value="basics">
-      <div class="cc-body">
+    <!-- Basic Info -->
+    <div class="cc-card">
+      <h2 class="cc-card-title">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        Basic Information
+      </h2>
+
+      <div class="cc-field">
+        <label class="cc-label" for="id_name">Company Name <span class="req">*</span></label>
+        <input type="text" name="name" id="id_name" class="cc-input" placeholder="e.g. Oduma Technologies Ltd." required maxlength="255" value="{{ request.POST.name }}">
+      </div>
+
+      <div class="cc-field">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
+          <label class="cc-label" style="margin:0;" for="id_tagline">Tagline</label>
+          <button type="button" onclick="toggleTaglineAI()"
+                  style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-size:.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Suggest taglines
+          </button>
+        </div>
+        <input type="text" name="tagline" id="id_tagline" class="cc-input" placeholder="A short line that captures what you do" maxlength="300" value="{{ request.POST.tagline }}">
+        <div class="cc-char-row"><span class="cc-char-count"><span id="cc-tagline-count">0</span> / 300</span></div>
+
+        <!-- AI tagline panel -->
+        <div id="tagline-ai-panel" style="display:none;margin-top:10px;background:#f8faff;border:1.5px solid #c7d9ff;border-radius:12px;padding:16px;">
+          <p style="font-size:.82rem;color:#374151;margin:0 0 10px;line-height:1.5;">
+            Briefly describe what your company does and we'll suggest five punchy taglines.
+          </p>
+          <textarea id="tagline-ai-mission" rows="2"
+                    style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:.85rem;resize:vertical;margin-bottom:10px;"
+                    placeholder="e.g. We make solar-powered clean water solutions affordable for rural African communities…"></textarea>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <button type="button" id="gen-tagline-btn" onclick="generateTaglines()"
+                    style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.83rem;font-weight:600;cursor:pointer;">
+              Generate Taglines
+            </button>
+            <span id="tagline-spinner" style="display:none;font-size:.82rem;color:#6b7280;">Thinking…</span>
+            <span id="tagline-error" style="display:none;font-size:.82rem;color:#dc2626;"></span>
+          </div>
+          <div id="tagline-suggestions" style="display:none;margin-top:12px;">
+            <p style="font-size:.8rem;font-weight:600;color:#374151;margin:0 0 8px;">Click to use:</p>
+            <div id="tagline-chips" style="display:flex;flex-direction:column;gap:7px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cc-field">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
+          <label class="cc-label" style="margin:0;" for="id_description">Description <span class="req">*</span></label>
+          <button type="button" onclick="toggleDescAI()"
+                  style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-size:.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Write with AI
+          </button>
+        </div>
+        <textarea name="description" id="id_description" class="cc-textarea" placeholder="Tell investors and innovators about your company — your mission, what you build, and where you're headed." required>{{ request.POST.description }}</textarea>
+
+        <!-- AI description panel -->
+        <div id="desc-ai-panel" style="display:none;margin-top:10px;background:#f8faff;border:1.5px solid #c7d9ff;border-radius:12px;padding:16px;">
+          <p style="font-size:.82rem;color:#374151;margin:0 0 10px;line-height:1.5;">
+            Tell us what your company does and we'll write a professional description for you.
+          </p>
+          <textarea id="desc-ai-mission" rows="3"
+                    style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:.85rem;resize:vertical;margin-bottom:10px;"
+                    placeholder="e.g. We build AI-powered logistics tools for small African retailers, cutting delivery costs by 40%…"></textarea>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <button type="button" id="gen-desc-btn" onclick="generateCompanyDesc()"
+                    style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.83rem;font-weight:600;cursor:pointer;">
+              Generate Description
+            </button>
+            <span id="desc-spinner" style="display:none;font-size:.82rem;color:#6b7280;">Writing…</span>
+            <span id="desc-error" style="display:none;font-size:.82rem;color:#dc2626;"></span>
+          </div>
+          <div id="desc-ai-result" style="display:none;margin-top:14px;">
+            <p style="font-size:.8rem;font-weight:600;color:#374151;margin:0 0 6px;">AI-generated description — edit freely before using:</p>
+            <textarea id="desc-ai-text" rows="6"
+                      style="width:100%;border:1.5px solid #c7d9ff;border-radius:8px;padding:10px 12px;font-size:.875rem;resize:vertical;background:#fff;"></textarea>
+            <button type="button" onclick="useCompanyDesc()"
+                    style="margin-top:10px;background:#16a34a;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.83rem;font-weight:600;cursor:pointer;">
+              Use this description
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cc-grid-2">
         <div class="cc-field">
-          <label>Company Name <span>*</span></label>
-          <input type="text" name="name" value="{{ draft.name|default:'' }}" placeholder="e.g. Oduma Technologies Ltd." required>
+          <label class="cc-label" for="cc-industry-input">Industry <span class="req">*</span></label>
+          <input type="hidden" name="industry" id="id_industry" value="{{ request.POST.industry }}">
+          <div class="oc-combo" id="cc-industry-combo" data-hidden="id_industry">
+            <input type="text" id="cc-industry-input" class="cc-input oc-combo__input"
+                   autocomplete="off" placeholder="Search or type a custom industry…"
+                   value="{{ request.POST.industry }}" />
+            <ul class="oc-combo__list" id="cc-industry-combo-list">
+              {% for val, label in industry_choices %}
+              <li class="oc-combo__item" data-value="{{ val }}">{{ label }}</li>
+              {% endfor %}
+            </ul>
+          </div>
         </div>
         <div class="cc-field">
-          <label>Tagline</label>
-          <input type="text" name="tagline" value="{{ draft.tagline|default:'' }}" placeholder="e.g. Connecting Africa's brightest minds">
-          <p class="hint">A short, punchy phrase that captures your company's mission.</p>
+          <label class="cc-label" for="id_company_type">Company Type <span class="req">*</span></label>
+          <select name="company_type" id="id_company_type" class="cc-select" required>
+            <option value="" disabled {% if not request.POST.company_type %}selected{% endif %}>Select type</option>
+            {% for val, label in type_choices %}
+            <option value="{{ val }}" {% if request.POST.company_type == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
         </div>
+      </div>
+
+      <div class="cc-grid-2">
         <div class="cc-field">
-          <label>Industry <span>*</span></label>
-          <select name="industry" required>
-            {% for val, label in industry_choices %}
-              <option value="{{ val }}" {% if draft.industry == val %}selected{% endif %}>{{ label }}</option>
+          <label class="cc-label" for="id_size">Team Size</label>
+          <select name="size" id="id_size" class="cc-select">
+            <option value="">Select size</option>
+            {% for val, label in size_choices %}
+            <option value="{{ val }}" {% if request.POST.size == val %}selected{% endif %}>{{ label }}</option>
             {% endfor %}
           </select>
         </div>
         <div class="cc-field">
-          <label>About the Company <span>*</span></label>
-          <textarea name="description" placeholder="Describe what your company does, its mission, and the value it provides…" required>{{ draft.description|default:'' }}</textarea>
-          <p class="hint">Min. 50 characters — help people understand who you are.</p>
+          <label class="cc-label" for="id_location">Location</label>
+          <input type="text" name="location" id="id_location" class="cc-input" placeholder="e.g. Lagos, Nigeria" value="{{ request.POST.location }}">
         </div>
       </div>
-      <div class="cc-footer">
-        <a href="{% url 'my_businesses' %}" class="cc-btn cc-btn-ghost">Cancel</a>
-        <button type="submit" class="cc-btn cc-btn-primary">Next <i class="fi fi-rr-arrow-right"></i></button>
-      </div>
-    </form>
-
-    {% elif step == 'details' %}
-    <!-- ── STEP 2: Details ── -->
-    <div class="cc-header">
-      <span class="cc-step-tag">Step 2 of 4</span>
-      <h2>Company Details</h2>
-      <p>Help us understand your company's structure and scale.</p>
     </div>
-    <form method="post" action="/create-company/">
-      {% csrf_token %}
-      <input type="hidden" name="step" value="details">
-      <div class="cc-body">
-        <div class="cc-field">
-          <label>Company Type <span>*</span></label>
-          <div class="cc-radio-grid">
-            {% for val, label in company_type_choices %}
-              <div class="cc-radio-card">
-                <input type="radio" name="company_type" id="ct_{{ val }}" value="{{ val }}"
-                  {% if draft.company_type == val or not draft.company_type and val == 'other' %}checked{% endif %}>
-                <label for="ct_{{ val }}">{{ label }}</label>
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-        <div class="cc-field" style="margin-top:20px;">
-          <label>Company Size</label>
-          <div class="cc-radio-grid">
-            {% for val, label in size_choices %}
-              <div class="cc-radio-card">
-                <input type="radio" name="size" id="sz_{{ forloop.counter }}" value="{{ val }}"
-                  {% if draft.size == val %}checked{% endif %}>
-                <label for="sz_{{ forloop.counter }}">{{ label }}</label>
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-        <div class="cc-field" style="margin-top:20px;">
-          <label>Year Founded</label>
-          <input type="number" name="founded_year" value="{{ draft.founded_year|default:'' }}"
-            placeholder="e.g. 2018" min="1800" max="2026">
-        </div>
-      </div>
-      <div class="cc-footer">
-        <a href="/create-company/?step=basics" class="cc-btn cc-btn-outline"><i class="fi fi-rr-arrow-left"></i> Back</a>
-        <button type="submit" class="cc-btn cc-btn-primary">Next <i class="fi fi-rr-arrow-right"></i></button>
-      </div>
-    </form>
 
-    {% elif step == 'contact' %}
-    <!-- ── STEP 3: Contact ── -->
-    <div class="cc-header">
-      <span class="cc-step-tag">Step 3 of 4</span>
-      <h2>Contact &amp; Location</h2>
-      <p>How can people find and reach your company?</p>
+    <!-- Contact -->
+    <div class="cc-card">
+      <h2 class="cc-card-title">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Contact Details
+      </h2>
+
+      <div class="cc-grid-2">
+        <div class="cc-field">
+          <label class="cc-label" for="id_website">Website</label>
+          <input type="url" name="website" id="id_website" class="cc-input" placeholder="https://yourcompany.com" value="{{ request.POST.website }}">
+        </div>
+        <div class="cc-field">
+          <label class="cc-label" for="id_email">Business Email</label>
+          <input type="email" name="email" id="id_email" class="cc-input" placeholder="contact@yourcompany.com" value="{{ request.POST.email }}">
+        </div>
+      </div>
+
+      <div class="cc-field" style="max-width:320px;">
+        <label class="cc-label" for="id_phone">Phone Number</label>
+        <input type="tel" name="phone" id="id_phone" class="cc-input" placeholder="+234 800 000 0000" value="{{ request.POST.phone }}">
+      </div>
     </div>
-    <form method="post" action="/create-company/">
-      {% csrf_token %}
-      <input type="hidden" name="step" value="contact">
-      <div class="cc-body">
-        <div class="cc-field">
-          <label>Location</label>
-          <input type="text" name="location" value="{{ draft.location|default:'' }}" placeholder="e.g. Lagos, Nigeria">
-        </div>
-        <div class="cc-two-col">
-          <div class="cc-field">
-            <label>Company Email</label>
-            <input type="email" name="email" value="{{ draft.email|default:'' }}" placeholder="contact@yourcompany.com">
-          </div>
-          <div class="cc-field">
-            <label>Phone Number</label>
-            <input type="text" name="phone" value="{{ draft.phone|default:'' }}" placeholder="+234 800 0000 000">
-          </div>
-        </div>
-        <div class="cc-field">
-          <label>Website</label>
-          <input type="url" name="website" value="{{ draft.website|default:'' }}" placeholder="https://yourcompany.com">
-        </div>
-      </div>
-      <div class="cc-footer">
-        <a href="/create-company/?step=details" class="cc-btn cc-btn-outline"><i class="fi fi-rr-arrow-left"></i> Back</a>
-        <button type="submit" class="cc-btn cc-btn-primary">Next <i class="fi fi-rr-arrow-right"></i></button>
-      </div>
-    </form>
 
-    {% elif step == 'media' %}
-    <!-- ── STEP 4: Media ── -->
-    <div class="cc-header">
-      <span class="cc-step-tag">Step 4 of 4</span>
-      <h2>Brand &amp; Media</h2>
-      <p>Upload your company logo and a cover image to complete your page.</p>
+    <div class="cc-actions">
+      <a href="{% url 'companies_list' %}" class="cc-btn-cancel">Cancel</a>
+      <button type="submit" class="cc-btn-submit">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Create Business Page
+      </button>
     </div>
-    <form method="post" action="/create-company/" enctype="multipart/form-data">
-      {% csrf_token %}
-      <input type="hidden" name="step" value="media">
-      <div class="cc-body">
-        <div class="cc-field">
-          <label>Company Logo</label>
-          <div class="cc-upload-zone" id="logoZone">
-            <input type="file" name="logo" accept="image/*" id="logoInput">
-            <div class="cc-upload-icon"><i class="fi fi-rr-picture"></i></div>
-            <p><strong>Click to upload</strong> or drag &amp; drop</p>
-            <p>PNG, JPG, SVG — recommended 400×400 px</p>
-            <img src="" alt="Logo preview" class="cc-upload-preview" id="logoPreview">
-          </div>
-        </div>
-        <div class="cc-field">
-          <label>Cover Image</label>
-          <div class="cc-upload-zone" id="coverZone">
-            <input type="file" name="cover_image" accept="image/*" id="coverInput">
-            <div class="cc-upload-icon"><i class="fi fi-rr-landscape"></i></div>
-            <p><strong>Click to upload</strong> or drag &amp; drop</p>
-            <p>PNG, JPG — recommended 1200×400 px</p>
-            <img src="" alt="Cover preview" class="cc-upload-preview" id="coverPreview">
-          </div>
-        </div>
-        <p style="font-family:var(--ff-sans);font-size:.85rem;color:var(--muted);">
-          <i class="fi fi-rr-info"></i> Both images are optional — you can add them later from your company page.
-        </p>
-      </div>
-      <div class="cc-footer">
-        <a href="/create-company/?step=contact" class="cc-btn cc-btn-outline"><i class="fi fi-rr-arrow-left"></i> Back</a>
-        <button type="submit" class="cc-btn cc-btn-primary"><i class="fi fi-rr-check"></i> Create Company Page</button>
-      </div>
-    </form>
-    {% endif %}
 
-  </div>
+  </form>
+</div>
 </div>
 
 <script>
-function setupPreview(inputId, previewId) {
-  const inp = document.getElementById(inputId);
-  const prev = document.getElementById(previewId);
-  if (!inp || !prev) return;
-  inp.addEventListener('change', function() {
-    const file = this.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        prev.src = e.target.result;
-        prev.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
+/* ── Searchable combobox ── */
+(function() {
+  function initCombo(combo) {
+    var hiddenInput = document.getElementById(combo.dataset.hidden);
+    var textInput   = combo.querySelector('.oc-combo__input');
+    var list        = combo.querySelector('.oc-combo__list');
+    var items       = Array.from(combo.querySelectorAll('.oc-combo__item'));
+    var addRow      = null;
+
+    function openList() {
+      filterList();
+      list.style.display = 'block';
     }
+
+    function closeList() {
+      list.style.display = 'none';
+    }
+
+    function filterList() {
+      var q = textInput.value.trim().toLowerCase();
+      var anyVisible = false;
+      items.forEach(function(li) {
+        var show = !q || li.textContent.toLowerCase().indexOf(q) !== -1;
+        li.style.display = show ? '' : 'none';
+        if (show) anyVisible = true;
+      });
+
+      var typed = textInput.value.trim();
+      if (typed && !anyVisible) {
+        if (!addRow) {
+          addRow = document.createElement('li');
+          addRow.className = 'oc-combo__add';
+          list.appendChild(addRow);
+        }
+        addRow.textContent = 'Add "' + typed + '"';
+        addRow.style.display = '';
+        addRow.onclick = function() {
+          hiddenInput.value = typed;
+          textInput.value   = typed;
+          closeList();
+        };
+      } else {
+        if (addRow) addRow.style.display = 'none';
+      }
+
+      hiddenInput.value = typed;
+    }
+
+    textInput.addEventListener('focus', openList);
+    textInput.addEventListener('input', filterList);
+
+    items.forEach(function(li) {
+      li.addEventListener('click', function() {
+        hiddenInput.value = li.dataset.value;
+        textInput.value   = li.textContent.trim();
+        closeList();
+      });
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!combo.contains(e.target)) closeList();
+    });
+  }
+
+  document.querySelectorAll('.oc-combo[data-hidden]').forEach(initCombo);
+})();
+
+/* ── AI Assist helpers ── */
+var AI_ASSIST_URL = '{% url "ai_assist" %}';
+
+function getCSRF() {
+  return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+function toggleTaglineAI() {
+  var p = document.getElementById('tagline-ai-panel');
+  p.style.display = p.style.display !== 'none' ? 'none' : 'block';
+}
+
+function toggleDescAI() {
+  var p = document.getElementById('desc-ai-panel');
+  p.style.display = p.style.display !== 'none' ? 'none' : 'block';
+}
+
+function generateTaglines() {
+  var mission = document.getElementById('tagline-ai-mission').value.trim();
+  var name    = document.getElementById('id_name').value.trim();
+  var ind     = document.getElementById('id_industry').value.trim();
+  var btn     = document.getElementById('gen-tagline-btn');
+  var spinner = document.getElementById('tagline-spinner');
+  var errEl   = document.getElementById('tagline-error');
+
+  btn.disabled = true; btn.textContent = 'Thinking…';
+  spinner.style.display = 'inline'; errEl.style.display = 'none';
+
+  fetch(AI_ASSIST_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
+    body: JSON.stringify({ type: 'company_tagline', name: name, industry: ind, mission: mission }),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.disabled = false; btn.textContent = 'Generate Taglines'; spinner.style.display = 'none';
+    if (data.error) { errEl.textContent = data.error; errEl.style.display = 'inline'; return; }
+    var chips = document.getElementById('tagline-chips');
+    chips.innerHTML = '';
+    (data.suggestions || []).forEach(function(s) {
+      var chip = document.createElement('button');
+      chip.type = 'button'; chip.textContent = s;
+      chip.style.cssText = 'background:#fff;border:1.5px solid #c7d9ff;border-radius:8px;padding:9px 14px;font-size:.875rem;color:#004AAD;cursor:pointer;text-align:left;font-weight:500;';
+      chip.onclick = function() {
+        document.getElementById('id_tagline').value = s;
+        document.getElementById('cc-tagline-count').textContent = s.length;
+        document.getElementById('tagline-ai-panel').style.display = 'none';
+        document.getElementById('id_tagline').focus();
+      };
+      chips.appendChild(chip);
+    });
+    document.getElementById('tagline-suggestions').style.display = 'block';
+  })
+  .catch(function() {
+    btn.disabled = false; btn.textContent = 'Generate Taglines'; spinner.style.display = 'none';
+    errEl.textContent = 'Network error. Please try again.'; errEl.style.display = 'inline';
   });
 }
-setupPreview('logoInput', 'logoPreview');
-setupPreview('coverInput', 'coverPreview');
+
+function generateCompanyDesc() {
+  var mission = document.getElementById('desc-ai-mission').value.trim();
+  var name    = document.getElementById('id_name').value.trim();
+  var ind     = document.getElementById('id_industry').value.trim();
+  var tagline = document.getElementById('id_tagline').value.trim();
+  var loc     = document.getElementById('id_location').value.trim();
+  var size    = document.getElementById('id_size').value.trim();
+  var ctype   = document.getElementById('id_company_type').value.trim();
+  var btn     = document.getElementById('gen-desc-btn');
+  var spinner = document.getElementById('desc-spinner');
+  var errEl   = document.getElementById('desc-error');
+
+  btn.disabled = true; btn.textContent = 'Writing…';
+  spinner.style.display = 'inline'; errEl.style.display = 'none';
+
+  fetch(AI_ASSIST_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
+    body: JSON.stringify({ type: 'company_description', name: name, industry: ind, tagline: tagline,
+                           mission: mission, location: loc, size: size, company_type: ctype }),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.disabled = false; btn.textContent = 'Generate Description'; spinner.style.display = 'none';
+    if (data.error) { errEl.textContent = data.error; errEl.style.display = 'inline'; return; }
+    document.getElementById('desc-ai-text').value = data.result;
+    document.getElementById('desc-ai-result').style.display = 'block';
+  })
+  .catch(function() {
+    btn.disabled = false; btn.textContent = 'Generate Description'; spinner.style.display = 'none';
+    errEl.textContent = 'Network error. Please try again.'; errEl.style.display = 'inline';
+  });
+}
+
+function useCompanyDesc() {
+  var text = document.getElementById('desc-ai-text').value.trim();
+  document.getElementById('id_description').value = text;
+  document.getElementById('desc-ai-panel').style.display = 'none';
+  document.getElementById('id_description').focus();
+}
+
+(function () {
+  /* Cover preview */
+  document.getElementById('cc-cover-input').addEventListener('change', function () {
+    if (!this.files || !this.files[0]) return;
+    var r = new FileReader();
+    r.onload = function (e) {
+      document.getElementById('cc-cover-preview').src = e.target.result;
+      document.getElementById('cc-cover-preview').style.display = 'block';
+      document.getElementById('cc-cover-placeholder').style.display = 'none';
+    };
+    r.readAsDataURL(this.files[0]);
+  });
+
+  /* Logo preview */
+  document.getElementById('cc-logo-input').addEventListener('change', function () {
+    if (!this.files || !this.files[0]) return;
+    var r = new FileReader();
+    r.onload = function (e) {
+      document.getElementById('cc-logo-preview').src = e.target.result;
+      document.getElementById('cc-logo-preview').style.display = 'block';
+      document.getElementById('cc-logo-icon').style.display = 'none';
+    };
+    r.readAsDataURL(this.files[0]);
+  });
+
+  /* Tagline counter */
+  var tagline = document.getElementById('id_tagline');
+  var counter = document.getElementById('cc-tagline-count');
+  function updateCount() { counter.textContent = tagline.value.length; }
+  tagline.addEventListener('input', updateCount);
+  updateCount();
+})();
 </script>
 {% endblock %}
