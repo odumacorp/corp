@@ -99,7 +99,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 # SECURITY WARNING: keep the secret key used in production secret!
 # ALLOWED_HOSTS = config('ALLOWED_HOSTS', default="").split(",")
-ALLOWED_HOSTS = "127.0.0.1", "localhost", "0.0.0.0", "connect.onrender.com", "connect-j2bu.onrender.com", "connect-ihni.onrender.com"
+ALLOWED_HOSTS = "127.0.0.1", "localhost", "0.0.0.0", "connect.onrender.com","corp-jmny.onrender.com", "connect-j2bu.onrender.com", "connect-ihni.onrender.com"
 
 
 # ALLOWED_HOSTS = "127.0.0.1, localhost, 0.0.0.0, connect.onrender.com, connect-j2bu.onrender.com, connect-ihni.onrender.com"
