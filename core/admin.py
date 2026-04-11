@@ -36,7 +36,7 @@ class CustomUserAdmin(UserAdmin):
     search_fields = ('username', 'email', 'first_name', 'last_name')
     ordering      = ('-date_joined',)
     fieldsets     = UserAdmin.fieldsets + (
-        ('Oduma', {'fields': ('user_type', 'bio', 'phone_number', 'profile_pics')}),
+        ('Oduma Corp', {'fields': ('user_type', 'bio', 'phone_number', 'profile_pics')}),
     )
 
 

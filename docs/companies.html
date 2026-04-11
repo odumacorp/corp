@@ -150,6 +150,17 @@
     border-color: var(--blue);
   }
 
+  /* Industry category cards */
+  .iv-cat-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:#fff;border:1.5px solid rgba(0,0,0,0.08);border-radius:14px;padding:16px 14px;text-decoration:none;cursor:pointer;transition:border-color .18s,box-shadow .18s,background .18s;}
+  .iv-cat-card:hover{border-color:var(--blue);box-shadow:0 4px 16px rgba(0,74,173,.1);}
+  .iv-cat-card--active{background:var(--blue);border-color:var(--blue);box-shadow:0 4px 18px rgba(0,74,173,.28);}
+  .iv-cat-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#4b6cb7;}
+  .iv-cat-name{font-family:'Space Grotesk',sans-serif;font-size:.84rem;font-weight:800;color:#0A1628;line-height:1.2;}
+  .iv-cat-card--active .iv-cat-name{color:#fff;}
+  .iv-cat-card--active .iv-cat-icon{color:rgba(255,255,255,.85);}
+  .iv-cat-count{font-size:.72rem;color:#6b7280;font-weight:600;}
+  .iv-cat-card--active .iv-cat-count{color:rgba(255,255,255,.75);}
+
   /* Company grid */
   .cl-grid {
     display: grid;
@@ -329,8 +340,67 @@
     {% endif %}
   </form>
 
-  <!-- Industry filter chips -->
-  <div class="cl-chips">
+  <!-- Industry Categories -->
+  <div style="margin-bottom:28px;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+      <div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:800;color:#0A1628;margin:0 0 3px;">Browse by Industry</h2>
+        <p style="font-size:.8rem;color:#6b7280;margin:0;">{{ companies|length }} compan{{ companies|length|pluralize:"y,ies" }} found</p>
+      </div>
+      {% if selected_industry %}
+      <a href="{% url 'companies_list' %}{% if q %}?q={{ q }}{% endif %}" style="font-size:.78rem;font-weight:700;color:#ef4444;text-decoration:none;padding:5px 12px;border-radius:20px;background:#fff1f1;border:1px solid #fecaca;white-space:nowrap;">Clear filter</a>
+      {% endif %}
+    </div>
+    <div class="iv-cats-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;">
+      <a href="{% url 'companies_list' %}{% if q %}?q={{ q }}{% endif %}" class="iv-cat-card {% if not selected_industry %}iv-cat-card--active{% endif %}">
+        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+        <span class="iv-cat-name">All</span>
+        <span class="iv-cat-count">All companies</span>
+      </a>
+      <a href="?industry=tech{% if q %}&q={{ q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'tech' %}iv-cat-card--active{% endif %}">
+        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+        <span class="iv-cat-name">Technology</span>
+        <span class="iv-cat-count">{{ industry_counts.tech|default:0 }} companies</span>
+      </a>
+      <a href="?industry=finance{% if q %}&q={{ q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'finance' %}iv-cat-card--active{% endif %}">
+        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+        <span class="iv-cat-name">Finance</span>
+        <span class="iv-cat-count">{{ industry_counts.finance|default:0 }} companies</span>
+      </a>
+      <a href="?industry=health{% if q %}&q={{ q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'health' %}iv-cat-card--active{% endif %}">
+        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+        <span class="iv-cat-name">Healthcare</span>
+        <span class="iv-cat-count">{{ industry_counts.health|default:0 }} companies</span>
+      </a>
+      <a href="?industry=edu{% if q %}&q={{ q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'edu' %}iv-cat-card--active{% endif %}">
+        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+        <span class="iv-cat-name">Education</span>
+        <span class="iv-cat-count">{{ industry_counts.edu|default:0 }} companies</span>
+      </a>
+      <a href="?industry=energy{% if q %}&q={{ q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'energy' %}iv-cat-card--active{% endif %}">
+        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+        <span class="iv-cat-name">Energy</span>
+        <span class="iv-cat-count">{{ industry_counts.energy|default:0 }} companies</span>
+      </a>
+      <a href="?industry=agriculture{% if q %}&q={{ q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'agriculture' %}iv-cat-card--active{% endif %}">
+        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 22"/><path d="M9.73 16.5c1.18 1.07 2.55 1.4 3.99 1.5 2.08.14 4.28-.25 5.78-1.75 2.53-2.53 1.5-8-.5-12-1.5 3-2 5-5 6.5z"/></svg></span>
+        <span class="iv-cat-name">Agriculture</span>
+        <span class="iv-cat-count">{{ industry_counts.agriculture|default:0 }} companies</span>
+      </a>
+      <a href="?industry=manufacturing{% if q %}&q={{ q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'manufacturing' %}iv-cat-card--active{% endif %}">
+        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><circle cx="12" cy="12" r="7"/></svg></span>
+        <span class="iv-cat-name">Manufacturing</span>
+        <span class="iv-cat-count">{{ industry_counts.manufacturing|default:0 }} companies</span>
+      </a>
+      <a href="?industry=other{% if q %}&q={{ q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'other' %}iv-cat-card--active{% endif %}">
+        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+        <span class="iv-cat-name">Other</span>
+        <span class="iv-cat-count">{{ industry_counts.other|default:0 }} companies</span>
+      </a>
+    </div>
+  </div>
+  <!-- legacy chips (hidden — kept for compatibility) -->
+  <div class="cl-chips" style="display:none;">
     <a href="{% url 'companies_list' %}{% if q %}?q={{ q }}{% endif %}" class="cl-chip {% if not industry %}active{% endif %}">All</a>
     {% for val, label in industry_choices %}
     <a href="?industry={{ val }}{% if q %}&q={{ q }}{% endif %}" class="cl-chip {% if industry == val %}active{% endif %}">{{ label }}</a>

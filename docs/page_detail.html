@@ -1,5 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
+{% load dict_extras %}
 
 {% block title %}{{ pg.title }} | OdumaCorp
 {% endblock %}
@@ -8,7 +9,7 @@
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
     <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><a href="{% url 'pages' %}" class="oc-breadcrumbs__link">Pages</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% url 'pages_list' %}" class="oc-breadcrumbs__link">Pages</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">{{ pg.title }}</span></li>
   </ol>
 </nav>
@@ -498,7 +499,7 @@
             <div class="pd-post-time">{{ post.created_at|timesince }} ago</div>
           </div>
         </div>
-        <div class="pd-post-body">{{ post.content }}</div>
+        <div class="pd-post-body">{{ post.content|linkify_hashtags }}</div>
         {% with imgs=post.post_images.all %}{% with total=imgs|length %}
         {% if total %}
         <div class="ig-grid g{% if total == 1 %}1{% elif total == 2 %}2{% elif total == 3 %}3{% elif total == 4 %}4{% else %}5{% endif %}">

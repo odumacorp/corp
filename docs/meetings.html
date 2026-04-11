@@ -99,30 +99,87 @@
   /* ── Schedule modal ── */
   #mt-schedule-overlay {
     display: none; position: fixed; inset: 0; z-index: 1200;
-    background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+    background: rgba(10,22,40,0.55); backdrop-filter: blur(6px);
     align-items: center; justify-content: center;
+    padding: 16px;
   }
   #mt-schedule-overlay.open { display: flex; }
   .mt-modal {
-    background: #fff; border-radius: 16px; padding: 28px 28px 24px;
-    width: 100%; max-width: 460px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    position: relative;
+    background: #fff; border-radius: 20px;
+    width: 100%; max-width: 480px;
+    box-shadow: 0 32px 80px rgba(10,22,40,0.28);
+    position: relative; overflow: hidden;
+    animation: mtModalIn .22s cubic-bezier(.34,1.56,.64,1);
   }
-  .mt-modal-title { font-family: var(--ff-serif); font-size: 1.1rem; color: var(--text); margin: 0 0 18px; }
-  .mt-modal label { font-family: var(--ff-sans); font-size: 0.82rem; color: var(--muted); display: block; margin-bottom: 4px; margin-top: 12px; }
-  .mt-modal input, .mt-modal select {
-    width: 100%; padding: 9px 12px; border: 1.5px solid rgba(0,0,0,0.12);
-    border-radius: 8px; font-family: var(--ff-sans); font-size: 0.88rem;
-    color: var(--text); background: #fafafa; outline: none; box-sizing: border-box;
-    transition: border-color 0.2s;
+  @keyframes mtModalIn { from { opacity:0; transform:translateY(18px) scale(.97); } to { opacity:1; transform:none; } }
+
+  .mt-modal-head {
+    background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 100%);
+    padding: 24px 24px 20px;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
   }
-  .mt-modal input:focus, .mt-modal select:focus { border-color: var(--blue); background: #fff; }
-  .mt-modal-footer { display: flex; gap: 10px; margin-top: 22px; }
+  .mt-modal-head-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(255,255,255,.15); display: flex; align-items: center;
+    justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+  }
+  .mt-modal-head-text { flex: 1; }
+  .mt-modal-title {
+    font-family: 'Space Grotesk', var(--ff-serif), sans-serif;
+    font-size: 1.05rem; font-weight: 800; color: #fff; margin: 0 0 3px;
+  }
+  .mt-modal-subtitle { font-size: .78rem; color: rgba(255,255,255,.65); margin: 0; }
   .mt-modal-close {
-    position: absolute; top: 14px; right: 16px;
-    background: none; border: none; cursor: pointer; font-size: 1.1rem; color: #aaa;
+    background: rgba(255,255,255,.12); border: none; cursor: pointer;
+    width: 30px; height: 30px; border-radius: 8px; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .9rem; flex-shrink: 0; transition: background .15s;
   }
-  .mt-modal-close:hover { color: #555; }
+  .mt-modal-close:hover { background: rgba(255,255,255,.22); }
+
+  .mt-modal-body { padding: 22px 24px 24px; }
+  .mt-modal-body label {
+    font-family: var(--ff-sans); font-size: .78rem; font-weight: 700;
+    color: #6b7280; display: block; margin-bottom: 5px; margin-top: 16px;
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .mt-modal-body label:first-child { margin-top: 0; }
+  .mt-modal-body input, .mt-modal-body select {
+    width: 100%; padding: 11px 14px; border: 1.5px solid #e4eaf2;
+    border-radius: 10px; font-family: var(--ff-sans); font-size: .9rem;
+    color: #0A1628; background: #f8faff; outline: none; box-sizing: border-box;
+    transition: border-color .18s, background .18s, box-shadow .18s;
+  }
+  .mt-modal-body input:focus, .mt-modal-body select:focus {
+    border-color: #1B5EC7; background: #fff;
+    box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+  }
+  .mt-modal-body input::placeholder { color: #9ca3af; }
+
+  .mt-modal-footer { display: flex; gap: 10px; margin-top: 22px; }
+  .mt-modal-submit {
+    flex: 1; padding: 12px; border-radius: 11px; border: none;
+    background: linear-gradient(135deg, #1B5EC7, #1451aa);
+    color: #fff; font-family: 'Space Grotesk', var(--ff-sans), sans-serif;
+    font-size: .9rem; font-weight: 800; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: opacity .15s, transform .12s;
+    box-shadow: 0 4px 14px rgba(27,94,199,.3);
+  }
+  .mt-modal-submit:hover { opacity: .92; transform: translateY(-1px); }
+  .mt-modal-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+  .mt-modal-cancel {
+    padding: 12px 20px; border-radius: 11px;
+    background: #f3f4f6; border: 1.5px solid #e5e7eb;
+    font-family: var(--ff-sans); font-size: .88rem; color: #374151;
+    cursor: pointer; transition: background .15s;
+  }
+  .mt-modal-cancel:hover { background: #e9ebef; }
+  .mt-form-error {
+    font-family: var(--ff-sans); font-size: .8rem; color: #dc2626;
+    margin-top: 10px; display: none; padding: 8px 12px;
+    background: #fff1f1; border-radius: 8px; border: 1px solid #fecaca;
+  }
 
   /* ── Empty state ── */
   .mt-empty {
@@ -267,35 +324,46 @@
 <!-- ── Schedule modal ── -->
 <div id="mt-schedule-overlay" onclick="if(event.target===this)closeScheduleModal()">
   <div class="mt-modal">
-    <button class="mt-modal-close" onclick="closeScheduleModal()"><i class="fi fi-rr-cross"></i></button>
-    <p class="mt-modal-title"><i class="fi fi-rr-video-camera" style="color:var(--blue);"></i> New Meeting</p>
 
-    <form id="mt-schedule-form">
-      {% csrf_token %}
-      <label>Meeting title <span style="color:#dc2626;">*</span></label>
-      <input type="text" name="title" id="mt-title-input" placeholder="e.g. Investment Discussion" required>
-
-      <label>Invite a connection</label>
-      <select name="other_user_id" id="mt-other-select">
-        <option value="">— Start instantly without inviting —</option>
-        {% for conn in connections %}
-        <option value="{{ conn.id }}">{{ conn.get_full_name|default:conn.username }}</option>
-        {% endfor %}
-      </select>
-
-      <label>Schedule for (optional)</label>
-      <input type="datetime-local" name="scheduled_at" id="mt-scheduled-input">
-
-      <div class="mt-modal-footer">
-        <button type="submit" class="mt-new-btn" style="flex:1;justify-content:center;">
-          <i class="fi fi-rr-video-camera fi-sm"></i> Start Meeting
-        </button>
-        <button type="button" onclick="closeScheduleModal()" style="padding:9px 18px;border-radius:9px;background:#f3f4f6;border:1px solid rgba(0,0,0,0.1);font-family:var(--ff-sans);font-size:0.85rem;cursor:pointer;color:#374151;">
-          Cancel
-        </button>
+    <!-- Gradient header -->
+    <div class="mt-modal-head">
+      <div class="mt-modal-head-icon">📹</div>
+      <div class="mt-modal-head-text">
+        <p class="mt-modal-title">New Meeting</p>
+        <p class="mt-modal-subtitle">Schedule or start an instant video call</p>
       </div>
-      <div id="mt-form-error" style="font-family:var(--ff-sans);font-size:0.8rem;color:#dc2626;margin-top:8px;display:none;"></div>
-    </form>
+      <button class="mt-modal-close" onclick="closeScheduleModal()">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div class="mt-modal-body">
+      <form id="mt-schedule-form">
+        {% csrf_token %}
+
+        <label>Meeting title <span style="color:#dc2626;">*</span></label>
+        <input type="text" name="title" id="mt-title-input" placeholder="e.g. Investment Discussion" required autocomplete="off">
+
+        <label>Invite a connection</label>
+        <select name="other_user_id" id="mt-other-select">
+          <option value="">— Start instantly without inviting —</option>
+          {% for conn in connections %}
+          <option value="{{ conn.id }}">{{ conn.get_full_name|default:conn.username }}</option>
+          {% endfor %}
+        </select>
+
+        <label>Schedule for (optional)</label>
+        <input type="datetime-local" name="scheduled_at" id="mt-scheduled-input">
+
+        <div class="mt-modal-footer">
+          <button type="submit" class="mt-modal-submit" id="mt-submit-btn">
+            📹 Start Meeting
+          </button>
+          <button type="button" class="mt-modal-cancel" onclick="closeScheduleModal()">Cancel</button>
+        </div>
+        <div class="mt-form-error" id="mt-form-error"></div>
+      </form>
+    </div>
+
   </div>
 </div>
 
@@ -308,6 +376,13 @@ function openScheduleModal() {
   document.getElementById('mt-schedule-overlay').classList.add('open');
   setTimeout(function() { document.getElementById('mt-title-input').focus(); }, 80);
 }
+
+// Auto-open modal if redirected from /meetings/create/
+if (new URLSearchParams(window.location.search).get('new') === '1') {
+  openScheduleModal();
+  // Clean URL without reloading
+  history.replaceState(null, '', window.location.pathname);
+}
 function closeScheduleModal() {
   document.getElementById('mt-schedule-overlay').classList.remove('open');
 }
@@ -316,25 +391,39 @@ document.getElementById('mt-schedule-form').addEventListener('submit', function(
   e.preventDefault();
   var title = document.getElementById('mt-title-input').value.trim();
   var errEl = document.getElementById('mt-form-error');
-  if (!title) { errEl.textContent = 'Please enter a meeting title.'; errEl.style.display = ''; return; }
+  var btn   = document.getElementById('mt-submit-btn');
   errEl.style.display = 'none';
+  if (!title) {
+    errEl.textContent = 'Please enter a meeting title.';
+    errEl.style.display = '';
+    document.getElementById('mt-title-input').focus();
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Creating…';
 
   var fd = new FormData(this);
   fetch(CREATE_URL, {
     method: 'POST',
-    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': CSRF },
     body: fd,
   })
-  .then(function(r) { return r.json(); })
+  .then(function(r) {
+    if (!r.ok) return r.text().then(function(t) { throw new Error('Server error ' + r.status); });
+    return r.json();
+  })
   .then(function(d) {
     if (d.ok) {
+      btn.textContent = '✓ Done — redirecting…';
       window.location.href = d.url;
     } else {
-      errEl.textContent = d.error || 'Failed to create meeting.';
-      errEl.style.display = '';
+      throw new Error(d.error || 'Failed to create meeting.');
     }
-  }).catch(function() {
-    errEl.textContent = 'Network error. Please try again.';
+  }).catch(function(err) {
+    btn.disabled = false;
+    btn.textContent = '📹 Start Meeting';
+    errEl.textContent = err.message || 'Something went wrong. Please try again.';
     errEl.style.display = '';
   });
 });

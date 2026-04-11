@@ -120,12 +120,14 @@ urlpatterns = [
 
     path('start_conversation/<int:user_id>/', views.start_conversation, name='start_conversation'),
     path('chat/<int:conversation_id>/', views.chat_page, name='chat_page'),
+    path('chat/<int:conversation_id>/resolve/', views.resolve_conversation, name='resolve_conversation'),
     path('project-chat/<int:project_id>/', views.start_project_conversation, name='start_project_conversation'),
     path('quick-message/', views.quick_message, name='quick_message'),
 
 
 
     path('inbox/', views.inbox, name='inbox'),
+    path('inbox/user-search/', views.user_search_api, name='user_search_api'),
     path('sent/', views.sent_items, name='sent_items'),
     path('send_message/<int:recipient_id>/', views.send_message, name='send_message'),
 
@@ -140,6 +142,10 @@ urlpatterns = [
 
 
     path('api/projects/', views.get_projects_data, name='get_projects_data'),
+    path('api/hashtags/popular/', views.popular_hashtags, name='popular_hashtags'),
+    path('api/counts/', views.get_counts, name='get_counts'),
+
+    path('hashtags/<slug:tag>/', views.hashtag_feed, name='hashtag_feed'),
 
     path('faq/', TemplateView.as_view(template_name='faq.html'), name='faq'),
     path('privacy/', TemplateView.as_view(template_name='privacy_policy.html'), name='privacy_policy'),
@@ -158,6 +164,7 @@ urlpatterns = [
     path('meetings/create/', views.create_meeting, name='create_meeting'),
     path('meetings/<int:meeting_id>/join/', views.join_meeting, name='join_meeting'),
     path('meetings/<int:meeting_id>/end/', views.end_meeting, name='end_meeting'),
+    path('meetings/<int:meeting_id>/share/', views.share_meeting, name='share_meeting'),
     path('meetings/<int:meeting_id>/recordings/', views.meeting_recordings, name='meeting_recordings'),
 
     # Investor dashboard + investor actions
@@ -186,6 +193,7 @@ urlpatterns = [
 
     # Admin panel
     path('admin-panel/', views.admin_panel, name='admin_panel'),
+    path('admin-panel/stats/range/', views.admin_stats_range, name='admin_stats_range'),
     path('admin-panel/toggle-view/', views.toggle_admin_view, name='toggle_admin_view'),
     path('admin-panel/event/add/', views.admin_add_event, name='admin_add_event'),
     path('admin-panel/job/add/', views.admin_add_job, name='admin_add_job'),
@@ -283,6 +291,9 @@ urlpatterns = [
     path('pages/', views.pages_list, name='pages_list'),
     path('pages/create/', views.page_create, name='page_create'),
     path('pages/<int:page_id>/', views.page_detail, name='page_detail'),
+    path('pages/<int:page_id>/follow/', views.page_follow_toggle, name='page_follow_toggle'),
+    path('pages/<int:page_id>/posts/<int:post_id>/react/', views.page_post_react, name='page_post_react'),
+    path('pages/<int:page_id>/posts/<int:post_id>/share/', views.page_post_share, name='page_post_share'),
     path('pages/<int:page_id>/media/<int:post_id>/', views.page_post_media, name='page_post_media'),
 
     # Posts
@@ -303,6 +314,7 @@ urlpatterns = [
 
     # Attachment download tracking
     path('attachments/<int:attachment_id>/download/', views.download_attachment, name='download_attachment'),
+    path('chat/attachments/<int:attachment_id>/download/', views.download_message_attachment, name='download_message_attachment'),
 
     # Jobs
     path('jobs/post/',              views.user_post_job, name='user_post_job'),

@@ -17,78 +17,95 @@
 /* ── Projects List Page ──────────────────────────────────────── */
 :root {
   --ink: #0A1628;
-  --blue: #1B5EC7;
+  --blue: #004AAD;
+  --blue-dark: #003490;
   --blue-lt: #e0e8f4;
-  --border: #e4eaf2;
-  --bg: #f4f6fb;
+  --border: rgba(0,0,0,0.08);
+  --bg: #f0f4ff;
   --radius: 14px;
+  --ff-serif: "Jacques Francois", serif;
+  --ff-sans: "Jaldi", sans-serif;
 }
 
-.pl-wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 80px; }
+.pl-wrap { max-width: 1060px; margin: 0 auto; padding: 32px 16px 80px; }
 
-/* ── Hero bar ─────────────────────────────────────────────────── */
-.pl-hero {
-  background: linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
-  border-radius: 0 0 20px 20px;
-  padding: 36px 32px 32px;
-  margin-bottom: 28px;
-  position: relative;
-  overflow: hidden;
-}
-.pl-hero::after {
-  content: '';
-  position: absolute;
-  right: -60px; top: -60px;
-  width: 260px; height: 260px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.06);
-  pointer-events: none;
-}
-.pl-hero-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(1.4rem, 3vw, 2rem);
-  font-weight: 800;
-  color: #fff;
+.pl-page-title {
+  font-family: var(--ff-serif);
+  font-size: 2rem;
+  color: var(--ink);
   margin: 0 0 6px;
 }
-.pl-hero-sub { font-size: .9rem; color: #6b7280; margin: 0 0 22px; }
+.pl-page-sub {
+  font-family: var(--ff-sans);
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0 0 28px;
+}
+
+/* CTA Banner */
+.pl-cta {
+  background: linear-gradient(135deg, #004AAD 0%, #0077ff 100%);
+  border-radius: 16px;
+  padding: 22px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+.pl-cta-text { color: #fff; font-family: var(--ff-sans); }
+.pl-cta-text strong { font-family: var(--ff-serif); font-size: 1.2rem; display: block; margin-bottom: 4px; }
+.pl-cta-text span { font-size: .92rem; opacity: .88; }
+.pl-cta-btn {
+  background: #fff;
+  color: var(--blue);
+  font-family: var(--ff-sans);
+  font-size: .92rem; font-weight: 700;
+  padding: 10px 22px; border-radius: 50px;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 7px;
+  white-space: nowrap; transition: background .2s;
+}
+.pl-cta-btn:hover { background: #eaf0ff; }
 
 /* Search bar */
-.pl-search-row {
-  display: flex; gap: 10px; flex-wrap: wrap;
-}
-.pl-search-wrap {
-  flex: 1; min-width: 220px;
-  position: relative;
-}
-.pl-search-wrap svg {
-  position: absolute; left: 14px; top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280; pointer-events: none;
+.pl-search-bar {
+  display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
 }
 .pl-search-input {
-  width: 100%; box-sizing: border-box;
-  padding: 11px 14px 11px 42px;
-  background: rgba(255,255,255,.15);
-  border: 1.5px solid rgba(255,255,255,.25);
-  border-radius: 11px;
-  font-size: .9rem; font-family: inherit;
-  color: #fff;
+  flex: 1; min-width: 220px;
+  border: 1.5px solid var(--border);
+  border-radius: 50px;
+  padding: 10px 18px;
+  font-family: var(--ff-sans); font-size: .97rem;
+  color: var(--ink); background: #fff;
+  transition: border-color .2s; box-sizing: border-box;
   outline: none;
-  transition: border-color .18s, background .18s;
 }
+.pl-search-input:focus { border-color: var(--blue); }
 .pl-search-input::placeholder { color: #9ca3af; }
-.pl-search-input:focus { border-color: #1B5EC7; background: #fff; }
 .pl-search-btn {
-  padding: 11px 24px;
-  background: #fff; color: var(--blue);
-  border: none; border-radius: 11px;
-  font-size: .9rem; font-weight: 700;
-  font-family: inherit; cursor: pointer;
-  white-space: nowrap;
-  transition: background .15s;
+  background: var(--blue); color: #fff;
+  border: none; border-radius: 50px;
+  padding: 10px 22px;
+  font-family: var(--ff-sans); font-size: .93rem; font-weight: 700;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px;
+  transition: background .2s; white-space: nowrap;
 }
-.pl-search-btn:hover { background: #f0f5ff; }
+.pl-search-btn:hover { background: var(--blue-dark); }
+
+/* Industry category cards */
+.pl-cat-card { display:flex; flex-direction:column; align-items:flex-start; gap:6px; background:#fff; border:1.5px solid rgba(0,0,0,0.08); border-radius:14px; padding:16px 14px; text-decoration:none; cursor:pointer; transition:border-color .18s,box-shadow .18s,background .18s; }
+.pl-cat-card:hover { border-color:var(--blue); box-shadow:0 4px 16px rgba(0,74,173,.1); }
+.pl-cat-card--active { background:var(--blue); border-color:var(--blue); box-shadow:0 4px 18px rgba(0,74,173,.28); }
+.pl-cat-icon { width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:#4b6cb7; }
+.pl-cat-card--active .pl-cat-icon { color:rgba(255,255,255,.85); }
+.pl-cat-name { font-family:'Space Grotesk',sans-serif; font-size:.84rem; font-weight:800; color:#0A1628; line-height:1.2; }
+.pl-cat-card--active .pl-cat-name { color:#fff; }
+.pl-cat-count { font-size:.72rem; color:#6b7280; font-weight:600; }
+.pl-cat-card--active .pl-cat-count { color:rgba(255,255,255,.75); }
 
 /* ── Filter bar ───────────────────────────────────────────────── */
 .pl-filter-bar {
@@ -138,7 +155,7 @@
   transition: background .15s;
   display: inline-flex; align-items: center; gap: 6px;
 }
-.pl-add-btn:hover { background: #1448a3; color: #fff; }
+.pl-add-btn:hover { background: var(--blue-dark); color: #fff; }
 
 /* ── Card grid ────────────────────────────────────────────────── */
 .pl-grid {
@@ -278,55 +295,122 @@
 }
 
 @media (max-width: 640px) {
-  .pl-hero { padding: 24px 18px 22px; }
   .pl-grid { grid-template-columns: 1fr; }
   .pl-filter-bar { flex-direction: column; align-items: flex-start; }
   .pl-result-count { margin-left: 0; }
 }
 </style>
 
+<div style="background:#f0f4ff; min-height:100vh;">
 <div class="pl-wrap">
 
-  <!-- Hero -->
-  <div class="pl-hero">
-    <h1 class="pl-hero-title">Explore Projects</h1>
-    <p class="pl-hero-sub">Discover innovations across Africa — connect, collaborate, and invest.</p>
-    <form method="get" action="">
-      <div class="pl-search-row">
-        <div class="pl-search-wrap">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input type="text" name="q" class="pl-search-input"
-                 placeholder="Search projects, keywords…"
-                 value="{{ current_query }}">
-        </div>
-        <!-- preserve other filters on search submit -->
-        {% if current_industry %}<input type="hidden" name="industry" value="{{ current_industry }}">{% endif %}
-        {% if current_status  %}<input type="hidden" name="status"   value="{{ current_status }}">{% endif %}
-        {% if current_stage   %}<input type="hidden" name="stage"    value="{{ current_stage }}">{% endif %}
-        {% if current_sort    %}<input type="hidden" name="sort"     value="{{ current_sort }}">{% endif %}
-        <button type="submit" class="pl-search-btn">Search</button>
+  <h1 class="pl-page-title">Explore Projects</h1>
+  <p class="pl-page-sub">Discover innovations across Africa — connect, collaborate, and invest.</p>
+
+  <!-- CTA Banner -->
+  {% if user.is_authenticated and user.user_type != 'investor' %}
+  <div class="pl-cta">
+    <div class="pl-cta-text">
+      <strong>Share Your Innovation</strong>
+      <span>Post your project to connect with investors and collaborators across Africa.</span>
+    </div>
+    <a href="{% url 'create_project' %}" class="pl-cta-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Project
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- Search -->
+  <form method="get" action="" class="pl-search-bar">
+    <input type="text" name="q" value="{{ current_query }}" placeholder="Search projects, keywords…" class="pl-search-input">
+    {% if current_status  %}<input type="hidden" name="status"   value="{{ current_status }}">{% endif %}
+    {% if current_stage   %}<input type="hidden" name="stage"    value="{{ current_stage }}">{% endif %}
+    {% if current_sort    %}<input type="hidden" name="sort"     value="{{ current_sort }}">{% endif %}
+    <button type="submit" class="pl-search-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Search
+    </button>
+    {% if current_query or current_industry %}
+    <a href="{% url 'project_list' %}" style="font-family:var(--ff-sans);font-size:.88rem;color:#6b7280;align-self:center;text-decoration:none;white-space:nowrap;">Clear</a>
+    {% endif %}
+  </form>
+
+  <!-- Industry Categories -->
+  <div style="margin-bottom:28px;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+      <div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:800;color:#0A1628;margin:0 0 3px;">Browse by Industry</h2>
+        <p style="font-size:.8rem;color:#6b7280;margin:0;">{{ total_count }} project{{ total_count|pluralize }} found</p>
       </div>
-    </form>
+      {% if current_industry %}
+      <a href="{% url 'project_list' %}{% if current_query %}?q={{ current_query }}{% endif %}" style="font-size:.78rem;font-weight:700;color:#ef4444;text-decoration:none;padding:5px 12px;border-radius:20px;background:#fff1f1;border:1px solid #fecaca;white-space:nowrap;">Clear filter</a>
+      {% endif %}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;">
+
+      <a href="{% url 'project_list' %}{% if current_query %}?q={{ current_query }}{% endif %}" class="pl-cat-card {% if not current_industry %}pl-cat-card--active{% endif %}">
+        <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+        <span class="pl-cat-name">All</span>
+        <span class="pl-cat-count">All projects</span>
+      </a>
+
+      <a href="?industry=tech{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'tech' %}pl-cat-card--active{% endif %}">
+        <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+        <span class="pl-cat-name">Technology</span>
+        <span class="pl-cat-count">{{ industry_counts.tech|default:0 }} projects</span>
+      </a>
+
+      <a href="?industry=finance{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'finance' %}pl-cat-card--active{% endif %}">
+        <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+        <span class="pl-cat-name">Finance</span>
+        <span class="pl-cat-count">{{ industry_counts.finance|default:0 }} projects</span>
+      </a>
+
+      <a href="?industry=health{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'health' %}pl-cat-card--active{% endif %}">
+        <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+        <span class="pl-cat-name">Healthcare</span>
+        <span class="pl-cat-count">{{ industry_counts.health|default:0 }} projects</span>
+      </a>
+
+      <a href="?industry=edu{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'edu' %}pl-cat-card--active{% endif %}">
+        <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+        <span class="pl-cat-name">Education</span>
+        <span class="pl-cat-count">{{ industry_counts.edu|default:0 }} projects</span>
+      </a>
+
+      <a href="?industry=energy{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'energy' %}pl-cat-card--active{% endif %}">
+        <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+        <span class="pl-cat-name">Energy</span>
+        <span class="pl-cat-count">{{ industry_counts.energy|default:0 }} projects</span>
+      </a>
+
+      <a href="?industry=agriculture{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'agriculture' %}pl-cat-card--active{% endif %}">
+        <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 22"/><path d="M9.73 16.5c1.18 1.07 2.55 1.4 3.99 1.5 2.08.14 4.28-.25 5.78-1.75 2.53-2.53 1.5-8-.5-12-1.5 3-2 5-5 6.5z"/></svg></span>
+        <span class="pl-cat-name">Agriculture</span>
+        <span class="pl-cat-count">{{ industry_counts.agriculture|default:0 }} projects</span>
+      </a>
+
+      <a href="?industry=manufacturing{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'manufacturing' %}pl-cat-card--active{% endif %}">
+        <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><circle cx="12" cy="12" r="7"/></svg></span>
+        <span class="pl-cat-name">Manufacturing</span>
+        <span class="pl-cat-count">{{ industry_counts.manufacturing|default:0 }} projects</span>
+      </a>
+
+      <a href="?industry=other{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'other' %}pl-cat-card--active{% endif %}">
+        <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+        <span class="pl-cat-name">Other</span>
+        <span class="pl-cat-count">{{ industry_counts.other|default:0 }} projects</span>
+      </a>
+
+    </div>
   </div>
 
-  <!-- Filter bar -->
+  <!-- Filter bar — Status / Stage / Sort -->
   <form method="get" id="filter-form">
     {% if current_query %}<input type="hidden" name="q" value="{{ current_query }}">{% endif %}
+    {% if current_industry %}<input type="hidden" name="industry" value="{{ current_industry }}">{% endif %}
     <div class="pl-filter-bar">
-
-      <div class="pl-filter-group">
-        <span class="pl-filter-label">Industry</span>
-        <select name="industry" class="pl-filter-select" onchange="document.getElementById('filter-form').submit()">
-          <option value="">All</option>
-          {% for val, label in industry_choices %}
-          <option value="{{ val }}" {% if current_industry == val %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <div class="pl-filter-sep"></div>
 
       <div class="pl-filter-group">
         <span class="pl-filter-label">Status</span>
@@ -364,13 +448,6 @@
       </div>
 
       <span class="pl-result-count">{{ total_count }} project{{ total_count|pluralize }}</span>
-
-      {% if request.user.is_authenticated %}
-      <a href="{% url 'create_project' %}" class="pl-add-btn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        New Project
-      </a>
-      {% endif %}
 
     </div>
   </form>
@@ -470,5 +547,6 @@
   </div>
   {% endif %}
 
-</div>
+</div><!-- /pl-wrap -->
+</div><!-- /bg wrapper -->
 {% endblock %}

@@ -1,5 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
+{% load dict_extras %}
 
 {% block title %}{{ post.title }} | Oduma Corp
 {% endblock %}
@@ -307,7 +308,7 @@
       <span class="pdt-badge">{{ post.get_industry_display }}</span>
       {% if post.post_type %}<span class="pdt-badge" style="background:rgba(16,64,192,0.08);color:#1040c0;">{{ post.get_post_type_display }}</span>{% endif %}
       <h1 class="pdt-title">{{ post.title }}</h1>
-      <div class="pdt-content">{{ post.content|safe }}</div>
+      <div class="pdt-content">{{ post.content|linkify_hashtags }}</div>
 
       <!-- Engagement -->
       <div class="pdt-eng-row">

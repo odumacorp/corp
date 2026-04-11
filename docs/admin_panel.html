@@ -416,9 +416,26 @@
       <!-- Period filter -->
       <div class="ds-filter-bar">
         <button class="ds-filter-btn active" onclick="dsFilter('today',this)">Today</button>
+        <button class="ds-filter-btn" onclick="dsFilter('yesterday',this)">Yesterday</button>
         <button class="ds-filter-btn" onclick="dsFilter('week',this)">Last 7 Days</button>
         <button class="ds-filter-btn" onclick="dsFilter('month',this)">Last 30 Days</button>
+        <button class="ds-filter-btn" onclick="dsFilter('quarter',this)">Last 3 Months</button>
+        <button class="ds-filter-btn" onclick="dsFilter('half',this)">Last 6 Months</button>
+        <button class="ds-filter-btn" onclick="dsFilter('year',this)">This Year</button>
         <button class="ds-filter-btn" onclick="dsFilter('all',this)">All Time</button>
+        <button class="ds-filter-btn ds-range-toggle" onclick="dsToggleRange(this)" id="ds-range-btn">&#x1F4C5; Custom Range</button>
+      </div>
+
+      <!-- Custom date range row -->
+      <div id="ds-range-row" style="display:none;">
+        <div class="ds-range-row">
+          <label class="ds-range-lbl">From</label>
+          <input type="date" id="ds-from" class="ds-range-input">
+          <label class="ds-range-lbl">To</label>
+          <input type="date" id="ds-to" class="ds-range-input">
+          <button class="ds-range-apply" onclick="dsApplyRange()">Apply</button>
+          <span id="ds-range-status" class="ds-range-status"></span>
+        </div>
       </div>
 
       <!-- Embed growth data as JSON for JS -->
@@ -529,14 +546,38 @@
     </div><!-- /section-stats -->
 
     <style>
-      .ds-filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+      .ds-filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; align-items:center; }
       .ds-filter-btn {
         padding:6px 16px; border-radius:20px; border:1px solid #e5e7eb;
         background:#fff; font-family:var(--ff-sans); font-size:0.82rem; color:#555;
-        cursor:pointer; transition:all 0.18s;
+        cursor:pointer; transition:all 0.18s; white-space:nowrap;
       }
       .ds-filter-btn:hover { border-color:var(--blue); color:var(--blue); }
       .ds-filter-btn.active { background:var(--blue); color:#fff; border-color:var(--blue); font-weight:600; }
+      .ds-range-toggle { border-style:dashed; }
+      .ds-range-toggle.active { background:var(--blue); color:#fff; border-color:var(--blue); border-style:solid; font-weight:600; }
+
+      .ds-range-row {
+        display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+        padding:12px 16px; background:#f0f5ff; border-radius:12px;
+        margin-bottom:16px; border:1px solid #d0e0ff;
+      }
+      .ds-range-lbl { font-family:var(--ff-sans); font-size:0.8rem; color:#555; font-weight:600; }
+      .ds-range-input {
+        padding:6px 10px; border:1px solid #d1d5db; border-radius:8px;
+        font-family:var(--ff-sans); font-size:0.82rem; color:#1a1a1a;
+        background:#fff; cursor:pointer;
+      }
+      .ds-range-input:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(0,74,173,0.12); }
+      .ds-range-apply {
+        padding:6px 18px; border-radius:8px; border:none;
+        background:var(--blue); color:#fff; font-family:var(--ff-sans);
+        font-size:0.82rem; font-weight:600; cursor:pointer; transition:opacity 0.15s;
+      }
+      .ds-range-apply:hover { opacity:0.88; }
+      .ds-range-status { font-family:var(--ff-sans); font-size:0.8rem; color:#888; }
+      .ds-range-status.err { color:#dc2626; }
+
       .ds-totals-row {
         display:flex; flex-wrap:wrap; gap:10px 24px;
         margin-top:14px; padding:14px 18px;
@@ -544,26 +585,94 @@
         font-family:var(--ff-sans); font-size:0.82rem; color:#666;
       }
       .ds-totals-row strong { color:#1a1a1a; }
+
+      /* ── Per-section date filter bar ── */
+      .sec-fb-bar { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:10px; }
+      .sec-fb {
+        padding:4px 12px; border-radius:16px; border:1px solid #e5e7eb;
+        background:#fff; font-family:var(--ff-sans); font-size:0.76rem; color:#555;
+        cursor:pointer; transition:all 0.15s; white-space:nowrap;
+      }
+      .sec-fb:hover { border-color:var(--blue); color:var(--blue); }
+      .sec-fb.sec-fb-active { background:var(--blue); color:#fff; border-color:var(--blue); font-weight:600; }
+      .sec-fb.sec-fb-range { border-style:dashed; }
+      .sec-fb.sec-fb-range.sec-fb-active { border-style:solid; }
+      .sec-fb-count { font-family:var(--ff-sans); font-size:0.75rem; color:#999; margin-left:2px; }
+      .sec-range-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; padding:8px 12px; background:#f0f5ff; border-radius:10px; border:1px solid #d0e0ff; }
     </style>
 
     <script>
     (function(){
       var dsData = JSON.parse(document.getElementById('ds-data').textContent);
-      var labelMap = { today:'New Today', week:'New (7 days)', month:'New (30 days)', all:'All Time' };
+      var BASE_LABELS = { users:'Users', innovators:'Innovators', investors:'Investors', projects:'Projects',
+                          posts:'Posts', groups:'Groups', pages:'Pages', connections:'Connections', messages:'Messages' };
+      var PERIOD_LABELS = {
+        today:'Today', yesterday:'Yesterday', week:'Last 7 Days', month:'Last 30 Days',
+        quarter:'Last 3 Months', half:'Last 6 Months', year:'Last Year', all:'All Time', custom:'Custom Range'
+      };
 
-      function dsFilter(period, btn) {
-        document.querySelectorAll('.ds-filter-btn').forEach(function(b){ b.classList.remove('active'); });
-        btn.classList.add('active');
-        var d = dsData[period];
+      function _applyData(d, period) {
+        var prefix = (period === 'all') ? '' : 'New ';
         document.querySelectorAll('#ds-cards [data-key]').forEach(function(card){
           var key = card.dataset.key;
-          card.querySelector('.ds-val').textContent = d[key] !== undefined ? d[key] : '—';
-          var lbl = card.querySelector('.adm-stat-label');
-          var base = { users:'Users', innovators:'Innovators', investors:'Investors', projects:'Projects',
-                       posts:'Posts', groups:'Groups', pages:'Pages', connections:'Connections', messages:'Messages' };
-          lbl.textContent = (period === 'all' ? '' : 'New ') + (base[key] || key);
+          card.querySelector('.ds-val').textContent = (d && d[key] !== undefined) ? d[key] : '—';
+          card.querySelector('.adm-stat-label').textContent = prefix + (BASE_LABELS[key] || key);
         });
       }
+
+      window.dsFilter = function(period, btn) {
+        document.querySelectorAll('.ds-filter-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        // hide range row when a preset is picked
+        if (period !== 'custom') {
+          document.getElementById('ds-range-row').style.display = 'none';
+          document.getElementById('ds-range-btn').classList.remove('active');
+        }
+        _applyData(dsData[period], period);
+      };
+
+      window.dsToggleRange = function(btn) {
+        var row = document.getElementById('ds-range-row');
+        var visible = row.style.display !== 'none';
+        row.style.display = visible ? 'none' : 'block';
+        btn.classList.toggle('active', !visible);
+        // set default dates if empty
+        if (!visible) {
+          var today = new Date();
+          var pad = function(n){ return String(n).padStart(2,'0'); };
+          var fmt = function(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); };
+          var toEl = document.getElementById('ds-to');
+          var frEl = document.getElementById('ds-from');
+          if (!toEl.value) toEl.value = fmt(today);
+          if (!frEl.value) {
+            var fr = new Date(today); fr.setDate(fr.getDate()-30);
+            frEl.value = fmt(fr);
+          }
+        }
+      };
+
+      window.dsApplyRange = function() {
+        var from = document.getElementById('ds-from').value;
+        var to   = document.getElementById('ds-to').value;
+        var status = document.getElementById('ds-range-status');
+        if (!from || !to) { status.textContent='Please select both dates.'; status.className='ds-range-status err'; return; }
+        if (from > to) { status.textContent='Start date must be before end date.'; status.className='ds-range-status err'; return; }
+        status.textContent = 'Loading…'; status.className = 'ds-range-status';
+        // deactivate preset buttons
+        document.querySelectorAll('.ds-filter-btn:not(#ds-range-btn)').forEach(function(b){ b.classList.remove('active'); });
+        fetch('/admin-panel/stats/range/?from='+from+'&to='+to, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if (d.error) { status.textContent=d.error; status.className='ds-range-status err'; return; }
+          _applyData(d, 'custom');
+          status.textContent = from + ' → ' + to;
+          status.className = 'ds-range-status';
+        })
+        .catch(function(){ status.textContent='Network error.'; status.className='ds-range-status err'; });
+      };
+
       // init with today
       dsFilter('today', document.querySelector('.ds-filter-btn.active'));
     })();
@@ -591,6 +700,23 @@
       </div>
 
       {% if users %}
+      <div class="sec-fb-bar" data-table="users-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
         <table class="adm-table" id="users-table">
           <thead>
@@ -606,7 +732,7 @@
           </thead>
           <tbody>
             {% for u in users %}
-            <tr data-search="{{ u.get_full_name|lower }} {{ u.username|lower }} {{ u.email|lower }}" data-active="{{ u.is_active|yesno:'true,false' }}" data-role="{{ u.user_type }}">
+            <tr data-search="{{ u.get_full_name|lower }} {{ u.username|lower }} {{ u.email|lower }}" data-active="{{ u.is_active|yesno:'true,false' }}" data-role="{{ u.user_type }}" data-date="{{ u.date_joined|date:'U' }}">
               <td>
                 <div class="adm-user-cell">
                   {% if u.profile_pics %}
@@ -727,6 +853,23 @@
       </div>
 
       {% if projects %}
+      <div class="sec-fb-bar" data-table="projects-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
         <table class="adm-table" id="projects-table">
           <thead>
@@ -741,7 +884,7 @@
           </thead>
           <tbody>
             {% for p in projects %}
-            <tr data-search="{{ p.title|lower }} {{ p.owner.username|lower }}" data-industry="{{ p.industry }}" data-status="{{ p.status }}">
+            <tr data-search="{{ p.title|lower }} {{ p.owner.username|lower }}" data-industry="{{ p.industry }}" data-status="{{ p.status }}" data-date="{{ p.created_at|date:'U' }}">
               <td>
                 <a href="{% url 'project_detail' p.id %}" style="font-family:var(--ff-serif);color:var(--text);text-decoration:none;">
                   {{ p.title|truncatechars:45 }}
@@ -823,6 +966,23 @@
       </div>
 
       {% if posts %}
+      <div class="sec-fb-bar" data-table="posts-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
         <table class="adm-table" id="posts-table">
           <thead>
@@ -958,6 +1118,23 @@
         </div>
       </div>
       {% if messages_list %}
+      <div class="sec-fb-bar" data-table="messages-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
         <table class="adm-table" id="messages-table">
           <thead>
@@ -972,7 +1149,7 @@
           </thead>
           <tbody>
             {% for m in messages_list %}
-            <tr data-search="{{ m.sender.username|lower }} {{ m.recipient.username|lower }} {{ m.content|lower }}">
+            <tr data-search="{{ m.sender.username|lower }} {{ m.recipient.username|lower }} {{ m.content|lower }}" data-date="{{ m.timestamp|date:'U' }}">
               <td><a href="{% url 'profile_view' id=m.sender.id %}" style="color:var(--blue);text-decoration:none;">{{ m.sender.get_full_name|default:m.sender.username }}</a></td>
               <td><a href="{% url 'profile_view' id=m.recipient.id %}" style="color:var(--blue);text-decoration:none;">{{ m.recipient.get_full_name|default:m.recipient.username }}</a></td>
               <td style="max-width:220px;">{{ m.content|truncatechars:60 }}{% if m.is_flagged %} <span style="color:#c0392b;font-weight:700;font-size:0.72rem;"><i class="fi fi-rr-flag"></i> FLAGGED</span>{% endif %}</td>
@@ -1020,14 +1197,31 @@
         {% if flagged_messages %}<span class="adm-section-label" style="background:rgba(192,57,43,0.1);color:#c0392b;">{{ flagged_messages|length }} flagged</span>{% endif %}
       </div>
       {% if flagged_messages %}
+      <div class="sec-fb-bar" data-table="flagged-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
-        <table class="adm-table">
+        <table class="adm-table" id="flagged-table">
           <thead>
             <tr><th>From</th><th>To</th><th>Content</th><th>Reason</th><th>Flagged By</th><th>Sent</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {% for m in flagged_messages %}
-            <tr>
+            <tr data-date="{{ m.timestamp|date:'U' }}">
               <td><a href="{% url 'profile_view' id=m.sender.id %}" style="color:var(--blue);text-decoration:none;">{{ m.sender.get_full_name|default:m.sender.username }}</a></td>
               <td><a href="{% url 'profile_view' id=m.recipient.id %}" style="color:var(--blue);text-decoration:none;">{{ m.recipient.get_full_name|default:m.recipient.username }}</a></td>
               <td style="max-width:180px;">{{ m.content|truncatechars:60 }}</td>
@@ -1106,14 +1300,31 @@
       </div>
 
       {% if events %}
-      <div class="adm-table-wrap" style="margin-top:16px;">
-        <table class="adm-table">
+      <div class="sec-fb-bar" data-table="events-table" style="margin-top:16px;">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
+      <div class="adm-table-wrap" style="margin-top:6px;">
+        <table class="adm-table" id="events-table">
           <thead>
             <tr><th>Name</th><th>Date</th><th>Location</th><th>Organizer</th><th>Attendees</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {% for ev in events %}
-            <tr>
+            <tr data-date="{{ ev.date|date:'U' }}">
               <td style="font-family:var(--ff-serif);">{{ ev.name }}</td>
               <td>{{ ev.date|date:"M d, Y" }}</td>
               <td>{{ ev.location|default:"—" }}</td>
@@ -1189,14 +1400,31 @@
       </div>
 
       {% if news_items %}
-      <div class="adm-table-wrap" style="margin-top:16px;">
-        <table class="adm-table">
+      <div class="sec-fb-bar" data-table="news-table" style="margin-top:16px;">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
+      <div class="adm-table-wrap" style="margin-top:6px;">
+        <table class="adm-table" id="news-table">
           <thead>
             <tr><th>Headline</th><th>Published</th><th>Status</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {% for item in news_items %}
-            <tr>
+            <tr data-date="{{ item.created_at|date:'U' }}">
               <td style="font-family:var(--ff-serif);max-width:280px;">{{ item.title }}</td>
               <td>{{ item.created_at|date:"M d, Y" }}</td>
               <td>
@@ -1286,14 +1514,31 @@
       </div>
 
       {% if jobs %}
-      <div class="adm-table-wrap" style="margin-top:16px;">
-        <table class="adm-table">
+      <div class="sec-fb-bar" data-table="jobs-table" style="margin-top:16px;">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
+      <div class="adm-table-wrap" style="margin-top:6px;">
+        <table class="adm-table" id="jobs-table">
           <thead>
             <tr><th>Title</th><th>Company</th><th>Location</th><th>Type</th><th>Salary</th><th>Posted</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {% for j in jobs %}
-            <tr>
+            <tr data-date="{{ j.created_at|date:'U' }}">
               <td style="font-family:var(--ff-serif);">{{ j.title }}</td>
               <td>{{ j.company }}</td>
               <td>{{ j.location|default:"—" }}</td>
@@ -1334,14 +1579,31 @@
         <span class="adm-section-label">{{ total_connections }} total · {{ total_pending_connections }} pending</span>
       </div>
       {% if connections %}
+      <div class="sec-fb-bar" data-table="connections-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
-        <table class="adm-table">
+        <table class="adm-table" id="connections-table">
           <thead>
             <tr><th>Initiator</th><th>Target</th><th>Status</th><th>Date</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {% for c in connections %}
-            <tr>
+            <tr data-date="{{ c.created_at|date:'U' }}">
               <td><a href="{% url 'profile_view' id=c.initiator.id %}" style="color:var(--blue);text-decoration:none;">{{ c.initiator.get_full_name|default:c.initiator.username }}</a></td>
               <td><a href="{% url 'profile_view' id=c.target.id %}" style="color:var(--blue);text-decoration:none;">{{ c.target.get_full_name|default:c.target.username }}</a></td>
               <td>
@@ -1384,14 +1646,31 @@
       <!-- Project comments -->
       <div id="comment-section-project">
       {% if project_comments %}
+      <div class="sec-fb-bar" data-table="proj-cmt-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
-        <table class="adm-table">
+        <table class="adm-table" id="proj-cmt-table">
           <thead>
             <tr><th>Author</th><th>Project</th><th>Comment</th><th>Status</th><th>Date</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {% for c in project_comments %}
-            <tr>
+            <tr data-date="{{ c.created_at|date:'U' }}">
               <td><a href="{% url 'profile_view' id=c.user.id %}" style="color:var(--blue);text-decoration:none;">{{ c.user.get_full_name|default:c.user.username }}</a></td>
               <td><a href="{% url 'project_detail' c.project.id %}" style="color:var(--blue);text-decoration:none;">{{ c.project.title|truncatechars:30 }}</a></td>
               <td style="max-width:220px;">{{ c.content|truncatechars:70 }}</td>
@@ -1432,14 +1711,31 @@
       <!-- Post comments -->
       <div id="comment-section-post" style="display:none;">
       {% if post_comments %}
+      <div class="sec-fb-bar" data-table="post-cmt-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
-        <table class="adm-table">
+        <table class="adm-table" id="post-cmt-table">
           <thead>
             <tr><th>Author</th><th>Post</th><th>Comment</th><th>Status</th><th>Date</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {% for c in post_comments %}
-            <tr>
+            <tr data-date="{{ c.created_at|date:'U' }}">
               <td><a href="{% url 'profile_view' id=c.user.id %}" style="color:var(--blue);text-decoration:none;">{{ c.user.get_full_name|default:c.user.username }}</a></td>
               <td><a href="{% url 'post_detail' c.post.id %}" style="color:var(--blue);text-decoration:none;">{{ c.post.content|truncatechars:30 }}</a></td>
               <td style="max-width:220px;">{{ c.content|truncatechars:70 }}</td>
@@ -1479,14 +1775,31 @@
         <span class="adm-section-label">{{ total_collaborations }} total</span>
       </div>
       {% if collaborations %}
+      <div class="sec-fb-bar" data-table="collabs-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
-        <table class="adm-table">
+        <table class="adm-table" id="collabs-table">
           <thead>
             <tr><th>User</th><th>Project</th><th>Message</th><th>Status</th><th>Date</th></tr>
           </thead>
           <tbody>
             {% for col in collaborations %}
-            <tr>
+            <tr data-date="{{ col.created_at|date:'U' }}">
               <td><a href="{% url 'profile_view' id=col.from_user.id %}" style="color:var(--blue);text-decoration:none;">{{ col.from_user.get_full_name|default:col.from_user.username }}</a></td>
               <td><a href="{% url 'project_detail' col.project.id %}" style="color:var(--blue);text-decoration:none;">{{ col.project.title|truncatechars:35 }}</a></td>
               <td style="max-width:200px;">{{ col.message|truncatechars:60|default:"—" }}</td>
@@ -1545,14 +1858,31 @@
         <span class="adm-section-label">{{ total_job_applications }} total</span>
       </div>
       {% if job_applications %}
+      <div class="sec-fb-bar" data-table="applications-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
-        <table class="adm-table">
+        <table class="adm-table" id="applications-table">
           <thead>
             <tr><th>Applicant</th><th>Job</th><th>Company</th><th>Cover Letter</th><th>Applied</th><th>CV</th></tr>
           </thead>
           <tbody>
             {% for app in job_applications %}
-            <tr>
+            <tr data-date="{{ app.applied_at|date:'U' }}">
               <td><a href="{% url 'profile_view' id=app.applicant.id %}" style="color:var(--blue);text-decoration:none;">{{ app.applicant.get_full_name|default:app.applicant.username }}</a></td>
               <td style="font-family:var(--ff-serif);">{{ app.job.title|truncatechars:40 }}</td>
               <td>{{ app.job.company }}</td>
@@ -1580,14 +1910,31 @@
         <span class="adm-section-label">{{ total_contact_submissions }} total</span>
       </div>
       {% if contact_submissions %}
+      <div class="sec-fb-bar" data-table="contact-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
-        <table class="adm-table">
+        <table class="adm-table" id="contact-table">
           <thead>
             <tr><th>Name</th><th>Email</th><th>Message</th><th>Replied</th><th>Submitted</th></tr>
           </thead>
           <tbody>
             {% for s in contact_submissions %}
-            <tr>
+            <tr data-date="{{ s.submitted_at|date:'U' }}">
               <td>{{ s.name|default:"—" }}</td>
               <td>{{ s.email|default:"—" }}</td>
               <td style="max-width:280px;">{{ s.message|truncatechars:80 }}</td>
@@ -1610,8 +1957,25 @@
         <span class="adm-section-label">{{ total_downloads }} total download{{ total_downloads|pluralize }}</span>
       </div>
       {% if attachment_downloads %}
+      <div class="sec-fb-bar" data-table="downloads-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
-        <table class="adm-table">
+        <table class="adm-table" id="downloads-table">
           <thead>
             <tr>
               <th>Downloaded By</th>
@@ -1624,7 +1988,7 @@
           </thead>
           <tbody>
             {% for dl in attachment_downloads %}
-            <tr>
+            <tr data-date="{{ dl.downloaded_at|date:'U' }}">
               <td>
                 {% if dl.downloaded_by %}
                   <a href="{% url 'profile_view' id=dl.downloaded_by.id %}" style="color:#004AAD;">
@@ -1667,14 +2031,31 @@
         <span class="adm-section-label">{{ total_groups }} total</span>
       </div>
       {% if groups %}
+      <div class="sec-fb-bar" data-table="groups-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
-        <table class="adm-table">
+        <table class="adm-table" id="groups-table">
           <thead>
             <tr><th>Name</th><th>Creator</th><th>Members</th><th>Industry</th><th>Privacy</th><th>Status</th><th>Created</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {% for grp in groups %}
-            <tr>
+            <tr data-date="{{ grp.created_at|date:'U' }}">
               <td>
                 <a href="{% url 'group_detail' grp.pk %}" style="color:var(--blue);text-decoration:none;font-family:var(--ff-serif);">{{ grp.name|truncatechars:40 }}</a>
               </td>
@@ -1739,14 +2120,31 @@
         <span class="adm-section-label">{{ total_pages }} total</span>
       </div>
       {% if pages %}
+      <div class="sec-fb-bar" data-table="pages-table">
+        <button class="sec-fb sec-fb-active" data-period="all" onclick="secFilter(this)">All</button>
+        <button class="sec-fb" data-period="today" onclick="secFilter(this)">Today</button>
+        <button class="sec-fb" data-period="week" onclick="secFilter(this)">7 Days</button>
+        <button class="sec-fb" data-period="month" onclick="secFilter(this)">30 Days</button>
+        <button class="sec-fb" data-period="quarter" onclick="secFilter(this)">3 Months</button>
+        <button class="sec-fb" data-period="year" onclick="secFilter(this)">1 Year</button>
+        <button class="sec-fb sec-fb-range" data-period="custom" onclick="secToggleRange(this)">Custom…</button>
+        <span class="sec-fb-count"></span>
+      </div>
+      <div class="sec-range-row" style="display:none;">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <input type="date" class="sec-range-from ds-range-input">
+        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <input type="date" class="sec-range-to ds-range-input">
+        <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
+      </div>
       <div class="adm-table-wrap">
-        <table class="adm-table">
+        <table class="adm-table" id="pages-table">
           <thead>
             <tr><th>Title</th><th>Owner</th><th>Followers</th><th>Industry</th><th>Status</th><th>Created</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {% for pg in pages %}
-            <tr>
+            <tr data-date="{{ pg.created_at|date:'U' }}">
               <td>
                 <a href="{% url 'page_detail' pg.pk %}" style="color:var(--blue);text-decoration:none;font-family:var(--ff-serif);">{{ pg.title|truncatechars:40 }}</a>
               </td>
@@ -3337,6 +3735,72 @@ document.addEventListener('DOMContentLoaded', function() {
       return order === 'newest' ? db - da : da - db;
     });
     rows.forEach(function(r) { tbody.appendChild(r); });
+  };
+
+  // ── Per-section date filter ──────────────────────────────────────────────
+  window.secFilter = function(btn) {
+    var bar = btn.closest('.sec-fb-bar');
+    bar.querySelectorAll('.sec-fb').forEach(function(b){ b.classList.remove('sec-fb-active'); });
+    btn.classList.add('sec-fb-active');
+    var period = btn.dataset.period;
+    // hide range row
+    var rr = bar.nextElementSibling;
+    if (rr && rr.classList.contains('sec-range-row')) rr.style.display = 'none';
+    var tableId = bar.dataset.table;
+    var table = document.getElementById(tableId);
+    if (!table) return;
+    var now = new Date();
+    var todayMs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    var cuts = { all:0, today:todayMs, week:todayMs-6048e5, month:todayMs-2592e6, quarter:todayMs-7776e6, year:todayMs-3156e7 };
+    var cutMs = cuts[period] !== undefined ? cuts[period] : 0;
+    var vis = 0;
+    table.querySelectorAll('tbody tr').forEach(function(row){
+      var ms = parseInt(row.dataset.date||'0',10)*1000;
+      var show = (period==='all') || ms >= cutMs;
+      row.style.display = show ? '' : 'none';
+      if (show) vis++;
+    });
+    var cnt = bar.querySelector('.sec-fb-count');
+    if (cnt) cnt.textContent = period==='all' ? '' : '('+vis+' shown)';
+  };
+
+  window.secToggleRange = function(btn) {
+    var bar = btn.closest('.sec-fb-bar');
+    var rr = bar.nextElementSibling;
+    if (!rr || !rr.classList.contains('sec-range-row')) return;
+    var show = rr.style.display === 'none' || !rr.style.display;
+    rr.style.display = show ? 'flex' : 'none';
+    bar.querySelectorAll('.sec-fb').forEach(function(b){ b.classList.remove('sec-fb-active'); });
+    if (show) {
+      btn.classList.add('sec-fb-active');
+      var now = new Date(), pad = function(n){return String(n).padStart(2,'0');};
+      var fmt = function(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());};
+      var toEl = rr.querySelector('.sec-range-to'), frEl = rr.querySelector('.sec-range-from');
+      if (!toEl.value) toEl.value = fmt(now);
+      if (!frEl.value) { var fr=new Date(now); fr.setDate(fr.getDate()-30); frEl.value=fmt(fr); }
+    } else {
+      var allBtn = bar.querySelector('[data-period="all"]');
+      if (allBtn) allBtn.classList.add('sec-fb-active');
+    }
+  };
+
+  window.secApplyRange = function(btn) {
+    var rr = btn.closest('.sec-range-row');
+    var bar = rr.previousElementSibling;
+    var table = document.getElementById(bar.dataset.table);
+    if (!table) return;
+    var fromMs = new Date(rr.querySelector('.sec-range-from').value).getTime();
+    var toMs   = new Date(rr.querySelector('.sec-range-to').value+'T23:59:59').getTime();
+    if (isNaN(fromMs) || isNaN(toMs)) return;
+    var vis = 0;
+    table.querySelectorAll('tbody tr').forEach(function(row){
+      var ms = parseInt(row.dataset.date||'0',10)*1000;
+      var show = ms >= fromMs && ms <= toMs;
+      row.style.display = show ? '' : 'none';
+      if (show) vis++;
+    });
+    var cnt = bar.querySelector('.sec-fb-count');
+    if (cnt) cnt.textContent = '('+vis+' shown)';
   };
 
   // ---- Delete confirmation modal ----

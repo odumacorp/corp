@@ -158,6 +158,43 @@
   }
   .mr-back:hover { color: var(--blue); }
 
+  /* ── Share modal ── */
+  #mr-share-overlay{display:none;position:fixed;inset:0;z-index:1300;background:rgba(10,22,40,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px;}
+  #mr-share-overlay.open{display:flex;}
+  .mr-share-box{background:#fff;border-radius:20px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 32px 80px rgba(10,22,40,.28);animation:mrShIn .2s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes mrShIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+  .mr-share-head{background:linear-gradient(135deg,#0A1628,#1B5EC7);padding:22px 22px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+  .mr-share-head-left{display:flex;align-items:center;gap:12px;}
+  .mr-share-head-icon{width:42px;height:42px;border-radius:11px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;}
+  .mr-share-head-title{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#fff;margin:0 0 2px;}
+  .mr-share-head-sub{font-size:.75rem;color:rgba(255,255,255,.65);margin:0;}
+  .mr-share-close{background:rgba(255,255,255,.12);border:none;cursor:pointer;width:30px;height:30px;border-radius:8px;color:#fff;font-size:.9rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+  .mr-share-close:hover{background:rgba(255,255,255,.22);}
+  .mr-share-body{padding:20px 22px 22px;}
+  /* Link strip */
+  .mr-share-link-strip{display:flex;align-items:center;gap:8px;background:#f8faff;border:1.5px solid #e4eaf2;border-radius:10px;padding:10px 12px;margin-bottom:18px;}
+  .mr-share-link-text{flex:1;font-family:var(--ff-sans);font-size:.78rem;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+  .mr-share-link-copy{padding:6px 14px;border-radius:8px;border:none;background:#1B5EC7;color:#fff;font-family:var(--ff-sans);font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .15s;flex-shrink:0;}
+  .mr-share-link-copy:hover{background:#1451aa;}
+  .mr-share-link-copy.copied{background:#059669;}
+  /* Channel grid */
+  .mr-share-channels{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+  .mr-share-ch{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;background:#f8faff;border:1.5px solid #e4eaf2;border-radius:12px;cursor:pointer;text-decoration:none;transition:border-color .15s,background .15s;border:none;font-family:inherit;}
+  .mr-share-ch:hover{background:#eef4ff;border-color:#c7d8f8;}
+  .mr-share-ch-icon{font-size:1.5rem;line-height:1;}
+  .mr-share-ch-label{font-size:.68rem;font-weight:700;color:#374151;}
+  /* DM section */
+  .mr-share-dm-label{font-family:var(--ff-sans);font-size:.75rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;}
+  .mr-share-dm-row{display:flex;gap:8px;}
+  .mr-share-dm-select{flex:1;padding:9px 12px;border:1.5px solid #e4eaf2;border-radius:10px;font-family:var(--ff-sans);font-size:.86rem;color:#0A1628;background:#f8faff;outline:none;transition:border-color .15s;}
+  .mr-share-dm-select:focus{border-color:#1B5EC7;background:#fff;}
+  .mr-share-dm-send{padding:9px 18px;border-radius:10px;border:none;background:linear-gradient(135deg,#1B5EC7,#1451aa);color:#fff;font-family:var(--ff-sans);font-size:.86rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .15s;}
+  .mr-share-dm-send:hover{opacity:.9;}
+  .mr-share-dm-send:disabled{opacity:.55;cursor:not-allowed;}
+  .mr-share-dm-status{font-size:.78rem;margin-top:8px;display:none;padding:6px 10px;border-radius:7px;}
+  .mr-share-dm-status.ok{background:#d1fae5;color:#065f46;display:block;}
+  .mr-share-dm-status.err{background:#fee2e2;color:#dc2626;display:block;}
+
   /* ── No Zoom fallback banner ── */
   .mr-no-zoom {
     background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3);
@@ -236,7 +273,10 @@
         </span>
       {% endif %}
       <button class="mr-cta copy" id="copyLinkBtn">
-        <i class="fi fi-rr-link fi-sm"></i> Copy Join Link
+        <i class="fi fi-rr-link fi-sm"></i> Copy Link
+      </button>
+      <button class="mr-cta copy" id="shareMeetingBtn" style="background:rgba(255,255,255,.2);color:#fff;">
+        <i class="fi fi-rr-share fi-sm"></i> Share
       </button>
       {% if is_host %}
       <button class="mr-cta end" id="endMeetingBtn">
@@ -323,6 +363,67 @@
   </div>
   {% endif %}
 
+</div>
+
+<!-- Share modal -->
+<div id="mr-share-overlay" onclick="if(event.target===this)closeMrShare()">
+  <div class="mr-share-box">
+    <div class="mr-share-head">
+      <div class="mr-share-head-left">
+        <div class="mr-share-head-icon">🔗</div>
+        <div>
+          <p class="mr-share-head-title">Share Meeting</p>
+          <p class="mr-share-head-sub">Invite people to join</p>
+        </div>
+      </div>
+      <button class="mr-share-close" onclick="closeMrShare()">✕</button>
+    </div>
+    <div class="mr-share-body">
+      <!-- Link strip -->
+      <div class="mr-share-link-strip">
+        <span class="mr-share-link-text" id="mr-share-display-url"></span>
+        <button class="mr-share-link-copy" id="mr-share-copy-btn" onclick="mrCopyLink()">Copy</button>
+      </div>
+      <!-- Channel buttons -->
+      <div class="mr-share-channels">
+        <button class="mr-share-ch" onclick="mrShareWhatsApp()">
+          <span class="mr-share-ch-icon">💬</span>
+          <span class="mr-share-ch-label">WhatsApp</span>
+        </button>
+        <button class="mr-share-ch" onclick="mrShareEmail()">
+          <span class="mr-share-ch-icon">✉️</span>
+          <span class="mr-share-ch-label">Email</span>
+        </button>
+        <button class="mr-share-ch" onclick="mrShareSMS()">
+          <span class="mr-share-ch-icon">📱</span>
+          <span class="mr-share-ch-label">SMS</span>
+        </button>
+        <button class="mr-share-ch" onclick="mrShareNative()">
+          <span class="mr-share-ch-icon">⬆️</span>
+          <span class="mr-share-ch-label">More</span>
+        </button>
+      </div>
+      <!-- Send via Oduma Corp DM -->
+      <div class="mr-share-dm-label">Send via Oduma Corp message</div>
+      <div class="mr-share-dm-row">
+        <select class="mr-share-dm-select" id="mr-dm-recipient">
+          <option value="">— Choose a connection —</option>
+          {% for conn in connections %}
+            {% if conn != request.user %}
+            <option value="{{ conn.id }}">
+              {{ conn.get_full_name|default:conn.username }}{% if conn in meeting.participants.all %} (already invited){% endif %}
+            </option>
+            {% endif %}
+          {% endfor %}
+          {% if not connections %}
+          <option disabled>No connections yet</option>
+          {% endif %}
+        </select>
+        <button class="mr-share-dm-send" id="mr-dm-send-btn" onclick="mrSendDM()">Send</button>
+      </div>
+      <div class="mr-share-dm-status" id="mr-dm-status"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -419,6 +520,102 @@
         content.innerHTML = '<p class="mr-rec-empty" style="color:#dc2626;">Network error. Please try again.</p>';
       });
   };
+  // ── Share meeting ─────────────────────────────────
+  var SHARE_URL  = '{% url "share_meeting" meeting.id %}';
+  var SHARE_LINK = JOIN_URL || (window.location.origin + '/meetings/' + MEETING_ID + '/join/');
+  var SHARE_TITLE = '{{ meeting.title|escapejs }}';
+  var SHARE_TEXT  = '📹 Join my meeting: ' + SHARE_TITLE + '\n' + SHARE_LINK;
+  {% if meeting.zoom_meeting_id %}
+  SHARE_TEXT += '\nMeeting ID: {{ meeting.zoom_meeting_id|escapejs }}';
+  {% endif %}
+  {% if meeting.zoom_password %}
+  SHARE_TEXT += '\nPasscode: {{ meeting.zoom_password|escapejs }}';
+  {% endif %}
+
+  document.getElementById('mr-share-display-url').textContent = SHARE_LINK;
+
+  var shareMeetingBtn = document.getElementById('shareMeetingBtn');
+  if (shareMeetingBtn) {
+    shareMeetingBtn.addEventListener('click', function() {
+      document.getElementById('mr-share-overlay').classList.add('open');
+    });
+  }
+  window.closeMrShare = function() {
+    document.getElementById('mr-share-overlay').classList.remove('open');
+  };
+
+  window.mrCopyLink = function() {
+    var btn = document.getElementById('mr-share-copy-btn');
+    navigator.clipboard.writeText(SHARE_LINK).then(function() {
+      btn.textContent = '✓ Copied!';
+      btn.classList.add('copied');
+      setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2200);
+    }).catch(function() { prompt('Copy this link:', SHARE_LINK); });
+  };
+
+  window.mrShareWhatsApp = function() {
+    window.open('https://wa.me/?text=' + encodeURIComponent(SHARE_TEXT), '_blank');
+  };
+
+  window.mrShareEmail = function() {
+    var subject = encodeURIComponent('Meeting Invite: ' + SHARE_TITLE);
+    var body = encodeURIComponent(SHARE_TEXT);
+    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+  };
+
+  window.mrShareSMS = function() {
+    window.location.href = 'sms:?body=' + encodeURIComponent(SHARE_TEXT);
+  };
+
+  window.mrShareNative = function() {
+    if (navigator.share) {
+      navigator.share({ title: SHARE_TITLE, text: SHARE_TEXT, url: SHARE_LINK })
+        .catch(function() {});
+    } else {
+      mrCopyLink();
+    }
+  };
+
+  window.mrSendDM = function() {
+    var select = document.getElementById('mr-dm-recipient');
+    var statusEl = document.getElementById('mr-dm-status');
+    var btn = document.getElementById('mr-dm-send-btn');
+    var recipientId = select.value;
+    statusEl.className = 'mr-share-dm-status';
+    statusEl.style.display = 'none';
+    if (!recipientId) {
+      statusEl.textContent = 'Please choose a recipient.';
+      statusEl.className = 'mr-share-dm-status err';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    var fd = new FormData();
+    fd.append('csrfmiddlewaretoken', CSRF);
+    fd.append('recipient_id', recipientId);
+    fetch(SHARE_URL, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, body: fd })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        btn.disabled = false;
+        btn.textContent = 'Send';
+        if (d.ok) {
+          statusEl.textContent = '✓ Meeting details sent!';
+          statusEl.className = 'mr-share-dm-status ok';
+          select.value = '';
+          setTimeout(function() { statusEl.className = 'mr-share-dm-status'; }, 3500);
+        } else {
+          statusEl.textContent = d.error || 'Failed to send.';
+          statusEl.className = 'mr-share-dm-status err';
+        }
+      })
+      .catch(function() {
+        btn.disabled = false;
+        btn.textContent = 'Send';
+        statusEl.textContent = 'Network error. Please try again.';
+        statusEl.className = 'mr-share-dm-status err';
+      });
+  };
+
 })();
 </script>
 {% endblock %}

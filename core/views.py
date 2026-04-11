@@ -85,9 +85,18 @@ def project_list(request):
         proj.main_img = next((i for i in imgs if i.is_main), imgs[0] if imgs else None)
 
     INDUSTRY_CHOICES = [
-        ("tech", "Technology"), ("health", "Healthcare"), ("finance", "Finance"),
-        ("education", "Education"), ("energy", "Energy"),
+        ("tech", "Technology"), ("finance", "Finance"), ("health", "Healthcare"),
+        ("edu", "Education"), ("energy", "Energy"), ("agriculture", "Agriculture"),
+        ("manufacturing", "Manufacturing"), ("other", "Other"),
     ]
+
+    industry_counts = {
+        r['industry']: r['cnt']
+        for r in Project.objects.filter(is_hidden=False)
+            .values('industry')
+            .annotate(cnt=Count('id'))
+        if r['industry']
+    }
 
     context = {
         "page_obj": page_obj,
@@ -100,6 +109,7 @@ def project_list(request):
         "current_stage": stage,
         "current_sort": sort,
         "industry_choices": INDUSTRY_CHOICES,
+        "industry_counts": industry_counts,
     }
     return render(request, "project_list.html", context)
 
@@ -167,18 +177,25 @@ from .models import Interest
 
 
 def investors_view(request):
+    from django.db.models import Count
     industry_filter = request.GET.get('industry')
+    base_qs = CustomUser.objects.filter(user_type='investor', is_active=True)
     if industry_filter:
-        investors = CustomUser.objects.filter(user_type='investor', is_active=True, userprofile__industry=industry_filter)
+        investors = base_qs.filter(userprofile__industry=industry_filter)
     else:
-        investors = CustomUser.objects.filter(user_type='investor', is_active=True)
+        investors = base_qs
 
     industries = UserProfile.INDUSTRY_CHOICES
+
+    # Count per industry for category cards
+    counts_qs = base_qs.values('userprofile__industry').annotate(cnt=Count('id'))
+    industry_counts = {r['userprofile__industry']: r['cnt'] for r in counts_qs}
 
     return render(request, 'investors.html', {
         'investors': investors,
         'industries': industries,
         'selected_industry': industry_filter,
+        'industry_counts': industry_counts,
     })
 
 def investors_by_industry(request):
@@ -489,6 +506,50 @@ def download_attachment(request, attachment_id):
         )
     from django.http import HttpResponseRedirect
     return HttpResponseRedirect(att.file.url)
+
+
+@login_required
+def download_message_attachment(request, attachment_id):
+    """Serve a chat attachment as a download and notify the sender."""
+    from .models import MessageAttachment, Notification
+    from django.http import FileResponse, HttpResponseRedirect
+    att = get_object_or_404(MessageAttachment, pk=attachment_id)
+    msg = att.message
+    conversation = msg.conversation
+
+    # Only allow participants of this conversation to download
+    if not conversation.participants.filter(pk=request.user.pk).exists():
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden()
+
+    # Notify the sender (if the downloader is someone else)
+    if request.user != msg.sender:
+        downloader_name = request.user.get_full_name() or request.user.username
+        file_label = att.filename or att.file.name.split('/')[-1]
+        Notification.objects.create(
+            user=msg.sender,
+            message=f"{downloader_name} downloaded your attachment \"{file_label}\".",
+            notification_type='other',
+            link=f'/chat/{conversation.pk}/',
+        )
+
+    # Stream the file with Content-Disposition: attachment so the browser
+    # triggers its native Save-As dialog (user can choose save location).
+    import mimetypes, os
+    from django.http import FileResponse, HttpResponse
+    filename = att.filename or os.path.basename(att.file.name)
+    mime_type, _ = mimetypes.guess_type(filename)
+    mime_type = mime_type or 'application/octet-stream'
+    try:
+        response = FileResponse(att.file.open('rb'), content_type=mime_type)
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        if att.file_size:
+            response['Content-Length'] = att.file_size
+        return response
+    except Exception:
+        # Fall back to redirect if file can't be opened (e.g. remote storage)
+        from django.http import HttpResponseRedirect
+        return HttpResponseRedirect(att.file.url)
 
 
 @login_required
@@ -863,18 +924,64 @@ def get_projects_data(request):
 
 
 def innovators_view(request):
-    innovators = CustomUser.objects.filter(user_type='innovator', is_active=True).select_related('userprofile')
+    from django.db.models import Count
+    industry_filter = request.GET.get('industry')
+    base_qs = CustomUser.objects.filter(user_type='innovator', is_active=True).select_related('userprofile')
+    innovators = base_qs.filter(userprofile__industry=industry_filter) if industry_filter else base_qs
 
     for innovator in innovators:
-        innovator.first_project = innovator.projects.order_by('-created_at').first()  # assumes related_name='projects'
-        # innovator.first_project = innovator.project_set.order_by('-created_at').first()
+        innovator.first_project = innovator.projects.order_by('-created_at').first()
 
-    return render(request, 'innovators.html', {'innovators': innovators})
+    # Count per industry for category cards
+    counts_qs = base_qs.values('userprofile__industry').annotate(cnt=Count('id'))
+    industry_counts = {r['userprofile__industry']: r['cnt'] for r in counts_qs}
+
+    return render(request, 'innovators.html', {
+        'innovators': innovators,
+        'industry_counts': industry_counts,
+        'selected_industry': industry_filter,
+    })
 
 
 
 @login_required
 @login_required
+@login_required
+def user_search_api(request):
+    """AJAX endpoint: search users by name/username for new-chat compose."""
+    from .models import CustomUser, UserProfile
+    q = request.GET.get('q', '').strip()
+    results = []
+    if q:
+        qs = CustomUser.objects.filter(is_active=True).exclude(pk=request.user.pk).filter(
+            Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(username__icontains=q) |
+            Q(email__icontains=q)
+        ).select_related('userprofile')[:20]
+    else:
+        # Show recent conversation partners first
+        recent_ids = (
+            Conversation.objects.filter(participants=request.user)
+            .values_list('participants', flat=True)
+            .distinct()
+        )
+        qs = CustomUser.objects.filter(pk__in=recent_ids, is_active=True).exclude(
+            pk=request.user.pk
+        ).select_related('userprofile')[:12]
+
+    for u in qs:
+        prof = getattr(u, 'userprofile', None)
+        avatar = prof.profile_pics.url if prof and prof.profile_pics else None
+        results.append({
+            'id':       u.pk,
+            'name':     u.get_full_name() or u.username,
+            'username': u.username,
+            'role':     u.user_type or 'member',
+            'avatar':   avatar,
+            'company':  getattr(prof, 'company', '') or '',
+        })
+    return JsonResponse({'users': results})
+
+
 def inbox(request):
     from .models import Conversation
     # Get all conversations this user is part of, newest message first
@@ -899,10 +1006,13 @@ def inbox(request):
     # Sort by last message timestamp descending
     inbox_items.sort(key=lambda x: x['last_msg'].timestamp if x['last_msg'] else x['conversation'].created_at, reverse=True)
 
+    # Recent contacts for the compose modal
+    recent_contact_ids = [item['other_user'].pk for item in inbox_items if item['other_user']][:8]
     return render(request, 'inbox.html', {
-        'inbox_items':  inbox_items,
-        'unread_count': total_unread,
-        'page_name':    'Inbox',
+        'inbox_items':         inbox_items,
+        'unread_count':        total_unread,
+        'page_name':           'Inbox',
+        'recent_contact_ids':  recent_contact_ids,
     })
 
 @login_required
@@ -1298,25 +1408,82 @@ def chat_page(request, conversation_id):
 
     participant = conversation.participants.exclude(id=request.user.id).first()
 
+    # Detect if current user is admin / if participant is admin
+    def _is_admin_user(u):
+        return u and (u.is_superuser or u.is_staff or getattr(u, 'user_type', '') == 'admin')
+
+    i_am_admin = _is_admin_user(request.user)
+    is_admin_chat = _is_admin_user(participant)
+
+    def _detect_attachment_type(f):
+        ct = getattr(f, 'content_type', '') or ''
+        ext = f.name.rsplit('.', 1)[-1].lower() if '.' in f.name else ''
+        if ct.startswith('image/') or ext in ('jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'):
+            return 'image'
+        if ct.startswith('video/') or ext in ('mp4', 'webm', 'mov', 'avi', 'mkv', 'm4v'):
+            return 'video'
+        return 'document'
+
     # Handle POST send
-    if request.method == 'POST':
+    if request.method == 'POST' and participant:
         content = request.POST.get('content', '').strip()
+        sticker  = request.POST.get('sticker', '').strip()
         reply_to_id = request.POST.get('reply_to_id', '').strip()
-        if content and participant:
-            reply_to_msg = None
-            if reply_to_id:
-                try:
-                    reply_to_msg = Message.objects.get(pk=reply_to_id, conversation=conversation)
-                except Message.DoesNotExist:
-                    pass
+        files = request.FILES.getlist('attachments')
+
+        reply_to_msg = None
+        if reply_to_id:
+            try:
+                reply_to_msg = Message.objects.get(pk=reply_to_id, conversation=conversation)
+            except Message.DoesNotExist:
+                pass
+
+        if sticker:
+            # Sticker message
             Message.objects.create(
-                sender=request.user,
-                recipient=participant,
+                sender=request.user, recipient=participant,
                 conversation=conversation,
-                content=content,
+                content=sticker, message_type='sticker',
                 reply_to=reply_to_msg,
             )
-            return redirect('chat_page', conversation_id=conversation.id)
+        elif files:
+            # File attachment message (content = optional caption)
+            from .models import MessageAttachment
+            msg = Message.objects.create(
+                sender=request.user, recipient=participant,
+                conversation=conversation,
+                content=content, message_type='file',
+                reply_to=reply_to_msg,
+            )
+            for f in files[:10]:
+                MessageAttachment.objects.create(
+                    message=msg,
+                    file=f,
+                    attachment_type=_detect_attachment_type(f),
+                    filename=f.name,
+                    file_size=f.size,
+                )
+        elif content:
+            # Plain text
+            Message.objects.create(
+                sender=request.user, recipient=participant,
+                conversation=conversation,
+                content=content, message_type='text',
+                reply_to=reply_to_msg,
+            )
+
+        # Auto-reply: send once when a non-admin user first messages an admin
+        if is_admin_chat and not i_am_admin and not conversation.auto_replied and (content or sticker or files):
+            auto_text = _admin_auto_reply(content or (sticker and 'Hi, I need help.') or files[0].name)
+            Message.objects.create(
+                sender=participant, recipient=request.user,
+                conversation=conversation,
+                content=auto_text,
+            )
+            conversation.auto_replied = True
+            conversation.save(update_fields=['auto_replied'])
+
+        return redirect('chat_page', conversation_id=conversation.id)
 
     form = MessageForm()
 
@@ -1326,7 +1493,7 @@ def chat_page(request, conversation_id):
         'sender', 'sender__userprofile',
         'reply_to', 'reply_to__sender',
         'shared_post', 'shared_project',
-    ).prefetch_related('reactions', 'reactions__user').order_by('timestamp')
+    ).prefetch_related('reactions', 'reactions__user', 'attachments').order_by('timestamp')
 
     # Mark incoming messages as read
     chat_messages.filter(recipient=request.user, is_read=False).update(is_read=True)
@@ -1354,6 +1521,7 @@ def chat_page(request, conversation_id):
     # Attach reaction summary directly to each message object
     from collections import defaultdict
     messages_list = list(chat_messages)
+    RESOLVED_PREFIX = "✅ Your support request has been marked"
     for msg in messages_list:
         groups = defaultdict(list)
         for r in msg.reactions.all():
@@ -1362,6 +1530,7 @@ def chat_page(request, conversation_id):
             {'emoji': e, 'count': len(uids), 'mine': request.user.id in uids}
             for e, uids in groups.items()
         ]
+        msg.is_system = msg.content.startswith(RESOLVED_PREFIX)
 
     context = {
         'conversation':            conversation,
@@ -1376,10 +1545,119 @@ def chat_page(request, conversation_id):
         'connection_pending_sent': connection_pending_sent,
         'project_context':         conversation.project if conversation.context_type == 'project' else None,
         'is_project_chat':         conversation.context_type == 'project',
+        'is_admin_chat':           is_admin_chat,
+        'i_am_admin':              i_am_admin,
+        'is_resolved':             conversation.is_resolved,
+        'resolved_at':             conversation.resolved_at,
     }
     return render(request, 'chat_page.html', context)
 
 
+
+
+def _admin_auto_reply(content):
+    """Return a contextual auto-reply text based on the user's message keywords."""
+    t = content.lower()
+    if any(w in t for w in ['password', 'reset', 'forgot']):
+        return (
+            "🔐 Thanks for reaching out about your password. We've received your request "
+            "and our team will process it shortly. For security, password resets are handled "
+            "manually — we'll send you instructions via email within a few hours."
+        )
+    if any(w in t for w in ['locked', 'lock', "can't log", "cant log", 'cannot log', 'login', 'sign in', 'access', 'locked out']):
+        return (
+            "🔓 We've received your account access request. Our team will investigate and "
+            "get your account restored as soon as possible. Please check your email for any "
+            "security alerts in the meantime."
+        )
+    if any(w in t for w in ['verify', 'verification', 'verified', 'badge']):
+        return (
+            "✅ Thank you for reaching out about account verification. We'll review your "
+            "profile and documents shortly. Verification typically takes 1–3 business days."
+        )
+    if any(w in t for w in ['bug', 'technical', 'error', 'broken', 'not working', "doesn't work", 'crash', 'glitch']):
+        return (
+            "🐛 Thanks for reporting this technical issue. Our engineering team has been "
+            "notified and will investigate. If you can share any screenshots or steps to "
+            "reproduce the problem, that would be very helpful!"
+        )
+    if any(w in t for w in ['delete', 'close account', 'remove account', 'deactivate']):
+        return (
+            "⚠️ We've received your account deletion/deactivation request. Please note this "
+            "action is irreversible. A member of our team will contact you to confirm before "
+            "proceeding — usually within 24 hours."
+        )
+    if any(w in t for w in ['upgrade', 'premium', 'plan', 'subscription', 'tier']):
+        return (
+            "🚀 Thanks for your interest in upgrading your account! Our team will reach out "
+            "with available options and pricing details. We'll be in touch shortly."
+        )
+    if any(w in t for w in ['report', 'inappropriate', 'spam', 'abuse', 'harassment', 'scam']):
+        return (
+            "🚨 We take reports of inappropriate content very seriously. Your report has been "
+            "logged and will be reviewed within 24 hours. Thank you for helping keep "
+            "Oduma Corp safe."
+        )
+    if any(w in t for w in ['profile', 'company', 'update info', 'edit my', 'change my']):
+        return (
+            "📝 We've received your request to update your profile or company information. "
+            "Please describe exactly what you'd like changed and our team will assist you."
+        )
+    return (
+        "👋 Thanks for reaching out to Oduma Corp Support! We've received your message "
+        "and a member of our team will respond as soon as possible. "
+        "Support hours are Monday–Friday, 9am–6pm WAT."
+    )
+
+
+@login_required
+def resolve_conversation(request, conversation_id):
+    from django.utils import timezone
+    if request.method != 'POST':
+        return redirect('chat_page', conversation_id=conversation_id)
+    conversation = get_object_or_404(Conversation, id=conversation_id)
+    # Only admin can resolve
+    if not (request.user.is_superuser or request.user.is_staff or getattr(request.user, 'user_type', '') == 'admin'):
+        return redirect('chat_page', conversation_id=conversation_id)
+    if request.user not in conversation.participants.all():
+        return redirect('inbox')
+
+    if not conversation.is_resolved:
+        conversation.is_resolved = True
+        conversation.resolved_at = timezone.now()
+        conversation.save(update_fields=['is_resolved', 'resolved_at'])
+
+        # Find the non-admin participant
+        user = conversation.participants.exclude(
+            id=request.user.id
+        ).exclude(
+            is_superuser=True
+        ).exclude(
+            is_staff=True
+        ).first()
+
+        if user:
+            from .models import Notification
+            # Post a system message in the conversation
+            Message.objects.create(
+                sender=request.user,
+                recipient=user,
+                conversation=conversation,
+                content=(
+                    "✅ Your support request has been marked as resolved by our team. "
+                    "If your issue is still ongoing, please reply to this message and we will "
+                    "reopen the case for you."
+                ),
+            )
+            # In-app notification
+            Notification.objects.create(
+                user=user,
+                notification_type='other',
+                message="Your support request has been resolved by Oduma Corp Admin.",
+                link=f"/chat/{conversation.id}/",
+            )
+
+    return redirect('chat_page', conversation_id=conversation_id)
 
 
 @login_required
@@ -1464,9 +1742,9 @@ def app_view(request):
     from .models import (
         Post, Project, ProjectProposal, Connection, ProfileView,
         Invention, Patent, Group, Page, Event, GroupMembership, ReadLater,
-        ProjectView
+        ProjectView, GroupDiscussion
     )
-    from django.db.models import Avg
+    from django.db.models import Avg, Count
 
     user = request.user
 
@@ -1574,6 +1852,22 @@ def app_view(request):
     except UserSubscription.DoesNotExist:
         user_sub = None
 
+    # Featured companies — top by follower count
+    from .models import Company as _Company
+    featured_companies = _Company.objects.annotate(
+        fc=Count('followers')
+    ).order_by('-fc', '-created_at')[:6]
+
+    # Trending discussions — top by comment count in last 30 days
+    from django.utils.timezone import now as _now
+    from datetime import timedelta as _td
+    _thirty_ago = _now() - _td(days=30)
+    trending_discussions = GroupDiscussion.objects.filter(
+        created_at__gte=_thirty_ago
+    ).annotate(
+        cmt_count=Count('comments')
+    ).order_by('-cmt_count', '-created_at').select_related('group', 'author')[:6]
+
     # Connections list for share-to-chat modal
     share_connections = [
         c.target if c.initiator == user else c.initiator
@@ -1605,6 +1899,9 @@ def app_view(request):
         'user_sub': user_sub,
         'share_connections': share_connections,
         'show_confetti': request.GET.get('welcome') == '1',
+        'featured_companies': featured_companies,
+        'trending_discussions': trending_discussions,
+        'trending_hashtags': _get_trending_hashtags(limit=10),
     }
     return render(request, 'app.html', context)
 
@@ -2538,10 +2835,79 @@ def meetings_list(request):
 
 @login_required
 def join_meeting(request, meeting_id):
-    from .models import Meeting
+    from .models import Meeting, Connection
     meeting = get_object_or_404(Meeting, pk=meeting_id)
     is_host = meeting.creator == request.user
-    return render(request, 'meeting_room.html', {'meeting': meeting, 'is_host': is_host})
+    # Build connected users list for the share-meeting dropdown
+    accepted = Connection.objects.filter(
+        Q(initiator=request.user, status='accepted') | Q(target=request.user, status='accepted')
+    ).select_related('initiator', 'target')
+    connections = [
+        c.target if c.initiator == request.user else c.initiator
+        for c in accepted
+        if (c.target if c.initiator == request.user else c.initiator).is_active
+    ]
+    return render(request, 'meeting_room.html', {
+        'meeting': meeting,
+        'is_host': is_host,
+        'connections': connections,
+    })
+
+@login_required
+def share_meeting(request, meeting_id):
+    """Send the meeting details as a DM to a selected connection."""
+    from .models import Meeting, CustomUser, Conversation, Message, Notification
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'POST required'}, status=405)
+    meeting = get_object_or_404(Meeting, pk=meeting_id)
+    # Only participants (or creator) can share
+    if not meeting.participants.filter(pk=request.user.pk).exists() and meeting.creator != request.user:
+        return JsonResponse({'ok': False, 'error': 'Forbidden'}, status=403)
+    recipient_id = request.POST.get('recipient_id', '').strip()
+    if not recipient_id:
+        return JsonResponse({'ok': False, 'error': 'Please choose a recipient.'})
+    try:
+        recipient = CustomUser.objects.get(pk=recipient_id)
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'User not found.'})
+
+    # Build a clean invite message
+    page_url = request.build_absolute_uri(f'/meetings/{meeting.pk}/join/')
+    lines = [f"📹 You're invited to join a meeting!",
+             f"",
+             f"📌 {meeting.title}"]
+    if meeting.scheduled_at:
+        lines.append(f"📅 {meeting.scheduled_at.strftime('%b %d, %Y at %H:%M UTC')}")
+    if meeting.zoom_join_url:
+        lines.append(f"🔗 {meeting.zoom_join_url}")
+    if meeting.zoom_meeting_id:
+        lines.append(f"🆔 Meeting ID: {meeting.zoom_meeting_id}")
+    if meeting.zoom_password:
+        lines.append(f"🔑 Passcode: {meeting.zoom_password}")
+    lines += [f"", f"Or open on Oduma Corp: {page_url}"]
+    text = "\n".join(lines)
+
+    # Get or create conversation
+    conv = Conversation.objects.filter(participants=request.user).filter(participants=recipient).first()
+    if not conv:
+        conv = Conversation.objects.create()
+        conv.participants.add(request.user, recipient)
+
+    msg = Message.objects.create(
+        conversation=conv,
+        sender=request.user,
+        recipient=recipient,
+        content=text,
+        message_type='text',
+    )
+    Notification.objects.create(
+        user=recipient,
+        message=f"{request.user.get_full_name() or request.user.username} shared a meeting with you: \"{meeting.title}\"",
+        notification_type='message_sent',
+        link=f'/chat/{conv.pk}/',
+    )
+    return JsonResponse({'ok': True, 'conversation_id': conv.pk})
+
 
 @login_required
 def end_meeting(request, meeting_id):
@@ -2578,43 +2944,52 @@ def create_meeting(request):
     from .models import Meeting, CustomUser
     from .zoom_api import create_meeting as zoom_create, ZoomConfigError, ZoomAPIError
     if request.method != 'POST':
-        return JsonResponse({'ok': False, 'error': 'POST required'}, status=405)
-    title        = request.POST.get('title', '').strip() or 'Oduma Corp Meeting'
-    other_id     = request.POST.get('other_user_id', '')
-    scheduled_at_str = request.POST.get('scheduled_at', '').strip()
-    scheduled_at = None
-    if scheduled_at_str:
-        try:
-            from django.utils.dateparse import parse_datetime
-            scheduled_at = parse_datetime(scheduled_at_str)
-        except Exception:
-            pass
-    # Create in Zoom
-    zoom_data = {}
+        # Browser navigated here directly — redirect to meetings page and auto-open the modal
+        from django.shortcuts import redirect
+        return redirect('/meetings/?new=1')
+    import secrets
     try:
-        zoom_data = zoom_create(title, scheduled_at=scheduled_at, duration_minutes=60)
-    except (ZoomConfigError, ZoomAPIError) as e:
-        pass  # Zoom not configured; meeting created locally only
-    meeting = Meeting.objects.create(
-        creator      = request.user,
-        title        = title,
-        scheduled_at = scheduled_at,
-        status       = 'scheduled',
-        zoom_meeting_id = str(zoom_data.get('id', '')),
-        zoom_join_url   = zoom_data.get('join_url', ''),
-        zoom_start_url  = zoom_data.get('start_url', ''),
-        zoom_password   = zoom_data.get('password', ''),
-    )
-    meeting.participants.add(request.user)
-    if other_id:
+        title        = request.POST.get('title', '').strip() or 'Oduma Corp Meeting'
+        other_id     = request.POST.get('other_user_id', '')
+        scheduled_at_str = request.POST.get('scheduled_at', '').strip()
+        scheduled_at = None
+        if scheduled_at_str:
+            try:
+                from django.utils.dateparse import parse_datetime
+                scheduled_at = parse_datetime(scheduled_at_str)
+            except Exception:
+                pass
+        # Create in Zoom
+        zoom_data = {}
         try:
-            other = CustomUser.objects.get(pk=other_id)
-            meeting.participants.add(other)
-        except CustomUser.DoesNotExist:
-            pass
-    from django.urls import reverse
-    url = reverse('join_meeting', args=[meeting.id])
-    return JsonResponse({'ok': True, 'url': url})
+            zoom_data = zoom_create(title, scheduled_at=scheduled_at, duration_minutes=60)
+        except Exception:
+            pass  # Zoom not configured; meeting created locally only
+        # Generate unique room_id to satisfy the unique constraint
+        room_id = secrets.token_hex(16)
+        meeting = Meeting.objects.create(
+            creator      = request.user,
+            title        = title,
+            room_id      = room_id,
+            scheduled_at = scheduled_at,
+            status       = 'scheduled',
+            zoom_meeting_id = str(zoom_data.get('id', '')),
+            zoom_join_url   = zoom_data.get('join_url', ''),
+            zoom_start_url  = zoom_data.get('start_url', ''),
+            zoom_password   = zoom_data.get('password', ''),
+        )
+        meeting.participants.add(request.user)
+        if other_id:
+            try:
+                other = CustomUser.objects.get(pk=other_id)
+                meeting.participants.add(other)
+            except CustomUser.DoesNotExist:
+                pass
+        from django.urls import reverse
+        url = reverse('join_meeting', args=[meeting.id])
+        return JsonResponse({'ok': True, 'url': url})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=500)
 
 # --- investor dashboard ---
 @login_required
@@ -3023,9 +3398,13 @@ def admin_panel(request):
     )
 
     now = _tz.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    week_start  = today_start - _tz.timedelta(days=7)
-    month_start = today_start - _tz.timedelta(days=30)
+    today_start     = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    yesterday_start = today_start - _tz.timedelta(days=1)
+    week_start      = today_start - _tz.timedelta(days=7)
+    month_start     = today_start - _tz.timedelta(days=30)
+    quarter_start   = today_start - _tz.timedelta(days=90)
+    half_start      = today_start - _tz.timedelta(days=180)
+    year_start      = today_start - _tz.timedelta(days=365)
 
     # ── Users (annotated) ────────────────────────────────────────────
     users = (
@@ -3200,40 +3579,28 @@ def admin_panel(request):
             'all':   qs.count(),
         }
 
+    def _gs(cutoff):
+        kw = lambda f, **extra: {f + '__gte': cutoff, **extra}
+        return {
+            'users':       CustomUser.objects.filter(**kw('date_joined')).count(),
+            'innovators':  CustomUser.objects.filter(**kw('date_joined', user_type='innovator')).count(),
+            'investors':   CustomUser.objects.filter(**kw('date_joined', user_type='investor')).count(),
+            'projects':    Project.objects.filter(**kw('created_at')).count(),
+            'posts':       Post.objects.filter(**kw('created_at')).count(),
+            'groups':      Group.objects.filter(**kw('created_at')).count(),
+            'pages':       Page.objects.filter(**kw('created_at')).count(),
+            'connections': Connection.objects.filter(**kw('created_at', status='accepted')).count(),
+            'messages':    Message.objects.filter(**kw('timestamp')).count(),
+        }
+
     growth_stats = {
-        'today': {
-            'users':       CustomUser.objects.filter(date_joined__gte=today_start).count(),
-            'innovators':  CustomUser.objects.filter(date_joined__gte=today_start, user_type='innovator').count(),
-            'investors':   CustomUser.objects.filter(date_joined__gte=today_start, user_type='investor').count(),
-            'projects':    Project.objects.filter(created_at__gte=today_start).count(),
-            'posts':       Post.objects.filter(created_at__gte=today_start).count(),
-            'groups':      Group.objects.filter(created_at__gte=today_start).count(),
-            'pages':       Page.objects.filter(created_at__gte=today_start).count(),
-            'connections': Connection.objects.filter(created_at__gte=today_start, status='accepted').count(),
-            'messages':    Message.objects.filter(timestamp__gte=today_start).count(),
-        },
-        'week': {
-            'users':       CustomUser.objects.filter(date_joined__gte=week_start).count(),
-            'innovators':  CustomUser.objects.filter(date_joined__gte=week_start, user_type='innovator').count(),
-            'investors':   CustomUser.objects.filter(date_joined__gte=week_start, user_type='investor').count(),
-            'projects':    Project.objects.filter(created_at__gte=week_start).count(),
-            'posts':       Post.objects.filter(created_at__gte=week_start).count(),
-            'groups':      Group.objects.filter(created_at__gte=week_start).count(),
-            'pages':       Page.objects.filter(created_at__gte=week_start).count(),
-            'connections': Connection.objects.filter(created_at__gte=week_start, status='accepted').count(),
-            'messages':    Message.objects.filter(timestamp__gte=week_start).count(),
-        },
-        'month': {
-            'users':       CustomUser.objects.filter(date_joined__gte=month_start).count(),
-            'innovators':  CustomUser.objects.filter(date_joined__gte=month_start, user_type='innovator').count(),
-            'investors':   CustomUser.objects.filter(date_joined__gte=month_start, user_type='investor').count(),
-            'projects':    Project.objects.filter(created_at__gte=month_start).count(),
-            'posts':       Post.objects.filter(created_at__gte=month_start).count(),
-            'groups':      Group.objects.filter(created_at__gte=month_start).count(),
-            'pages':       Page.objects.filter(created_at__gte=month_start).count(),
-            'connections': Connection.objects.filter(created_at__gte=month_start, status='accepted').count(),
-            'messages':    Message.objects.filter(timestamp__gte=month_start).count(),
-        },
+        'today':     _gs(today_start),
+        'yesterday': _gs(yesterday_start),
+        'week':      _gs(week_start),
+        'month':     _gs(month_start),
+        'quarter':   _gs(quarter_start),
+        'half':      _gs(half_start),
+        'year':      _gs(year_start),
         'all': {
             'users':       total_users,
             'innovators':  CustomUser.objects.filter(user_type='innovator').count(),
@@ -3337,6 +3704,44 @@ def admin_panel(request):
 
 def _admin_post_redirect(request):
     return redirect(request.META.get('HTTP_REFERER', 'admin_panel'))
+
+
+@login_required
+def admin_stats_range(request):
+    """AJAX endpoint: returns growth stats for a custom date range."""
+    if request.user.user_type != 'admin':
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+    from django.utils import timezone as _tz
+    from .models import (
+        CustomUser, Project, Post, Group, Page, Connection, Message,
+    )
+    import json as _json
+    from datetime import datetime
+    from_str = request.GET.get('from', '')
+    to_str   = request.GET.get('to', '')
+    try:
+        from_dt = datetime.strptime(from_str, '%Y-%m-%d')
+        to_dt   = datetime.strptime(to_str,   '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+        from_dt = _tz.make_aware(from_dt)
+        to_dt   = _tz.make_aware(to_dt)
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid dates. Use YYYY-MM-DD.'}, status=400)
+
+    def _r(f, **extra):
+        return {f + '__range': (from_dt, to_dt), **extra}
+
+    data = {
+        'users':       CustomUser.objects.filter(**_r('date_joined')).count(),
+        'innovators':  CustomUser.objects.filter(**_r('date_joined', user_type='innovator')).count(),
+        'investors':   CustomUser.objects.filter(**_r('date_joined', user_type='investor')).count(),
+        'projects':    Project.objects.filter(**_r('created_at')).count(),
+        'posts':       Post.objects.filter(**_r('created_at')).count(),
+        'groups':      Group.objects.filter(**_r('created_at')).count(),
+        'pages':       Page.objects.filter(**_r('created_at')).count(),
+        'connections': Connection.objects.filter(**_r('created_at', status='accepted')).count(),
+        'messages':    Message.objects.filter(**_r('timestamp')).count(),
+    }
+    return JsonResponse(data)
 
 @login_required
 def admin_add_event(request):
@@ -3593,8 +3998,34 @@ def admin_remove_sub_admin(request, user_id):
 # --- companies / businesses ---
 def companies_list(request):
     from .models import Company
-    companies = Company.objects.all().order_by('-created_at')
-    return render(request, 'companies.html', {'companies': companies})
+    from django.db.models import Count, Q
+    q = request.GET.get('q', '').strip()
+    industry_filter = request.GET.get('industry', '')
+    base_qs = Company.objects.all()
+    qs = base_qs
+    if industry_filter:
+        qs = qs.filter(industry=industry_filter)
+    if q:
+        qs = qs.filter(Q(name__icontains=q) | Q(tagline__icontains=q) | Q(description__icontains=q))
+    companies = qs.order_by('-created_at')
+
+    counts_qs = base_qs.values('industry').annotate(cnt=Count('id'))
+    industry_counts = {r['industry']: r['cnt'] for r in counts_qs}
+
+    user_company = None
+    if request.user.is_authenticated:
+        user_company = Company.objects.filter(owner=request.user).first()
+
+    return render(request, 'companies.html', {
+        'companies': companies,
+        'industry_counts': industry_counts,
+        'selected_industry': industry_filter,
+        # Legacy template vars kept for compatibility
+        'industry': industry_filter,
+        'industry_choices': Company.INDUSTRY_CHOICES,
+        'q': q,
+        'user_company': user_company,
+    })
 
 
 @login_required
@@ -3917,13 +4348,93 @@ def page_create(request):
 
 @login_required
 def page_detail(request, page_id):
-    page = get_object_or_404(Page, pk=page_id)
-    return render(request, 'page_detail.html', {'page': page})
+    from .models import Page, PagePost, PagePostReaction, PagePostImage
+    pg = get_object_or_404(Page, pk=page_id)
+    posts = PagePost.objects.filter(page=pg).prefetch_related('post_images', 'reactions', 'shares')
+    is_owner = request.user.is_authenticated and pg.owner == request.user
+    is_follower = request.user.is_authenticated and pg.followers.filter(pk=request.user.pk).exists()
+    user_reactions = {}
+    if request.user.is_authenticated:
+        for r in PagePostReaction.objects.filter(post__page=pg, user=request.user):
+            user_reactions[r.post_id] = r.reaction
+    # annotate counts
+    for post in posts:
+        post.reaction_count = post.reactions.count()
+        post.share_count = post.shares.count()
+    # Handle POST (owner posting)
+    if request.method == 'POST' and is_owner:
+        content = request.POST.get('content', '').strip()
+        if content:
+            new_post = PagePost.objects.create(page=pg, content=content)
+            images = request.FILES.getlist('images')
+            cover_index = int(request.POST.get('cover_index', 0))
+            for i, img in enumerate(images[:5]):
+                PagePostImage.objects.create(
+                    post=new_post, image=img, is_cover=(i == cover_index), order=i
+                )
+        return redirect('page_detail', page_id=page_id)
+    return render(request, 'page_detail.html', {
+        'pg': pg,
+        'posts': posts,
+        'is_owner': is_owner,
+        'is_follower': is_follower,
+        'user_reactions': user_reactions,
+    })
+
+
+@login_required
+def page_follow_toggle(request, page_id):
+    from .models import Page
+    import json
+    pg = get_object_or_404(Page, pk=page_id)
+    if pg.owner == request.user:
+        return JsonResponse({'error': 'owner'}, status=400)
+    if pg.followers.filter(pk=request.user.pk).exists():
+        pg.followers.remove(request.user)
+        following = False
+    else:
+        pg.followers.add(request.user)
+        following = True
+    return JsonResponse({'following': following, 'count': pg.followers.count()})
+
+
+@login_required
+def page_post_react(request, page_id, post_id):
+    from .models import PagePost, PagePostReaction
+    post = get_object_or_404(PagePost, pk=post_id, page_id=page_id)
+    reaction_type = request.POST.get('reaction', 'like')
+    existing = PagePostReaction.objects.filter(post=post, user=request.user).first()
+    if existing:
+        if existing.reaction == reaction_type:
+            existing.delete()
+            reacted = False
+            my_reaction = None
+        else:
+            existing.reaction = reaction_type
+            existing.save()
+            reacted = True
+            my_reaction = reaction_type
+    else:
+        PagePostReaction.objects.create(post=post, user=request.user, reaction=reaction_type)
+        reacted = True
+        my_reaction = reaction_type
+    return JsonResponse({'reacted': reacted, 'my_reaction': my_reaction, 'total': post.reactions.count()})
+
+
+@login_required
+def page_post_share(request, page_id, post_id):
+    from .models import PagePost, PagePostShare
+    post = get_object_or_404(PagePost, pk=post_id, page_id=page_id)
+    _, created = PagePostShare.objects.get_or_create(post=post, user=request.user)
+    return JsonResponse({'already_shared': not created})
+
 
 @login_required
 def page_post_media(request, page_id, post_id):
-    page = get_object_or_404(Page, pk=page_id)
-    return render(request, 'page_post_media.html', {'page': page, 'post_id': post_id})
+    from .models import Page, PagePost
+    pg = get_object_or_404(Page, pk=page_id, owner=request.user)
+    post = get_object_or_404(PagePost, pk=post_id, page=pg)
+    return render(request, 'page_post_media.html', {'pg': pg, 'post': post})
 
 # --- posts ---
 def post_detail(request, post_id):
@@ -5532,4 +6043,69 @@ def innovator_dashboard(request):
         'upcoming_events':        upcoming_events,
         'registered_event_ids':   registered_event_ids,
     })
+
+
+@login_required
+def get_counts(request):
+    """Lightweight JSON endpoint — returns unread notification + message counts for the current user."""
+    from .models import Notification, Message
+    notif_count = Notification.objects.filter(user=request.user, is_read=False).count()
+    msg_count   = Message.objects.filter(recipient=request.user, is_read=False).count()
+    return JsonResponse({'notifications': notif_count, 'messages': msg_count})
+
+
+# ─── Hashtag helpers & views ──────────────────────────────────────────────────
+
+import re as _hashtag_re
+
+def _get_trending_hashtags(limit=10):
+    """Return [(tag, count), ...] from recent post content."""
+    from .models import Post
+    contents = Post.objects.filter(is_hidden=False).order_by('-created_at').values_list('content', flat=True)[:400]
+    counts = {}
+    for text in contents:
+        for tag in _hashtag_re.findall(r'#(\w+)', (text or '').lower()):
+            counts[tag] = counts.get(tag, 0) + 1
+    return sorted(counts.items(), key=lambda x: -x[1])[:limit]
+
+
+def hashtag_feed(request, tag):
+    from .models import Post, Project, GroupDiscussion
+    tag = tag.lower().strip()
+    pattern = f'#{tag}'
+
+    posts = (
+        Post.objects.filter(content__icontains=pattern, is_hidden=False)
+        .select_related('user', 'user__userprofile')
+        .order_by('-created_at')[:20]
+    )
+    projects = (
+        Project.objects.filter(
+            Q(description__icontains=pattern) | Q(keywords__icontains=pattern),
+            is_hidden=False
+        )
+        .select_related('owner', 'owner__userprofile')
+        .prefetch_related('images')
+        .order_by('-created_at')[:12]
+    )
+    discussions = (
+        GroupDiscussion.objects.filter(content__icontains=pattern)
+        .select_related('group', 'author')
+        .order_by('-created_at')[:10]
+    )
+    related = _get_trending_hashtags(limit=15)
+
+    return render(request, 'hashtag_feed.html', {
+        'tag': tag,
+        'posts': posts,
+        'projects': projects,
+        'discussions': discussions,
+        'related_hashtags': [t for t, _ in related if t != tag][:12],
+        'total': posts.count() + projects.count() + discussions.count(),
+    })
+
+
+def popular_hashtags(request):
+    tags = _get_trending_hashtags(limit=20)
+    return JsonResponse({'hashtags': [{'name': t, 'count': c} for t, c in tags]})
 

@@ -1,5 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
+{% load dict_extras %}
 
 {% block title %}Home Feed{% endblock %}
 
@@ -41,8 +42,11 @@
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 1px 4px rgba(10,22,40,.04);
+  margin-bottom: 20px;
 }
-.ap-card + .ap-card { margin-top: 14px; }
+.ap-card + .ap-card { 
+  /* margin-top: 14px;  */
+}
 .ap-card-header {
   display: flex;
   align-items: center;
@@ -112,7 +116,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 5px 0;
-  font-size: .78rem;
+  /* font-size: .78rem; */
   color: #6b7280;
 }
 .ap-stat-row span:last-child { font-weight: 700; color: #1B5EC7; }
@@ -453,6 +457,7 @@
   position: relative;
   box-shadow: 0 1px 4px rgba(10,22,40,.04);
   transition: box-shadow .2s, transform .2s;
+  margin-bottom: 10px;
 }
 .ap-feed-card:hover {
   box-shadow: 0 6px 24px rgba(27,94,199,.1);
@@ -533,6 +538,71 @@
   transition: transform .4s ease;
 }
 .ap-card-img-wrap:hover .ap-card-img { transform: scale(1.02); }
+
+/* ── Reaction bar ──────────────────────────────────────────────── */
+.ap-reactions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 12px;
+  border-top: 1px solid #f0f4fa;
+  flex-wrap: wrap;
+}
+.ap-rxn-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border: none;
+  background: transparent;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .8rem;
+  font-weight: 600;
+  color: #4b5563;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: 1;
+}
+.ap-rxn-btn:hover { background: #f0f4fa; color: #0A1628; }
+.ap-rxn-btn--on { color: #0057FF; background: #ebf2ff; }
+.ap-rxn-btn--on:hover { background: #d6e6ff; }
+.ap-rxn-btn--send { color: #0057FF; }
+.ap-rxn-btn--view { margin-left: auto; color: #0057FF; font-weight: 700; }
+.ap-rxn-cnt { font-weight: 700; font-size: .76rem; min-width: 12px; text-align: center; }
+.ap-rxn-stat {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 10px; font-size: .78rem; color: #9ca3af; font-weight: 600;
+}
+/* Inline star picker */
+.ap-inline-rate { position: relative; display: inline-flex; align-items: center; }
+.ap-star-picker {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  display: none;
+  gap: 2px;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid #e4eaf2;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.12);
+  z-index: 200;
+}
+.ap-star {
+  border: none;
+  background: transparent;
+  font-size: 1.15rem;
+  cursor: pointer;
+  color: #d1d5db;
+  padding: 1px 3px;
+  transition: color .1s, transform .1s;
+  line-height: 1;
+}
+.ap-star:hover, .ap-star--hover { color: #f59e0b; transform: scale(1.25); }
+.ap-star--rated { color: #f59e0b; }
 
 /* Card stats bar */
 .ap-card-stats {
@@ -697,7 +767,9 @@
 }
 
 /* ── Right sidebar ──────────────────────────────────────────────── */
-.ap-sidebar-right { display: flex; flex-direction: column; gap: 14px; }
+.ap-sidebar-right { display: flex; flex-direction: column; 
+  /* gap: 14px;  */
+}
 
 /* Proposal item */
 .ap-proposal-item {
@@ -892,6 +964,137 @@
 }
 #qm-textarea:focus { border-color: #1B5EC7; }
 .qm-modal__actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; }
+
+/* ── Featured Companies ─────────────────────────────────────────── */
+.ap-discover-section { margin: 0 0 18px; }
+.ap-discover-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.ap-discover-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem; font-weight: 800;
+  color: #0A1628; letter-spacing: -.3px;
+}
+.ap-discover-viewall {
+  font-size: .78rem; font-weight: 700; color: #0057FF;
+  text-decoration: none;
+}
+.ap-discover-viewall:hover { text-decoration: underline; }
+
+/* Company cards grid */
+.ap-co-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 680px) {
+  .ap-co-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.ap-co-card {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #0A1628 0%, #112244 55%, #1B3566 100%);
+  padding: 18px 16px 16px;
+  display: flex; flex-direction: column; gap: 8px;
+  min-height: 140px;
+  transition: transform .18s, box-shadow .18s;
+  text-decoration: none;
+}
+.ap-co-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,87,255,.22); }
+.ap-co-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 80% 20%, rgba(0,87,255,.18) 0%, transparent 65%);
+  pointer-events: none;
+}
+.ap-co-industry {
+  display: inline-block;
+  font-size: .63rem; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 3px 9px; border-radius: 20px;
+  background: rgba(0,87,255,.25); color: #93c5fd;
+  align-self: flex-start;
+}
+.ap-co-logo-wrap {
+  width: 40px; height: 40px; border-radius: 8px;
+  background: rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0;
+}
+.ap-co-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.ap-co-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .92rem; font-weight: 800;
+  color: #fff; line-height: 1.2;
+  text-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+.ap-co-meta {
+  font-size: .72rem; color: #93c5fd; font-weight: 500; margin-top: auto;
+}
+.ap-co-cta {
+  font-size: .72rem; font-weight: 700; color: #60a5fa;
+  text-decoration: none; margin-top: 4px;
+  display: inline-flex; align-items: center; gap: 3px;
+}
+.ap-co-cta:hover { color: #fff; }
+.ap-co-verified {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(0,87,255,.4); border-radius: 50%;
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .6rem; color: #93c5fd;
+}
+
+/* Trending Discussions */
+.ap-disc-list { display: flex; flex-direction: column; gap: 0; }
+.ap-disc-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 13px 16px;
+  border-bottom: 1px solid #f0f4fa;
+  text-decoration: none;
+  transition: background .14s;
+  border-radius: 0;
+}
+.ap-disc-item:first-child { border-radius: 10px 10px 0 0; }
+.ap-disc-item:last-child { border-bottom: none; border-radius: 0 0 10px 10px; }
+.ap-disc-item:hover { background: #f7faff; }
+.ap-disc-rank {
+  flex-shrink: 0;
+  width: 26px; height: 26px; border-radius: 8px;
+  background: linear-gradient(135deg, #0057FF, #1B5EC7);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .7rem; font-weight: 900; color: #fff;
+  margin-top: 2px;
+}
+.ap-disc-body { flex: 1; min-width: 0; }
+.ap-disc-group {
+  font-size: .68rem; font-weight: 700; color: #0057FF;
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-bottom: 3px;
+}
+.ap-disc-title {
+  font-size: .875rem; font-weight: 700; color: #0A1628;
+  line-height: 1.3; margin-bottom: 4px;
+  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.ap-disc-footer {
+  display: flex; align-items: center; gap: 10px;
+  font-size: .7rem; color: #9ca3af;
+}
+.ap-disc-badge {
+  background: #f0f9f4; color: #059669;
+  font-size: .65rem; font-weight: 700;
+  padding: 2px 7px; border-radius: 20px;
+}
+.ap-disc-list-wrap {
+  background: #fff;
+  border: 1px solid #e8edf5;
+  border-radius: 10px;
+  overflow: hidden;
+}
 </style>
 
 <div class="ap-wrap">
@@ -1103,7 +1306,7 @@
         {% if post.title %}
         <a href="{% url 'post_detail' post.id %}" class="ap-card-title-link">{{ post.title }}</a>
         {% endif %}
-        <p class="ap-card-text">{{ post.content|truncatewords:50 }}</p>
+        <p class="ap-card-text">{{ post.content|truncatewords:50|linkify_hashtags }}</p>
       </div>
 
       {% if post.image %}
@@ -1112,21 +1315,32 @@
       </a>
       {% endif %}
 
-      <!-- Stats -->
-      <div class="ap-card-stats">
-        <span>{{ post.likes.count }} likes</span>
-        <span>{{ post.comments.count }} comments</span>
-        <span>{{ post.reposts.count }} reposts</span>
-      </div>
-
-      <!-- Actions -->
-      <div class="ap-card-actions">
-        <a href="{% url 'post_detail' post.id %}" class="ap-action-btn">Read More</a>
+      <!-- Reaction bar -->
+      <div class="ap-reactions">
         {% if user.is_authenticated %}
-        <button class="ap-action-btn" onclick="ocToggleReadLater('post', {{ post.id }}, this)">Save</button>
-        <button class="ap-action-btn" onclick="ocShare('{{ post.title|escapejs }}', window.location.origin+'/posts/{{ post.id }}/', 'post', {{ post.id }}, this)">↑ Share</button>
-        <button class="ap-share-chat-btn" onclick="stcOpen('post', {{ post.id }}, '{{ post.title|default:post.content|truncatewords:6|escapejs }}')">↗ Send</button>
+        <button class="ap-rxn-btn{% if user in post.likes.all %} ap-rxn-btn--on{% endif %}"
+                onclick="ocLikePost({{ post.id }}, this)">
+          👍 <span class="ap-rxn-lbl">{% if user in post.likes.all %}Liked{% else %}Like{% endif %}</span><span class="ap-rxn-cnt">{{ post.likes.count }}</span>
+        </button>
+        {% else %}
+        <span class="ap-rxn-stat">👍 {{ post.likes.count }}</span>
         {% endif %}
+        <a href="{% url 'post_detail' post.id %}#comments" class="ap-rxn-btn">
+          💬 <span class="ap-rxn-lbl">Comment</span><span class="ap-rxn-cnt">{{ post.comments.count }}</span>
+        </a>
+        <span class="ap-rxn-stat">🔁 {{ post.reposts.count }}</span>
+        {% if user.is_authenticated %}
+        <button class="ap-rxn-btn" onclick="ocToggleReadLater('post', {{ post.id }}, this)">
+          🔖 <span class="ap-rxn-lbl">Save</span>
+        </button>
+        <button class="ap-rxn-btn" onclick="ocShare('{{ post.title|escapejs }}', window.location.origin+'/posts/{{ post.id }}/', 'post', {{ post.id }}, this)">
+          ↑ <span class="ap-rxn-lbl">Share</span>
+        </button>
+        <button class="ap-rxn-btn ap-rxn-btn--send" onclick="stcOpen('post', {{ post.id }}, '{{ post.title|default:post.content|truncatewords:6|escapejs }}')">
+          ↗ <span class="ap-rxn-lbl">Send</span>
+        </button>
+        {% endif %}
+        <a href="{% url 'post_detail' post.id %}" class="ap-rxn-btn ap-rxn-btn--view">Read More →</a>
       </div>
 
       <!-- Comments preview -->
@@ -1252,7 +1466,7 @@
           {% endif %}
           {% endwith %}
         </div>
-        <p class="ap-card-text">{{ project.description|truncatewords:35 }}</p>
+        <p class="ap-card-text">{{ project.description|truncatewords:35|linkify_hashtags }}</p>
       </div>
 
       <div class="ap-card-img-wrap">
@@ -1263,36 +1477,57 @@
         {% endif %}
       </div>
 
-      <!-- Stats -->
+      <!-- Stats row -->
       <div class="ap-card-stats">
-        <span>{{ project.view_count|default:"0" }} views</span>
-        <span>{{ project.like_count|default:"0" }} likes</span>
-        <span>{{ project.collab_count|default:"0" }} collabs</span>
-        <span>{{ project.proposal_count|default:"0" }} proposals</span>
+        <span>👁 {{ project.view_count|default:"0" }}</span>
+        <span>👍 {{ project.liked_by.count }}</span>
+        <span>🤝 {{ project.collab_count|default:"0" }}</span>
+        <span>📄 {{ project.proposal_count|default:"0" }}</span>
       </div>
 
-      <!-- Actions -->
-      <div class="ap-card-actions">
-        <a href="{% url 'project_detail' project.pk %}" class="ap-action-btn">View Details</a>
-        {% if user.is_authenticated and user != entry.innovator %}
-        <button class="ap-action-btn"
+      <!-- Reaction bar -->
+      <div class="ap-reactions">
+        {% if user.is_authenticated %}
+        <button class="ap-rxn-btn{% if user in project.liked_by.all %} ap-rxn-btn--on{% endif %}"
+                onclick="ocLikeProject({{ project.pk }}, this)">
+          👍 <span class="ap-rxn-lbl">{% if user in project.liked_by.all %}Liked{% else %}Like{% endif %}</span><span class="ap-rxn-cnt">{{ project.liked_by.count }}</span>
+        </button>
+        <div class="ap-inline-rate" id="apr-{{ project.pk }}">
+          <button class="ap-rxn-btn" onclick="aprToggle({{ project.pk }})">
+            ⭐ <span class="ap-rxn-lbl">Rate</span>
+          </button>
+          <div class="ap-star-picker" id="apr-stars-{{ project.pk }}">
+            <button class="ap-star" data-val="1" onclick="ocRateProject({{ project.pk }},1,this)">★</button>
+            <button class="ap-star" data-val="2" onclick="ocRateProject({{ project.pk }},2,this)">★</button>
+            <button class="ap-star" data-val="3" onclick="ocRateProject({{ project.pk }},3,this)">★</button>
+            <button class="ap-star" data-val="4" onclick="ocRateProject({{ project.pk }},4,this)">★</button>
+            <button class="ap-star" data-val="5" onclick="ocRateProject({{ project.pk }},5,this)">★</button>
+          </div>
+        </div>
+        {% if user != entry.innovator %}
+        <button class="ap-rxn-btn"
                 onclick="qmOpen('collaborate','{{ project.title|escapejs }}',{{ project.pk }},'{% url "project_collaborate" project.pk %}')">
-          Collaborate
+          🤝 <span class="ap-rxn-lbl">Collaborate</span>
         </button>
         {% if user.user_type == 'investor' %}
-        <button class="ap-action-btn"
+        <button class="ap-rxn-btn"
                 onclick="qmOpen('proposal','{{ project.title|escapejs }}',{{ project.pk }},'{% url "project_send_proposal" project.pk %}')">
-          Propose
+          📄 <span class="ap-rxn-lbl">Propose</span>
         </button>
         {% endif %}
-        <button class="ap-action-btn" onclick="ocToggleReadLater('project', {{ project.pk }}, this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
-        <button class="ap-action-btn" onclick="ocShare('{{ project.title|escapejs }}', window.location.origin+'/projects/{{ project.pk }}/', 'project', {{ project.pk }}, this)">↑</button>
-        <button class="ap-share-chat-btn" onclick="stcOpen('project', {{ project.pk }}, '{{ project.title|escapejs }}')">↗ Send</button>
-        {% elif user.is_authenticated %}
-        <button class="ap-action-btn" onclick="ocToggleReadLater('project', {{ project.pk }}, this)">Save</button>
-        <button class="ap-action-btn" onclick="ocShare('{{ project.title|escapejs }}', window.location.origin+'/projects/{{ project.pk }}/', 'project', {{ project.pk }}, this)">↑ Share</button>
-        <button class="ap-share-chat-btn" onclick="stcOpen('project', {{ project.pk }}, '{{ project.title|escapejs }}')">↗ Send</button>
         {% endif %}
+        <button class="ap-rxn-btn" onclick="ocToggleReadLater('project', {{ project.pk }}, this)">
+          🔖 <span class="ap-rxn-lbl">Save</span>
+        </button>
+        <button class="ap-rxn-btn ap-rxn-btn--send" onclick="stcOpen('project', {{ project.pk }}, '{{ project.title|escapejs }}')">
+          ↗ <span class="ap-rxn-lbl">Send</span>
+        </button>
+        {% else %}
+        <button class="ap-rxn-btn" onclick="ocToggleReadLater('project', {{ project.pk }}, this)">🔖 <span class="ap-rxn-lbl">Save</span></button>
+        <button class="ap-rxn-btn" onclick="ocShare('{{ project.title|escapejs }}', window.location.origin+'/projects/{{ project.pk }}/', 'project', {{ project.pk }}, this)">↑ <span class="ap-rxn-lbl">Share</span></button>
+        <button class="ap-rxn-btn ap-rxn-btn--send" onclick="stcOpen('project', {{ project.pk }}, '{{ project.title|escapejs }}')">↗ <span class="ap-rxn-lbl">Send</span></button>
+        {% endif %}
+        <a href="{% url 'project_detail' project.pk %}" class="ap-rxn-btn ap-rxn-btn--view">View Details →</a>
       </div>
 
       <!-- Project comments preview -->
@@ -1392,6 +1627,70 @@
         </a>
       </div>
     </div><!-- /ap-tab-pricing -->
+
+    <!-- ══ FEATURED COMPANIES ══ -->
+    {% if featured_companies %}
+    <div class="ap-discover-section">
+      <div class="ap-discover-header">
+        <span class="ap-discover-title">Featured Companies</span>
+        <a href="{% url 'companies_list' %}" class="ap-discover-viewall">Browse all →</a>
+      </div>
+      <div class="ap-co-grid">
+        {% for company in featured_companies %}
+        <a href="{% url 'company_profile' company.id %}" class="ap-co-card">
+          {% if company.is_verified %}
+          <div class="ap-co-verified" title="Verified">✓</div>
+          {% endif %}
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="ap-co-logo-wrap">
+              {% if company.logo %}
+                <img src="{{ company.logo.url }}" alt="{{ company.name }}">
+              {% else %}
+                <span style="font-size:1.1rem;color:#93c5fd;">🏢</span>
+              {% endif %}
+            </div>
+            <span class="ap-co-industry">{{ company.get_industry_display|default:company.industry }}</span>
+          </div>
+          <div class="ap-co-name">{{ company.name }}</div>
+          {% if company.tagline %}
+          <div style="font-size:.72rem;color:#cbd5e1;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;">{{ company.tagline }}</div>
+          {% endif %}
+          <div class="ap-co-meta">{{ company.fc|default:"0" }} follower{{ company.fc|pluralize }}</div>
+          <span class="ap-co-cta">View Company →</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ══ TRENDING DISCUSSIONS ══ -->
+    {% if trending_discussions %}
+    <div class="ap-discover-section">
+      <div class="ap-discover-header">
+        <span class="ap-discover-title">Trending Discussions</span>
+        <a href="{% url 'groups_list' %}" class="ap-discover-viewall">See all groups →</a>
+      </div>
+      <div class="ap-disc-list-wrap">
+        <div class="ap-disc-list">
+          {% for disc in trending_discussions %}
+          <a href="{% url 'group_discussion_detail' disc.group.id disc.id %}" class="ap-disc-item">
+            <div class="ap-disc-rank">{{ forloop.counter }}</div>
+            <div class="ap-disc-body">
+              <div class="ap-disc-group">{{ disc.group.name }}</div>
+              <div class="ap-disc-title">{{ disc.title }}</div>
+              <div class="ap-disc-footer">
+                <span>by {{ disc.author.get_full_name|default:disc.author.username }}</span>
+                <span>·</span>
+                <span>{{ disc.created_at|timesince }} ago</span>
+                <span class="ap-disc-badge">{{ disc.cmt_count }} comment{{ disc.cmt_count|pluralize }}</span>
+              </div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
 
     <!-- Load more -->
     <div class="ap-load-more">
@@ -1523,16 +1822,32 @@
       <div class="ap-sidebar-stat"><span>Pages</span><span>{{ pages_count|default:"0" }}</span></div>
     </div>
 
-    <!-- Oduma Services quick links -->
+    <!-- Oduma Corp Services quick links -->
     <div class="ap-card" style="overflow:hidden;">
       <div class="ap-card-header">
-        <span class="ap-card-title">Oduma Services</span>
+        <span class="ap-card-title">Oduma Corp Services</span>
       </div>
       <a href="{% url 'training_hub' %}" style="display:flex;align-items:center;gap:10px;padding:11px 18px;font-size:.84rem;font-weight:600;color:#374151;text-decoration:none;border-bottom:1px solid #f5f5f5;transition:background .15s;" onmouseenter="this.style.background='#f4f7fb'" onmouseleave="this.style.background=''">Training</a>
       <a href="{% url 'mentorship_hub' %}" style="display:flex;align-items:center;gap:10px;padding:11px 18px;font-size:.84rem;font-weight:600;color:#374151;text-decoration:none;border-bottom:1px solid #f5f5f5;transition:background .15s;" onmouseenter="this.style.background='#f4f7fb'" onmouseleave="this.style.background=''">Mentorship</a>
       <a href="{% url 'request_consulting' %}" style="display:flex;align-items:center;gap:10px;padding:11px 18px;font-size:.84rem;font-weight:600;color:#374151;text-decoration:none;border-bottom:1px solid #f5f5f5;transition:background .15s;" onmouseenter="this.style.background='#f4f7fb'" onmouseleave="this.style.background=''">Consulting</a>
       <a href="{% url 'events_hub' %}" style="display:flex;align-items:center;gap:10px;padding:11px 18px;font-size:.84rem;font-weight:600;color:#374151;text-decoration:none;transition:background .15s;" onmouseenter="this.style.background='#f4f7fb'" onmouseleave="this.style.background=''">Events</a>
     </div>
+
+    {% if trending_hashtags %}
+    <div class="ap-card">
+      <div class="ap-card-header">
+        <span class="ap-card-title">Trending Hashtags</span>
+      </div>
+      <div style="padding:10px 16px 14px;">
+        {% for tag, count in trending_hashtags %}
+        <a href="{% url 'hashtag_feed' tag %}" style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f4f6fa;text-decoration:none;" onmouseenter="this.style.background=''" onmouseleave="this.style.background=''">
+          <span style="color:#0057FF;font-weight:700;font-size:.875rem;">#{{ tag }}</span>
+          <span style="font-size:.72rem;color:#9ca3af;font-weight:600;">{{ count }} post{{ count|pluralize }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
 
   </aside><!-- /right sidebar -->
 
@@ -1707,7 +2022,7 @@ function ocCloseWelcome() {
       <div style="margin-bottom:16px;">
         <label style="display:block;font-size:.82rem;font-weight:700;color:#374151;margin-bottom:6px;">Content <span style="color:#dc2626;">*</span></label>
         <textarea name="post_content" rows="6" required
-                  placeholder="Share your thoughts, insights, or update in detail…"
+                  placeholder="Share your thoughts, insights, or update… Use #hashtags to boost visibility"
                   style="width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:10px 14px;font-size:.875rem;font-family:inherit;resize:vertical;min-height:140px;box-sizing:border-box;line-height:1.6;transition:border-color .18s;"
                   onfocus="this.style.borderColor='#1B5EC7'" onblur="this.style.borderColor='#e0e6f0'"></textarea>
       </div>
@@ -1992,5 +2307,109 @@ document.addEventListener('click', function(e) {
     document.querySelectorAll('.ap-options-menu').forEach(function(m){ m.style.display = 'none'; });
   }
 });
+
+// ── Inline reactions ────────────────────────────────────────────────────
+(function(){
+  function csrf() {
+    var el = document.querySelector('[name=csrfmiddlewaretoken]');
+    return el ? el.value : '';
+  }
+
+  // Like a post (AJAX)
+  window.ocLikePost = function(postId, btn) {
+    if (!btn) return;
+    fetch('/posts/' + postId + '/like/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrf(), 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.classList.toggle('ap-rxn-btn--on', d.liked);
+      var lbl = btn.querySelector('.ap-rxn-lbl');
+      if (lbl) lbl.textContent = d.liked ? 'Liked' : 'Like';
+      var cnt = btn.querySelector('.ap-rxn-cnt');
+      if (cnt && d.count !== undefined) cnt.textContent = d.count;
+    })
+    .catch(function(){});
+  };
+
+  // Like a project (AJAX)
+  window.ocLikeProject = function(projectId, btn) {
+    if (!btn) return;
+    fetch('/like_project/' + projectId + '/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrf(), 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.classList.toggle('ap-rxn-btn--on', d.liked);
+      var lbl = btn.querySelector('.ap-rxn-lbl');
+      if (lbl) lbl.textContent = d.liked ? 'Liked' : 'Like';
+      var cnt = btn.querySelector('.ap-rxn-cnt');
+      if (cnt) cnt.textContent = Math.max(0, parseInt(cnt.textContent || 0) + (d.liked ? 1 : -1));
+    })
+    .catch(function(){});
+  };
+
+  // Toggle inline star picker
+  window.aprToggle = function(projectId) {
+    var picker = document.getElementById('apr-stars-' + projectId);
+    if (!picker) return;
+    var open = picker.style.display === 'flex';
+    // close all others first
+    document.querySelectorAll('.ap-star-picker').forEach(function(p){ p.style.display = 'none'; });
+    if (!open) picker.style.display = 'flex';
+  };
+
+  // Star hover effect
+  document.addEventListener('mouseover', function(e) {
+    var star = e.target.closest('.ap-star');
+    if (!star) return;
+    var picker = star.closest('.ap-star-picker');
+    if (!picker) return;
+    var val = parseInt(star.dataset.val);
+    picker.querySelectorAll('.ap-star').forEach(function(s, i) {
+      s.classList.toggle('ap-star--hover', i < val);
+    });
+  });
+  document.addEventListener('mouseout', function(e) {
+    var star = e.target.closest('.ap-star');
+    if (!star) return;
+    var picker = star.closest('.ap-star-picker');
+    if (!picker) return;
+    picker.querySelectorAll('.ap-star').forEach(function(s){ s.classList.remove('ap-star--hover'); });
+  });
+
+  // Close pickers when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.ap-inline-rate')) {
+      document.querySelectorAll('.ap-star-picker').forEach(function(p){ p.style.display = 'none'; });
+    }
+  });
+
+  // Rate a project (AJAX)
+  window.ocRateProject = function(projectId, rating, starBtn) {
+    fetch('/rate_project/' + projectId + '/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf() },
+      body: JSON.stringify({ rating: rating })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(){
+      var picker = starBtn.closest('.ap-star-picker');
+      if (picker) {
+        picker.querySelectorAll('.ap-star').forEach(function(s, i){
+          s.classList.toggle('ap-star--rated', i < rating);
+          s.classList.remove('ap-star--hover');
+        });
+        setTimeout(function(){ picker.style.display = 'none'; }, 600);
+      }
+      // Update rate button label
+      var rateBtn = document.querySelector('#apr-' + projectId + ' .ap-rxn-btn .ap-rxn-lbl');
+      if (rateBtn) rateBtn.textContent = rating + '★ Rated';
+    })
+    .catch(function(){});
+  };
+})();
 </script>
 {% endblock %}

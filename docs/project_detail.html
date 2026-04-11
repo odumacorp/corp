@@ -1,10 +1,11 @@
 {% extends '_partials/base.html' %}
 {% load static %}
+{% load dict_extras %}
 
 {% block title %}{{ project.title }} — Oduma Corp{% endblock %}
 
 {% block meta_description %}{{ project.description|truncatewords:30 }}{% endblock %}
-{% block meta_keywords %}{{ project.keywords }},{{ project.industry }},{{ project.category }},innovation,Africa,Oduma{% endblock %}
+{% block meta_keywords %}{{ project.keywords }},{{ project.industry }},{{ project.category }},innovation,Africa,Oduma Corp{% endblock %}
 {% block og_title %}{{ project.title }}{% endblock %}
 {% block og_description %}{{ project.description|truncatewords:30 }}{% endblock %}
 {% block og_image %}{% if main_image %}{{ request.scheme }}://{{ request.get_host }}{{ main_image.image.url }}{% endif %}{% endblock %}
@@ -208,9 +209,9 @@
         <!-- ── /Review Status Bar ─────────────────────────────── -->
 
         {% if is_connected or request.user == project.owner %}
-        <p class="pd-desc">{{ project.description }}</p>
+        <p class="pd-desc">{{ project.description|linkify_hashtags }}</p>
         {% else %}
-        <p class="pd-desc">{{ project.description|truncatewords:40 }}</p>
+        <p class="pd-desc">{{ project.description|truncatewords:40|linkify_hashtags }}</p>
         {% if request.user.is_authenticated %}
         <div style="background:#f3f4f6;border-radius:10px;padding:14px 18px;margin-top:8px;font-size:.875rem;color:#6b7280;">
           Connect with {{ project.owner.first_name }} to view the full project details.

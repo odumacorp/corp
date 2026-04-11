@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                     ('marketing','Marketing & Growth'),('legal','Legal & Compliance'),
                 ], default='entrepreneurship', max_length=50)),
                 ('level', models.CharField(choices=[('beginner','Beginner'),('intermediate','Intermediate'),('advanced','Advanced')], default='beginner', max_length=20)),
-                ('instructor_name', models.CharField(blank=True, default='Oduma Team', max_length=200)),
+                ('instructor_name', models.CharField(blank=True, default='Oduma Corp Team', max_length=200)),
                 ('cover_image', models.ImageField(blank=True, null=True, upload_to='course_covers/')),
                 ('duration_hours', models.PositiveIntegerField(default=0)),
                 ('is_published', models.BooleanField(default=False)),

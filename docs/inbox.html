@@ -128,9 +128,118 @@
 .ib-empty__title{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#374151;margin-bottom:6px;}
 .ib-empty__sub{font-size:.875rem;color:#9ca3af;}
 
+/* New chat button */
+.ib-compose-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 20px;border-radius:24px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#1B5EC7,#0A1628);color:#fff;
+  font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700;
+  box-shadow:0 2px 12px rgba(27,94,199,.28);transition:opacity .15s,transform .1s;
+}
+.ib-compose-btn:hover{opacity:.9;transform:translateY(-1px);}
+
+/* Compose modal overlay */
+.ib-compose-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(10,22,40,.45);backdrop-filter:blur(4px);
+  z-index:900;align-items:flex-start;justify-content:center;padding:60px 20px 20px;
+}
+.ib-compose-overlay.open{display:flex;}
+
+/* Modal box */
+.ib-compose-modal{
+  background:#fff;border-radius:20px;width:100%;max-width:480px;
+  box-shadow:0 24px 64px rgba(10,22,40,.2);
+  display:flex;flex-direction:column;max-height:calc(100vh - 100px);
+  animation:ibModalIn .2s ease;overflow:hidden;
+}
+@keyframes ibModalIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* Modal header */
+.ib-compose-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px 14px;border-bottom:1px solid #f0f4f8;flex-shrink:0;
+}
+.ib-compose-head h2{
+  font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#0A1628;margin:0;
+}
+.ib-compose-x{
+  width:30px;height:30px;border-radius:50%;border:none;
+  background:#f3f4f6;color:#6b7280;cursor:pointer;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;transition:background .12s;
+}
+.ib-compose-x:hover{background:#e5e7eb;color:#111;}
+
+/* Search input */
+.ib-compose-search{
+  padding:12px 16px;border-bottom:1px solid #f0f4f8;flex-shrink:0;position:relative;
+}
+.ib-compose-search input{
+  width:100%;padding:10px 14px 10px 38px;
+  border:1.5px solid #e0e6f0;border-radius:12px;
+  font-family:inherit;font-size:.9rem;color:#0A1628;
+  background:#fafbff;outline:none;box-sizing:border-box;
+  transition:border-color .18s,box-shadow .18s;
+}
+.ib-compose-search input:focus{
+  border-color:#1B5EC7;background:#fff;
+  box-shadow:0 0 0 3px rgba(27,94,199,.1);
+}
+.ib-compose-search-icon{
+  position:absolute;left:28px;top:50%;transform:translateY(-50%);
+  color:#9ca3af;pointer-events:none;
+}
+
+/* Results list */
+.ib-compose-results{overflow-y:auto;flex:1;}
+.ib-compose-results::-webkit-scrollbar{width:4px;}
+.ib-compose-results::-webkit-scrollbar-thumb{background:#e0e6f0;border-radius:4px;}
+
+.ib-compose-section-label{
+  font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
+  color:#9ca3af;padding:10px 16px 6px;
+}
+
+.ib-user-row{
+  display:flex;align-items:center;gap:12px;padding:11px 16px;
+  cursor:pointer;text-decoration:none;color:inherit;
+  transition:background .12s;border:none;background:transparent;width:100%;text-align:left;
+}
+.ib-user-row:hover{background:#f8faff;}
+.ib-user-row:active{background:#eef4ff;}
+
+.ib-user-av{
+  width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;
+}
+.ib-user-av-init{
+  width:42px;height:42px;border-radius:50%;
+  background:linear-gradient(135deg,#1B5EC7,#0A1628);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:800;color:#fff;flex-shrink:0;
+}
+.ib-user-info{flex:1;min-width:0;}
+.ib-user-name{font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700;color:#0A1628;}
+.ib-user-meta{font-size:.75rem;color:#9ca3af;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ib-user-role{
+  font-size:.65rem;font-weight:700;text-transform:capitalize;
+  padding:2px 8px;border-radius:20px;flex-shrink:0;
+}
+.ib-user-role--innovator{background:#dbeafe;color:#1e40af;}
+.ib-user-role--investor{background:#dcfce7;color:#166534;}
+.ib-user-role--admin{background:#f3e8ff;color:#6d28d9;}
+.ib-user-role--member{background:#f3f4f6;color:#374151;}
+
+.ib-compose-empty{
+  text-align:center;padding:32px 20px;color:#9ca3af;font-size:.875rem;
+}
+.ib-compose-spinner{
+  text-align:center;padding:20px;color:#9ca3af;font-size:.8rem;
+}
+
 @media(max-width:560px){
   .ib-page{padding:24px 14px 60px;}
   .ib-tile{padding:12px 14px;}
+  .ib-compose-overlay{padding:40px 12px 12px;}
 }
 </style>
 {% endblock %}
@@ -153,6 +262,10 @@
       <h1>Inbox {% if unread_count %}<span class="ib-unread-badge">{{ unread_count }} new</span>{% endif %}</h1>
       <p class="ib-count">{{ inbox_items|length }} conversation{{ inbox_items|length|pluralize }}</p>
     </div>
+    <button class="ib-compose-btn" onclick="openCompose()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      New Chat
+    </button>
   </div>
 
   {% if inbox_items %}
@@ -190,7 +303,24 @@
         <p class="ib-preview">
           {% if item.last_msg %}
             {% if item.last_msg.sender == request.user %}You: {% endif %}
-            {{ item.last_msg.content }}
+            {% if item.last_msg.message_type == 'sticker' %}
+              {{ item.last_msg.content }} Sticker
+            {% elif item.last_msg.message_type == 'file' %}
+              {% with atts=item.last_msg.attachments.all %}
+              {% if atts %}
+                {% with a=atts.0 %}
+                  {% if a.attachment_type == 'image' %}📷 Image{% elif a.attachment_type == 'video' %}🎬 Video{% else %}📄 {{ a.filename|truncatechars:24 }}{% endif %}
+                  {% if atts|length > 1 %} +{{ atts|length|add:"-1" }} more{% endif %}
+                {% endwith %}
+              {% else %}
+                📎 Attachment
+              {% endif %}
+              {% endwith %}
+            {% elif item.last_msg.content %}
+              {{ item.last_msg.content }}
+            {% else %}
+              📎 Attachment
+            {% endif %}
           {% else %}
             No messages yet
           {% endif %}
@@ -223,4 +353,111 @@
   {% endif %}
 
 </div>
+
+<!-- ── Compose / New Chat Modal ── -->
+<div class="ib-compose-overlay" id="ibComposeOverlay" onclick="handleOverlayClick(event)">
+  <div class="ib-compose-modal" id="ibComposeModal">
+
+    <div class="ib-compose-head">
+      <h2>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:6px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        New Conversation
+      </h2>
+      <button class="ib-compose-x" onclick="closeCompose()" aria-label="Close">✕</button>
+    </div>
+
+    <div class="ib-compose-search">
+      <svg class="ib-compose-search-icon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="ibSearchInput" placeholder="Search by name or username…"
+             oninput="ibSearch(this.value)" autocomplete="off">
+    </div>
+
+    <div class="ib-compose-results" id="ibResults">
+      <!-- populated by JS -->
+    </div>
+
+  </div>
+</div>
+
+<script>
+var IB_SEARCH_URL  = '{% url "user_search_api" %}';
+var IB_START_URL   = '/start_conversation/';  // + user_id + /
+var _ibSearchTimer = null;
+
+function openCompose() {
+  document.getElementById('ibComposeOverlay').classList.add('open');
+  document.getElementById('ibSearchInput').value = '';
+  ibLoadRecents();
+  setTimeout(function(){ document.getElementById('ibSearchInput').focus(); }, 80);
+}
+function closeCompose() {
+  document.getElementById('ibComposeOverlay').classList.remove('open');
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('ibComposeOverlay')) closeCompose();
+}
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeCompose(); });
+
+function ibSearch(q) {
+  clearTimeout(_ibSearchTimer);
+  _ibSearchTimer = setTimeout(function(){ ibFetch(q.trim()); }, 220);
+}
+
+function ibFetch(q) {
+  var box = document.getElementById('ibResults');
+  box.innerHTML = '<div class="ib-compose-spinner">Searching…</div>';
+  fetch(IB_SEARCH_URL + '?q=' + encodeURIComponent(q))
+    .then(function(r){ return r.json(); })
+    .then(function(d){ ibRender(d.users, q ? null : 'Recent Conversations'); })
+    .catch(function(){ box.innerHTML = '<div class="ib-compose-empty">Could not load results.</div>'; });
+}
+
+function ibLoadRecents() {
+  ibFetch('');
+}
+
+function ibRender(users, label) {
+  var box = document.getElementById('ibResults');
+  box.innerHTML = '';
+  if (!users.length) {
+    box.innerHTML = '<div class="ib-compose-empty">No users found.</div>';
+    return;
+  }
+  if (label) {
+    var lbl = document.createElement('div');
+    lbl.className = 'ib-compose-section-label';
+    lbl.textContent = label;
+    box.appendChild(lbl);
+  }
+  users.forEach(function(u) {
+    var row = document.createElement('a');
+    row.className = 'ib-user-row';
+    row.href = IB_START_URL + u.id + '/';
+
+    var roleClass = 'ib-user-role--' + (u.role === 'admin' ? 'admin' : u.role === 'innovator' ? 'innovator' : u.role === 'investor' ? 'investor' : 'member');
+
+    var initials = u.name.split(' ').slice(0,2).map(function(w){ return w[0]||''; }).join('').toUpperCase();
+
+    row.innerHTML =
+      (u.avatar
+        ? '<img src="' + u.avatar + '" class="ib-user-av" alt="">'
+        : '<div class="ib-user-av-init">' + initials + '</div>') +
+      '<div class="ib-user-info">' +
+        '<div class="ib-user-name">' + ibEsc(u.name) + '</div>' +
+        '<div class="ib-user-meta">' +
+          (u.company ? ibEsc(u.company) + ' · ' : '') +
+          '@' + ibEsc(u.username) +
+        '</div>' +
+      '</div>' +
+      '<span class="ib-user-role ' + roleClass + '">' + ibEsc(u.role) + '</span>';
+
+    box.appendChild(row);
+  });
+}
+
+function ibEsc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+
 {% endblock %}

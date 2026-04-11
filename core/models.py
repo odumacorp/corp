@@ -569,17 +569,22 @@ class Conversation(models.Model):
     post          = models.ForeignKey('Post', on_delete=models.SET_NULL, null=True, blank=True, related_name='conversations')
     project       = models.ForeignKey('Project', on_delete=models.SET_NULL, null=True, blank=True, related_name='conversations')
     created_at    = models.DateTimeField(auto_now_add=True)
+    is_resolved   = models.BooleanField(default=False)
+    resolved_at   = models.DateTimeField(null=True, blank=True)
+    auto_replied  = models.BooleanField(default=False)
 
 class Message(models.Model):
     MSG_TYPE_CHOICES = [
         ('text',            'Text'),
         ('post_share',      'Shared Post'),
         ('project_share',   'Shared Project'),
+        ('sticker',         'Sticker'),
+        ('file',            'File Attachment'),
     ]
     sender         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
     recipient      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_messages')
     reply_to       = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='replies')
-    content        = models.TextField()
+    content        = models.TextField(blank=True, default='')
     message_type   = models.CharField(max_length=20, choices=MSG_TYPE_CHOICES, default='text')
     shared_post    = models.ForeignKey('Post',    on_delete=models.SET_NULL, null=True, blank=True, related_name='chat_shares')
     shared_project = models.ForeignKey('Project', on_delete=models.SET_NULL, null=True, blank=True, related_name='chat_shares')
@@ -593,6 +598,23 @@ class Message(models.Model):
 
     def __str__(self):
         return f"From {self.sender} to {self.recipient} at {self.timestamp}"
+
+
+class MessageAttachment(models.Model):
+    ATTACHMENT_TYPES = [
+        ('image',    'Image'),
+        ('video',    'Video'),
+        ('document', 'Document'),
+    ]
+    message         = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='attachments')
+    file            = models.FileField(upload_to='chat_attachments/%Y/%m/')
+    attachment_type = models.CharField(max_length=10, choices=ATTACHMENT_TYPES, default='document')
+    filename        = models.CharField(max_length=255, blank=True)
+    file_size       = models.PositiveIntegerField(default=0)
+    created_at      = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.attachment_type}: {self.filename}"
 
 
 ###pagination
@@ -1208,7 +1230,7 @@ class Course(models.Model):
     category     = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='entrepreneurship')
     level        = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
     instructor   = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='courses_taught')
-    instructor_name = models.CharField(max_length=200, blank=True, default='Oduma Team')
+    instructor_name = models.CharField(max_length=200, blank=True, default='Oduma Corp Team')
     cover_image  = models.ImageField(upload_to='course_covers/', blank=True, null=True)
     duration_hours = models.PositiveIntegerField(default=0, help_text='Estimated hours to complete')
     is_published = models.BooleanField(default=False)

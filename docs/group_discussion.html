@@ -1,5 +1,6 @@
 {% extends '_partials/base.html' %}
 {% load static %}
+{% load dict_extras %}
 
 {% block title %}{{ discussion.title }} | {{ group.name }} | OdumaCorp{% endblock %}
 
@@ -231,7 +232,7 @@
       <span><i class="fi fi-rr-comment fi-sm"></i> {{ top_comments|length }} comment{{ top_comments|length|pluralize }}</span>
       <span><i class="fi fi-rr-heart fi-sm"></i> <span id="likeCount">{{ like_count }}</span> like{{ like_count|pluralize }}</span>
     </div>
-    <div class="gdc-content">{{ discussion.content }}</div>
+    <div class="gdc-content">{{ discussion.content|linkify_hashtags }}</div>
 
     {% with imgs=discussion.images.all %}{% with total=imgs|length %}
     {% if total %}

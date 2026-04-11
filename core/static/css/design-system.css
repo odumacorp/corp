@@ -1806,3 +1806,45 @@ input:focus, textarea:focus, select:focus {
 .oc-picker-item:hover { border-color: #004AAD; transform: scale(1.06); }
 .oc-picker-item--selected { border-color: #10b981 !important; }
 .oc-picker-item canvas { display: block; }
+
+/* ── Hashtag styles ──────────────────────────────────────────────────────── */
+.oc-hashtag {
+  color: #0057FF;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color .15s;
+}
+.oc-hashtag:hover { color: #003ecc; text-decoration: underline; }
+
+/* Autocomplete dropdown */
+.oc-ht-dropdown {
+  position: absolute;
+  z-index: 9999;
+  background: #fff;
+  border: 1px solid #e0e8f4;
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0,87,255,.13);
+  min-width: 200px;
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+}
+.oc-ht-item {
+  padding: 8px 14px;
+  font-size: .875rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background .1s;
+}
+.oc-ht-item:hover { background: #f4f8ff; }
+.oc-ht-item__name { color: #0057FF; font-weight: 700; }
+.oc-ht-item__count { font-size: .72rem; color: #9ca3af; }
+
+/* Hashtag hint below inputs */
+.oc-ht-hint {
+  font-size: .72rem;
+  color: #9ca3af;
+  margin-top: 4px;
+}
