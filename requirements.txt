@@ -21,6 +21,7 @@ psycopg==3.2.6
 psycopg-binary==3.3.3
 pydantic==2.12.5
 pydantic_core==2.41.5
+PyJWT==2.12.1
 python-decouple==3.8
 python-dotenv==1.2.2
 requests==2.33.1
