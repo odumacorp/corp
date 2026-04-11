@@ -3,7 +3,9 @@ anthropic==0.86.0
 anyio==4.13.0
 asgiref==3.8.1
 certifi==2026.2.25
+cffi==2.0.0
 charset-normalizer==3.4.7
+cryptography==46.0.7
 distro==1.9.0
 dj-database-url==2.3.0
 Django==5.2.13
@@ -21,6 +23,7 @@ pillow==11.1.0
 pipreqs==0.4.13
 psycopg==3.2.6
 psycopg-binary==3.3.3
+pycparser==3.0
 pydantic==2.12.5
 pydantic_core==2.41.5
 PyJWT==2.12.1
