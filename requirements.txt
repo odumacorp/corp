@@ -10,3 +10,4 @@ psycopg-binary>=3.2.10
 sqlparse==0.5.3
 typing-extensions>=4.8.0
 whitenoise
+python-decouple
