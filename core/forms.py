@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 # from .models import CustomUser, Idea, Event
 from .models import CustomUser
+import uuid
 from django.shortcuts import redirect
 from .models import Post, Comment
 from django import forms
@@ -18,6 +19,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 
 from .models import Project, Attachment, Patent
+
 
 ##innovator page form
 
@@ -131,7 +133,7 @@ class CustomUserCreationForm(UserCreationForm):
     #     if commit:
     #         user.save()
     #     return user
-    import uuid
+
     def save(self, commit=True):
         user = super().save(commit=False)
 
