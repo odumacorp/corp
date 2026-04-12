@@ -45,17 +45,19 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+   
 
     'allauth.account.middleware.AccountMiddleware',
     'core.middleware.PageVisibilityMiddleware',
     'core.middleware.AnalyticsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -101,8 +103,12 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 # SECURITY WARNING: keep the secret key used in production secret!
 # ALLOWED_HOSTS = config('ALLOWED_HOSTS', default="").split(",")
-ALLOWED_HOSTS = "*","127.0.0.1", "localhost", "0.0.0.0", "connect.onrender.com","corp-jmny.onrender.com", "connect-j2bu.onrender.com", "connect-ihni.onrender.com"
-
+# ALLOWED_HOSTS = "*","127.0.0.1", "localhost", "0.0.0.0", "connect.onrender.com","corp-jmny.onrender.com", "connect-j2bu.onrender.com", "connect-ihni.onrender.com"
+ALLOWED_HOSTS = [
+    "corp-jmny.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
 
 # ALLOWED_HOSTS = "127.0.0.1, localhost, 0.0.0.0, connect.onrender.com, connect-j2bu.onrender.com, connect-ihni.onrender.com"
 
