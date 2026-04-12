@@ -2549,11 +2549,24 @@ def register(request):
             )
 
             # ── Welcome DM from the first superuser (team account) ──
-            admin = User.objects.filter(is_superuser=True).order_by('pk').first()
-            if admin and admin != user:
-                conv = Conversation.objects.create(context_type='direct')
-                conv.participants.add(admin, user)
-                Msg.objects.create(
+
+            # admin = User.objects.filter(is_superuser=True).order_by('pk').first()
+
+            # if admin is not None and admin != user:
+            #     conv = Conversation.objects.create(context_type='direct')
+            #     conv.save()
+
+            #     conv.participants.add(admin)
+            #     conv.participants.add(user)
+            
+            try:
+                admin = User.objects.filter(is_superuser=True).order_by('pk').first()
+
+                if admin is not None and admin != user:
+                    conv = Conversation.objects.create(context_type='direct')
+                    conv.participants.add(admin, user)
+
+                    Msg.objects.create(
                     conversation=conv,
                     sender=admin,
                     recipient=user,
@@ -2570,6 +2583,12 @@ def register(request):
                         "If you have any questions, just reply here. We're happy to help! 🚀"
                     ),
                 )
+
+            except Exception as e:
+                print("Conversation creation failed:", e)
+                
+                
+   
 
             # Log the user in
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
