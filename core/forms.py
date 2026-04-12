@@ -131,7 +131,7 @@ class CustomUserCreationForm(UserCreationForm):
     #     if commit:
     #         user.save()
     #     return user
-
+    import uuid
     def save(self, commit=True):
         user = super().save(commit=False)
 
@@ -141,11 +141,14 @@ class CustomUserCreationForm(UserCreationForm):
         user.user_type = self.cleaned_data.get("user_type")
         user.email = self.cleaned_data.get("email")
 
+        # base_username = f"{user.first_name.lower()}.{user.last_name.lower()}"
         base_username = f"{user.first_name.lower()}.{user.last_name.lower()}"
+        user.username = f"{base_username}-{uuid.uuid4().hex[:6]}"
         username = base_username
         counter = 1
 
-        while CustomUser.objects.filter(username=username).exists():
+        # while CustomUser.objects.filter(username=username).exists():
+        while CustomUser.objects.filter(username=username):
             username = f"{base_username}{counter}"
             counter += 1
 
