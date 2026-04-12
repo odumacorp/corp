@@ -141,19 +141,48 @@ class CustomUserCreationForm(UserCreationForm):
         user.user_type = self.cleaned_data.get("user_type")
         user.email = self.cleaned_data.get("email")
 
-        user.username = f"{user.first_name.lower()}.{user.last_name.lower()}"
-
+        base_username = f"{user.first_name.lower()}.{user.last_name.lower()}"
+        username = base_username
         counter = 1
-        base_username = user.username
 
-        while CustomUser.objects.filter(username=user.username).exists():
-            user.username = f"{base_username}{counter}"
+        while CustomUser.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
             counter += 1
+
+        user.username = username
 
         if commit:
             user.save()
 
         return user
+
+
+    # def save(self, commit=True):
+    #     user = super().save(commit=False)
+
+    #     user.first_name = self.cleaned_data.get("first_name")
+    #     user.last_name = self.cleaned_data.get("last_name") or "admin"
+    #     user.phone_number = self.cleaned_data.get("phone_number")
+    #     user.user_type = self.cleaned_data.get("user_type")
+    #     user.email = self.cleaned_data.get("email")
+
+    #     user.username = f"{user.first_name.lower()}.{user.last_name.lower()}"
+
+    #     counter = 1
+    #     base_username = user.username
+
+    #     while CustomUser.objects.filter(username=username).exists():
+    #         username = f"{base_username}{counter}"
+    #         counter += 1
+
+    #     # while CustomUser.objects.filter(username=user.username).exists():
+    #     #     user.username = f"{base_username}{counter}"
+    #     #     counter += 1
+
+    #     if commit:
+    #         user.save()
+
+    #     return user
 
 
 
