@@ -2549,46 +2549,37 @@ def register(request):
             )
 
             # ── Welcome DM from the first superuser (team account) ──
-
-            # admin = User.objects.filter(is_superuser=True).order_by('pk').first()
-
-            # if admin is not None and admin != user:
-            #     conv = Conversation.objects.create(context_type='direct')
-            #     conv.save()
-
-            #     conv.participants.add(admin)
-            #     conv.participants.add(user)
-            
             try:
                 admin = User.objects.filter(is_superuser=True).order_by('pk').first()
 
-                if admin is not None and admin != user:
+                if admin and admin.pk != user.pk:
+
                     conv = Conversation.objects.create(context_type='direct')
-                    conv.participants.add(admin, user)
+
+                    conv.participants.add(admin.pk)
+                    conv.participants.add(user.pk)
 
                     Msg.objects.create(
-                    conversation=conv,
-                    sender=admin,
-                    recipient=user,
-                    content=(
-                        f"Hi {first_name}, welcome to Oduma Corp! 👋\n\n"
-                        "Here are your login details — keep them safe:\n\n"
-                        f"📧 Email: {user.email}\n"
-                        f"👤 Username: {user.username}\n\n"
-                        "You can log in using either your email or username.\n\n"
-                        "Here's how to get started:\n"
-                        "1️⃣ Complete your profile — add a photo, bio, and your industry.\n"
-                        "2️⃣ Post your first project (innovators) or browse opportunities (investors).\n"
-                        "3️⃣ Connect with people in your industry and start collaborating.\n\n"
-                        "If you have any questions, just reply here. We're happy to help! 🚀"
-                    ),
-                )
+                        conversation_id=conv.pk,
+                        sender_id=admin.pk,
+                        recipient_id=user.pk,
+            
+                        content=(
+                            f"Hi {first_name}, welcome to Oduma Corp! 👋\n\n"
+                            "Here are your login details — keep them safe:\n\n"
+                            f"📧 Email: {user.email}\n"
+                            f"👤 Username: {user.username}\n\n"
+                            "You can log in using either your email or username.\n\n"
+                            "Here's how to get started:\n"
+                            "1️⃣ Complete your profile — add a photo, bio, and your industry.\n"
+                            "2️⃣ Post your first project (innovators) or browse opportunities (investors).\n"
+                            "3️⃣ Connect with people in your industry and start collaborating.\n\n"
+                            "If you have any questions, just reply here. We're happy to help! 🚀"
+                        ),
+                    )
 
             except Exception as e:
                 print("Conversation creation failed:", e)
-                
-                
-   
 
             # Log the user in
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
