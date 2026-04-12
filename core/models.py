@@ -52,8 +52,8 @@ class CustomUser(AbstractUser):
     user_type = models.CharField(max_length=10, choices=USER_TYPES)
     bio = models.TextField(blank=True, null=True)
     profile_pics = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    # first_name = models.CharField(max_length=50)
+    # last_name = models.CharField(max_length=50)
 
     # Use unique related_name
     friends = models.ManyToManyField('self', symmetrical=False, related_name='friend_of', blank=True)

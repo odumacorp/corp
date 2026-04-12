@@ -111,25 +111,48 @@ class CustomUserCreationForm(UserCreationForm):
             'password2': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm password'}),
         }
 
+    # def save(self, commit=True):
+    #     user = super().save(commit=False)
+        
+    #     # Default last_name to "admin" if not provided
+    #     if not user.last_name:
+    #         user.last_name = "admin"
+
+    #     # Generate the username as first_name.last_name (lowercase)
+    #     user.username = f"{user.first_name.lower()}.{user.last_name.lower()}"
+
+    #     # Ensure the username is unique
+    #     counter = 1
+    #     base_username = user.username
+    #     while CustomUser.objects.filter(username=user.username).exists():
+    #         user.username = f"{base_username}{counter}"
+    #         counter += 1
+
+    #     if commit:
+    #         user.save()
+    #     return user
+
     def save(self, commit=True):
         user = super().save(commit=False)
-        
-        # Default last_name to "admin" if not provided
-        if not user.last_name:
-            user.last_name = "admin"
 
-        # Generate the username as first_name.last_name (lowercase)
+        user.first_name = self.cleaned_data.get("first_name")
+        user.last_name = self.cleaned_data.get("last_name") or "admin"
+        user.phone_number = self.cleaned_data.get("phone_number")
+        user.user_type = self.cleaned_data.get("user_type")
+        user.email = self.cleaned_data.get("email")
+
         user.username = f"{user.first_name.lower()}.{user.last_name.lower()}"
 
-        # Ensure the username is unique
         counter = 1
         base_username = user.username
+
         while CustomUser.objects.filter(username=user.username).exists():
             user.username = f"{base_username}{counter}"
             counter += 1
 
         if commit:
             user.save()
+
         return user
 
 
