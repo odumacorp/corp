@@ -31,6 +31,39 @@ def _get_ip(request):
     return forwarded.split(',')[0].strip() or request.META.get('REMOTE_ADDR') or None
 
 
+class PageVisibilityMiddleware:
+    """Intercepts requests to disabled site pages and returns the page_disabled view."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        return response
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        # Skip admin paths entirely
+        if request.path.startswith('/admin-panel/') or request.path.startswith('/django-admin/'):
+            return None
+        try:
+            url_name = request.resolver_match.url_name if request.resolver_match else None
+            if url_name:
+                from .models import SitePage
+                try:
+                    page = SitePage.objects.get(key=url_name)
+                    if not page.is_active:
+                        from django.shortcuts import render
+                        return render(request, 'page_disabled.html', {
+                            'page_label': page.label,
+                            'disabled_message': page.disabled_message,
+                        }, status=410)
+                except SitePage.DoesNotExist:
+                    pass
+        except Exception:
+            pass
+        return None
+
+
 class AnalyticsMiddleware:
     """Records every GET page view to the PageView model."""
 

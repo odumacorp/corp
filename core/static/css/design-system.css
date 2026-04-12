@@ -145,12 +145,13 @@ body {
   padding: 0;
 }
 
-main { 
-  flex: 1; 
+main {
+  flex: 1;
+  padding-top: var(--oc-navbar-h);
   width: 100%;
-  background: var(--oc-bg) !important ;
-
+  background: var(--oc-bg) !important;
 }
+.no-navbar main { padding-top: 0; }
 
 a {
   color: var(--oc-blue);
@@ -452,8 +453,10 @@ p { margin-bottom: 0; }
    7. Navbar
    ---------------------------------------------------------- */
 .oc-navbar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
   background: var(--oc-navbar-bg);
   height: var(--oc-navbar-h);
@@ -461,10 +464,7 @@ p { margin-bottom: 0; }
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 100%;
   box-sizing: border-box;
-  left: 0;
-  right: 0;
   overflow: visible;   /* allow dropdowns to escape the navbar bounds */
 }
 
@@ -735,9 +735,22 @@ p { margin-bottom: 0; }
 #oc-mobile-explore-toggle:hover{
   box-shadow: unset;
 }
-@media (max-width: 900px) {
+/* Responsive navbar — flex compression then hamburger */
+@media (max-width: 1400px) {
+  .oc-navbar__link { padding: 6px 9px; font-size: .875rem; }
+  .oc-navbar__nav  { gap: 0; margin-inline: 8px; }
+  .oc-navbar__search { max-width: 150px; }
+  .oc-navbar__brand-name { display: none; }
+}
+@media (max-width: 1200px) {
+  .oc-navbar__link { padding: 5px 7px; font-size: .8375rem; }
+  .oc-navbar__divider { margin-inline: 2px; }
+  .oc-navbar__search { max-width: 120px; }
+}
+@media (max-width: 1050px) {
   .oc-navbar__nav  { display: none; }
   .oc-navbar__hamburger { display: flex; }
+  .oc-navbar__search { max-width: 160px; }
 }
 @media (max-width: 640px) {
   .oc-navbar__search { display: none; }
@@ -837,8 +850,8 @@ p { margin-bottom: 0; }
   border: 1.5px solid rgba(255,255,255,0.9);
   line-height: 1;
 }
-/* Bottom nav: small screens only (≤ 1024px) */
-@media (max-width: 1024px) {
+/* Bottom nav: matches hamburger breakpoint */
+@media (max-width: 1050px) {
   .oc-bottom-nav { display: block; }
   body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
   .oc-footer { display: none; }

@@ -54,6 +54,8 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 
     'allauth.account.middleware.AccountMiddleware',
+    'core.middleware.PageVisibilityMiddleware',
+    'core.middleware.AnalyticsMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'

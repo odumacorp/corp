@@ -54,9 +54,23 @@
 </style>
 
 <div class="ev-wrap">
-  <div class="ev-hero">
-    <h1>Events</h1>
-    <p>Demo Days, Investor Meetups, Workshops and more — where Africa's innovation ecosystem gathers.</p>
+  <div class="ev-hero" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div>
+      <h1>Events</h1>
+      <p>Demo Days, Investor Meetups, Workshops and more — where Africa's innovation ecosystem gathers.</p>
+    </div>
+    {% if user_has_company %}
+      <a href="{% url 'user_post_event' %}" style="flex-shrink:0;background:#fff;color:#7c3aed;border:none;padding:10px 20px;border-radius:10px;font-size:.875rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:.15s;"
+         onmouseenter="this.style.background='rgba(255,255,255,.85)'"
+         onmouseleave="this.style.background='#fff'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Event
+      </a>
+    {% elif user.is_authenticated %}
+      <a href="{% url 'create_company' %}" style="flex-shrink:0;background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.4);padding:10px 20px;border-radius:10px;font-size:.875rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+        Register a Business to Add Events
+      </a>
+    {% endif %}
   </div>
 
   <!-- Type filters -->

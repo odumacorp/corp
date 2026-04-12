@@ -241,6 +241,17 @@ urlpatterns = [
     path('admin-panel/group/<int:group_id>/delete/',         views.admin_delete_group,      name='admin_delete_group'),
     path('admin-panel/page/<int:page_id>/delete/',           views.admin_delete_page,       name='admin_delete_page'),
     path('admin-panel/sub-admin/<int:user_id>/remove/',      views.admin_remove_sub_admin,  name='admin_remove_sub_admin'),
+    # Content management
+    path('admin-panel/content/',                              views.admin_content,            name='admin_content'),
+    path('admin-panel/content/settings/',                     views.admin_save_site_settings, name='admin_save_site_settings'),
+    path('admin-panel/content/announcement/save/',            views.admin_save_announcement,  name='admin_save_announcement'),
+    path('admin-panel/content/announcement/<int:pk>/delete/', views.admin_delete_announcement,name='admin_delete_announcement'),
+    path('admin-panel/content/announcement/<int:pk>/toggle/', views.admin_toggle_announcement,name='admin_toggle_announcement'),
+    path('admin-panel/content/blog/save/',                    views.admin_save_blog,          name='admin_save_blog'),
+    path('admin-panel/content/blog/<int:pk>/delete/',         views.admin_delete_blog,        name='admin_delete_blog'),
+    path('admin-panel/content/blog/<int:pk>/toggle/',         views.admin_toggle_blog,        name='admin_toggle_blog'),
+    path('admin-panel/content/page/<int:pk>/toggle/',         views.admin_toggle_site_page,   name='admin_toggle_site_page'),
+    path('admin-panel/content/page/<int:pk>/save/',           views.admin_save_site_page,     name='admin_save_site_page'),
     # Pipeline stage approvals
     path('admin-panel/stage-approvals/', views.admin_stage_approvals, name='admin_stage_approvals'),
     path('admin-panel/stage-approval/<int:req_id>/approve/', views.admin_approve_stage, name='admin_approve_stage'),
@@ -357,7 +368,11 @@ urlpatterns = [
     path('consulting/my/',                                views.my_consulting_requests,  name='my_consulting_requests'),
     # Events hub
     path('events-hub/',                                   views.events_hub,              name='events_hub'),
+    path('events-hub/post/',                              views.user_post_event,         name='user_post_event'),
     path('events-hub/<int:event_id>/register/',           views.register_for_event,      name='register_for_event'),
+    # Blog
+    path('blog/',                                         views.blog_list,               name='blog_list'),
+    path('blog/<slug:slug>/',                             views.blog_detail,             name='blog_detail'),
     # Matching
     path('matches/',                                      views.top_matches_for_investor, name='top_matches_for_investor'),
     path('projects/<int:pk>/investor-matches/',           views.project_investor_matches, name='project_investor_matches'),

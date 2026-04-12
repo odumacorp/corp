@@ -319,19 +319,21 @@ def linkedin(request):
 
 ##index.html
 def index(request):
-    from .models import Project, CustomUser, UserProfile
+    from .models import Project, CustomUser, UserProfile, SubscriptionPlan
     featured = Project.objects.filter(
         is_hidden=False, review_status__in=['approved', 'featured']
     ).select_related('owner', 'owner__userprofile').prefetch_related('images').order_by('-created_at')[:6]
     innovator_count = CustomUser.objects.filter(user_type='innovator').count()
     investor_count  = CustomUser.objects.filter(user_type='investor').count()
     project_count   = Project.objects.filter(is_hidden=False).exclude(status='draft').count()
+    sub_plans       = list(SubscriptionPlan.objects.filter(is_active=True).order_by('order'))
     return render(request, 'index.html', {
         "hide_navbar": True,
         "featured_projects": featured,
         "innovator_count": innovator_count,
         "investor_count": investor_count,
         "project_count": project_count,
+        "sub_plans": sub_plans,
     })
 ##about.html
 def about(request):
@@ -677,9 +679,13 @@ def events(request):
     return render(request, 'events.html', context)
 ##jobs.html
 def jobs(request):
-    from .models import Job
+    from .models import Job, Company
     jobs_qs = Job.objects.filter(is_active=True, is_hidden=False).order_by('-created_at')
-    context = {"page_title": "Jobs", "page_name": "Jobs", "jobs": jobs_qs}
+    user_has_company = (
+        request.user.is_authenticated and
+        Company.objects.filter(owner=request.user).exists()
+    )
+    context = {"page_title": "Jobs", "page_name": "Jobs", "jobs": jobs_qs, "user_has_company": user_has_company}
     return render(request, 'jobs.html', context)
 ##messages.html
 def user_messages(request):
@@ -3995,6 +4001,229 @@ def admin_remove_sub_admin(request, user_id):
         user_obj.save(update_fields=['user_type'])
     return redirect('admin_panel')
 
+
+# ── Site Content Management ────────────────────────────────────────
+
+_MANAGED_PAGES = [
+    ('jobs',              'Jobs Board'),
+    ('events_hub',        'Events Hub'),
+    ('events',            'Events (Legacy)'),
+    ('training_hub',      'Training & Courses'),
+    ('mentorship_hub',    'Mentorship Hub'),
+    ('companies_list',    'Businesses / Companies'),
+    ('groups_list',       'Community Groups'),
+    ('proposals_list',    'Proposals'),
+    ('search',            'Search'),
+    ('about',             'About Us'),
+    ('faq',               'FAQ'),
+    ('contact',           'Contact'),
+    ('services',          'Consulting Services'),
+    ('subscription_plans','Pricing & Plans'),
+    ('innovators',        'Browse Innovators'),
+    ('investors',         'Find Investors'),
+    ('blog_list',         'Blog'),
+]
+
+
+def _ensure_site_pages():
+    from .models import SitePage
+    for key, label in _MANAGED_PAGES:
+        SitePage.objects.get_or_create(key=key, defaults={'label': label, 'is_active': True})
+
+
+@login_required
+def admin_content(request):
+    if request.user.user_type != 'admin':
+        return redirect('app')
+    from .models import SiteSettings, Announcement, BlogPost, SitePage
+    _ensure_site_pages()
+    site_settings  = SiteSettings.get()
+    announcements  = Announcement.objects.order_by('-created_at')
+    blogs          = BlogPost.objects.order_by('-created_at')
+    site_pages     = SitePage.objects.order_by('label')
+    return render(request, 'admin_content.html', {
+        'site_settings': site_settings,
+        'announcements': announcements,
+        'blogs':         blogs,
+        'site_pages':    site_pages,
+        'page_name':     'Content Management',
+    })
+
+
+@login_required
+def admin_save_site_settings(request):
+    if request.user.user_type != 'admin':
+        return redirect('app')
+    if request.method == 'POST':
+        from .models import SiteSettings
+        s = SiteSettings.get()
+        s.twitter_url    = request.POST.get('twitter_url', '').strip()
+        s.linkedin_url   = request.POST.get('linkedin_url', '').strip()
+        s.instagram_url  = request.POST.get('instagram_url', '').strip()
+        s.facebook_url   = request.POST.get('facebook_url', '').strip()
+        s.youtube_url    = request.POST.get('youtube_url', '').strip()
+        s.contact_email  = request.POST.get('contact_email', '').strip()
+        s.contact_phone  = request.POST.get('contact_phone', '').strip()
+        s.footer_tagline = request.POST.get('footer_tagline', '').strip()
+        s.updated_by     = request.user
+        s.save()
+        messages.success(request, 'Site settings saved.')
+    return redirect('admin_content')
+
+
+@login_required
+def admin_save_announcement(request):
+    if request.user.user_type != 'admin':
+        return redirect('app')
+    if request.method == 'POST':
+        from .models import Announcement
+        ann_id = request.POST.get('id', '').strip()
+        title      = request.POST.get('title', '').strip()
+        body       = request.POST.get('body', '').strip()
+        ann_type   = request.POST.get('type', 'info')
+        show_from  = request.POST.get('show_from', '') or None
+        show_until = request.POST.get('show_until', '') or None
+        is_active  = request.POST.get('is_active') == '1'
+        if title:
+            if ann_id:
+                ann = get_object_or_404(Announcement, pk=ann_id)
+            else:
+                ann = Announcement(created_by=request.user)
+            ann.title = title
+            ann.body  = body
+            ann.type  = ann_type
+            ann.show_from  = show_from
+            ann.show_until = show_until
+            ann.is_active  = is_active
+            ann.save()
+            messages.success(request, 'Announcement saved.')
+    return redirect('admin_content')
+
+
+@login_required
+def admin_delete_announcement(request, pk):
+    if request.user.user_type != 'admin':
+        return redirect('app')
+    if request.method == 'POST':
+        from .models import Announcement
+        get_object_or_404(Announcement, pk=pk).delete()
+    return redirect('admin_content')
+
+
+@login_required
+def admin_toggle_announcement(request, pk):
+    if request.user.user_type != 'admin':
+        return redirect('app')
+    if request.method == 'POST':
+        from .models import Announcement
+        ann = get_object_or_404(Announcement, pk=pk)
+        ann.is_active = not ann.is_active
+        ann.save(update_fields=['is_active'])
+    return redirect('admin_content')
+
+
+@login_required
+def admin_save_blog(request):
+    if request.user.user_type != 'admin':
+        return redirect('app')
+    if request.method == 'POST':
+        from .models import BlogPost
+        from django.utils.text import slugify
+        from django.utils import timezone as _tz
+        blog_id    = request.POST.get('id', '').strip()
+        title      = request.POST.get('title', '').strip()
+        excerpt    = request.POST.get('excerpt', '').strip()
+        body       = request.POST.get('body', '').strip()
+        is_pub     = request.POST.get('is_published') == '1'
+        cover      = request.FILES.get('cover_image')
+        if title:
+            if blog_id:
+                blog = get_object_or_404(BlogPost, pk=blog_id)
+            else:
+                blog = BlogPost(author=request.user)
+                blog.slug = slugify(title)[:320]
+                # ensure unique slug
+                base_slug = blog.slug
+                n = 1
+                while BlogPost.objects.filter(slug=blog.slug).exists():
+                    blog.slug = f'{base_slug}-{n}'
+                    n += 1
+            blog.title   = title
+            blog.excerpt = excerpt
+            blog.body    = body
+            if cover:
+                blog.cover_image = cover
+            if is_pub and not blog.published_at:
+                blog.published_at = _tz.now()
+            blog.is_published = is_pub
+            blog.save()
+            messages.success(request, 'Blog post saved.')
+    return redirect('admin_content')
+
+
+@login_required
+def admin_delete_blog(request, pk):
+    if request.user.user_type != 'admin':
+        return redirect('app')
+    if request.method == 'POST':
+        from .models import BlogPost
+        get_object_or_404(BlogPost, pk=pk).delete()
+    return redirect('admin_content')
+
+
+@login_required
+def admin_toggle_blog(request, pk):
+    if request.user.user_type != 'admin':
+        return redirect('app')
+    if request.method == 'POST':
+        from .models import BlogPost
+        from django.utils import timezone as _tz
+        blog = get_object_or_404(BlogPost, pk=pk)
+        blog.is_published = not blog.is_published
+        if blog.is_published and not blog.published_at:
+            blog.published_at = _tz.now()
+        blog.save(update_fields=['is_published', 'published_at'])
+    return redirect('admin_content')
+
+
+@login_required
+def admin_toggle_site_page(request, pk):
+    if request.user.user_type != 'admin':
+        return redirect('app')
+    if request.method == 'POST':
+        from .models import SitePage
+        page = get_object_or_404(SitePage, pk=pk)
+        page.is_active  = not page.is_active
+        page.updated_by = request.user
+        page.save(update_fields=['is_active', 'updated_by', 'updated_at'])
+    return redirect('admin_content')
+
+
+@login_required
+def admin_save_site_page(request, pk):
+    if request.user.user_type != 'admin':
+        return redirect('app')
+    if request.method == 'POST':
+        from .models import SitePage
+        page = get_object_or_404(SitePage, pk=pk)
+        page.disabled_message = request.POST.get('disabled_message', '').strip()
+        page.updated_by = request.user
+        page.save(update_fields=['disabled_message', 'updated_by', 'updated_at'])
+    return redirect('admin_content')
+
+
+def blog_list(request):
+    from .models import BlogPost
+    blogs = BlogPost.objects.filter(is_published=True).order_by('-published_at')
+    return render(request, 'blog_list.html', {'blogs': blogs})
+
+
+def blog_detail(request, slug):
+    from .models import BlogPost
+    blog = get_object_or_404(BlogPost, slug=slug, is_published=True)
+    return render(request, 'blog_detail.html', {'blog': blog})
+
+
 # --- companies / businesses ---
 def companies_list(request):
     from .models import Company
@@ -4689,9 +4918,12 @@ def project_send_proposal(request, project_id):
 
 # --- jobs ---
 @login_required
-@login_required
 def user_post_job(request):
-    from .models import Job
+    from .models import Job, Company
+    user_company = Company.objects.filter(owner=request.user).first()
+    if not user_company:
+        messages.error(request, "You need to register a business before posting jobs.")
+        return redirect('companies_list')
     if request.method == 'POST':
         title       = request.POST.get('title', '').strip()
         company     = request.POST.get('company', '').strip()
@@ -5841,18 +6073,20 @@ def my_consulting_requests(request):
 
 def events_hub(request):
     """Public events listing: demo days, investor meetups, workshops, etc."""
-    from .models import Event, EventRegistration
+    from .models import Event, EventRegistration, Company
     event_type = request.GET.get('type', '').strip()
     events_qs  = Event.objects.filter(is_hidden=False).order_by('date')
     if event_type:
         events_qs = events_qs.filter(event_type=event_type)
 
     registered_ids = set()
+    user_has_company = False
     if request.user.is_authenticated:
         registered_ids = set(
             EventRegistration.objects.filter(user=request.user)
             .values_list('event_id', flat=True)
         )
+        user_has_company = Company.objects.filter(owner=request.user).exists()
 
     from datetime import date
     today = date.today()
@@ -5860,11 +6094,12 @@ def events_hub(request):
     past     = [e for e in events_qs if e.date < today]
 
     return render(request, 'events_hub.html', {
-        'upcoming':       upcoming,
-        'past':           past,
-        'registered_ids': registered_ids,
+        'upcoming':           upcoming,
+        'past':               past,
+        'registered_ids':     registered_ids,
         'event_type_choices': Event.EVENT_TYPES,
-        'active_type':    event_type,
+        'active_type':        event_type,
+        'user_has_company':   user_has_company,
     })
 
 
@@ -5885,6 +6120,47 @@ def register_for_event(request, event_id):
     else:
         messages.info(request, "You're already registered for this event.")
     return redirect('events_hub')
+
+
+@login_required
+def user_post_event(request):
+    from .models import Event, Company
+    user_company = Company.objects.filter(owner=request.user).first()
+    if not user_company:
+        messages.error(request, "You need to register a business before posting events.")
+        return redirect('companies_list')
+    if request.method == 'POST':
+        name          = request.POST.get('name', '').strip()
+        date_str      = request.POST.get('date', '').strip()
+        location      = request.POST.get('location', '').strip()
+        description   = request.POST.get('description', '').strip()
+        organizer     = request.POST.get('organizer', '').strip()
+        event_type    = request.POST.get('event_type', 'general')
+        max_attendees = request.POST.get('max_attendees', '').strip()
+        image         = request.FILES.get('image')
+        if name and date_str and location:
+            from datetime import datetime
+            try:
+                date_val = datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                messages.error(request, "Invalid date format.")
+                return render(request, 'user_post_event.html', {
+                    'company': user_company,
+                    'event_type_choices': Event.EVENT_TYPES,
+                })
+            Event.objects.create(
+                name=name, date=date_val, location=location,
+                description=description, organizer=organizer or user_company.name,
+                event_type=event_type,
+                max_attendees=int(max_attendees) if max_attendees else None,
+                image=image, created_by=request.user,
+            )
+            messages.success(request, "Event posted successfully!")
+            return redirect('events_hub')
+    return render(request, 'user_post_event.html', {
+        'company': user_company,
+        'event_type_choices': Event.EVENT_TYPES,
+    })
 
 
 # ── Intelligent Matching ──────────────────────────────────────────

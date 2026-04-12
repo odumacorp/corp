@@ -48,7 +48,7 @@
     gtag('config', 'G-HSYKW9TPFT');
   </script>
 </head>
-<body>
+<body{% if hide_navbar %} class="no-navbar"{% endif %}>
 
   {% if not hide_navbar %}
     {% include '_partials/navbar.html' %}

@@ -1517,6 +1517,106 @@ class CustomIndustry(models.Model):
         return self.name
 
 
+# ── Site Content Management ───────────────────────────────────────
+
+class SiteSettings(models.Model):
+    """Singleton-style model for global site settings."""
+    twitter_url    = models.URLField(blank=True, default='')
+    linkedin_url   = models.URLField(blank=True, default='')
+    instagram_url  = models.URLField(blank=True, default='')
+    facebook_url   = models.URLField(blank=True, default='')
+    youtube_url    = models.URLField(blank=True, default='')
+    contact_email  = models.EmailField(blank=True, default='')
+    contact_phone  = models.CharField(max_length=30, blank=True, default='')
+    footer_tagline = models.CharField(max_length=200, blank=True, default='')
+    updated_at     = models.DateTimeField(auto_now=True)
+    updated_by     = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+                                       null=True, blank=True, related_name='site_settings_updates')
+
+    class Meta:
+        verbose_name = 'Site Settings'
+        verbose_name_plural = 'Site Settings'
+
+    def __str__(self):
+        return 'Site Settings'
+
+    @classmethod
+    def get(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class Announcement(models.Model):
+    TYPE_CHOICES = [
+        ('info',    'Info'),
+        ('success', 'Success'),
+        ('warning', 'Warning'),
+        ('error',   'Error'),
+    ]
+    title      = models.CharField(max_length=200)
+    body       = models.TextField(blank=True, default='')
+    type       = models.CharField(max_length=10, choices=TYPE_CHOICES, default='info')
+    is_active  = models.BooleanField(default=True)
+    show_from  = models.DateField(null=True, blank=True)
+    show_until = models.DateField(null=True, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+                                   null=True, blank=True, related_name='announcements')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+
+class BlogPost(models.Model):
+    title       = models.CharField(max_length=300)
+    slug        = models.SlugField(max_length=320, unique=True)
+    excerpt     = models.CharField(max_length=400, blank=True, default='')
+    body        = models.TextField()
+    cover_image = models.ImageField(upload_to='blog_images/', blank=True, null=True)
+    is_published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True)
+    author      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+                                    null=True, blank=True, related_name='blog_posts')
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+
+class SitePage(models.Model):
+    """Controls visibility of named pages/sections across the platform."""
+    key              = models.CharField(max_length=80, unique=True,
+                                        help_text='URL name or section identifier')
+    label            = models.CharField(max_length=100)
+    is_active        = models.BooleanField(default=True)
+    disabled_message = models.CharField(max_length=300, blank=True, default='',
+                                        help_text='Shown on the error page when this page is disabled')
+    updated_at       = models.DateTimeField(auto_now=True)
+    updated_by       = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+                                         null=True, blank=True, related_name='site_page_updates')
+
+    class Meta:
+        ordering = ['label']
+
+    def __str__(self):
+        return self.label
+
+    @classmethod
+    def is_page_active(cls, key):
+        try:
+            return cls.objects.get(key=key).is_active
+        except cls.DoesNotExist:
+            return True  # not registered = always active
+
+
 # ── Event type extension (added via migration) ────────────────────
 # event_type field added to existing Event model in migration 0086
 

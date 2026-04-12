@@ -22,8 +22,10 @@
       <h1 style="font-size:1.75rem;font-weight:700;color:var(--oc-text-primary);margin-bottom:4px;">Jobs</h1>
       <p style="font-size:.9rem;color:var(--oc-text-muted);">Opportunities posted by companies and innovators on Oduma Corp.</p>
     </div>
-    {% if user.is_authenticated %}
+    {% if user_has_company %}
       <a href="{% url 'create_job' %}" class="oc-btn oc-btn-primary oc-btn-sm">+ Post a Job</a>
+    {% elif user.is_authenticated %}
+      <a href="{% url 'create_company' %}" class="oc-btn oc-btn-outline oc-btn-sm" title="Register a business to post jobs">Register a Business</a>
     {% endif %}
   </div>
 
@@ -69,8 +71,10 @@
       <div style="display:flex;justify-content:center;color:#9ca3af;margin-bottom:16px;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
       <h3 style="font-size:1.1rem;font-weight:600;color:var(--oc-text-primary);margin-bottom:8px;">No jobs posted yet</h3>
       <p style="font-size:.875rem;">Be the first to post an opportunity for the community.</p>
-      {% if user.is_authenticated %}
+      {% if user_has_company %}
         <a href="{% url 'create_job' %}" class="oc-btn oc-btn-primary" style="margin-top:16px;">Post a Job</a>
+      {% elif user.is_authenticated %}
+        <a href="{% url 'create_company' %}" class="oc-btn oc-btn-outline" style="margin-top:16px;">Register a Business to Post Jobs</a>
       {% endif %}
     </div>
   {% endif %}

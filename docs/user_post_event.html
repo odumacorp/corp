@@ -1,0 +1,199 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Add an Event | {{ company.name }} | Oduma Corp{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --ev-purple: #7c3aed;
+    --ev-purple-dark: #6d28d9;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --border: rgba(0,0,0,0.10);
+  }
+  .pe-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 16px 64px;
+  }
+  .pe-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(124,58,237,0.12);
+    width: 100%;
+    max-width: 640px;
+    overflow: hidden;
+  }
+  .pe-top {
+    background: var(--ev-purple);
+    padding: 28px 32px 24px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .pe-company-logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .pe-company-logo img { width:100%; height:100%; object-fit:cover; }
+  .pe-top-info h2 { font-family:'Space Grotesk',sans-serif; font-size:1.3rem; margin:0 0 3px; }
+  .pe-top-info p  { font-size:.85rem; opacity:.8; margin:0; }
+
+  .pe-body { padding: 28px 32px 32px; }
+  .pe-field { margin-bottom: 20px; }
+  .pe-field label {
+    display: block;
+    font-size: .83rem;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    margin-bottom: 6px;
+  }
+  .pe-field label span { color: #e53e3e; }
+  .pe-field input,
+  .pe-field textarea,
+  .pe-field select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: .97rem;
+    color: var(--text);
+    background: #fafafa;
+    box-sizing: border-box;
+    transition: border-color .2s;
+  }
+  .pe-field input:focus,
+  .pe-field textarea:focus,
+  .pe-field select:focus {
+    outline: none;
+    border-color: var(--ev-purple);
+    background: #fff;
+  }
+  .pe-field textarea { resize: vertical; min-height: 110px; }
+  .pe-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 480px) { .pe-two-col { grid-template-columns: 1fr; } }
+  .pe-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px 24px;
+    border-top: 1px solid var(--border);
+    gap: 12px;
+  }
+  .pe-btn {
+    font-size: .97rem;
+    font-weight: 700;
+    padding: 11px 28px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all .2s;
+  }
+  .pe-btn-primary { background: var(--ev-purple); color: #fff; }
+  .pe-btn-primary:hover { background: var(--ev-purple-dark); color: #fff; }
+  .pe-btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+  .pe-btn-ghost:hover { background: #f3f4f6; color: var(--text); }
+</style>
+
+<div class="pe-wrapper">
+  <div class="pe-card">
+    <div class="pe-top">
+      <div class="pe-company-logo">
+        {% if company.logo %}
+          <img src="{{ company.logo.url }}" alt="{{ company.name }}">
+        {% else %}
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        {% endif %}
+      </div>
+      <div class="pe-top-info">
+        <h2>Add an Event</h2>
+        <p>Posting on behalf of <strong>{{ company.name }}</strong></p>
+      </div>
+    </div>
+
+    {% if messages %}
+      {% for msg in messages %}
+        <div style="background:{% if msg.tags == 'error' %}#fee2e2{% else %}#d1fae5{% endif %};color:{% if msg.tags == 'error' %}#991b1b{% else %}#065f46{% endif %};padding:12px 28px;font-size:.9rem;">
+          {{ msg }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" action="{% url 'user_post_event' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="pe-body">
+        <div class="pe-field">
+          <label>Event Name <span>*</span></label>
+          <input type="text" name="name" placeholder="e.g. Lagos Demo Day 2026" required>
+        </div>
+        <div class="pe-two-col">
+          <div class="pe-field">
+            <label>Date <span>*</span></label>
+            <input type="date" name="date" required>
+          </div>
+          <div class="pe-field">
+            <label>Event Type</label>
+            <select name="event_type">
+              {% for val, label in event_type_choices %}
+                <option value="{{ val }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="pe-two-col">
+          <div class="pe-field">
+            <label>Location <span>*</span></label>
+            <input type="text" name="location" placeholder="e.g. Lagos, Nigeria or Online" required>
+          </div>
+          <div class="pe-field">
+            <label>Max Attendees</label>
+            <input type="number" name="max_attendees" placeholder="Leave blank for unlimited" min="1">
+          </div>
+        </div>
+        <div class="pe-field">
+          <label>Organizer</label>
+          <input type="text" name="organizer" placeholder="Defaults to your company name if left blank">
+        </div>
+        <div class="pe-field">
+          <label>Description</label>
+          <textarea name="description" placeholder="Describe the event, agenda, speakers, and what attendees can expect…"></textarea>
+        </div>
+        <div class="pe-field">
+          <label>Event Image (optional)</label>
+          <input type="file" name="image" accept="image/*">
+        </div>
+      </div>
+      <div class="pe-footer">
+        <a href="{% url 'events_hub' %}" class="pe-btn pe-btn-ghost">Cancel</a>
+        <button type="submit" class="pe-btn pe-btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Post Event
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
