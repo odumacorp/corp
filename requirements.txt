@@ -21,8 +21,8 @@ jiter==0.14.0
 packaging==24.2
 pillow==11.1.0
 pipreqs==0.4.13
-psycopg==3.2.6
-psycopg-binary==3.3.3
+psycopg2-binary
+
 pycparser==3.0
 pydantic==2.12.5
 pydantic_core==2.41.5
