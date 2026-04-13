@@ -98,6 +98,7 @@ ASGI_APPLICATION = 'core.asgi.application'
 
 
 SECRET_KEY = config('SECRET_KEY')
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
