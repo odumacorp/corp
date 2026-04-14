@@ -24,6 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://corp-jmny.onrender.com",
+]
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
