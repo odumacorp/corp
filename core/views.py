@@ -5177,8 +5177,10 @@ Output ONLY the description text, nothing else."""
             return JsonResponse({'suggestions': suggestions})
         else:
             return JsonResponse({'result': result})
-    except Exception:
-        return JsonResponse({'error': 'AI generation failed. Please try again.'}, status=500)
+    # except Exception:
+    #     return JsonResponse({'error': 'AI generation failed. Please try again.'}, status=500)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 def _odu_local_reply(message, user):
@@ -5198,7 +5200,7 @@ def _odu_local_reply(message, user):
     # ── Who/what is Odu ──
     if re.search(r'\b(who are you|what are you|what is odu|tell me about yourself|introduce yourself)\b', m):
         return (
-            "I'm **Odu** — the AI assistant built into Oduma Corp! 🤖\n\n"
+            "I'm **Odu** — the AI assistant built into Oduma Corp! \n\n"
             "I'm here to help you get the most out of the platform. I can:\n"
             "• Guide you to the right pages\n"
             "• Explain platform features\n"
@@ -5210,7 +5212,7 @@ def _odu_local_reply(message, user):
     # ── What is Oduma Corp ──
     if re.search(r'\b(what is oduma|what is this platform|what does oduma do|about oduma)\b', m):
         return (
-            "**Oduma Corp** is a platform that bridges African innovators and investors. 🌍\n\n"
+            "**Oduma Corp** is a platform that bridges African innovators and investors. \n\n"
             "Innovators can post projects, build pitch decks, collaborate, and get funded.\n"
             "Investors can discover projects, send proposals, schedule meetings, and connect with teams.\n\n"
             "The platform also has Groups, Pages, Companies, Jobs, Courses, Mentorship, and more!"
@@ -5244,7 +5246,7 @@ def _odu_local_reply(message, user):
     # ── How to create a project ──
     if re.search(r'\b(create|add|post|submit|upload)\b.*\bproject\b|\bproject\b.*\b(create|add|post|submit|upload)\b', m):
         return (
-            "To **create a project**, go to `/projects/create/` or click *New Project* on your dashboard. 🚀\n\n"
+            "To **create a project**, go to `/projects/create/` or click *New Project* on your dashboard. \n\n"
             "You'll fill in:\n"
             "• Title, industry, category, description\n"
             "• Problem statement, solution, market opportunity\n"
