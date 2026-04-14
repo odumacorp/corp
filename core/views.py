@@ -5070,7 +5070,7 @@ Write only the project description, nothing else."""
     except Exception as e:
         return JsonResponse({'error': 'AI generation failed. Please write your description manually.'}, status=500)
 
-
+import unicodedata
 @login_required
 def ai_assist(request):
     """
@@ -5175,14 +5175,21 @@ Output ONLY the description text, nothing else."""
         if resp.content and len(resp.content) > 0:
             result = getattr(resp.content[0], "text", "").strip()
             result = result.encode('utf-8', 'ignore').decode('utf-8')
+            
+            result = unicodedata.normalize('NFKD', result)
+            result = result.replace('•', '-')
         if not result:
             return JsonResponse({'error': 'No result generated. Please try again.'}, status=500)
 
         if assist_type in ('project_title', 'company_tagline'):
             suggestions = [line.strip() for line in result.split('\n') if line.strip()]
-            return JsonResponse({'suggestions': suggestions})
+            # return JsonResponse({'suggestions': suggestions})
+            return JsonResponse({'suggestions': suggestions}, json_dumps_params={'ensure_ascii': False})
         else:
-            return JsonResponse({'result': result})
+            # return JsonResponse({'result': result})
+            return JsonResponse({'result': result}, json_dumps_params={'ensure_ascii': False})
+           
+            
     # except Exception:
     #     return JsonResponse({'error': 'AI generation failed. Please try again.'}, status=500)
     except Exception as e:
