@@ -16,22 +16,44 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR("Missing environment variables"))
             return
 
+        # user, created = User.objects.get_or_create(
+        #     username=username,
+        #     defaults={
+        #         "email": email,
+        #         "role": "admin",  # 🔥 CRITICAL if you use roles
+        #         "user_type": "Admin",
+        #         },
+            
+            
+        # )
+
+        # user.set_password(password)
+        # user.is_superuser = True
+        # user.is_staff = True
+        # # 🔥 force correct role even if user already exists
+        # # if hasattr(user, "role"):
+        # #     user.role = "admin"
+        # if hasattr(user, "user_type"):
+        #     user.user_type = "Admin"
+        # user.save()
+
+
         user, created = User.objects.get_or_create(
             username=username,
             defaults={
                 "email": email,
-                "role": "admin",  # 🔥 CRITICAL if you use roles
-                },
-            
-            
+                "user_type": "Admin",
+            },
         )
 
         user.set_password(password)
         user.is_superuser = True
         user.is_staff = True
-        # 🔥 force correct role even if user already exists
-        if hasattr(user, "role"):
-            user.role = "admin"
+
+        # Force correct role even if user already exists
+        if hasattr(user, "user_type"):
+            user.user_type = "Admin"
+
         user.save()
 
         if created:
