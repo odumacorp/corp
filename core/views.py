@@ -5179,16 +5179,24 @@ Output ONLY the description text, nothing else."""
                     result += block.text
 
         result = result.strip()
+
+        # 🔥 sanitize
+        result = unicodedata.normalize('NFKD', result)
+        result = result.replace('•', '-')
+        result = result.encode('ascii', 'ignore').decode('ascii')
+        # if hasattr(resp, "content") and resp.content:
+        #     for block in resp.content:
+        #         if hasattr(block, "text"):
+        #             result += block.text
+
         ##
 
+        # if resp.content and len(resp.content) > 0:
+        #     result = getattr(resp.content[0], "text", "").strip()
+        #     result = result.encode('utf-8', 'ignore').decode('utf-8')
 
-        result = ""
-        if resp.content and len(resp.content) > 0:
-            result = getattr(resp.content[0], "text", "").strip()
-            result = result.encode('utf-8', 'ignore').decode('utf-8')
-
-            result = unicodedata.normalize('NFKD', result)
-            result = result.replace('•', '-')
+        #     result = unicodedata.normalize('NFKD', result)
+        #     result = result.replace('•', '-')
         if not result:
             return JsonResponse({'error': 'No result generated. Please try again.'}, status=500)
 
