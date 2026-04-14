@@ -798,7 +798,8 @@ class ContactSubmission(models.Model):
 class ProfileView(models.Model):
     profile_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile_views')
     viewer       = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='profile_views_given')
-    session_key  = models.CharField(max_length=40)
+    # session_key  = models.CharField(max_length=40)
+    session_key  = models.CharField(max_length=255)
     viewed_at    = models.DateTimeField(auto_now=True)
 
     class Meta:
