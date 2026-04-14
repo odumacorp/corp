@@ -5172,6 +5172,17 @@ Output ONLY the description text, nothing else."""
         )
         # result = resp.content[0].text.strip() if resp.content else ''
         result = ""
+
+        if hasattr(resp, "content") and resp.content:
+            for block in resp.content:
+                if hasattr(block, "text"):
+                    result += block.text
+
+        result = result.strip()
+        ##
+
+
+        result = ""
         if resp.content and len(resp.content) > 0:
             result = getattr(resp.content[0], "text", "").strip()
             result = result.encode('utf-8', 'ignore').decode('utf-8')
