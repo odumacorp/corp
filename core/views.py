@@ -5164,11 +5164,17 @@ Output ONLY the description text, nothing else."""
     try:
         client = anthropic.Anthropic(api_key=api_key)
         resp = client.messages.create(
-            model='claude-haiku-4-5-20251001',
+            # model='claude-haiku-4-5-20251001',
+            model='claude-3-5-sonnet-20241022',
+            
             max_tokens=500,
             messages=[{'role': 'user', 'content': prompt}],
         )
-        result = resp.content[0].text.strip() if resp.content else ''
+        # result = resp.content[0].text.strip() if resp.content else ''
+        result = ""
+        if resp.content and len(resp.content) > 0:
+            result = getattr(resp.content[0], "text", "").strip()
+            result = result.encode('utf-8', 'ignore').decode('utf-8')
         if not result:
             return JsonResponse({'error': 'No result generated. Please try again.'}, status=500)
 
