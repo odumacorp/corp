@@ -5206,12 +5206,17 @@ Output ONLY the description text, nothing else."""
     # except Exception as e:
     #     return JsonResponse({'error': str(e)}, status=500)
 
+    # except Exception as e:
+    #     import traceback
+    #     return JsonResponse({
+    #         'error': str(e),
+    #         'trace': traceback.format_exc()
+    #     }, status=500)
+    
     except Exception as e:
         import traceback
-        return JsonResponse({
-            'error': str(e),
-            'trace': traceback.format_exc()
-        }, status=500)
+        print(traceback.format_exc())
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 def _odu_local_reply(message, user):
