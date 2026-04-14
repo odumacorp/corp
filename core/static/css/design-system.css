@@ -95,12 +95,12 @@
   --oc-font-display: 'Space Grotesk', 'Inter', Arial, sans-serif;
   --oc-font-sans:    'Inter', Arial, sans-serif;
   --oc-font-serif:   'Space Grotesk', 'Inter', sans-serif;
-  --oc-font-size-xs:   .85rem;
-  --oc-font-size-sm:   .9375rem;
-  --oc-font-size-base: 1rem;
-  --oc-font-size-lg:   1.125rem;
-  --oc-font-size-xl:   1.25rem;
-  --oc-font-size-2xl:  1.5rem;
+  --oc-font-size-xs:   1.0rem;
+  --oc-font-size-sm:   1.2rem;
+  --oc-font-size-base: 1.4rem;
+  --oc-font-size-lg:   1.5rem;
+  --oc-font-size-xl:   1.65rem;
+  --oc-font-size-2xl:  1.75rem;
   --oc-font-size-3xl:  1.875rem;
   --oc-font-size-4xl:  2.25rem;
   --oc-font-size-5xl:  3rem;
@@ -110,7 +110,7 @@
   --oc-transition-slow: .32s ease;
 
   /* ── Navbar ── */
-  --oc-navbar-h: 62px;
+  --oc-navbar-h: 100px;
   --oc-navbar-bg: #1B5EC7;   /* logo royal blue */
 }
 
@@ -222,7 +222,7 @@ p { margin-bottom: 0; }
 .oc-breadcrumbs__item {
   display: flex;
   align-items: center;
-  font-size: .875rem;
+  font-size: 1rem;
 }
 .oc-breadcrumbs__link {
   color: var(--oc-blue, #1B5EC7);
@@ -234,7 +234,7 @@ p { margin-bottom: 0; }
 .oc-breadcrumbs__sep {
   margin: 0 6px;
   color: #9ca3af;
-  font-size: .8rem;
+  font-size: 1.2rem;
 }
 .oc-breadcrumbs__current {
   color: #6b7280;
@@ -487,14 +487,14 @@ p { margin-bottom: 0; }
   flex-shrink: 0;
 }
 .oc-navbar__logo {
-  width: 32px;
-  height: 32px;
+  width: 52px;
+  height: 52px;
   border-radius: 6px;
   object-fit: contain;
 }
 .oc-navbar__brand-name {
   font-family: var(--oc-font-display);
-  font-size: 1.05rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #fff;
   letter-spacing: -0.01em;
@@ -513,7 +513,7 @@ p { margin-bottom: 0; }
 
 .oc-navbar__link {
   font-family: var(--oc-font-display);
-  font-size: .9375rem;
+  font-size: 1.2rem;
   font-weight: 500;
   color: rgba(255,255,255,0.75);
   padding: 7px 12px;
@@ -905,7 +905,7 @@ p { margin-bottom: 0; }
 }
 
 .oc-footer__col-title {
-  font-size: .75rem;
+  font-size: 1.2rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .08em;

@@ -39,7 +39,7 @@
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
             <label class="cp-label" style="margin:0;" for="id_title">Project Title *</label>
             <button type="button" id="toggle-title-ai" onclick="toggleTitleAI()"
-                    style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-size:.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
+                    style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-size:1.2rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
               <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
               Suggest titles
             </button>
@@ -50,22 +50,22 @@
 
           <!-- AI title suggestions panel -->
           <div id="title-ai-panel" style="display:none;margin-top:10px;background:#f8faff;border:1.5px solid #c7d9ff;border-radius:12px;padding:16px;">
-            <p style="font-size:.82rem;color:#374151;margin:0 0 12px;line-height:1.5;">
+            <p style="font-size:1.2rem;color:#374151;margin:0 0 12px;line-height:1.5;">
               Fill in your problem &amp; solution questions below first, then click generate — or just type a quick idea here:
             </p>
             <textarea id="title-ai-hint" rows="2"
-                      style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:.85rem;resize:vertical;margin-bottom:10px;"
+                      style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:1.2rem;resize:vertical;margin-bottom:10px;"
                       placeholder="e.g. A solar-powered filtration unit that makes clean water affordable for rural communities…"></textarea>
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
               <button type="button" id="generate-titles-btn" onclick="generateTitles()"
-                      style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.83rem;font-weight:600;cursor:pointer;">
+                      style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:1.2rem;font-weight:600;cursor:pointer;">
                 Generate Titles
               </button>
-              <span id="title-spinner" style="display:none;font-size:.82rem;color:#6b7280;">Thinking…</span>
-              <span id="title-error" style="display:none;font-size:.82rem;color:#dc2626;"></span>
+              <span id="title-spinner" style="display:none;font-size:1.2rem;color:#6b7280;">Thinking…</span>
+              <span id="title-error" style="display:none;font-size:1.2rem;color:#dc2626;"></span>
             </div>
             <div id="title-suggestions" style="display:none;margin-top:14px;">
-              <p style="font-size:.8rem;font-weight:600;color:#374151;margin:0 0 8px;">Click a title to use it:</p>
+              <p style="font-size:1.2rem;font-weight:600;color:#374151;margin:0 0 8px;">Click a title to use it:</p>
               <div id="title-chips" style="display:flex;flex-direction:column;gap:7px;"></div>
             </div>
           </div>
@@ -109,53 +109,53 @@
             <label class="cp-label" style="margin:0;" for="id_description">Project Description *</label>
             <button type="button" id="toggle-questionnaire"
                     onclick="toggleQuestionnaire()"
-                    style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                    style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:1.2rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
               Use AI to write my description
             </button>
           </div>
 
           <!-- ── Questionnaire panel ── -->
           <div id="questionnaire-panel" style="display:none;background:#f8faff;border:1.5px solid #c7d9ff;border-radius:14px;padding:22px;margin-bottom:16px;">
-            <p style="font-size:.85rem;color:#374151;margin:0 0 18px;line-height:1.6;">
+            <p style="font-size:1.2rem;color:#374151;margin:0 0 18px;line-height:1.6;">
               Answer a few quick questions and our AI will craft a professional description for you.
               <strong>All fields are optional</strong> — the more you fill in, the better the result.
             </p>
 
             <div style="display:grid;gap:14px;">
               <div>
-                <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                   1. What problem does your project solve? *
                 </label>
                 <textarea id="q_problem" rows="2"
-                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;resize:vertical;"
+                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:1.2rem;resize:vertical;"
                           placeholder="e.g. 600 million Africans lack access to clean drinking water due to…"></textarea>
               </div>
 
               <div>
-                <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                   2. What is your solution / technology? *
                 </label>
                 <textarea id="q_solution" rows="2"
-                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;resize:vertical;"
+                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:1.2rem;resize:vertical;"
                           placeholder="e.g. A low-cost solar-powered filtration device that uses…"></textarea>
               </div>
 
               <div>
-                <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                   3. Who are your target users / customers?
                 </label>
                 <input type="text" id="q_target"
-                       style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;"
+                       style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:1.2rem;"
                        placeholder="e.g. Rural households and small communities in Sub-Saharan Africa">
               </div>
 
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
                 <div>
-                  <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                     4. Current project stage
                   </label>
                   <select id="q_stage"
-                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;background:#fff;">
+                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:1.2rem;background:#fff;">
                     <option value="">Select stage…</option>
                     <option value="Idea / Concept">Idea / Concept</option>
                     <option value="Research & Development">Research & Development</option>
@@ -166,26 +166,26 @@
                   </select>
                 </div>
                 <div>
-                  <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                     5. Industry / sector
                   </label>
                   <input type="text" id="q_industry"
-                         style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;"
+                         style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:1.2rem;"
                          placeholder="e.g. Clean Energy, AgriTech…">
                 </div>
               </div>
 
               <div>
-                <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                   6. What makes it unique compared to existing solutions?
                 </label>
                 <textarea id="q_unique" rows="2"
-                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;resize:vertical;"
+                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:1.2rem;resize:vertical;"
                           placeholder="e.g. Unlike existing products, ours costs 80% less and requires no electricity…"></textarea>
               </div>
 
               <div>
-                <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                   7. Revenue / business model
                 </label>
                 <input type="text" id="q_revenue"
@@ -195,7 +195,7 @@
 
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
                 <div>
-                  <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                     8. Team (brief)
                   </label>
                   <input type="text" id="q_team"
@@ -203,7 +203,7 @@
                          placeholder="e.g. 2 engineers, 1 business lead">
                 </div>
                 <div>
-                  <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                     9. Funding needed
                   </label>
                   <input type="text" id="q_funding"
@@ -213,7 +213,7 @@
               </div>
 
               <div>
-                <label style="display:block;font-size:.82rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                   10. Milestones or traction so far
                 </label>
                 <input type="text" id="q_milestones"
@@ -227,7 +227,7 @@
                       style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:.875rem;font-weight:700;cursor:pointer;">
                 Generate Description
               </button>
-              <span id="generate-spinner" style="display:none;font-size:.8rem;color:#6b7280;">Analyzing your project…</span>
+              <span id="generate-spinner" style="display:none;font-size:1.2rem;color:#6b7280;">Analyzing your project…</span>
               <span id="generate-error" style="display:none;font-size:.8rem;color:#dc2626;"></span>
             </div>
           </div>
@@ -235,14 +235,14 @@
           <!-- ── AI result panel (shown after generation) ── -->
           <div id="ai-result-panel" style="display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:20px;margin-bottom:16px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-              <span style="font-size:.875rem;font-weight:700;color:#14532d;">AI-Generated Description</span>
-              <span style="font-size:.75rem;color:#6b7280;">You can edit it before using</span>
+              <span style="font-size:1.2rem;font-weight:700;color:#14532d;">AI-Generated Description</span>
+              <span style="font-size:1.2rem;color:#6b7280;">You can edit it before using</span>
             </div>
             <textarea id="ai-description-text" rows="7"
-                      style="width:100%;border:1.5px solid #86efac;border-radius:8px;padding:12px;font-size:.875rem;line-height:1.7;resize:vertical;background:#fff;"></textarea>
+                      style="width:100%;border:1.5px solid #86efac;border-radius:8px;padding:12px;font-size:1.2rem;line-height:1.7;resize:vertical;background:#fff;"></textarea>
             <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
               <button type="button" onclick="useAIDescription()"
-                      style="background:#16a34a;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:.85rem;font-weight:700;cursor:pointer;">
+                      style="background:#16a34a;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:1.2rem;font-weight:700;cursor:pointer;">
                 ✓ Use this description
               </button>
               <button type="button" onclick="keepOwnDescription()"
@@ -250,7 +250,7 @@
                 ✎ Keep my own description
               </button>
               <button type="button" onclick="generateDescription()"
-                      style="background:transparent;color:#004AAD;border:1.5px solid #004AAD;border-radius:8px;padding:9px 20px;font-size:.85rem;font-weight:600;cursor:pointer;">
+                      style="background:transparent;color:#004AAD;border:1.5px solid #004AAD;border-radius:8px;padding:9px 20px;font-size:1.2rem;font-weight:600;cursor:pointer;">
                 ↺ Regenerate
               </button>
             </div>
@@ -259,7 +259,7 @@
           <!-- ── The actual description textarea ── -->
           <div id="own-description-wrap">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-              <span id="description-source-label" style="font-size:.78rem;color:#6b7280;"></span>
+              <span id="description-source-label" style="font-size:1.2rem;color:#6b7280;"></span>
             </div>
             <textarea name="description" id="id_description"
                       class="oc-textarea {% if form.description.errors %}oc-input--error{% endif %}"
@@ -610,16 +610,16 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
 .cp-page { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
 .cp-card { background: #fff; border-radius: 20px; padding: 32px; box-shadow: 0 2px 20px rgba(0,0,0,.07); }
 .cp-title { font-family: 'Jacques Francois', serif; font-size: 1.6rem; color: #1a1a2e; margin: 0 0 4px; }
-.cp-sub { color: #6b7280; font-family: 'Jaldi', sans-serif; margin: 0 0 24px; font-size: 0.92rem; }
-.cp-errors { background: #fee2e2; color: #991b1b; padding: 10px 16px; border-radius: 10px; margin-bottom: 20px; font-family: 'Jaldi', sans-serif; font-size: 0.88rem; }
+.cp-sub { color: #6b7280; font-family: 'Jaldi', sans-serif; margin: 0 0 24px; font-size: 1.2rem; }
+.cp-errors { background: #fee2e2; color: #991b1b; padding: 10px 16px; border-radius: 10px; margin-bottom: 20px; font-family: 'Jaldi', sans-serif; font-size: 1rem; }
 .cp-section { border: none; padding: 0; margin: 0 0 28px; }
-.cp-legend { font-family: 'Jacques Francois', serif; font-size: 1rem; color: #1a1a2e; margin-bottom: 14px; padding: 0; width: 100%; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
+.cp-legend { font-family: 'Jacques Francois', serif; font-size: 1.2rem; color: #1a1a2e; margin-bottom: 14px; padding: 0; width: 100%; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
 .cp-field { margin-bottom: 14px; }
 .cp-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
-.cp-label { display: block; font-family: 'Jaldi', sans-serif; font-size: 0.88rem; font-weight: 700; color: #374151; margin-bottom: 5px; }
-.cp-hint { display: block; font-weight: 400; color: #9ca3af; font-size: 0.78rem; margin-top: 1px; }
-.cp-hint-inline { font-size: 0.82rem; color: #9ca3af; font-family: 'Jaldi', sans-serif; font-weight: 400; }
-.cp-err { display: block; color: #dc2626; font-family: 'Jaldi', sans-serif; font-size: 0.8rem; margin-top: 3px; }
+.cp-label { display: block; font-family: 'Jaldi', sans-serif; font-size: 1.2rem; font-weight: 700; color: #374151; margin-bottom: 5px; }
+.cp-hint { display: block; font-weight: 400; color: #9ca3af; font-size: 1.2rem; margin-top: 1px; }
+.cp-hint-inline { font-size: 1.2rem; color: #9ca3af; font-family: 'Jaldi', sans-serif; font-weight: 400; }
+.cp-err { display: block; color: #dc2626; font-family: 'Jaldi', sans-serif; font-size: 1.2rem; margin-top: 3px; }
 .oc-input--error { border-color: #dc2626 !important; }
 .cp-form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
 
@@ -655,8 +655,8 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
 }
 .pb-header__left { display: flex; align-items: center; gap: 14px; }
 .pb-header__icon { width:44px; height:44px; border-radius:12px; background:rgba(27,94,199,.12); display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
-.pb-header__title { font-family: 'Jacques Francois', serif; font-size: 1rem; font-weight: 700; }
-.pb-header__sub { font-family: 'Jaldi', sans-serif; font-size: .8rem; color: #93c5fd; margin-top: 2px; }
+.pb-header__title { font-family: 'Jacques Francois', serif; font-size: 1.2rem; font-weight: 700; }
+.pb-header__sub { font-family: 'Jaldi', sans-serif; font-size: 1.2rem; color: #93c5fd; margin-top: 2px; }
 .pb-header__sub strong { color: #60a5fa; }
 .pb-progress-ring { position: relative; width: 52px; height: 52px; }
 .pb-progress-ring__pct {
@@ -670,7 +670,8 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
   transition: border-color .2s, box-shadow .2s;
 }
 .pb-slide:focus-within {
-  border-color: #1B5EC7; box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+  /* border-color: #1B5EC7;  */
+  box-shadow: 0 0 0 3px rgba(27,94,199,.1);
 }
 .pb-slide.pb-slide--filled { border-color: #10b981; }
 
@@ -703,8 +704,16 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
 }
 .pb-slide__check.filled { color: #10b981; }
 
-.pb-textarea { background: #fafafa !important; transition: background .2s; }
-.pb-slide:focus-within .pb-textarea { background: #fff !important; }
+.pb-textarea { 
+  background: #fafafa !important; 
+  transition: background .2s; 
+}
+.pb-slide:focus-within .pb-textarea { 
+  background: #fff !important; 
+  /* outline: unset; */
+  /* box-shadow: 0 0 0 3px rgba(27,94,199,.1); */
+  border:unset;
+  }
 </style>
 
 <script>

@@ -37,7 +37,7 @@
 }
 .pl-page-sub {
   font-family: var(--ff-sans);
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: #6b7280;
   margin: 0 0 28px;
 }
@@ -56,12 +56,12 @@
 }
 .pl-cta-text { color: #fff; font-family: var(--ff-sans); }
 .pl-cta-text strong { font-family: var(--ff-serif); font-size: 1.2rem; display: block; margin-bottom: 4px; }
-.pl-cta-text span { font-size: .92rem; opacity: .88; }
+.pl-cta-text span { font-size: 1.2rem; opacity: .88; }
 .pl-cta-btn {
   background: #fff;
   color: var(--blue);
   font-family: var(--ff-sans);
-  font-size: .92rem; font-weight: 700;
+  font-size: 1.2rem; font-weight: 700;
   padding: 10px 22px; border-radius: 50px;
   text-decoration: none;
   display: inline-flex; align-items: center; gap: 7px;
@@ -78,7 +78,7 @@
   border: 1.5px solid var(--border);
   border-radius: 50px;
   padding: 10px 18px;
-  font-family: var(--ff-sans); font-size: .97rem;
+  font-family: var(--ff-sans); font-size: 1.2rem;
   color: var(--ink); background: #fff;
   transition: border-color .2s; box-sizing: border-box;
   outline: none;
@@ -89,7 +89,7 @@
   background: var(--blue); color: #fff;
   border: none; border-radius: 50px;
   padding: 10px 22px;
-  font-family: var(--ff-sans); font-size: .93rem; font-weight: 700;
+  font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700;
   cursor: pointer;
   display: inline-flex; align-items: center; gap: 7px;
   transition: background .2s; white-space: nowrap;
@@ -102,9 +102,9 @@
 .pl-cat-card--active { background:var(--blue); border-color:var(--blue); box-shadow:0 4px 18px rgba(0,74,173,.28); }
 .pl-cat-icon { width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:#4b6cb7; }
 .pl-cat-card--active .pl-cat-icon { color:rgba(255,255,255,.85); }
-.pl-cat-name { font-family:'Space Grotesk',sans-serif; font-size:.84rem; font-weight:800; color:#0A1628; line-height:1.2; }
+.pl-cat-name { font-family:'Space Grotesk',sans-serif; font-size:1.2rem; font-weight:800; color:#0A1628; line-height:1.2; }
 .pl-cat-card--active .pl-cat-name { color:#fff; }
-.pl-cat-count { font-size:.72rem; color:#6b7280; font-weight:600; }
+.pl-cat-count { font-size:1rem; color:#6b7280; font-weight:600; }
 .pl-cat-card--active .pl-cat-count { color:rgba(255,255,255,.75); }
 
 /* ── Filter bar ───────────────────────────────────────────────── */
@@ -210,7 +210,7 @@
   display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
 }
 .pl-tag {
-  font-size: .68rem; font-weight: 700; padding: 2px 9px;
+  font-size: 1.2rem; font-weight: 700; padding: 2px 9px;
   border-radius: 20px; white-space: nowrap;
 }
 .pl-tag--industry { background: var(--blue-lt); color: var(--blue); }
@@ -221,12 +221,12 @@
 
 .pl-card-title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 1rem; font-weight: 800;
+  font-size: 1.2rem; font-weight: 800;
   color: var(--ink); margin: 0 0 6px;
   line-height: 1.3;
 }
 .pl-card-desc {
-  font-size: .82rem; color: #6b7280;
+  font-size: 1.2rem; color: #6b7280;
   line-height: 1.55; margin: 0 0 12px;
   flex: 1;
 }
@@ -245,12 +245,12 @@
 .pl-card-avatar-init {
   width: 28px; height: 28px; border-radius: 50%;
   background: linear-gradient(135deg, var(--blue), #0A1628);
-  color: #fff; font-size: .65rem; font-weight: 800;
+  color: #fff; font-size: 1.2rem; font-weight: 800;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
 .pl-card-owner-name {
-  font-size: .78rem; color: var(--ink); font-weight: 600;
+  font-size: 1.2rem; color: var(--ink); font-weight: 600;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   flex: 1;
 }
@@ -259,7 +259,7 @@
   margin-left: auto; flex-shrink: 0;
 }
 .pl-card-stat {
-  font-size: .72rem; color: #6b7280;
+  font-size: 1.2rem; color: #6b7280;
   display: flex; align-items: center; gap: 3px;
 }
 
@@ -282,7 +282,7 @@
   padding: 7px 14px;
   border: 1.5px solid var(--border);
   border-radius: 9px;
-  font-size: .82rem; font-weight: 600;
+  font-size: 1.2rem; font-weight: 600;
   color: var(--ink); background: #fff;
   text-decoration: none; cursor: pointer;
   transition: all .15s; font-family: inherit;
@@ -340,11 +340,11 @@
   <div style="margin-bottom:28px;">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
       <div>
-        <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:800;color:#0A1628;margin:0 0 3px;">Browse by Industry</h2>
-        <p style="font-size:.8rem;color:#6b7280;margin:0;">{{ total_count }} project{{ total_count|pluralize }} found</p>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:800;color:#0A1628;margin:0 0 3px;">Browse by Industry</h2>
+        <p style="font-size:1.2rem;color:#6b7280;margin:0;">{{ total_count }} project{{ total_count|pluralize }} found</p>
       </div>
       {% if current_industry %}
-      <a href="{% url 'project_list' %}{% if current_query %}?q={{ current_query }}{% endif %}" style="font-size:.78rem;font-weight:700;color:#ef4444;text-decoration:none;padding:5px 12px;border-radius:20px;background:#fff1f1;border:1px solid #fecaca;white-space:nowrap;">Clear filter</a>
+      <a href="{% url 'project_list' %}{% if current_query %}?q={{ current_query }}{% endif %}" style="font-size:1.2rem;font-weight:700;color:#ef4444;text-decoration:none;padding:5px 12px;border-radius:20px;background:#fff1f1;border:1px solid #fecaca;white-space:nowrap;">Clear filter</a>
       {% endif %}
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;">

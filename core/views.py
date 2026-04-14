@@ -1566,51 +1566,51 @@ def _admin_auto_reply(content):
     t = content.lower()
     if any(w in t for w in ['password', 'reset', 'forgot']):
         return (
-            "🔐 Thanks for reaching out about your password. We've received your request "
+            "Thanks for reaching out about your password. We've received your request "
             "and our team will process it shortly. For security, password resets are handled "
             "manually — we'll send you instructions via email within a few hours."
         )
     if any(w in t for w in ['locked', 'lock', "can't log", "cant log", 'cannot log', 'login', 'sign in', 'access', 'locked out']):
         return (
-            "🔓 We've received your account access request. Our team will investigate and "
+            "We've received your account access request. Our team will investigate and "
             "get your account restored as soon as possible. Please check your email for any "
             "security alerts in the meantime."
         )
     if any(w in t for w in ['verify', 'verification', 'verified', 'badge']):
         return (
-            "✅ Thank you for reaching out about account verification. We'll review your "
+            "Thank you for reaching out about account verification. We'll review your "
             "profile and documents shortly. Verification typically takes 1–3 business days."
         )
     if any(w in t for w in ['bug', 'technical', 'error', 'broken', 'not working', "doesn't work", 'crash', 'glitch']):
         return (
-            "🐛 Thanks for reporting this technical issue. Our engineering team has been "
+            "Thanks for reporting this technical issue. Our engineering team has been "
             "notified and will investigate. If you can share any screenshots or steps to "
             "reproduce the problem, that would be very helpful!"
         )
     if any(w in t for w in ['delete', 'close account', 'remove account', 'deactivate']):
         return (
-            "⚠️ We've received your account deletion/deactivation request. Please note this "
+            "We've received your account deletion/deactivation request. Please note this "
             "action is irreversible. A member of our team will contact you to confirm before "
             "proceeding — usually within 24 hours."
         )
     if any(w in t for w in ['upgrade', 'premium', 'plan', 'subscription', 'tier']):
         return (
-            "🚀 Thanks for your interest in upgrading your account! Our team will reach out "
+            "Thanks for your interest in upgrading your account! Our team will reach out "
             "with available options and pricing details. We'll be in touch shortly."
         )
     if any(w in t for w in ['report', 'inappropriate', 'spam', 'abuse', 'harassment', 'scam']):
         return (
-            "🚨 We take reports of inappropriate content very seriously. Your report has been "
+            "We take reports of inappropriate content very seriously. Your report has been "
             "logged and will be reviewed within 24 hours. Thank you for helping keep "
             "Oduma Corp safe."
         )
     if any(w in t for w in ['profile', 'company', 'update info', 'edit my', 'change my']):
         return (
-            "📝 We've received your request to update your profile or company information. "
+            "We've received your request to update your profile or company information. "
             "Please describe exactly what you'd like changed and our team will assist you."
         )
     return (
-        "👋 Thanks for reaching out to Oduma Corp Support! We've received your message "
+        "Thanks for reaching out to Oduma Corp Support! We've received your message "
         "and a member of our team will respond as soon as possible. "
         "Support hours are Monday–Friday, 9am–6pm WAT."
     )
@@ -2565,10 +2565,10 @@ def register(request):
                         recipient_id=user.pk,
             
                         content=(
-                            f"Hi {first_name}, welcome to Oduma Corp! 👋\n\n"
-                            "Here are your login details — keep them safe:\n\n"
-                            f"📧 Email: {user.email}\n"
-                            f"👤 Username: {user.username}\n\n"
+                            f"Hi {first_name}, welcome to Oduma Corp! 👋\n\n""<img />"
+                            "Here are your login details — keep them safe:\n\n<br>"
+                            f"📧 Email: {user.email}\n <br>"
+                            f"👤 Username: {user.username}\n\n <br>"
                             "You can log in using either your email or username.\n\n"
                             "Here's how to get started:\n"
                             "1️⃣ Complete your profile — add a photo, bio, and your industry.\n"

@@ -15,8 +15,8 @@
 .ch-hdr-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;}
 .ch-hdr-initials{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#1B5EC7,#0A1628);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:800;color:#fff;flex-shrink:0;}
 .ch-hdr-info{flex:1;min-width:0;}
-.ch-hdr-name{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:800;color:#0A1628;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ch-hdr-sub{font-size:.72rem;color:#9ca3af;margin-top:1px;}
+.ch-hdr-name{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;color:#0A1628;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ch-hdr-sub{font-size:1.2rem;color:#9ca3af;margin-top:1px;}
 .ch-icon-btn{width:34px;height:34px;border-radius:9px;border:1px solid #e8edf4;background:#f8faff;display:flex;align-items:center;justify-content:center;color:#6b7280;cursor:pointer;text-decoration:none;transition:background .15s,color .15s;flex-shrink:0;}
 .ch-icon-btn:hover{background:#1B5EC7;color:#fff;border-color:#1B5EC7;}
 .ch-icon-btn.active{background:#1B5EC7;color:#fff;border-color:#1B5EC7;}
@@ -26,7 +26,7 @@
 .ch-messages::-webkit-scrollbar{width:4px;}
 .ch-messages::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:4px;}
 
-.ch-date-sep{text-align:center;margin:14px 0 10px;font-size:.68rem;font-weight:700;color:#9ca3af;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.ch-date-sep{text-align:center;margin:14px 0 10px;font-size:1rem;font-weight:700;color:#9ca3af;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:10px;}
 .ch-date-sep::before,.ch-date-sep::after{content:'';flex:1;height:1px;background:#e8edf4;}
 
 /* Message rows */
@@ -40,14 +40,14 @@
 .ch-row--theirs .ch-msg-wrap{align-items:flex-start;}
 
 /* Reply-to quote */
-.ch-quote{background:rgba(27,94,199,0.08);border-left:3px solid #1B5EC7;border-radius:6px;padding:6px 10px;margin-bottom:4px;font-size:.75rem;color:#374151;max-width:100%;overflow:hidden;}
+.ch-quote{background:rgba(27,94,199,0.08);border-left:3px solid #1B5EC7;border-radius:6px;padding:6px 10px;margin-bottom:4px;font-size:1.2rem;color:#374151;max-width:100%;overflow:hidden;}
 .ch-row--mine .ch-quote{background:rgba(255,255,255,0.2);border-left-color:rgba(255,255,255,0.6);color:rgba(255,255,255,0.85);}
 .ch-quote__author{font-weight:700;font-size:.7rem;margin-bottom:2px;color:#1B5EC7;}
 .ch-row--mine .ch-quote__author{color:rgba(255,255,255,0.9);}
 .ch-quote__text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* Bubble */
-.ch-bubble{padding:10px 14px;font-size:.875rem;line-height:1.6;word-break:break-word;position:relative;}
+.ch-bubble{padding:10px 14px;font-size:1.2rem;line-height:1.6;word-break:break-word;position:relative;}
 .ch-row--theirs .ch-bubble{background:#fff;color:#1a202c;border-radius:4px 16px 16px 16px;border:1px solid #e8edf4;box-shadow:0 1px 4px rgba(10,22,40,0.05);}
 .ch-row--mine .ch-bubble{background:linear-gradient(135deg,#1B5EC7,#1451aa);color:#fff;border-radius:16px 4px 16px 16px;}
 
@@ -412,7 +412,7 @@
 
 /* ── Input bar ── */
 .ch-inputbar{flex-shrink:0;background:#fff;border-top:1px solid #e8edf4;padding:12px 16px;display:flex;align-items:flex-end;gap:10px;}
-.ch-inputbar textarea{flex:1;border:1.5px solid #e0e6f0;border-radius:22px;padding:10px 16px;font-size:.875rem;font-family:inherit;color:#0A1628;line-height:1.5;resize:none;min-height:42px;max-height:120px;background:#fafbff;outline:none;transition:border-color .18s,box-shadow .18s;box-sizing:border-box;}
+.ch-inputbar textarea{flex:1;border:1.5px solid #e0e6f0;border-radius:22px;padding:10px 16px;font-size:1.2rem;font-family:inherit;color:#0A1628;line-height:1.5;resize:none;min-height:42px;max-height:120px;background:#fafbff;outline:none;transition:border-color .18s,box-shadow .18s;box-sizing:border-box;}
 .ch-inputbar textarea:focus{border-color:#1B5EC7;box-shadow:0 0 0 3px rgba(27,94,199,0.1);background:#fff;}
 .ch-inputbar textarea::placeholder{color:#9ca3af;}
 .ch-send{width:42px;height:42px;border-radius:2rem;flex-shrink:0;background:#1B5EC7;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .18s;}
@@ -685,17 +685,17 @@
   font-size:1.1rem;
 }
 .ch-admin-banner-label{
-  font-size:.6rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em;
+  font-size:1.2rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em;
   color:rgba(255,255,255,.45); margin-bottom:1px;
 }
 .ch-admin-banner-title{
-  font-family:'Space Grotesk',sans-serif; font-size:.88rem; font-weight:800; color:#fff;
+  font-family:'Space Grotesk',sans-serif; font-size:1.2rem; font-weight:800; color:#fff;
 }
 .ch-admin-banner-sub{
-  font-size:.68rem; color:rgba(255,255,255,.5); margin-top:1px;
+  font-size:1rem; color:rgba(255,255,255,.5); margin-top:1px;
 }
 .ch-admin-badge{
-  margin-left:auto; font-size:.62rem; font-weight:800; text-transform:uppercase;
+  margin-left:auto; font-size:1rem; font-weight:800; text-transform:uppercase;
   letter-spacing:.06em; padding:3px 10px; border-radius:20px;
   background:rgba(124,58,237,.35); color:#c4b5fd;
   border:1px solid rgba(124,58,237,.5); flex-shrink:0;
@@ -735,7 +735,7 @@
   font-family:'Space Grotesk',sans-serif; font-size:.84rem; font-weight:800;
   color:#6ee7b7;
 }
-.ch-resolved-sub{ font-size:.7rem; color:rgba(110,231,183,.6); margin-top:1px; }
+.ch-resolved-sub{ font-size:1rem; color:rgba(110,231,183,.6); margin-top:1px; }
 
 /* Admin resolve button (visible to admin only) */
 .ch-resolve-form{ margin-left:auto; flex-shrink:0; }
@@ -757,7 +757,7 @@
   display:inline-block;
   background:#f0fdf4; color:#166534;
   border:1px solid #bbf7d0; border-radius:12px;
-  padding:8px 16px; font-size:.78rem; line-height:1.55;
+  padding:8px 16px; font-size:1rem; line-height:1.55;
   max-width:80%;
 }
 
@@ -767,12 +767,13 @@
   background:#fff; border-top:1px solid #ede9fe;
 }
 .ch-suggestions-label{
-  font-size:.64rem; font-weight:800; text-transform:uppercase;
+  font-size:1rem; font-weight:800; text-transform:uppercase;
   letter-spacing:.07em; color:#7c3aed; margin-bottom:7px;
   display:flex; align-items:center; gap:5px;
 }
 .ch-suggestions-scroll{
-  display:flex; gap:7px; overflow-x:auto; padding-bottom:4px;
+  display:flex;
+  gap:7px; overflow-x:auto; padding-bottom:4px;
 }
 .ch-suggestions-scroll::-webkit-scrollbar{ display:none; }
 .ch-suggestion-chip{
@@ -781,7 +782,7 @@
   padding:6px 13px; border-radius:20px;
   background:#f5f3ff; color:#5b21b6;
   border:1.5px solid #ddd6fe;
-  font-size:.78rem; font-weight:600;
+  font-size:1rem; font-weight:600;
   cursor:pointer;
   transition:background .15s, border-color .15s, transform .1s;
 }
