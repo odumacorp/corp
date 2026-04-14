@@ -5175,7 +5175,7 @@ Output ONLY the description text, nothing else."""
         if resp.content and len(resp.content) > 0:
             result = getattr(resp.content[0], "text", "").strip()
             result = result.encode('utf-8', 'ignore').decode('utf-8')
-            
+
             result = unicodedata.normalize('NFKD', result)
             result = result.replace('•', '-')
         if not result:
@@ -5192,8 +5192,15 @@ Output ONLY the description text, nothing else."""
             
     # except Exception:
     #     return JsonResponse({'error': 'AI generation failed. Please try again.'}, status=500)
+    # except Exception as e:
+    #     return JsonResponse({'error': str(e)}, status=500)
+
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        import traceback
+        return JsonResponse({
+            'error': str(e),
+            'trace': traceback.format_exc()
+        }, status=500)
 
 
 def _odu_local_reply(message, user):
