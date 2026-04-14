@@ -19,11 +19,16 @@ class Command(BaseCommand):
         user, created = User.objects.get_or_create(
             username=username,
             defaults={"email": email}
+            "role": "admin",  # 🔥 CRITICAL if you use roles
+            
         )
 
         user.set_password(password)
         user.is_superuser = True
         user.is_staff = True
+        # 🔥 force correct role even if user already exists
+        if hasattr(user, "role"):
+            user.role = "admin"
         user.save()
 
         if created:
