@@ -18,8 +18,11 @@ class Command(BaseCommand):
 
         user, created = User.objects.get_or_create(
             username=username,
-            defaults={"email": email},
-            "role": "admin",  # 🔥 CRITICAL if you use roles
+            defaults={
+                "email": email,
+                "role": "admin",  # 🔥 CRITICAL if you use roles
+                },
+            
             
         )
 
