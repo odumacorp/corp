@@ -640,31 +640,108 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
   position: relative;
   display: flex;
   align-items: center;
+  width: clamp(130px, 18vw, 230px);
+  flex-shrink: 1;
+  transition: width .25s ease;
 }
 .oc-navbar__search input {
   background: rgba(255,255,255,0.07);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: var(--oc-radius-sm);
   padding: 7px 12px 7px 32px;
-  font-size:1.2rem;
+  font-size: 1.2rem;
   color: #fff;
-  width: 150px;
-  transition: all var(--oc-transition);
+  width: 100%;
+  transition: background .2s, border-color .2s, box-shadow .2s;
   outline: none;
 }
 .oc-navbar__search input::placeholder { color: rgba(255,255,255,0.38); }
 .oc-navbar__search input:focus {
-  width: 210px;
   background: rgba(255,255,255,0.11);
   border-color: rgba(255,255,255,0.28);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.07);
 }
 .oc-navbar__search-icon {
   position: absolute;
   left: 9px;
   pointer-events: none;
   opacity: .45;
+  z-index: 1;
 }
-.oc-navbar__search button { display: none; }
+/* Close button — hidden by default, shown when expanded on small screen */
+.oc-search__close {
+  display: none;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.65);
+  cursor: pointer;
+  padding: 4px;
+  line-height: 0;
+  z-index: 2;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PURE CSS: collapse to icon-only below 1280px.
+   No JS needed for initial state — media query handles it.
+   ───────────────────────────────────────────────────────────── */
+@media (max-width: 1279px) {
+  /* Collapsed: shrink form to icon-sized button */
+  .oc-navbar__search:not(.oc-search--open) {
+    width: 32px !important;
+    min-width: 32px;
+    flex-shrink: 0;
+    cursor: pointer;
+    overflow: visible;
+  }
+  /* Hide the text input completely */
+  .oc-navbar__search:not(.oc-search--open) input {
+    position: absolute;
+    width: 0 !important;
+    opacity: 0;
+    padding: 0 !important;
+    border: none !important;
+    pointer-events: none;
+  }
+  /* Centre the icon in the 32px button */
+  .oc-navbar__search:not(.oc-search--open) .oc-navbar__search-icon {
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: .8;
+    pointer-events: none;
+  }
+
+  /* Expanded overlay: full-width bar over the navbar */
+  .oc-navbar__search.oc-search--open {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    width: auto !important;
+    z-index: 200;
+  }
+  .oc-navbar__search.oc-search--open input {
+    position: static;
+    width: 100% !important;
+    opacity: 1;
+    pointer-events: all;
+    padding: 8px 36px 8px 32px !important;
+    background: rgba(255,255,255,0.13) !important;
+    border: 1px solid rgba(255,255,255,0.35) !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  }
+  .oc-navbar__search.oc-search--open .oc-navbar__search-icon {
+    left: 10px;
+    transform: none;
+    opacity: .55;
+    pointer-events: none;
+  }
+  .oc-navbar__search.oc-search--open .oc-search__close {
+    display: block;
+  }
+}
 
 /* Auth buttons */
 .oc-navbar__auth {
@@ -804,21 +881,15 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
 @media (max-width: 1400px) {
   .oc-navbar__link { padding: 6px 9px; font-size:1.2rem; }
   .oc-navbar__nav  { gap: 0; margin-inline: 8px; }
-  .oc-navbar__search { max-width: 150px; }
   .oc-navbar__brand-name { display: none; }
 }
 @media (max-width: 1200px) {
   .oc-navbar__link { padding: 5px 7px; font-size: 1.0rem; }
   .oc-navbar__divider { margin-inline: 2px; }
-  .oc-navbar__search { max-width: 120px; }
 }
 @media (max-width: 1050px) {
   .oc-navbar__nav  { display: none; }
   .oc-navbar__hamburger { display: flex; }
-  .oc-navbar__search { max-width: 160px; }
-}
-@media (max-width: 640px) {
-  .oc-navbar__search { display: none; }
 }
 
 /* ----------------------------------------------------------
@@ -1924,6 +1995,90 @@ input:focus, textarea:focus, select:focus {
 .oc-ht-item:hover { background: #f4f8ff; }
 .oc-ht-item__name { color: #0057FF; font-weight: 700; }
 .oc-ht-item__count { font-size:  1.2rem; color: #9ca3af; }
+
+/* ── Form validation — Oduma Corp note-label style ───────────────────────── */
+
+/* Inline field error label */
+.oc-field-err {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  padding: 5px 11px 5px 9px;
+  /* Unique Oduma touch: square-left + rounded-right + 3px brand-colored left stripe */
+  border-radius: 0 20px 20px 0;
+  border-top:    1px solid rgba(220,38,38,0.22);
+  border-right:  1px solid rgba(220,38,38,0.22);
+  border-bottom: 1px solid rgba(220,38,38,0.22);
+  border-left:   3px solid #DC2626;
+  background: linear-gradient(to right, rgba(220,38,38,0.07) 0%, rgba(220,38,38,0.02) 100%);
+  color: #7f1d1d;
+  font-size: 1.15rem;
+  font-weight: 500;
+  line-height: 1.4;
+  max-width: 100%;
+}
+.oc-field-err .oc-fe-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #DC2626;
+  flex-shrink: 0;
+}
+.oc-field-err .oc-fe-txt { flex: 1; }
+
+/* Invalid input highlight */
+input.oc-invalid,
+textarea.oc-invalid,
+select.oc-invalid {
+  border-color: rgba(220,38,38,0.55) !important;
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.08) !important;
+}
+
+/* Page-level form banner — same left-stripe concept, wider */
+.oc-form-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 12px 16px 12px 14px;
+  border-radius: 0 10px 10px 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 18px;
+}
+.oc-form-banner svg { flex-shrink: 0; margin-top: 2px; }
+
+.oc-form-banner--error {
+  border-top:    1px solid rgba(220,38,38,0.20);
+  border-right:  1px solid rgba(220,38,38,0.20);
+  border-bottom: 1px solid rgba(220,38,38,0.20);
+  border-left:   3px solid #DC2626;
+  background: linear-gradient(to right, rgba(220,38,38,0.07), rgba(220,38,38,0.02));
+  color: #7f1d1d;
+}
+.oc-form-banner--success {
+  border-top:    1px solid rgba(5,150,105,0.22);
+  border-right:  1px solid rgba(5,150,105,0.22);
+  border-bottom: 1px solid rgba(5,150,105,0.22);
+  border-left:   3px solid #059669;
+  background: linear-gradient(to right, rgba(5,150,105,0.07), rgba(5,150,105,0.02));
+  color: #065f46;
+}
+.oc-form-banner--warning {
+  border-top:    1px solid rgba(217,119,6,0.22);
+  border-right:  1px solid rgba(217,119,6,0.22);
+  border-bottom: 1px solid rgba(217,119,6,0.22);
+  border-left:   3px solid #D97706;
+  background: linear-gradient(to right, rgba(217,119,6,0.07), rgba(217,119,6,0.02));
+  color: #78350f;
+}
+.oc-form-banner--info {
+  border-top:    1px solid rgba(27,94,199,0.22);
+  border-right:  1px solid rgba(27,94,199,0.22);
+  border-bottom: 1px solid rgba(27,94,199,0.22);
+  border-left:   3px solid var(--oc-blue, #1B5EC7);
+  background: linear-gradient(to right, rgba(27,94,199,0.07), rgba(27,94,199,0.02));
+  color: var(--oc-navy, #092147);
+}
 
 /* Hashtag hint below inputs */
 .oc-ht-hint {

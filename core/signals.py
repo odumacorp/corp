@@ -40,19 +40,55 @@ def create_user_profile(sender, instance, created, **kwargs):
             pass
         # Welcome message from system Odu user
         try:
-            odu = CustomUser.objects.filter(username='odu').first()
+            odu = CustomUser.objects.filter(username__iexact='odu').first()
             if odu:
                 conv = Conversation.objects.create()
                 conv.participants.add(odu, instance)
+
+                full_name = instance.get_full_name() or instance.username
+                role = instance.user_type or 'member'
+
+                if role == 'innovator':
+                    role_tips = (
+                        "As an Innovator, here is what you can do:\n"
+                        "  1. Post your projects and pitch them to investors\n"
+                        "  2. Apply for collaboration requests from other users\n"
+                        "  3. Track proposals and investor interest on your dashboard\n"
+                        "  4. Connect with mentors and enrol in courses via the Training Hub"
+                    )
+                elif role == 'investor':
+                    role_tips = (
+                        "As an Investor, here is what you can do:\n"
+                        "  1. Browse the Deal Flow and discover top-matched projects\n"
+                        "  2. Send investment proposals directly to innovators\n"
+                        "  3. Save projects and track your pipeline on your dashboard\n"
+                        "  4. Request pitch meetings and review active collaborations"
+                    )
+                else:
+                    role_tips = (
+                        "You can explore the platform, connect with innovators and investors,\n"
+                        "join groups, follow pages, and stay updated on upcoming events."
+                    )
+
                 Message.objects.create(
                     sender=odu,
                     recipient=instance,
                     conversation=conv,
                     content=(
-                        f"Hi {instance.first_name or instance.username}, I'm Odu — your Oduma Corp assistant! "
-                        "I'm here to help you navigate the platform, answer questions, and connect you with the right people. "
-                        "To get started: post a project, explore the Innovators page, or send a connection request. "
-                        "Type /help anytime in this chat to see what I can do."
+                        f"Welcome to Oduma Corp, {full_name}.\n\n"
+                        f"──────────────────────\n"
+                        f"Account Details\n"
+                        f"──────────────────────\n"
+                        f"Name     : {full_name}\n"
+                        f"Username : {instance.username}\n"
+                        f"Email    : {instance.email}\n"
+                        f"Role     : {role.title()}\n\n"
+                        f"──────────────────────\n"
+                        f"Getting Started\n"
+                        f"──────────────────────\n"
+                        f"{role_tips}\n\n"
+                        f"Type /help at any time to see everything I can assist you with.\n"
+                        f"— Odu, Platform Assistant"
                     ),
                 )
         except Exception:

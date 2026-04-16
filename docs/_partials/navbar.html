@@ -284,11 +284,14 @@
     <!-- Right: search + auth + hamburger -->
     <div class="oc-navbar__right">
 
-      <form action="{% url 'search' %}" method="GET" class="oc-navbar__search" role="search">
-        <svg class="oc-navbar__search-icon" width="14" height="14" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+      <form action="{% url 'search' %}" method="GET" class="oc-navbar__search" id="oc-search-form" role="search">
+        <svg class="oc-navbar__search-icon" id="oc-search-icon" width="14" height="14" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <input type="text" name="q" placeholder="Search…" aria-label="Search">
+        <input type="text" name="q" id="oc-search-input" placeholder="Search…" aria-label="Search" autocomplete="off">
+        <button type="button" class="oc-search__close" id="oc-search-close" aria-label="Close search" tabindex="-1">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </form>
 
       <div class="oc-navbar__auth">
@@ -870,6 +873,51 @@
         toggle.classList.toggle('open', isOpen);
       });
     }
+  });
+})();
+
+/* ── Search bar: icon-only expand/collapse (CSS handles initial state) ── */
+(function () {
+  var form     = document.getElementById('oc-search-form');
+  var input    = document.getElementById('oc-search-input');
+  var closeBtn = document.getElementById('oc-search-close');
+  if (!form || !input) return;
+
+  var BP = 1280;
+  function isSmall() { return window.innerWidth < BP; }
+
+  /* Tap the collapsed icon → open */
+  form.addEventListener('click', function (e) {
+    if (!isSmall() || form.classList.contains('oc-search--open')) return;
+    e.preventDefault();
+    form.classList.add('oc-search--open');
+    setTimeout(function () { input.focus(); }, 20);
+  });
+
+  /* × button → close */
+  if (closeBtn) {
+    closeBtn.addEventListener('mousedown', function (e) {
+      e.preventDefault(); // prevent blur firing before click
+    });
+    closeBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      input.value = '';
+      form.classList.remove('oc-search--open');
+    });
+  }
+
+  /* Blur with empty input → close */
+  input.addEventListener('blur', function () {
+    if (!isSmall()) return;
+    setTimeout(function () {
+      if (!input.value.trim()) form.classList.remove('oc-search--open');
+    }, 200);
+  });
+
+  /* Resize back to desktop → clear open state */
+  window.addEventListener('resize', function () {
+    if (!isSmall()) form.classList.remove('oc-search--open');
   });
 })();
 </script>

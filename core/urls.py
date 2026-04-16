@@ -75,6 +75,7 @@ urlpatterns = [
     path('project/<int:project_id>/delete/', views.delete_project, name='delete_project'),
 
     path('update-profile/', update_profile, name='update_profile'),
+    path('update-profile/remove-photo/', views.remove_profile_photo, name='remove_profile_photo'),
 
     path('investors/', views.investors_view, name='investors'),
     path('investors/industry/<str:industry_name>/', views.investors_by_industry_view, name='investors_by_industry'),
@@ -358,6 +359,9 @@ urlpatterns = [
     path('read-later/', views.read_later_list, name='read_later_list'),
     path('read-later/toggle/', views.toggle_read_later, name='toggle_read_later'),
     path('read-later/<int:item_id>/remove/', views.remove_read_later, name='remove_read_later'),
+
+    # Pin
+    path('pin/toggle/', views.toggle_pin, name='toggle_pin'),
 
     # ── Oduma Corp Services ──────────────────────────────────────────────────
     # Training

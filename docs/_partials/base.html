@@ -128,134 +128,259 @@
     Feedback
   </button>
   <style>
+  /* ── Feedback modal ─────────────────────────────── */
   .oc-fb-modal-overlay {
     display: none; position: fixed; inset: 0; z-index: 2000;
-    background: rgba(10,12,20,0.55); backdrop-filter: blur(3px);
-    align-items: center; justify-content: center;
+    background: rgba(10,12,20,.52); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 16px;
   }
   .oc-fb-modal-overlay.open { display: flex; }
   .oc-fb-card {
-    background: #fff; border-radius: 18px; padding: 30px 28px 24px;
-    width: 100%; max-width: 430px; box-shadow: 0 24px 64px rgba(0,0,0,0.18);
-    position: relative; animation: fbSlideIn .18s ease;
+    background: #fff; border-radius: 20px;
+    width: 100%; max-width: 440px;
+    box-shadow: 0 24px 64px rgba(10,22,40,.2);
+    overflow: hidden; animation: fbIn .18s ease;
   }
-  @keyframes fbSlideIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fbIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  /* Header */
+  .oc-fb-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 22px 16px; border-bottom: 1px solid #f0f4f8;
+  }
+  .oc-fb-head-left { display: flex; align-items: center; gap: 10px; }
+  .oc-fb-head-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: #eef4ff; color: #1B5EC7;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .oc-fb-title {
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem;
+    font-weight: 800; color: #0A1628; margin: 0;
+  }
+  .oc-fb-sub { font-size: 1rem; color: #6b7280; margin: 1px 0 0; }
   .oc-fb-close {
-    position: absolute; top: 14px; right: 14px; background: #f3f4f6;
-    border: none; border-radius: 50%; width: 30px; height: 30px;
-    cursor: pointer; font-size: 1rem; color: #6b7280; line-height: 30px;
-    text-align: center; transition: background .15s;
+    width: 32px; height: 32px; border-radius: 50%; border: none;
+    background: #f3f4f6; color: #6b7280; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s, color .15s;
+    -webkit-appearance: none; appearance: none;
   }
   .oc-fb-close:hover { background: #e5e7eb; color: #111; }
-  .oc-fb-title {
-    font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem;
-    font-weight: 700; color: #0A0C12; margin: 0 0 6px;
-  }
-  .oc-fb-sub {
-    font-family: 'Jaldi', sans-serif; font-size: 1.2rem; color: #6b7280; margin: 0 0 20px;
-  }
+  /* Body */
+  .oc-fb-body { padding: 20px 22px 22px; }
   .oc-fb-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-  .oc-fb-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+  .oc-fb-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
   .oc-fb-field:last-of-type { margin-bottom: 0; }
   .oc-fb-label {
-    font-family: 'Space Grotesk', sans-serif; font-size: .78rem;
-    font-weight: 600; color: #374151; letter-spacing: .02em; text-transform: uppercase;
+    font-family: 'Space Grotesk', sans-serif; font-size: .75rem;
+    font-weight: 700; color: #374151; letter-spacing: .04em; text-transform: uppercase;
   }
   .oc-fb-label .oc-fb-opt { font-weight: 400; color: #9ca3af; text-transform: none; letter-spacing: 0; }
-  .oc-fb-input, .oc-fb-select, .oc-fb-textarea {
-    width: 100%; box-sizing: border-box;
-    padding: 9px 13px;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 9px;
-    font-family: 'Jaldi', sans-serif; font-size: 1.2rem; color: #111;
-    background: #fafbff;
-    outline: none;
+  .oc-fb-input, .oc-fb-textarea {
+    width: 100%; box-sizing: border-box; padding: 9px 13px;
+    border: 1.5px solid #e5e7eb; border-radius: 9px;
+    font-family: 'Inter', sans-serif; font-size: 1rem; color: #111;
+    background: #fafbff; outline: none;
     transition: border-color .15s, box-shadow .15s;
   }
-  .oc-fb-input:focus, .oc-fb-select:focus, .oc-fb-textarea:focus {
-    border-color: #004AAD;
-    box-shadow: 0 0 0 3px rgba(0,74,173,0.1);
-    background: #fff;
+  .oc-fb-input:focus, .oc-fb-textarea:focus {
+    border-color: #1B5EC7; box-shadow: 0 0 0 3px rgba(27,94,199,.1); background: #fff;
   }
-  .oc-fb-select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px;
+  .oc-fb-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+  /* Custom dropdowns */
+  .oc-fb-dd { position: relative; }
+  .oc-fb-dd-trigger {
+    width: 100%; box-sizing: border-box;
+    padding: 9px 32px 9px 10px; border: 1.5px solid #e5e7eb; border-radius: 9px;
+    font-family: 'Inter', sans-serif; font-size: 1rem; color: #111;
+    background: #fafbff; cursor: pointer; text-align: left;
+    display: flex; align-items: center; gap: 8px;
+    transition: border-color .15s, box-shadow .15s;
+    -webkit-appearance: none; appearance: none; outline: none;
+    user-select: none; -webkit-tap-highlight-color: transparent;
   }
-  .oc-fb-textarea { resize: vertical; min-height: 90px; line-height: 1.55; }
+  .oc-fb-dd-trigger:hover { border-color: #c3d4ec; }
+  .oc-fb-dd-trigger.open {
+    border-color: #1B5EC7; background: #fff;
+    box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+  }
+  .oc-fb-dd-trigger:focus { outline: none; }
+  .oc-fb-dd-ic { flex-shrink: 0; color: #6b7280; pointer-events: none; }
+  .oc-fb-dd-val { flex: 1; pointer-events: none; background: transparent; }
+  .oc-fb-dd-chev {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    width: 14px; height: 14px; color: #9ca3af; pointer-events: none;
+    transition: transform .18s;
+  }
+  .oc-fb-dd-trigger.open .oc-fb-dd-chev { transform: translateY(-50%) rotate(180deg); color: #1B5EC7; }
+  .oc-fb-dd-list {
+    display: none; position: absolute; top: calc(100% + 5px); left: 0; right: 0;
+    background: #fff; border: 1.5px solid #e0e8f4; border-radius: 10px;
+    box-shadow: 0 8px 28px rgba(10,22,40,.12); z-index: 500;
+    max-height: 220px; overflow-y: auto; padding: 4px;
+    scrollbar-width: thin; scrollbar-color: #c7d8f8 transparent;
+  }
+  .oc-fb-dd-list::-webkit-scrollbar { width: 4px; }
+  .oc-fb-dd-list::-webkit-scrollbar-thumb { background: #c7d8f8; border-radius: 4px; }
+  .oc-fb-dd-list.open { display: block; animation: fbDdIn .13s ease; }
+  @keyframes fbDdIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
+  .oc-fb-dd-opt {
+    padding: 8px 10px; border-radius: 7px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: .95rem; color: #374151;
+    display: flex; align-items: center; gap: 9px;
+    transition: background .1s, color .1s;
+  }
+  .oc-fb-dd-opt:hover { background: #f0f5ff; color: #1B5EC7; }
+  .oc-fb-dd-opt.sel { background: #eef4ff; color: #1B5EC7; font-weight: 600; }
+  .oc-fb-dd-opt .oc-fb-opt-ic { flex-shrink: 0; }
+  .oc-fb-dd-opt .oc-fb-chk { display: none; margin-left: auto; flex-shrink: 0; }
+  .oc-fb-dd-opt.sel .oc-fb-chk { display: block; }
+  /* Actions */
   .oc-fb-actions { display: flex; gap: 10px; margin-top: 18px; }
   .oc-fb-submit {
-    flex: 1; padding: 10px; border-radius: 10px;
-    background: #004AAD; color: #fff; border: none;
-    font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 600;
+    flex: 1; padding: 10px 16px; border-radius: 10px;
+    background: #1B5EC7; color: #fff; border: none;
+    font-family: 'Space Grotesk', sans-serif; font-size: .95rem; font-weight: 700;
     cursor: pointer; transition: background .15s;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
   }
-  .oc-fb-submit:hover { background: #003490; }
+  .oc-fb-submit:hover { background: #1448a3; }
   .oc-fb-cancel {
     padding: 10px 18px; border-radius: 10px;
     background: #f3f4f6; border: 1.5px solid #e5e7eb;
-    font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 600;
+    font-family: 'Space Grotesk', sans-serif; font-size: .95rem; font-weight: 600;
     color: #374151; cursor: pointer; transition: background .15s;
   }
   .oc-fb-cancel:hover { background: #e5e7eb; }
   .oc-fb-thanks {
-    display: none; text-align: center; color: #059669;
-    font-family: 'Jaldi', sans-serif; font-size: 1.2rem; margin-top: 12px;
+    display: none; text-align: center; padding: 14px 0 4px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 1rem;
+    font-weight: 700; color: #059669;
   }
   </style>
+
   <div id="oc-feedback-modal" class="oc-fb-modal-overlay">
     <div class="oc-fb-card">
-      <button class="oc-fb-close" onclick="document.getElementById('oc-feedback-modal').classList.remove('open')">✕</button>
-      <p class="oc-fb-title">Share your feedback</p>
-      <p class="oc-fb-sub">Help us make Oduma Corp better for you.</p>
-      <form id="oc-feedback-form">
-        {% csrf_token %}
-        <div class="oc-fb-row">
-          <div class="oc-fb-field" style="margin-bottom:0;">
-            <label class="oc-fb-label">Type</label>
-            <select name="feedback_type" class="oc-fb-select">
-              <option value="suggestion">💡 Suggestion</option>
-              <option value="bug">🐛 Bug / Issue</option>
-              <option value="praise">🙌 Praise</option>
-              <option value="question">❓ Question</option>
-              <option value="other">Other</option>
-            </select>
+
+      <!-- Header -->
+      <div class="oc-fb-head">
+        <div class="oc-fb-head-left">
+          <div class="oc-fb-head-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
           </div>
-          <div class="oc-fb-field" style="margin-bottom:0;">
-            <label class="oc-fb-label">Page</label>
-            <input name="page" id="oc-fb-page" type="text" placeholder="/companies/create/" class="oc-fb-input">
+          <div>
+            <p class="oc-fb-title">Share your feedback</p>
+            <p class="oc-fb-sub">Help us make Oduma Corp better.</p>
           </div>
         </div>
-        <div class="oc-fb-field" style="margin-top:14px;">
-          <label class="oc-fb-label">Section <span class="oc-fb-opt">(optional)</span></label>
-          <select name="section" class="oc-fb-select">
-            <option value="">— Whole page —</option>
-            <option value="navbar">Navigation bar</option>
-            <option value="feed">Home feed</option>
-            <option value="profile">Profile page</option>
-            <option value="projects">Projects</option>
-            <option value="posts">Posts</option>
-            <option value="messaging">Messaging / Inbox</option>
-            <option value="meetings">Meetings</option>
-            <option value="network">Network / Connections</option>
-            <option value="groups">Community / Groups</option>
-            <option value="companies">Business pages</option>
-            <option value="search">Search</option>
-            <option value="dashboard">Dashboard</option>
-            <option value="admin">Admin panel</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="oc-fb-field">
-          <label class="oc-fb-label">Your message</label>
-          <textarea name="feedback_text" class="oc-fb-textarea" placeholder="Tell us what you think…"></textarea>
-        </div>
-        <div class="oc-fb-actions">
-          <button type="submit" class="oc-fb-submit">Send feedback</button>
-          <button type="button" class="oc-fb-cancel" onclick="document.getElementById('oc-feedback-modal').classList.remove('open')">Cancel</button>
-        </div>
-        <p id="oc-feedback-thanks" class="oc-fb-thanks">✓ Thanks for your feedback!</p>
-      </form>
+        <button class="oc-fb-close" onclick="document.getElementById('oc-feedback-modal').classList.remove('open')" aria-label="Close">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="oc-fb-body">
+        <form id="oc-feedback-form">
+          {% csrf_token %}
+
+          <div class="oc-fb-row">
+            <!-- Type dropdown -->
+            <div class="oc-fb-field" style="margin-bottom:0;">
+              <label class="oc-fb-label">Type</label>
+              <div class="oc-fb-dd" id="fbd-type">
+                <button type="button" class="oc-fb-dd-trigger" onclick="fbDdToggle('fbd-type')">
+                  <svg class="oc-fb-dd-ic" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <span class="oc-fb-dd-val" id="fbd-type-val">Suggestion</span>
+                  <svg class="oc-fb-dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="oc-fb-dd-list" id="fbd-type-list">
+                  <div class="oc-fb-dd-opt sel" onclick="fbDdPick('fbd-type','suggestion','Suggestion',this)">
+                    <svg class="oc-fb-opt-ic" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Suggestion
+                    <svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div class="oc-fb-dd-opt" onclick="fbDdPick('fbd-type','bug','Bug / Issue',this)">
+                    <svg class="oc-fb-opt-ic" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Bug / Issue
+                    <svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div class="oc-fb-dd-opt" onclick="fbDdPick('fbd-type','praise','Praise',this)">
+                    <svg class="oc-fb-opt-ic" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                    Praise
+                    <svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div class="oc-fb-dd-opt" onclick="fbDdPick('fbd-type','question','Question',this)">
+                    <svg class="oc-fb-opt-ic" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Question
+                    <svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div class="oc-fb-dd-opt" onclick="fbDdPick('fbd-type','other','Other',this)">
+                    <svg class="oc-fb-opt-ic" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    Other
+                    <svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
+                <input type="hidden" name="feedback_type" id="fbd-type-hidden" value="suggestion">
+              </div>
+            </div>
+
+            <!-- Page field -->
+            <div class="oc-fb-field" style="margin-bottom:0;">
+              <label class="oc-fb-label">Page</label>
+              <input name="page" id="oc-fb-page" type="text" class="oc-fb-input" placeholder="Current page">
+            </div>
+          </div>
+
+          <!-- Section dropdown -->
+          <div class="oc-fb-field">
+            <label class="oc-fb-label">Section <span class="oc-fb-opt">(optional)</span></label>
+            <div class="oc-fb-dd" id="fbd-section">
+              <button type="button" class="oc-fb-dd-trigger" onclick="fbDdToggle('fbd-section')">
+                <svg class="oc-fb-dd-ic" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span class="oc-fb-dd-val" id="fbd-section-val">Whole page</span>
+                <svg class="oc-fb-dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="oc-fb-dd-list" id="fbd-section-list">
+                {% with sec_opts="Whole page,Navigation bar,Home feed,Profile page,Projects,Posts,Messaging / Inbox,Meetings,Network / Connections,Community / Groups,Business pages,Search,Dashboard,Admin panel,Other" %}
+                {% with sec_vals=",navbar,feed,profile,projects,posts,messaging,meetings,network,groups,companies,search,dashboard,admin,other" %}
+                <div class="oc-fb-dd-opt sel" onclick="fbDdPick('fbd-section','','Whole page',this)">
+                  <svg class="oc-fb-opt-ic" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                  Whole page
+                  <svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="oc-fb-dd-opt" onclick="fbDdPick('fbd-section','navbar','Navigation bar',this)"><svg class="oc-fb-opt-ic" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/></svg>Navigation bar<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="oc-fb-dd-opt" onclick="fbDdPick('fbd-section','feed','Home feed',this)"><svg class="oc-fb-opt-ic" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Home feed<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="oc-fb-dd-opt" onclick="fbDdPick('fbd-section','profile','Profile page',this)"><svg class="oc-fb-opt-ic" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile page<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="oc-fb-dd-opt" onclick="fbDdPick('fbd-section','projects','Projects',this)"><svg class="oc-fb-opt-ic" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>Projects<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="oc-fb-dd-opt" onclick="fbDdPick('fbd-section','messaging','Messaging',this)"><svg class="oc-fb-opt-ic" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Messaging<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="oc-fb-dd-opt" onclick="fbDdPick('fbd-section','dashboard','Dashboard',this)"><svg class="oc-fb-opt-ic" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="oc-fb-dd-opt" onclick="fbDdPick('fbd-section','other','Other',this)"><svg class="oc-fb-opt-ic" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>Other<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                {% endwith %}{% endwith %}
+              </div>
+              <input type="hidden" name="section" id="fbd-section-hidden" value="">
+            </div>
+          </div>
+
+          <!-- Message -->
+          <div class="oc-fb-field">
+            <label class="oc-fb-label">Your message</label>
+            <textarea name="feedback_text" class="oc-fb-textarea" placeholder="Tell us what you think…"></textarea>
+          </div>
+
+          <div class="oc-fb-actions">
+            <button type="submit" class="oc-fb-submit">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Send feedback
+            </button>
+            <button type="button" class="oc-fb-cancel" onclick="document.getElementById('oc-feedback-modal').classList.remove('open')">Cancel</button>
+          </div>
+          <p id="oc-feedback-thanks" class="oc-fb-thanks">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px;"><polyline points="20 6 9 17 4 12"/></svg>
+            Thanks for your feedback!
+          </p>
+        </form>
+      </div>
+
     </div>
   </div>
   <script>
@@ -283,6 +408,49 @@
     });
     obs.observe(modal, { attributes: true, attributeFilter: ['class'] });
 
+    // Feedback modal custom dropdowns
+    window.fbDdToggle = function(ddId) {
+      var dd = document.getElementById(ddId);
+      if (!dd) return;
+      var trigger = dd.querySelector('.oc-fb-dd-trigger');
+      var list = dd.querySelector('.oc-fb-dd-list');
+      var isOpen = list.classList.contains('open');
+      // Close all other fb dropdowns first
+      document.querySelectorAll('.oc-fb-dd-list.open').forEach(function(l) { l.classList.remove('open'); });
+      document.querySelectorAll('.oc-fb-dd-trigger.open').forEach(function(t) { t.classList.remove('open'); });
+      if (!isOpen) {
+        list.classList.add('open');
+        trigger.classList.add('open');
+      }
+    };
+    window.fbDdPick = function(ddId, val, label, optEl) {
+      var dd = document.getElementById(ddId);
+      if (!dd) return;
+      // Update displayed label
+      var valSpan = document.getElementById(ddId + '-val');
+      if (valSpan) valSpan.textContent = label;
+      // Update hidden input
+      var hidden = document.getElementById(ddId + '-hidden');
+      if (hidden) hidden.value = val;
+      // Update selected state
+      dd.querySelectorAll('.oc-fb-dd-opt').forEach(function(o) { o.classList.remove('sel'); });
+      if (optEl) optEl.classList.add('sel');
+      // Update trigger icon to match selection
+      var triggerIc = dd.querySelector('.oc-fb-dd-ic');
+      var optIc = optEl ? optEl.querySelector('.oc-fb-opt-ic') : null;
+      if (triggerIc && optIc) triggerIc.innerHTML = optIc.innerHTML;
+      // Close dropdown
+      dd.querySelector('.oc-fb-dd-list').classList.remove('open');
+      dd.querySelector('.oc-fb-dd-trigger').classList.remove('open');
+    };
+    // Close fb dropdowns on outside click
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.oc-fb-dd')) {
+        document.querySelectorAll('.oc-fb-dd-list.open').forEach(function(l) { l.classList.remove('open'); });
+        document.querySelectorAll('.oc-fb-dd-trigger.open').forEach(function(t) { t.classList.remove('open'); });
+      }
+    }, true);
+
     // Submit feedback
     var form = document.getElementById('oc-feedback-form');
     if (form) {
@@ -303,6 +471,130 @@
         }, 2500);
       });
     }
+  })();
+  </script>
+  <script>
+  /* ── Global form validation ──────────────────────────────────────────── */
+  (function() {
+    var MSG = {
+      required:  'This field is required.',
+      email:     'Enter a valid email address.',
+      url:       'Enter a valid URL (e.g. https://example.com).',
+      tel:       'Enter a valid phone number (7–20 digits).',
+      minlength: function(n) { return 'Must be at least ' + n + ' characters.'; },
+      maxlength: function(n) { return 'Must be under ' + n + ' characters.'; },
+      number:    'Enter a valid number.',
+    };
+
+    function mkErrHtml(msg) {
+      return '<span class="oc-fe-dot"></span><span class="oc-fe-txt">' + msg + '</span>';
+    }
+
+    function getErrEl(field) {
+      var next = field.nextElementSibling;
+      if (next && next.classList.contains('oc-field-err')) return next;
+      var el = document.createElement('span');
+      el.className = 'oc-field-err';
+      var key = (field.id || field.name || '');
+      if (key) el.setAttribute('data-for', key);
+      field.parentNode.insertBefore(el, field.nextSibling);
+      return el;
+    }
+
+    function showErr(field, msg) {
+      field.classList.add('oc-invalid');
+      var el = getErrEl(field);
+      el.innerHTML = mkErrHtml(msg);
+      el.style.display = 'inline-flex';
+    }
+
+    function clearErr(field) {
+      field.classList.remove('oc-invalid');
+      var next = field.nextElementSibling;
+      if (next && next.classList.contains('oc-field-err')) {
+        next.style.display = 'none';
+        next.innerHTML = '';
+      }
+    }
+
+    function validateField(field) {
+      if (field.disabled || field.readOnly) return true;
+      var type = (field.type || '').toLowerCase();
+      if (type === 'hidden' || type === 'file' || type === 'submit' || type === 'button' || type === 'checkbox' || type === 'radio') return true;
+
+      var val = field.value.trim();
+
+      if ((field.required || field.getAttribute('required') !== null) && !val) {
+        var label = field.getAttribute('aria-label') || (document.querySelector('label[for="' + field.id + '"]') || {}).textContent || 'This field';
+        showErr(field, label.trim().replace(/:$/, '') + ' is required.');
+        return false;
+      }
+      if (!val) { clearErr(field); return true; }
+
+      if (type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val)) {
+        showErr(field, MSG.email); return false;
+      }
+      if (type === 'url' && !/^https?:\/\/.+\..+/.test(val)) {
+        showErr(field, MSG.url); return false;
+      }
+      if (type === 'tel' && !/^\+?[\d\s\-\(\)\.]{7,20}$/.test(val)) {
+        showErr(field, MSG.tel); return false;
+      }
+      if (type === 'number' && isNaN(Number(val))) {
+        showErr(field, MSG.number); return false;
+      }
+      var minL = parseInt(field.getAttribute('minlength'));
+      if (minL > 0 && val.length < minL) { showErr(field, MSG.minlength(minL)); return false; }
+      var maxL = parseInt(field.getAttribute('maxlength'));
+      if (maxL > 0 && val.length > maxL) { showErr(field, MSG.maxlength(maxL)); return false; }
+
+      clearErr(field);
+      return true;
+    }
+
+    function wireForm(form) {
+      if (form._ocWired) return;
+      form._ocWired = true;
+      // Validate on blur
+      form.addEventListener('focusout', function(e) {
+        var f = e.target;
+        if (f.tagName === 'INPUT' || f.tagName === 'TEXTAREA' || f.tagName === 'SELECT') validateField(f);
+      });
+      // Clear error on input
+      form.addEventListener('input', function(e) {
+        var f = e.target;
+        if (f.classList.contains('oc-invalid')) clearErr(f);
+      });
+      // Validate all on submit (skip forms that handle their own validation)
+      if (!form.getAttribute('data-no-ocvalidate')) {
+        form.addEventListener('submit', function(e) {
+          var fields = form.querySelectorAll('input, textarea, select');
+          var ok = true, first = null;
+          fields.forEach(function(f) { if (!validateField(f)) { ok = false; if (!first) first = f; } });
+          if (!ok) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            if (first) { first.scrollIntoView({ behavior: 'smooth', block: 'center' }); first.focus(); }
+          }
+        });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('form').forEach(wireForm);
+    });
+
+    // Wire dynamically added forms (modals, AJAX)
+    var _ocMo = new MutationObserver(function(muts) {
+      muts.forEach(function(m) {
+        m.addedNodes.forEach(function(n) {
+          if (!n || n.nodeType !== 1) return;
+          if (n.tagName === 'FORM') wireForm(n);
+          if (n.querySelectorAll) n.querySelectorAll('form').forEach(wireForm);
+        });
+      });
+    });
+    _ocMo.observe(document.documentElement, { childList: true, subtree: true });
   })();
   </script>
   {% if user.is_authenticated %}
@@ -568,6 +860,31 @@
 
     /* ── Read Later (bookmark button) ─────────────────────────────────── */
     {% if user.is_authenticated %}
+    window.ocTogglePin = function(ptype, oid, btn) {
+      var fd = new FormData();
+      fd.append('csrfmiddlewaretoken', CSRF);
+      fd.append('type', ptype);
+      fd.append('id', String(oid));
+      fetch('{% url "toggle_pin" %}', { method: 'POST', body: fd })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if (btn) {
+            if (d.pinned) {
+              btn.classList.add('ap-rxn-btn--pinned');
+              var lbl = btn.querySelector('.ap-rxn-lbl');
+              if (lbl) lbl.textContent = 'Pinned';
+              btn.title = 'Unpin';
+            } else {
+              btn.classList.remove('ap-rxn-btn--pinned');
+              var lbl = btn.querySelector('.ap-rxn-lbl');
+              if (lbl) lbl.textContent = 'Pin';
+              btn.title = 'Pin post';
+            }
+          }
+          ocToast(d.pinned ? 'Pinned' : 'Unpinned');
+        }).catch(function(){});
+    };
+
     // Accepts either (ctype, oid, btn) OR (btn, ctype, oid) — auto-detects
     window.ocToggleReadLater = function(a, b, c) {
       var btn, ctype, oid;

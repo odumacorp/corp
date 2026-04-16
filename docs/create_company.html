@@ -138,13 +138,64 @@
     background: #fff;
   }
   .cc-textarea { resize: vertical; min-height: 108px; line-height: 1.65; }
-  .cc-select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 13px center;
-    padding-right: 36px;
+  /* Custom dropdown */
+  .cc-dd { position: relative; }
+  .cc-dd-trigger {
+    width: 100%; box-sizing: border-box;
+    padding: 10px 38px 10px 14px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: var(--ff-sans); font-size: 1.2rem; color: var(--text);
+    background: #fafbff; cursor: pointer; text-align: left;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: border-color .2s, box-shadow .2s;
+    user-select: none;
+    /* reset all browser button chrome */
+    -webkit-appearance: none; appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
   }
+  .cc-dd-val {
+    background: transparent !important;
+    -webkit-user-select: none; user-select: none;
+    pointer-events: none;
+  }
+  .cc-dd-trigger:hover { border-color: rgba(0,74,173,.35); }
+  .cc-dd-trigger:focus { outline: none; }
+  .cc-dd-trigger.open {
+    border-color: var(--blue); background: #fff;
+    box-shadow: 0 0 0 3px rgba(0,74,173,.10);
+  }
+  .cc-dd-trigger .cc-dd-val {
+    flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: var(--text);
+  }
+  .cc-dd-trigger .cc-dd-val.placeholder { color: var(--muted); }
+  .cc-dd-chevron {
+    width: 16px; height: 16px; flex-shrink: 0; color: #9ca3af;
+    transition: transform .18s; pointer-events: none; margin-left: 8px;
+  }
+  .cc-dd-trigger.open .cc-dd-chevron { transform: rotate(180deg); color: var(--blue); }
+  .cc-dd-list {
+    display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+    background: #fff; border: 1.5px solid #dce6f5; border-radius: 10px;
+    box-shadow: 0 8px 28px rgba(10,22,40,.12); z-index: 300;
+    max-height: 220px; overflow-y: auto; padding: 4px;
+    scrollbar-width: thin; scrollbar-color: #c7d8f8 transparent;
+  }
+  .cc-dd-list::-webkit-scrollbar { width: 4px; }
+  .cc-dd-list::-webkit-scrollbar-thumb { background: #c7d8f8; border-radius: 4px; }
+  .cc-dd-list.open { display: block; animation: ccDdIn .15s ease; }
+  @keyframes ccDdIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+  .cc-dd-option {
+    padding: 9px 12px; border-radius: 7px;
+    font-family: var(--ff-sans); font-size: 1.2rem; color: #374151;
+    cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+    transition: background .1s, color .1s;
+  }
+  .cc-dd-option:hover { background: #f0f5ff; color: var(--blue); }
+  .cc-dd-option.selected { background: #eef4ff; color: var(--blue); font-weight: 700; }
+  .cc-dd-option .cc-dd-check { display: none; flex-shrink: 0; }
+  .cc-dd-option.selected .cc-dd-check { display: block; color: var(--blue); }
   .cc-hint { font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); margin-top: 4px; }
   .cc-char-row { display: flex; justify-content: flex-end; margin-top: 3px; }
   .cc-char-count { font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); }
@@ -215,6 +266,13 @@
   </div>
   {% endif %}
 
+  {% if field_errors %}
+  <div class="oc-form-banner oc-form-banner--error" style="margin-bottom:20px;">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span>Please fix the errors below before continuing.</span>
+  </div>
+  {% endif %}
+
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
@@ -272,7 +330,8 @@
 
       <div class="cc-field">
         <label class="cc-label" for="id_name">Company Name <span class="req">*</span></label>
-        <input type="text" name="name" id="id_name" class="cc-input" placeholder="" data-example="e.g. Oduma Technologies Ltd." required maxlength="255" value="{{ request.POST.name }}">
+        <input type="text" name="name" id="id_name" class="cc-input{% if field_errors.name %} oc-invalid{% endif %}" placeholder="" data-example="e.g. Oduma Technologies Ltd." required maxlength="255" value="{{ request.POST.name }}">
+        {% if field_errors.name %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ field_errors.name }}</span></span>{% endif %}
       </div>
 
       <div class="cc-field">
@@ -319,7 +378,8 @@
             Write with AI
           </button>
         </div>
-        <textarea name="description" id="id_description" class="cc-textarea" placeholder="" data-example="Our mission, what we build, and where we're headed." required>{{ request.POST.description }}</textarea>
+        <textarea name="description" id="id_description" class="cc-textarea{% if field_errors.description %} oc-invalid{% endif %}" placeholder="" data-example="Our mission, what we build, and where we're headed." required>{{ request.POST.description }}</textarea>
+        {% if field_errors.description %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ field_errors.description }}</span></span>{% endif %}
 
         <!-- AI description panel -->
         <div id="desc-ai-panel" style="display:none;margin-top:10px;background:#f8faff;border:1.5px solid #c7d9ff;border-radius:12px;padding:16px;">
@@ -365,29 +425,52 @@
           </div>
         </div>
         <div class="cc-field">
-          <label class="cc-label" for="id_company_type">Company Type <span class="req">*</span></label>
-          <select name="company_type" id="id_company_type" class="cc-select" required>
-            <option value="" disabled {% if not request.POST.company_type %}selected{% endif %}>Select type</option>
-            {% for val, label in type_choices %}
-            <option value="{{ val }}" {% if request.POST.company_type == val %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
+          <label class="cc-label">Company Type <span class="req">*</span></label>
+          <div class="cc-dd" id="cdd-type">
+            <button type="button" class="cc-dd-trigger" onclick="ccDdToggle('cdd-type')" aria-haspopup="listbox">
+              <span class="cc-dd-val {% if not request.POST.company_type %}placeholder{% endif %}" id="cdd-type-label">{% if request.POST.company_type %}{% for val, label in type_choices %}{% if val == request.POST.company_type %}{{ label }}{% endif %}{% endfor %}{% else %}Select type{% endif %}</span>
+              <svg class="cc-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="cc-dd-list" role="listbox">
+              {% for val, label in type_choices %}
+              <div class="cc-dd-option{% if request.POST.company_type == val %} selected{% endif %}"
+                   onclick="ccDdSelect('cdd-type','{{ val|escapejs }}','{{ label|escapejs }}')"
+                   role="option">
+                {{ label }}
+                <svg class="cc-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="company_type" id="id_company_type"
+                   value="{{ request.POST.company_type }}" required>
+          </div>
         </div>
       </div>
 
       <div class="cc-grid-2">
         <div class="cc-field">
-          <label class="cc-label" for="id_size">Team Size</label>
-          <select name="size" id="id_size" class="cc-select">
-            <option value="">Select size</option>
-            {% for val, label in size_choices %}
-            <option value="{{ val }}" {% if request.POST.size == val %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
+          <label class="cc-label">Team Size</label>
+          <div class="cc-dd" id="cdd-size">
+            <button type="button" class="cc-dd-trigger" onclick="ccDdToggle('cdd-size')" aria-haspopup="listbox">
+              <span class="cc-dd-val {% if not request.POST.size %}placeholder{% endif %}" id="cdd-size-label">{% if request.POST.size %}{% for val, label in size_choices %}{% if val == request.POST.size %}{{ label }}{% endif %}{% endfor %}{% else %}Select size{% endif %}</span>
+              <svg class="cc-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="cc-dd-list" role="listbox">
+              {% for val, label in size_choices %}
+              <div class="cc-dd-option{% if request.POST.size == val %} selected{% endif %}"
+                   onclick="ccDdSelect('cdd-size','{{ val|escapejs }}','{{ label|escapejs }}')"
+                   role="option">
+                {{ label }}
+                <svg class="cc-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="size" id="id_size" value="{{ request.POST.size }}">
+          </div>
         </div>
         <div class="cc-field">
           <label class="cc-label" for="id_location">Location</label>
-          <input type="text" name="location" id="id_location" class="cc-input" placeholder="" data-example="e.g. Lagos, Nigeria" value="{{ request.POST.location }}">
+          <input type="text" name="location" id="id_location" class="cc-input" placeholder="" data-example="e.g. Nairobi, Kenya" value="{{ request.POST.location }}">
         </div>
       </div>
     </div>
@@ -402,17 +485,20 @@
       <div class="cc-grid-2">
         <div class="cc-field">
           <label class="cc-label" for="id_website">Website</label>
-          <input type="url" name="website" id="id_website" class="cc-input" placeholder="" data-example="https://yourcompany.com" value="{{ request.POST.website }}">
+          <input type="url" name="website" id="id_website" class="cc-input{% if field_errors.website %} oc-invalid{% endif %}" placeholder="" data-example="https://yourcompany.com" value="{{ request.POST.website }}">
+          {% if field_errors.website %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ field_errors.website }}</span></span>{% endif %}
         </div>
         <div class="cc-field">
           <label class="cc-label" for="id_email">Business Email</label>
-          <input type="email" name="email" id="id_email" class="cc-input" placeholder="" data-example="contact@yourcompany.com" value="{{ request.POST.email }}">
+          <input type="email" name="email" id="id_email" class="cc-input{% if field_errors.email %} oc-invalid{% endif %}" placeholder="" data-example="contact@yourcompany.com" value="{{ request.POST.email }}">
+          {% if field_errors.email %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ field_errors.email }}</span></span>{% endif %}
         </div>
       </div>
 
       <div class="cc-field" style="max-width:320px;">
         <label class="cc-label" for="id_phone">Phone Number</label>
-        <input type="tel" name="phone" id="id_phone" class="cc-input" placeholder="" data-example="+234 800 000 0000" value="{{ request.POST.phone }}">
+        <input type="tel" name="phone" id="id_phone" class="cc-input{% if field_errors.phone %} oc-invalid{% endif %}" placeholder="" data-example="+254 700 000 000" value="{{ request.POST.phone }}">
+        {% if field_errors.phone %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ field_errors.phone }}</span></span>{% endif %}
       </div>
     </div>
 
@@ -429,6 +515,47 @@
 </div>
 
 <script>
+/* ── Custom dropdown helpers ── */
+function ccDdCloseAll() {
+  document.querySelectorAll('.cc-dd-list.open').forEach(function(l){ l.classList.remove('open'); });
+  document.querySelectorAll('.cc-dd-trigger.open').forEach(function(t){ t.classList.remove('open'); });
+}
+function ccDdToggle(id) {
+  var dd = document.getElementById(id);
+  var trig = dd.querySelector('.cc-dd-trigger');
+  var list = dd.querySelector('.cc-dd-list');
+  var wasOpen = list.classList.contains('open');
+  ccDdCloseAll();
+  if (!wasOpen) { trig.classList.add('open'); list.classList.add('open'); }
+}
+function ccDdSelect(id, val, label) {
+  var dd = document.getElementById(id);
+  var valEl = dd.querySelector('.cc-dd-val');
+  valEl.textContent = label;
+  valEl.classList.remove('placeholder');
+  dd.querySelector('input[type=hidden]').value = val;
+  dd.querySelectorAll('.cc-dd-option').forEach(function(o) {
+    o.classList.toggle('selected', o.getAttribute('onclick').indexOf("'"+val+"'") !== -1);
+  });
+  ccDdCloseAll();
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.cc-dd')) ccDdCloseAll();
+});
+
+/* Validate required custom dropdowns on submit */
+document.querySelector('form').addEventListener('submit', function(e) {
+  var typeVal = document.getElementById('id_company_type').value;
+  if (!typeVal) {
+    e.preventDefault();
+    var trig = document.querySelector('#cdd-type .cc-dd-trigger');
+    trig.style.borderColor = '#dc2626';
+    trig.style.boxShadow = '0 0 0 3px rgba(220,38,38,.12)';
+    setTimeout(function(){ trig.style.borderColor=''; trig.style.boxShadow=''; }, 2200);
+    document.querySelector('#cdd-type').scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+});
+
 /* Combo init handled by oc-combo.js (loaded globally in base.html) */
 
 /* ── AI Assist helpers ── */

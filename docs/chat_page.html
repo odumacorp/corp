@@ -55,7 +55,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
 .ch-quote__text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* Bubble */
-.ch-bubble{padding:10px 14px;font-size: 1.2rem;line-height:1.6;word-break:break-word;position:relative;}
+.ch-bubble{padding:10px 14px;font-size: 1.2rem;line-height:1.6;word-break:break-word;position:relative;white-space:pre-wrap;}
 .ch-row--theirs .ch-bubble{background:#fff;color:#1a202c;border-radius:4px 16px 16px 16px;border:1px solid #e8edf4;box-shadow:0 1px 4px rgba(10,22,40,0.05);}
 .ch-row--mine .ch-bubble{background:linear-gradient(135deg,#1B5EC7,#1451aa);color:#fff;border-radius:16px 4px 16px 16px;}
 
@@ -1261,7 +1261,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
                 {% for att in atts %}
                 {% if att.attachment_type == 'image' %}
                   <div class="ch-att-cell">
-                    <img src="{{ att.file.url }}" alt="{{ att.filename }}" class="ch-att-img"
+                    <img src="{{ att.file_url }}" alt="{{ att.filename }}" class="ch-att-img"
                          onclick="location.href=this.dataset.url" data-url="{% url 'view_message_attachment' att.id %}">
                     <button type="button" class="ch-att-dl-overlay" onclick="chConfirmDownload('{% url 'download_message_attachment' att.id %}','{{ att.filename|default:att.file.name|escapejs }}')">
                       ↓ Download
@@ -1270,7 +1270,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
                 {% elif att.attachment_type == 'video' %}
                   <div class="ch-att-cell ch-att-cell--video" style="cursor:pointer;"
                        onclick="location.href=this.dataset.url" data-url="{% url 'view_message_attachment' att.id %}">
-                    <video src="{{ att.file.url }}" class="ch-att-video" preload="metadata"
+                    <video src="{{ att.file_url }}" class="ch-att-video" preload="metadata"
                            onclick="event.stopPropagation();location.href=this.closest('[data-url]').dataset.url"></video>
                     <div class="ch-att-dl-overlay" style="pointer-events:none;">
                       ▶ Open video
@@ -1495,7 +1495,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
                 {% for att in atts %}
                 {% if att.attachment_type == 'image' %}
                   <div class="ch-att-cell">
-                    <img src="{{ att.file.url }}" alt="{{ att.filename }}" class="ch-att-img"
+                    <img src="{{ att.file_url }}" alt="{{ att.filename }}" class="ch-att-img"
                          onclick="location.href=this.dataset.url" data-url="{% url 'view_message_attachment' att.id %}">
                     <button type="button" class="ch-att-dl-overlay" onclick="chConfirmDownload('{% url 'download_message_attachment' att.id %}','{{ att.filename|default:att.file.name|escapejs }}')">
                       ↓ Download
@@ -1504,7 +1504,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
                 {% elif att.attachment_type == 'video' %}
                   <div class="ch-att-cell ch-att-cell--video" style="cursor:pointer;"
                        onclick="location.href=this.dataset.url" data-url="{% url 'view_message_attachment' att.id %}">
-                    <video src="{{ att.file.url }}" class="ch-att-video" preload="metadata"
+                    <video src="{{ att.file_url }}" class="ch-att-video" preload="metadata"
                            onclick="event.stopPropagation();location.href=this.closest('[data-url]').dataset.url"></video>
                     <div class="ch-att-dl-overlay" style="pointer-events:none;">
                       ▶ Open video

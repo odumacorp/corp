@@ -2,28 +2,57 @@
 
 ######################
 
+import re
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-# from .models import CustomUser, Idea, Event
 from .models import CustomUser
 import uuid
 from django.shortcuts import redirect
 from .models import Post, Comment
-from django import forms
 from .models import UserProfile
-
-
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator, validate_email as dj_validate_email
 from django.contrib.auth import get_user_model
-
 from .models import Project, Attachment, Patent
+
+
+# ── Sanitization helpers ─────────────────────────────────────────────────────
+
+def _strip(val):
+    """Strip leading/trailing whitespace from string values."""
+    return val.strip() if isinstance(val, str) else val
+
+
+def _validate_url(val, field_name='Website'):
+    """Raise ValidationError if val is non-empty and not a valid URL."""
+    if val:
+        try:
+            URLValidator()(val)
+        except ValidationError:
+            raise ValidationError(f'Enter a valid URL (e.g. https://example.com).')
+
+
+def _validate_phone(val):
+    """Raise ValidationError if val is non-empty and not a plausible phone number."""
+    if val and not re.match(r'^\+?[\d\s\-\(\)\.]{7,20}$', val):
+        raise ValidationError('Enter a valid phone number (digits, spaces, +, -, () allowed).')
+
+
+class SanitizeMixin:
+    """Mixin that strips whitespace from all CharField/text values after cleaning."""
+    def clean(self):
+        cleaned = super().clean()
+        return {k: _strip(v) for k, v in cleaned.items()}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 
 
 ##innovator page form
 
-class ProjectForm(forms.ModelForm):
+class ProjectForm(SanitizeMixin, forms.ModelForm):
     # Allow free-text custom industry values (not limited to model choices)
     industry = forms.CharField(max_length=100, required=True)
 
@@ -52,6 +81,17 @@ class ProjectForm(forms.ModelForm):
             'use_of_funds':        forms.Textarea(attrs={'rows': 4, 'placeholder': 'How will the investment be allocated? e.g. 40% product, 30% marketing, 30% ops…'}),
             'team_overview':       forms.Textarea(attrs={'rows': 4, 'placeholder': 'Who is building this? Roles, relevant experience, why this team?'}),
         }
+
+    def clean_title(self):
+        return _strip(self.cleaned_data.get('title', ''))
+
+    def clean_website_link(self):
+        val = _strip(self.cleaned_data.get('website_link', ''))
+        _validate_url(val)
+        return val
+
+    def clean_description(self):
+        return _strip(self.cleaned_data.get('description', ''))
 
 from .models import ProjectImage
 
@@ -82,7 +122,7 @@ class AttachmentForm(forms.Form):
 
 
 ###registration
-class CustomUserCreationForm(UserCreationForm):
+class CustomUserCreationForm(SanitizeMixin, UserCreationForm):
     first_name = forms.CharField(
         max_length=30,
         required=True,
@@ -94,7 +134,7 @@ class CustomUserCreationForm(UserCreationForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter last name (optional)'})
     )
     phone_number = forms.CharField(
-        max_length=15,
+        max_length=20,
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter phone number (optional)'})
     )
@@ -112,6 +152,30 @@ class CustomUserCreationForm(UserCreationForm):
             'password1': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter password'}),
             'password2': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm password'}),
         }
+
+    def clean_first_name(self):
+        val = _strip(self.cleaned_data.get('first_name', ''))
+        if not val:
+            raise ValidationError('First name is required.')
+        if not re.match(r"^[A-Za-z\s\-']+$", val):
+            raise ValidationError('First name may only contain letters, spaces, hyphens, and apostrophes.')
+        return val
+
+    def clean_phone_number(self):
+        val = _strip(self.cleaned_data.get('phone_number', ''))
+        _validate_phone(val)
+        return val
+
+    def clean_email(self):
+        val = _strip(self.cleaned_data.get('email', ''))
+        if val:
+            try:
+                dj_validate_email(val)
+            except ValidationError:
+                raise ValidationError('Enter a valid email address.')
+            if CustomUser.objects.filter(email__iexact=val).exists():
+                raise ValidationError('An account with this email already exists.')
+        return val
 
     # def save(self, commit=True):
     #     user = super().save(commit=False)
@@ -197,9 +261,9 @@ class CustomUserCreationForm(UserCreationForm):
 #Posts form
 
 # from django import forms
-class ContactForm(forms.Form):
+class ContactForm(SanitizeMixin, forms.Form):
     name = forms.CharField(
-        max_length=100, 
+        max_length=100,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your Name'})
     )
     email = forms.EmailField(
@@ -209,13 +273,33 @@ class ContactForm(forms.Form):
         widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Your Message', 'rows': 4})
     )
 
+    def clean_name(self):
+        val = _strip(self.cleaned_data.get('name', ''))
+        if not val:
+            raise ValidationError('Your name is required.')
+        return val
+
+    def clean_email(self):
+        val = _strip(self.cleaned_data.get('email', ''))
+        try:
+            dj_validate_email(val)
+        except ValidationError:
+            raise ValidationError('Enter a valid email address.')
+        return val
+
+    def clean_message(self):
+        val = _strip(self.cleaned_data.get('message', ''))
+        if len(val) < 10:
+            raise ValidationError('Message must be at least 10 characters.')
+        return val
+
 ##login form
 
 class CustomLoginForm(AuthenticationForm):
     username = forms.CharField(label="Username or Email", max_length=254)
 
     def clean_username(self):
-        username = self.cleaned_data.get('username')
+        username = _strip(self.cleaned_data.get('username', ''))
         if "@" in username:
             # If the input contains an "@" symbol, it's likely an email
             try:
@@ -308,7 +392,7 @@ class EditProfileForm(forms.ModelForm):
         fields = ['profile_pics', 'phone_number', 'bio', 'industry', 'company']
 
 
-class ProfileEditForm(forms.ModelForm):
+class ProfileEditForm(SanitizeMixin, forms.ModelForm):
     first_name = forms.CharField(max_length=50, required=True)
     last_name = forms.CharField(max_length=50, required=False)
     email = forms.EmailField(required=True)
@@ -327,6 +411,25 @@ class ProfileEditForm(forms.ModelForm):
             self.fields['last_name'].initial = self.instance.user.last_name
             self.fields['email'].initial = self.instance.user.email
 
+    def clean_first_name(self):
+        val = _strip(self.cleaned_data.get('first_name', ''))
+        if not val:
+            raise ValidationError('First name is required.')
+        return val
+
+    def clean_email(self):
+        val = _strip(self.cleaned_data.get('email', ''))
+        try:
+            dj_validate_email(val)
+        except ValidationError:
+            raise ValidationError('Enter a valid email address.')
+        return val
+
+    def clean_phone_number(self):
+        val = _strip(self.cleaned_data.get('phone_number', ''))
+        _validate_phone(val)
+        return val
+
     def save(self, commit=True):
         profile = super().save(commit=False)
         user = profile.user
@@ -341,10 +444,16 @@ class ProfileEditForm(forms.ModelForm):
 
 ##Message form
 from .models import Message
-class MessageForm(forms.ModelForm):
+class MessageForm(SanitizeMixin, forms.ModelForm):
     class Meta:
         model = Message
         fields = ['content']
         widgets = {
             'content': forms.Textarea(attrs={'rows': 2, 'placeholder': 'Type your message here...'})
         }
+
+    def clean_content(self):
+        val = _strip(self.cleaned_data.get('content', ''))
+        if not val:
+            raise ValidationError('Message cannot be empty.')
+        return val

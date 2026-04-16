@@ -319,10 +319,17 @@
     text-decoration: none; transition: transform .18s, box-shadow .18s;
   }
   .db-action-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.1); text-decoration: none; }
-  .db-action-card--high   { }
-  .db-action-card--medium { }
-  .db-action-card--low    { }
-  .db-action-icon { font-size: 1.9rem; flex-shrink: 0; margin-top: 1px; }
+  .db-action-card--high   { border-left-color: var(--blue); }
+  .db-action-card--medium { border-left-color: #6366f1; }
+  .db-action-card--low    { border-left-color: #10b981; }
+  .db-action-icon {
+    width: 42px; height: 42px; border-radius: 11px;
+    background: rgba(0,74,173,0.09); color: var(--blue);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .db-action-card--medium .db-action-icon { background: rgba(99,102,241,0.09); color: #6366f1; }
+  .db-action-card--low    .db-action-icon { background: rgba(16,185,129,0.09); color: #059669; }
   .db-action-text { font-family: var(--ff-body); font-size: 1.2rem; color: var(--ink); font-weight: 600; line-height: 1.4; }
   .db-action-cta { font-family: var(--ff-body); font-size: 1.2rem; color: var(--blue); margin-top: 3px; font-weight: 700; }
 
@@ -519,7 +526,7 @@
     {% for action in suggested_actions %}
     <a href="{{ action.href|default:'#' }}"
        class="db-action-card db-action-card--{{ action.priority }}">
-      <span class="db-action-icon">{{ action.icon }}</span>
+      <span class="db-action-icon">{{ action.icon }}</span>  {# already mark_safe from view #}
       <div>
         <div class="db-action-text">{{ action.text }}</div>
         <div class="db-action-cta">Take action →</div>
@@ -749,8 +756,12 @@
     <div class="db-item-list">
       {% for post in my_posts %}
       <div class="db-item-row">
-        <div class="db-item-icon" style="background:#fef3c7;color:#92400e;">
-          {% if post.post_type == 'idea' %}💡{% elif post.post_type == 'article' %}📝{% elif post.post_type == 'update' %}🚀{% elif post.post_type == 'announcement' %}📢{% else %}❓{% endif %}
+        <div class="db-item-icon" style="{% if post.post_type == 'idea' %}background:#fefce8;color:#ca8a04;{% elif post.post_type == 'article' %}background:#eff6ff;color:#2563eb;{% elif post.post_type == 'update' %}background:#f0fdf4;color:#16a34a;{% elif post.post_type == 'announcement' %}background:#fdf4ff;color:#9333ea;{% else %}background:#f3f4f6;color:#6b7280;{% endif %}">
+          {% if post.post_type == 'idea' %}<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="6"/><path d="M12 6a6 6 0 0 1 6 6 6 6 0 0 1-3.5 5.4V19a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1v-1.6A6 6 0 0 1 6 12a6 6 0 0 1 6-6z"/><line x1="8.5" y1="21" x2="15.5" y2="21"/></svg>
+          {% elif post.post_type == 'article' %}<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          {% elif post.post_type == 'update' %}<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          {% elif post.post_type == 'announcement' %}<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          {% else %}<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{% endif %}
         </div>
         <div class="db-item-body">
           <a href="{% url 'post_detail' post.pk %}" class="db-item-title">{{ post.title|default:post.content|truncatechars:60 }}</a>
@@ -1046,7 +1057,7 @@
       <div class="db-item-list">
         {% for proposal in my_proposals_received %}
         <div class="db-item-row">
-          <div class="db-item-icon" style="background:#fef9ec;color:#92400e;">💼</div>
+          <div class="db-item-icon" style="background:#fef9ec;color:#92400e;"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12"/><path d="M2 12h20"/></svg></div>
           <div class="db-item-body">
             <span class="db-item-title" style="cursor:default;">Proposal on "{{ proposal.post.title|truncatechars:35 }}"</span>
             <div class="db-item-meta">

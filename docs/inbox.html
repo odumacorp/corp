@@ -83,6 +83,18 @@
   flex-shrink:0;box-shadow:0 0 5px rgba(27,94,199,0.4);
 }
 
+/* Pin button */
+.ib-pin-btn{
+  flex-shrink:0;
+  width:30px;height:30px;
+  border-radius:7px;border:1.5px solid #e8edf4;
+  background:#fff;color:#9ca3af;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:border-color .15s,color .15s,background .15s;
+  font-size:.9rem;
+}
+.ib-pin-btn:hover,.ib-pin-btn.pinned{border-color:#1B5EC7;color:#1B5EC7;background:#eef4ff;}
+
 /* Empty */
 .ib-empty{
   text-align:center;padding:64px 20px;
@@ -303,8 +315,15 @@
         {% endif %}
       </div>
 
-      <!-- Unread dot -->
-      {% if item.unread %}<span class="ib-dot"></span>{% endif %}
+      <!-- Unread dot + pin -->
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+        {% if item.unread %}<span class="ib-dot"></span>{% endif %}
+        <button class="ib-pin-btn {% if item.conversation.id in pinned_chat_ids %}pinned{% endif %}"
+                title="{% if item.conversation.id in pinned_chat_ids %}Unpin{% else %}Pin conversation{% endif %}"
+                onclick="event.preventDefault();event.stopPropagation();ibTogglePin(this,{{ item.conversation.id }})">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="{% if item.conversation.id in pinned_chat_ids %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 00-1.11-1.79l-1.78-.9A2 2 0 0115 10.76V6h1a2 2 0 000-4H8a2 2 0 000 4h1v4.76a2 2 0 01-1.11 1.79l-1.78.9A2 2 0 005 15.24V17z"/></svg>
+        </button>
+      </div>
 
     </a>
     {% endwith %}
@@ -424,6 +443,27 @@ function ibRender(users, label) {
 
 function ibEsc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+var IB_PIN_URL = '{% url "toggle_pin" %}';
+function ibTogglePin(btn, convId) {
+  var form = new FormData();
+  form.append('type', 'chat');
+  form.append('id', convId);
+  form.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fetch(IB_PIN_URL, {method:'POST', body:form})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.pinned) {
+        btn.classList.add('pinned');
+        btn.title = 'Unpin';
+        btn.querySelector('svg').setAttribute('fill','currentColor');
+      } else {
+        btn.classList.remove('pinned');
+        btn.title = 'Pin conversation';
+        btn.querySelector('svg').setAttribute('fill','none');
+      }
+    });
 }
 </script>
 

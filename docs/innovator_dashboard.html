@@ -285,6 +285,65 @@
     </div>
   </div>
 
+  <!-- Pinned Items -->
+  {% if pinned_chats or pinned_posts or pinned_projects %}
+  <div class="idb-section" style="margin-bottom:22px;">
+    <div class="idb-section-head">
+      <h2 class="idb-section-title" style="display:flex;align-items:center;gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 00-1.11-1.79l-1.78-.9A2 2 0 0115 10.76V6h1a2 2 0 000-4H8a2 2 0 000 4h1v4.76a2 2 0 01-1.11 1.79l-1.78.9A2 2 0 005 15.24V17z"/></svg>
+        Pinned
+      </h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
+
+      {% for pin in pinned_chats %}
+      {% with conv=pin.conversation %}
+      <a href="{% url 'chat_page' conversation_id=conv.id %}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e0e8f4;border-radius:10px;text-decoration:none;color:inherit;transition:box-shadow .15s;background:#fff;">
+        <span style="width:32px;height:32px;border-radius:50%;background:#eef4ff;color:#1B5EC7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </span>
+        <div style="min-width:0;">
+          <div style="font-weight:700;font-size:1.1rem;color:#0A1628;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            {% for p in conv.participants.all %}{% if p != request.user %}{{ p.get_full_name|default:p.username }}{% endif %}{% endfor %}
+          </div>
+          <div style="font-size:1.05rem;color:#9ca3af;">Chat</div>
+        </div>
+      </a>
+      {% endwith %}
+      {% endfor %}
+
+      {% for pin in pinned_posts %}
+      {% with p=pin.post %}
+      <a href="{% url 'post_detail' p.id %}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e0e8f4;border-radius:10px;text-decoration:none;color:inherit;transition:box-shadow .15s;background:#fff;">
+        <span style="width:32px;height:32px;border-radius:50%;background:#fffbeb;color:#D97706;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </span>
+        <div style="min-width:0;">
+          <div style="font-weight:700;font-size:1.1rem;color:#0A1628;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.title|default:p.content|truncatechars:30 }}</div>
+          <div style="font-size:1.05rem;color:#9ca3af;">Post</div>
+        </div>
+      </a>
+      {% endwith %}
+      {% endfor %}
+
+      {% for pin in pinned_projects %}
+      {% with proj=pin.project %}
+      <a href="{% url 'project_detail' proj.id %}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e0e8f4;border-radius:10px;text-decoration:none;color:inherit;transition:box-shadow .15s;background:#fff;">
+        <span style="width:32px;height:32px;border-radius:50%;background:#f0fdf4;color:#059669;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </span>
+        <div style="min-width:0;">
+          <div style="font-weight:700;font-size:1.1rem;color:#0A1628;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ proj.title|truncatechars:30 }}</div>
+          <div style="font-size:1.05rem;color:#9ca3af;">Project</div>
+        </div>
+      </a>
+      {% endwith %}
+      {% endfor %}
+
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Main grid -->
   <div class="idb-main">
 

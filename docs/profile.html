@@ -373,13 +373,15 @@
   <div class="pf-hero">
 
     <!-- Avatar -->
-    {% if profile.profile_pics %}
-      <img src="{{ profile.profile_pics.url }}" alt="Avatar" class="pf-avatar">
-    {% else %}
-      <div class="pf-avatar-init">
-        {{ profile.user.first_name|first|upper }}{{ profile.user.last_name|first|upper }}
-      </div>
-    {% endif %}
+    <div class="pf-avatar-wrap">
+      {% if profile.profile_pics %}
+        <img src="{{ profile.profile_pics.url }}" alt="Avatar" class="pf-avatar">
+      {% else %}
+        <div class="pf-avatar-init">
+          {{ profile.user.first_name|first|upper }}{{ profile.user.last_name|first|upper }}
+        </div>
+      {% endif %}
+    </div>
 
     <div class="pf-hero-top">
       <div class="pf-hero-left">

@@ -5,8 +5,10 @@
 
     <!-- Brand column -->
     <div>
-      <img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="Oduma Corp"
-           style="width:38px;height:38px;border-radius:8px;margin-bottom:16px;opacity:.9;">
+      <a href="{% url 'index' %}" style="display:block;width:fit-content;margin-bottom:16px;line-height:0;">
+        <img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="Oduma Corp"
+             style="width:38px;height:38px;border-radius:8px;opacity:.9;">
+      </a>
       <div class="oc-footer__brand-name">Oduma Corp</div>
       <p class="oc-footer__brand-tagline">
         <!-- Connecting Africa's boldest innovators with the investors who back them. Deal flow, capital, and collaboration — structured for serious players. -->

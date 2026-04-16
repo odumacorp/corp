@@ -350,20 +350,52 @@
   align-items: center;
   box-shadow: 0 1px 4px rgba(10,22,40,.04);
 }
-.ap-filter-select {
-  flex: 1;
-  min-width: 130px;
-  border: 1.5px solid #e0e6f0;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 1.2rem;
-  color: #374151;
-  background: #f8fafc;
-  font-family: inherit;
-  transition: border-color .18s;
-  cursor: pointer;
+/* custom industry dropdown */
+.ap-filter-dd { position: relative; flex: 1; min-width: 140px; }
+.ap-filter-dd-trigger {
+  width: 100%; box-sizing: border-box;
+  border: 1.5px solid #e0e6f0; border-radius: 8px;
+  padding: 8px 34px 8px 12px;
+  font-size: 1.2rem; font-family: inherit; color: #374151;
+  background: #f8fafc; cursor: pointer; text-align: left;
+  display: flex; align-items: center; gap: 6px;
+  transition: border-color .18s, box-shadow .18s;
+  white-space: nowrap; overflow: hidden;
 }
-.ap-filter-select:focus { border-color: #1B5EC7; outline: none; }
+.ap-filter-dd-trigger:hover { border-color: #c3d4ec; }
+.ap-filter-dd-trigger.open {
+  border-color: #1B5EC7; background: #fff;
+  box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+}
+.ap-filter-dd-val { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.ap-filter-dd-chev {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: #9ca3af; pointer-events: none;
+  transition: transform .18s;
+}
+.ap-filter-dd-trigger.open .ap-filter-dd-chev { transform: translateY(-50%) rotate(180deg); color: #1B5EC7; }
+.ap-filter-dd-list {
+  display: none; position: absolute; top: calc(100% + 5px); left: 0;
+  min-width: 200px; background: #fff;
+  border: 1.5px solid #e0e8f4; border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(10,22,40,.12); z-index: 400;
+  max-height: 240px; overflow-y: auto; padding: 4px;
+  scrollbar-width: thin; scrollbar-color: #c7d8f8 transparent;
+}
+.ap-filter-dd-list::-webkit-scrollbar { width: 4px; }
+.ap-filter-dd-list::-webkit-scrollbar-thumb { background: #c7d8f8; border-radius: 4px; }
+.ap-filter-dd-list.open { display: block; animation: apDdIn .15s ease; }
+@keyframes apDdIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:none; } }
+.ap-filter-dd-opt {
+  padding: 8px 12px; border-radius: 7px;
+  font-size: 1.15rem; font-family: inherit; color: #374151; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background .1s, color .1s;
+}
+.ap-filter-dd-opt:hover { background: #f0f5ff; color: #1B5EC7; }
+.ap-filter-dd-opt.active { background: #eef4ff; color: #1B5EC7; font-weight: 700; }
+.ap-filter-dd-opt .ap-dd-chk { display: none; }
+.ap-filter-dd-opt.active .ap-dd-chk { display: block; }
 .ap-filter-date {
   flex: 1;
   min-width: 140px;
@@ -573,6 +605,8 @@
 }
 .ap-rxn-btn--on { color: #0057FF; background: #ebf2ff; }
 .ap-rxn-btn--on:hover { background: #d6e6ff; }
+.ap-rxn-btn--pinned { color: #D97706; background: #fffbeb; }
+.ap-rxn-btn--pinned:hover { background: #fef3c7; }
 .ap-rxn-btn--send { color: #0057FF; }
 .ap-rxn-btn--view { margin-left: auto; color: #0057FF; font-weight: 700; }
 .ap-rxn-cnt { font-weight: 700; font-size: 1.2rem; min-width: 12px; text-align: center; }
@@ -1210,13 +1244,33 @@
 
     <!-- Filter bar -->
     <div class="ap-filter-bar">
-      <form method="GET" action="" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;width:100%;">
-        <select name="industry" class="ap-filter-select" onchange="this.form.submit()">
-          <option value="">All Industries</option>
-          {% for ind in industry_choices %}
-          <option value="{{ ind }}" {% if industry_filter == ind %}selected{% endif %}>{{ ind }}</option>
-          {% endfor %}
-        </select>
+      <form method="GET" action="" id="ap-filter-form" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;width:100%;">
+        <input type="hidden" name="industry" id="ap-industry-val" value="{{ industry_filter }}">
+
+        <!-- Custom industry dropdown -->
+        <div class="ap-filter-dd" id="ap-filter-dd">
+          <button type="button" class="ap-filter-dd-trigger" onclick="apDdToggle()" aria-haspopup="listbox">
+            <span class="ap-filter-dd-val" id="ap-filter-dd-val">
+              {% if industry_filter %}{{ industry_filter|title }}{% else %}All Industries{% endif %}
+            </span>
+            <svg class="ap-filter-dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="ap-filter-dd-list" id="ap-filter-dd-list" role="listbox">
+            <div class="ap-filter-dd-opt {% if not industry_filter %}active{% endif %}"
+                 onclick="apDdPick('','All Industries')" role="option">
+              All Industries
+              <svg class="ap-dd-chk" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            {% for ind in industry_choices %}
+            <div class="ap-filter-dd-opt {% if industry_filter == ind %}active{% endif %}"
+                 onclick="apDdPick('{{ ind|escapejs }}','{{ ind|title|escapejs }}')" role="option">
+              {{ ind|title }}
+              <svg class="ap-dd-chk" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
         <input type="date" name="date" value="{{ date_filter }}" class="ap-filter-date" onchange="this.form.submit()">
         {% if industry_filter or date_filter %}
         <a href="{% url 'app' %}" class="ap-filter-clear">✕ Clear</a>
@@ -1226,7 +1280,7 @@
 
     <!-- Composer -->
     <div class="ap-composer">
-      <div class="ap-composer-top" onclick="document.getElementById('post-modal').style.display='flex'">
+      <div class="ap-composer-top" onclick="pmOpen()">
         {% if profile.profile_pics %}
           <img src="{{ profile.profile_pics.url }}" class="ap-composer-avatar" alt="">
         {% else %}
@@ -1241,7 +1295,7 @@
         </a>
         {% endif %}
         <button class="ap-composer-btn ap-composer-btn--primary"
-                onclick="document.getElementById('post-modal').style.display='flex'">
+                onclick="pmOpen()">
           Write Post
         </button>
       </div>
@@ -1335,6 +1389,11 @@
         {% if user.is_authenticated %}
         <button class="ap-rxn-btn" onclick="ocToggleReadLater('post', {{ post.id }}, this)">
           🔖 <span class="ap-rxn-lbl">Save</span>
+        </button>
+        <button class="ap-rxn-btn {% if post.id in pinned_post_ids %}ap-rxn-btn--pinned{% endif %}"
+                title="{% if post.id in pinned_post_ids %}Unpin{% else %}Pin post{% endif %}"
+                onclick="ocTogglePin('post',{{ post.id }},this)">
+          📌 <span class="ap-rxn-lbl">{% if post.id in pinned_post_ids %}Pinned{% else %}Pin{% endif %}</span>
         </button>
         <button class="ap-rxn-btn" onclick="ocShare('{{ post.title|escapejs }}', window.location.origin+'/posts/{{ post.id }}/', 'post', {{ post.id }}, this)">
           ↑ <span class="ap-rxn-lbl">Share</span>
@@ -1521,6 +1580,11 @@
         {% endif %}
         <button class="ap-rxn-btn" onclick="ocToggleReadLater('project', {{ project.pk }}, this)">
           🔖 <span class="ap-rxn-lbl">Save</span>
+        </button>
+        <button class="ap-rxn-btn {% if project.pk in pinned_project_ids %}ap-rxn-btn--pinned{% endif %}"
+                title="{% if project.pk in pinned_project_ids %}Unpin{% else %}Pin project{% endif %}"
+                onclick="ocTogglePin('project',{{ project.pk }},this)">
+          📌 <span class="ap-rxn-lbl">{% if project.pk in pinned_project_ids %}Pinned{% else %}Pin{% endif %}</span>
         </button>
         <button class="ap-rxn-btn ap-rxn-btn--send" onclick="stcOpen('project', {{ project.pk }}, '{{ project.title|escapejs }}')">
           ↗ <span class="ap-rxn-lbl">Send</span>
@@ -1990,63 +2054,291 @@ function ocCloseWelcome() {
 {% endif %}
 
 <!-- ── Post Creation Modal ─────────────────────────────────────────── -->
-<div id="post-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:1000;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:18px;padding:32px;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;position:relative;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-    <button onclick="document.getElementById('post-modal').style.display='none'"
-            style="position:absolute;top:16px;right:18px;background:none;border:none;font-size: 1.2rem;cursor:pointer;color:#9ca3af;line-height:1;">✕</button>
-    <h3 style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;margin:0 0 22px;">Create a Post</h3>
+<style>
+/* ── Create Post Modal ───────────────────────────────────────────── */
+.pm-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,22,40,.5); backdrop-filter: blur(4px);
+  z-index: 1000; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.pm-overlay.open { display: flex; }
+.pm-modal {
+  background: #fff; border-radius: 20px;
+  width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
+  position: relative; box-shadow: 0 24px 64px rgba(10,22,40,.2);
+  animation: pmIn .2s ease;
+}
+@keyframes pmIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+.pm-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 16px; border-bottom: 1px solid #f0f4f8;
+  position: sticky; top: 0; background: #fff; z-index: 1;
+  border-radius: 20px 20px 0 0;
+}
+.pm-head h3 {
+  font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem;
+  font-weight: 800; color: #0A1628; margin: 0;
+}
+.pm-close {
+  width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: #f3f4f6; color: #6b7280; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; transition: background .15s, color .15s; flex-shrink: 0;
+}
+.pm-close:hover { background: #e5e7eb; color: #111; }
+.pm-body { padding: 22px 24px 24px; }
+.pm-field { margin-bottom: 16px; }
+.pm-label {
+  display: block; font-size: 1.1rem; font-weight: 700;
+  color: #374151; margin-bottom: 7px;
+}
+.pm-label .pm-req { color: #dc2626; margin-left: 3px; }
+.pm-input, .pm-select, .pm-textarea {
+  width: 100%; box-sizing: border-box;
+  border: 1.5px solid #e0e6f0; border-radius: 10px;
+  padding: 10px 14px; font-size: 1.15rem; font-family: inherit;
+  color: #0A1628; background: #fafbff;
+  outline: none; transition: border-color .18s, box-shadow .18s;
+}
+.pm-input:focus, .pm-select:focus, .pm-textarea:focus {
+  border-color: #1B5EC7; background: #fff;
+  box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+}
+/* Custom dropdown */
+.pm-dd { position: relative; }
+.pm-dd-trigger {
+  width: 100%; box-sizing: border-box;
+  border: 1.5px solid #e0e6f0; border-radius: 10px;
+  padding: 10px 38px 10px 14px; font-size: 1.15rem; font-family: inherit;
+  color: #0A1628; background: #fafbff;
+  cursor: pointer; text-align: left;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: border-color .18s, box-shadow .18s;
+  user-select: none;
+}
+.pm-dd-trigger:hover { border-color: #c3d4ec; }
+.pm-dd-trigger.open {
+  border-color: #1B5EC7; background: #fff;
+  box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+}
+.pm-dd-trigger .pm-dd-val { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pm-dd-chevron {
+  width: 16px; height: 16px; flex-shrink: 0; color: #9ca3af;
+  transition: transform .18s; pointer-events: none;
+}
+.pm-dd-trigger.open .pm-dd-chevron { transform: rotate(180deg); color: #1B5EC7; }
+.pm-dd-list {
+  display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: #fff; border: 1.5px solid #e0e6f0; border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(10,22,40,.12); z-index: 200;
+  max-height: 210px; overflow-y: auto; padding: 4px;
+}
+.pm-dd-list.open { display: block; animation: pmDdIn .15s ease; }
+@keyframes pmDdIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+.pm-dd-option {
+  padding: 9px 12px; border-radius: 7px; font-size: 1.1rem; font-family: inherit;
+  color: #374151; cursor: pointer; transition: background .1s, color .1s;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pm-dd-option:hover { background: #f0f5ff; color: #1B5EC7; }
+.pm-dd-option.selected { background: #eef4ff; color: #1B5EC7; font-weight: 700; }
+.pm-dd-option .pm-dd-check { display:none; }
+.pm-dd-option.selected .pm-dd-check { display:block; color:#1B5EC7; }
+/* hidden real select for form submit */
+.pm-select-hidden { display: none; }
+.pm-textarea { resize: vertical; min-height: 130px; line-height: 1.6; }
+.pm-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .pm-row-2 { grid-template-columns: 1fr; } }
+/* File upload */
+.pm-file-label {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border: 1.5px dashed #d1d5db; border-radius: 10px;
+  cursor: pointer; background: #fafbff; transition: border-color .18s, background .18s;
+  font-size: 1.1rem; color: #6b7280;
+}
+.pm-file-label:hover { border-color: #1B5EC7; background: #f0f5ff; color: #1B5EC7; }
+.pm-file-label svg { flex-shrink: 0; }
+.pm-file-input { display: none; }
+.pm-file-name { font-size: 1.05rem; color: #9ca3af; flex: 1; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Footer */
+.pm-footer {
+  display: flex; gap: 10px; justify-content: flex-end;
+  padding: 0 24px 22px; margin-top: 4px;
+}
+.pm-btn {
+  padding: 10px 22px; border-radius: 10px; font-size: 1.15rem;
+  font-weight: 700; font-family: inherit; border: none; cursor: pointer;
+  transition: background .18s, opacity .15s;
+}
+.pm-btn--cancel { background: #f3f4f6; color: #374151; }
+.pm-btn--cancel:hover { background: #e5e7eb; }
+.pm-btn--publish {
+  background: #1B5EC7; color: #fff;
+  box-shadow: 0 2px 8px rgba(27,94,199,.3);
+}
+.pm-btn--publish:hover { background: #1448a3; }
+</style>
+
+<div id="post-modal" class="pm-overlay" onclick="if(event.target===this)pmClose()">
+  <div class="pm-modal">
+
+    <!-- Header -->
+    <div class="pm-head">
+      <h3>Create a Post</h3>
+      <button class="pm-close" onclick="pmClose()" aria-label="Close">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
 
     <form method="POST" action="{% url 'app' %}" enctype="multipart/form-data">
       {% csrf_token %}
-      <div style="margin-bottom:16px;">
-        <label style="display:block;font-size: 1.2rem;font-weight:700;color:#374151;margin-bottom:6px;">Title</label>
-        <input type="text" name="post_title" placeholder="" data-example="Give your post a title…"
-               style="width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:10px 14px;font-size: 1.2rem;font-family:inherit;box-sizing:border-box;transition:border-color .18s;"
-               onfocus="this.style.borderColor='#1B5EC7'" onblur="this.style.borderColor='#e0e6f0'">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-        <div>
-          <label style="display:block;font-size: 1.2rem;font-weight:700;color:#374151;margin-bottom:6px;">Post Type</label>
-          <select name="post_type"
-                  style="width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:10px 12px;font-size: 1.2rem;font-family:inherit;background:#fff;">
-            <option value="idea">Idea</option>
-            <option value="article">Article</option>
-            <option value="update">Update</option>
-            <option value="announcement">Announcement</option>
-            <option value="question">Question</option>
-          </select>
+      <div class="pm-body">
+
+        <!-- Title -->
+        <div class="pm-field">
+          <label class="pm-label" for="pm-title">Title</label>
+          <input id="pm-title" class="pm-input" type="text" name="post_title"
+                 placeholder="Give your post a title…">
         </div>
-        <div>
-          <label style="display:block;font-size: 1.2rem;font-weight:700;color:#374151;margin-bottom:6px;">Industry</label>
-          <select name="post_industry"
-                  style="width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:10px 12px;font-size: 1.2rem;font-family:inherit;background:#fff;">
-            {% for ind in industry_choices %}
-            <option value="{{ ind }}">{{ ind }}</option>
-            {% endfor %}
-          </select>
+
+        <!-- Post Type + Industry -->
+        <div class="pm-row-2">
+          <!-- Post Type custom dropdown -->
+          <div class="pm-field" style="margin-bottom:0;">
+            <label class="pm-label">Post Type</label>
+            <div class="pm-dd" id="dd-type">
+              <button type="button" class="pm-dd-trigger" onclick="pmDdToggle('dd-type')" aria-haspopup="listbox">
+                <span class="pm-dd-val">Idea</span>
+                <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="pm-dd-list" role="listbox">
+                <div class="pm-dd-option selected" onclick="pmDdSelect('dd-type','idea','Idea')" role="option">Idea<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','article','Article')" role="option">Article<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','update','Update')" role="option">Update<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','announcement','Announcement')" role="option">Announcement<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','question','Question')" role="option">Question<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              </div>
+              <input type="hidden" name="post_type" id="dd-type-val" value="idea" class="pm-select-hidden">
+            </div>
+          </div>
+          <!-- Industry custom dropdown -->
+          <div class="pm-field" style="margin-bottom:0;">
+            <label class="pm-label">Industry</label>
+            <div class="pm-dd" id="dd-industry">
+              <button type="button" class="pm-dd-trigger" onclick="pmDdToggle('dd-industry')" aria-haspopup="listbox">
+                <span class="pm-dd-val">{% if industry_choices %}{{ industry_choices.0|title }}{% else %}Select…{% endif %}</span>
+                <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="pm-dd-list" role="listbox">
+                {% for ind in industry_choices %}
+                <div class="pm-dd-option{% if forloop.first %} selected{% endif %}"
+                     onclick="pmDdSelect('dd-industry','{{ ind|escapejs }}','{{ ind|title|escapejs }}')"
+                     role="option">
+                  {{ ind|title }}
+                  <svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                {% endfor %}
+              </div>
+              <input type="hidden" name="post_industry" id="dd-industry-val"
+                     value="{% if industry_choices %}{{ industry_choices.0 }}{% endif %}" class="pm-select-hidden">
+            </div>
+          </div>
         </div>
+
+        <!-- Content -->
+        <div class="pm-field" style="margin-top:16px;">
+          <label class="pm-label" for="pm-content">Content <span class="pm-req">*</span></label>
+          <textarea id="pm-content" class="pm-textarea" name="post_content" required
+                    placeholder="Share your thoughts, insights, or update… Use #hashtags to boost visibility"></textarea>
+        </div>
+
+        <!-- Image -->
+        <div class="pm-field" style="margin-bottom:0;">
+          <label class="pm-label">Image <span style="font-weight:500;color:#9ca3af;">(optional)</span></label>
+          <label class="pm-file-label" for="pm-image">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span id="pm-image-name" class="pm-file-name">Choose an image…</span>
+          </label>
+          <input id="pm-image" class="pm-file-input" type="file" name="post_image" accept="image/*"
+                 onchange="document.getElementById('pm-image-name').textContent=this.files[0]?this.files[0].name:'Choose an image…'">
+        </div>
+
       </div>
-      <div style="margin-bottom:16px;">
-        <label style="display:block;font-size: 1.2rem;font-weight:700;color:#374151;margin-bottom:6px;">Content <span style="color:#dc2626;">*</span></label>
-        <textarea name="post_content" rows="6" required
-                  placeholder="" data-example="Share your thoughts, insights, or update… Use #hashtags to boost visibility"
-                  style="width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:10px 14px;font-size: 1.2rem;font-family:inherit;resize:vertical;min-height:140px;box-sizing:border-box;line-height:1.6;transition:border-color .18s;"
-                  onfocus="this.style.borderColor='#1B5EC7'" onblur="this.style.borderColor='#e0e6f0'"></textarea>
-      </div>
-      <div style="margin-bottom:22px;">
-        <label style="display:block;font-size: 1.2rem;font-weight:700;color:#374151;margin-bottom:6px;">Image (optional)</label>
-        <input type="file" name="post_image" accept="image/*"
-               style="font-size: 1.2rem;color:#374151;width:100%;">
-      </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;">
-        <button type="button" onclick="document.getElementById('post-modal').style.display='none'"
-                style="background:#f3f4f6;color:#374151;border:none;padding:10px 20px;border-radius:9px;font-size: 1.2rem;font-weight:700;cursor:pointer;font-family:inherit;">Cancel</button>
-        <button type="submit"
-                style="background:#1B5EC7;color:#fff;border:none;padding:10px 24px;border-radius:9px;font-size: 1.2rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .18s;">Publish Post</button>
+
+      <!-- Footer -->
+      <div class="pm-footer">
+        <button type="button" class="pm-btn pm-btn--cancel" onclick="pmClose()">Cancel</button>
+        <button type="submit" class="pm-btn pm-btn--publish">Publish Post</button>
       </div>
     </form>
+
   </div>
 </div>
+<script>
+/* ── Industry filter dropdown ── */
+function apDdToggle() {
+  var trig = document.querySelector('#ap-filter-dd .ap-filter-dd-trigger');
+  var list = document.getElementById('ap-filter-dd-list');
+  var open = list.classList.contains('open');
+  if (open) { trig.classList.remove('open'); list.classList.remove('open'); }
+  else       { trig.classList.add('open');    list.classList.add('open'); }
+}
+function apDdPick(val, label) {
+  document.getElementById('ap-industry-val').value = val;
+  document.getElementById('ap-filter-dd-val').textContent = label;
+  document.querySelectorAll('.ap-filter-dd-opt').forEach(function(o) {
+    var isActive = (val === '' && o.textContent.trim().startsWith('All')) ||
+                   (val !== '' && o.getAttribute('onclick').indexOf("'"+val+"'") !== -1);
+    o.classList.toggle('active', isActive);
+  });
+  document.querySelector('#ap-filter-dd .ap-filter-dd-trigger').classList.remove('open');
+  document.getElementById('ap-filter-dd-list').classList.remove('open');
+  document.getElementById('ap-filter-form').submit();
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#ap-filter-dd')) {
+    var t = document.querySelector('#ap-filter-dd .ap-filter-dd-trigger');
+    var l = document.getElementById('ap-filter-dd-list');
+    if (t) t.classList.remove('open');
+    if (l) l.classList.remove('open');
+  }
+});
+
+function pmClose() {
+  document.getElementById('post-modal').classList.remove('open');
+  pmDdCloseAll();
+}
+function pmOpen() { document.getElementById('post-modal').classList.add('open'); }
+
+/* Custom dropdown helpers */
+function pmDdCloseAll() {
+  document.querySelectorAll('.pm-dd-list.open').forEach(function(l){ l.classList.remove('open'); });
+  document.querySelectorAll('.pm-dd-trigger.open').forEach(function(t){ t.classList.remove('open'); });
+}
+function pmDdToggle(id) {
+  var dd   = document.getElementById(id);
+  var trig = dd.querySelector('.pm-dd-trigger');
+  var list = dd.querySelector('.pm-dd-list');
+  var wasOpen = list.classList.contains('open');
+  pmDdCloseAll();
+  if (!wasOpen) { trig.classList.add('open'); list.classList.add('open'); }
+}
+function pmDdSelect(id, val, label) {
+  var dd = document.getElementById(id);
+  dd.querySelector('.pm-dd-trigger .pm-dd-val').textContent = label;
+  dd.querySelector('input[type=hidden]').value = val;
+  dd.querySelectorAll('.pm-dd-option').forEach(function(o){
+    o.classList.toggle('selected', o.getAttribute('onclick').indexOf("'"+val+"'") !== -1);
+  });
+  pmDdCloseAll();
+}
+/* Close dropdowns when clicking outside */
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.pm-dd')) pmDdCloseAll();
+});
+</script>
 
 
 <!-- ── Share-to-Chat Modal ─────────────────────────────────────────── -->

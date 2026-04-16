@@ -640,18 +640,72 @@ class Message(models.Model):
         return f"From {self.sender} to {self.recipient} at {self.timestamp}"
 
 
+
+from cloudinary_storage.storage import MediaCloudinaryStorage
+from django.utils.deconstruct import deconstructible
+
+@deconstructible
+class ChatAttachmentStorage(MediaCloudinaryStorage):
+    """
+    Picks the correct Cloudinary resource_type by file extension so that
+    videos are uploaded as 'video', images as 'image', and everything else
+    as 'raw'.  The base MediaCloudinaryStorage defaults to 'image', which
+    silently rejects video uploads.
+    """
+    _VIDEO_EXT = {'mp4', 'webm', 'mov', 'avi', 'mkv', 'm4v', 'flv', 'wmv', 'ogv'}
+    _IMAGE_EXT = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'tiff', 'heic'}
+
+    def _get_resource_type(self, name):
+        ext = name.rsplit('.', 1)[-1].lower() if '.' in name else ''
+        if ext in self._VIDEO_EXT:
+            return 'video'
+        if ext in self._IMAGE_EXT:
+            return 'image'
+        return 'raw'
+
+
 class MessageAttachment(models.Model):
     ATTACHMENT_TYPES = [
-        ('image',    'Image'),
-        ('video',    'Video'),
+        ('image', 'Image'),
+        ('video', 'Video'),
         ('document', 'Document'),
     ]
-    message         = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='attachments')
-    file            = models.FileField(upload_to='chat_attachments/%Y/%m/')
+
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='attachments')
+
+    file = models.FileField(
+        storage=ChatAttachmentStorage(),
+        upload_to='chat_attachments/%Y/%m/'
+    )
     attachment_type = models.CharField(max_length=10, choices=ATTACHMENT_TYPES, default='document')
-    filename        = models.CharField(max_length=255, blank=True)
-    file_size       = models.PositiveIntegerField(default=0)
-    created_at      = models.DateTimeField(auto_now_add=True)
+    filename = models.CharField(max_length=255, blank=True)
+    file_size = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def file_url(self):
+        """
+        Return the correct URL for this attachment.
+
+        Cloudinary strips the file extension from the public_id on upload, so
+        the stored name has no extension and att.file.url always returns a
+        /raw/upload/ URL regardless of type.  We fix the resource_type segment
+        using the stored attachment_type field.
+
+        For local/non-Cloudinary storage the URL is returned unchanged.
+        """
+        url = self.file.url
+        if 'res.cloudinary.com' not in url:
+            # Local filesystem or other non-Cloudinary storage — works as-is
+            return url
+        if self.attachment_type == 'image':
+            url = url.replace('/raw/upload/', '/image/upload/', 1)
+            url = url.replace('/video/upload/', '/image/upload/', 1)
+        elif self.attachment_type == 'video':
+            url = url.replace('/raw/upload/', '/video/upload/', 1)
+            url = url.replace('/image/upload/', '/video/upload/', 1)
+        # 'document' stays as /raw/upload/ — Cloudinary serves raw files fine
+        return url
 
     def __str__(self):
         return f"{self.attachment_type}: {self.filename}"
@@ -1231,6 +1285,20 @@ class ReadLater(models.Model):
 
     class Meta:
         ordering = ['-saved_at']
+
+
+class Pin(models.Model):
+    """Allows a user to pin a chat conversation, post, or project for quick access."""
+    PIN_TYPE_CHOICES = [('chat', 'Chat'), ('post', 'Post'), ('project', 'Project')]
+    user         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='pins')
+    pin_type     = models.CharField(max_length=10, choices=PIN_TYPE_CHOICES)
+    conversation = models.ForeignKey('Conversation', on_delete=models.CASCADE, null=True, blank=True, related_name='pins')
+    post         = models.ForeignKey('Post', on_delete=models.CASCADE, null=True, blank=True, related_name='pins')
+    project      = models.ForeignKey('Project', on_delete=models.CASCADE, null=True, blank=True, related_name='pins')
+    pinned_at    = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-pinned_at']
 
 
 class ProjectCollaboration(models.Model):

@@ -2,6 +2,7 @@ from .models import CustomUser, Company, Project, UserProfile, INDUSTRY_CHOICES
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from .models import Message
 from .models import Group, Page, Post
@@ -469,23 +470,34 @@ def dashboard(request, user_id=None):
 
     # Suggested next actions (use absolute paths as href)
     from django.urls import reverse
+    from django.utils.safestring import mark_safe
+
+    _IC = {
+        'user':    mark_safe('<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>'),
+        'rocket':  mark_safe('<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>'),
+        'chart':   mark_safe('<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><path d="M21 20H3"/></svg>'),
+        'network': mark_safe('<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'),
+        'target':  mark_safe('<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>'),
+        'bell':    mark_safe('<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'),
+    }
+
     suggested_actions = []
     if profile_completion < 80:
-        suggested_actions.append({'icon': '👤', 'text': 'Complete your profile to attract investors', 'href': reverse('update_profile'), 'priority': 'high'})
+        suggested_actions.append({'icon': _IC['user'], 'text': 'Complete your profile to attract investors', 'href': reverse('update_profile'), 'priority': 'high'})
     if not projects.exists():
-        suggested_actions.append({'icon': '🚀', 'text': 'Post your first project and start raising capital', 'href': reverse('create_project'), 'priority': 'high'})
+        suggested_actions.append({'icon': _IC['rocket'], 'text': 'Post your first project and start raising capital', 'href': reverse('create_project'), 'priority': 'high'})
     else:
         incomplete = [p for p in projects if p.completeness_score() < 80]
         if incomplete:
-            suggested_actions.append({'icon': '📊', 'text': f'Complete pitch deck — "{incomplete[0].title[:28]}"', 'href': reverse('edit_project', args=[incomplete[0].pk]), 'priority': 'medium'})
+            suggested_actions.append({'icon': _IC['chart'], 'text': f'Complete pitch deck — "{incomplete[0].title[:28]}"', 'href': reverse('edit_project', args=[incomplete[0].pk]), 'priority': 'medium'})
     if connections_count == 0:
-        suggested_actions.append({'icon': '🌐', 'text': 'Build your network — connect with investors', 'href': reverse('networks'), 'priority': 'medium'})
+        suggested_actions.append({'icon': _IC['network'], 'text': 'Build your network — connect with investors', 'href': reverse('networks'), 'priority': 'medium'})
     if not investor_interest_alerts:
         if projects.exists():
-            suggested_actions.append({'icon': '🎯', 'text': 'Submit a project for review to attract investors', 'href': reverse('project_list'), 'priority': 'low'})
+            suggested_actions.append({'icon': _IC['target'], 'text': 'Submit a project for review to attract investors', 'href': reverse('project_list'), 'priority': 'low'})
     else:
         total_interested = sum(a['count'] for a in investor_interest_alerts)
-        suggested_actions.append({'icon': '🔔', 'text': f'{total_interested} investor(s) expressed interest in your projects', 'href': reverse('notifications'), 'priority': 'high'})
+        suggested_actions.append({'icon': _IC['bell'], 'text': f'{total_interested} investor(s) expressed interest in your projects', 'href': reverse('notifications'), 'priority': 'high'})
 
     return render(request, 'dashboard.html', {
         'project_form': project_form,
@@ -571,25 +583,23 @@ def download_message_attachment(request, attachment_id):
             link=f'/chat/{conversation.pk}/',
         )
 
-    # Stream the file with Content-Disposition: attachment so the browser
-    # triggers its native Save-As dialog (user can choose save location).
-    import mimetypes, os
-    from django.http import FileResponse, HttpResponse
+    # Files are stored on Cloudinary — redirect to their URL with fl_attachment
+    # so the browser triggers a Save-As dialog instead of opening inline.
+    import os
+    from django.http import HttpResponseRedirect
     filename = att.filename or os.path.basename(att.file.name)
-    mime_type, _ = mimetypes.guess_type(filename)
-    mime_type = mime_type or 'application/octet-stream'
-    try:
-        response = FileResponse(att.file.open('rb'), content_type=mime_type)
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        if att.file_size:
-            response['Content-Length'] = att.file_size
-        return response
-    except Exception:
-        # Fall back to redirect if file can't be opened (e.g. remote storage)
-        from django.http import HttpResponseRedirect
-        return HttpResponseRedirect(att.file.url)
+    cloudinary_url = att.file.url
+    # Insert fl_attachment transformation so Cloudinary serves it as a download
+    if '/upload/' in cloudinary_url:
+        cloudinary_url = cloudinary_url.replace(
+            '/upload/',
+            f'/upload/fl_attachment:{filename.replace(" ", "_")}/',
+            1,
+        )
+    return HttpResponseRedirect(cloudinary_url)
 
 
+@login_required
 @login_required
 def view_message_attachment(request, attachment_id):
     """Render a chat attachment in a styled viewer page."""
@@ -608,23 +618,27 @@ def view_message_attachment(request, attachment_id):
 @login_required
 def media_chat_attachment_viewer(request, file_path):
     """Intercept direct /media/chat_attachments/... browser navigations → styled viewer.
-    Image/video src requests (Accept != text/html) are served as raw files so <img> tags work."""
-    from django.conf import settings
-    from django.views.static import serve
-
-    # Only intercept full browser page navigations, not asset loads (<img src>, etc.)
-    accept = request.META.get('HTTP_ACCEPT', '')
-    if 'text/html' not in accept:
-        return serve(request, 'chat_attachments/' + file_path, document_root=settings.MEDIA_ROOT)
-
+    Non-HTML requests (img src, video src) are redirected straight to the Cloudinary URL."""
     from .models import MessageAttachment
     from django.http import HttpResponseRedirect
+
+    accept = request.META.get('HTTP_ACCEPT', '')
     lookup = 'chat_attachments/' + file_path.lstrip('/')
     att = MessageAttachment.objects.filter(file=lookup).first()
+
     if att and att.message.conversation.participants.filter(pk=request.user.pk).exists():
-        return HttpResponseRedirect(f'/chat/attachments/{att.pk}/view/')
-    # Fall back to raw file for unmatched paths
-    return serve(request, 'chat_attachments/' + file_path, document_root=settings.MEDIA_ROOT)
+        if 'text/html' in accept:
+            # Full browser navigation → styled viewer page
+            return HttpResponseRedirect(f'/chat/attachments/{att.pk}/view/')
+        else:
+            # Asset load (img/video src) → raw Cloudinary URL
+            return HttpResponseRedirect(att.file.url)
+
+    # No matching attachment — redirect to Cloudinary URL directly if possible
+    if att:
+        return HttpResponseRedirect(att.file.url)
+    from django.http import Http404
+    raise Http404
 
 
 @login_required
@@ -1114,11 +1128,20 @@ def inbox(request):
 
     # Recent contacts for the compose modal
     recent_contact_ids = [item['other_user'].pk for item in inbox_items if item['other_user']][:8]
+
+    # Pinned conversations
+    from .models import Pin
+    pinned_chat_ids = set(
+        Pin.objects.filter(user=request.user, pin_type='chat')
+        .values_list('conversation_id', flat=True)
+    )
+
     return render(request, 'inbox.html', {
         'inbox_items':         inbox_items,
         'unread_count':        total_unread,
         'page_name':           'Inbox',
         'recent_contact_ids':  recent_contact_ids,
+        'pinned_chat_ids':     pinned_chat_ids,
     })
 
 @login_required
@@ -1521,11 +1544,14 @@ def chat_page(request, conversation_id):
     is_admin_chat = _is_admin_user(participant)
 
     def _detect_attachment_type(f):
-        ct = getattr(f, 'content_type', '') or ''
         ext = f.name.rsplit('.', 1)[-1].lower() if '.' in f.name else ''
-        if ct.startswith('image/') or ext in ('jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'):
+
+        image_ext = {'jpg','jpeg','png','gif','webp','bmp','svg'}
+        video_ext = {'mp4','webm','mov','avi','mkv','m4v'}
+
+        if ext in image_ext:
             return 'image'
-        if ct.startswith('video/') or ext in ('mp4', 'webm', 'mov', 'avi', 'mkv', 'm4v'):
+        if ext in video_ext:
             return 'video'
         return 'document'
 
@@ -1561,13 +1587,19 @@ def chat_page(request, conversation_id):
                 reply_to=reply_to_msg,
             )
             for f in files[:10]:
-                MessageAttachment.objects.create(
-                    message=msg,
-                    file=f,
-                    attachment_type=_detect_attachment_type(f),
-                    filename=f.name,
-                    file_size=f.size,
-                )
+                try:
+                    MessageAttachment.objects.create(
+                        message=msg,
+                        file=f,
+                        attachment_type=_detect_attachment_type(f),
+                        filename=f.name,
+                        file_size=f.size,
+                    )
+                except Exception as upload_err:
+                    import logging
+                    logging.getLogger(__name__).error(
+                        "Chat attachment upload failed for %s: %s", f.name, upload_err
+                    )
         elif content:
             # Plain text
             Message.objects.create(
@@ -1946,6 +1978,15 @@ def app_view(request):
         ).select_related('initiator', 'initiator__userprofile', 'target', 'target__userprofile')
     ]
 
+    # Pinned IDs
+    from .models import Pin
+    pinned_post_ids = set(
+        Pin.objects.filter(user=user, pin_type='post').values_list('post_id', flat=True)
+    )
+    pinned_project_ids = set(
+        Pin.objects.filter(user=user, pin_type='project').values_list('project_id', flat=True)
+    )
+
     context = {
         'page_name': 'Home',
         'posts': posts,
@@ -1972,6 +2013,8 @@ def app_view(request):
         'featured_companies': featured_companies,
         'trending_discussions': trending_discussions,
         'trending_hashtags': _get_trending_hashtags(limit=10),
+        'pinned_post_ids':    pinned_post_ids,
+        'pinned_project_ids': pinned_project_ids,
     }
     return render(request, 'app.html', context)
 
@@ -2193,6 +2236,26 @@ def _update_profile_unused(request):
         "profile_completion": pc,
         "industry_choices": UserProfile._meta.get_field('industry').choices,
     })
+
+
+@login_required
+@require_POST
+def remove_profile_photo(request):
+    """Delete the user's uploaded profile picture and fall back to initials."""
+    from .models import UserProfile
+    import os
+    up, _ = UserProfile.objects.get_or_create(user=request.user)
+    if up.profile_pics:
+        # Delete the file from disk too
+        try:
+            if os.path.isfile(up.profile_pics.path):
+                os.remove(up.profile_pics.path)
+        except Exception:
+            pass
+        up.profile_pics = None
+        up.save()
+        messages.success(request, "Profile photo removed.")
+    return redirect('update_profile')
 
 
 ########################
@@ -3252,6 +3315,19 @@ def investor_dashboard(request):
         'upcoming_events':      upcoming_events,
         'registered_event_ids': registered_event_ids,
     }
+
+    # Pins
+    from .models import Pin
+    user_pins = Pin.objects.filter(user=user).select_related(
+        'conversation', 'post', 'project',
+    ).prefetch_related('conversation__participants')
+    context['pinned_chats']       = [p for p in user_pins if p.pin_type == 'chat']
+    context['pinned_posts']       = [p for p in user_pins if p.pin_type == 'post']
+    context['pinned_projects']    = [p for p in user_pins if p.pin_type == 'project']
+    context['pinned_chat_ids']    = set(p.conversation_id for p in user_pins if p.pin_type == 'chat' and p.conversation_id)
+    context['pinned_post_ids']    = set(p.post_id for p in user_pins if p.pin_type == 'post' and p.post_id)
+    context['pinned_project_ids'] = set(p.project_id for p in user_pins if p.pin_type == 'project' and p.project_id)
+
     return render(request, 'investor_dashboard.html', context)
 
 
@@ -4438,11 +4514,46 @@ def create_company(request):
     }
 
     if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
-        description = request.POST.get('description', '').strip()
+        from django.core.validators import URLValidator
+        from django.core.validators import validate_email as _ve
+        from django.core.exceptions import ValidationError as DjVE
+        import re as _re
 
-        if not name or not description:
-            messages.error(request, 'Company name and description are required.')
+        name        = request.POST.get('name', '').strip()
+        description = request.POST.get('description', '').strip()
+        tagline     = request.POST.get('tagline', '').strip()
+        location    = request.POST.get('location', '').strip()
+        website     = request.POST.get('website', '').strip()
+        email       = request.POST.get('email', '').strip()
+        phone       = request.POST.get('phone', '').strip()
+
+        field_errors = {}
+
+        if not name:
+            field_errors['name'] = 'Company name is required.'
+        elif len(name) > 255:
+            field_errors['name'] = 'Company name must be under 255 characters.'
+
+        if not description:
+            field_errors['description'] = 'Description is required.'
+
+        if website:
+            try:
+                URLValidator()(website)
+            except DjVE:
+                field_errors['website'] = 'Enter a valid URL (e.g. https://yourcompany.com).'
+
+        if email:
+            try:
+                _ve(email)
+            except DjVE:
+                field_errors['email'] = 'Enter a valid email address.'
+
+        if phone and not _re.match(r'^\+?[\d\s\-\(\)\.]{7,20}$', phone):
+            field_errors['phone'] = 'Enter a valid phone number.'
+
+        if field_errors:
+            ctx['field_errors'] = field_errors
             return render(request, 'create_company.html', ctx)
 
         industry_val = (request.POST.get('industry') or 'other').strip()
@@ -4454,14 +4565,14 @@ def create_company(request):
             owner=request.user,
             name=name,
             description=description,
-            tagline=request.POST.get('tagline', ''),
+            tagline=tagline,
             industry=industry_val,
             company_type=request.POST.get('company_type', 'startup') or 'startup',
             size=request.POST.get('size', ''),
-            location=request.POST.get('location', ''),
-            website=request.POST.get('website', ''),
-            email=request.POST.get('email', ''),
-            phone=request.POST.get('phone', ''),
+            location=location,
+            website=website,
+            email=email,
+            phone=phone,
         )
 
         if request.FILES.get('logo'):
@@ -6616,6 +6727,19 @@ def innovator_dashboard(request):
         EventRegistration.objects.filter(user=user).values_list('event_id', flat=True)
     )
 
+    # Pins
+    from .models import Pin
+    user_pins = Pin.objects.filter(user=user).select_related(
+        'conversation', 'post', 'project',
+        'conversation__participants',
+    ).prefetch_related('conversation__participants')
+    pinned_chat_ids    = set(p.conversation_id for p in user_pins if p.pin_type == 'chat' and p.conversation_id)
+    pinned_post_ids    = set(p.post_id for p in user_pins if p.pin_type == 'post' and p.post_id)
+    pinned_project_ids = set(p.project_id for p in user_pins if p.pin_type == 'project' and p.project_id)
+    pinned_chats    = [p for p in user_pins if p.pin_type == 'chat']
+    pinned_posts    = [p for p in user_pins if p.pin_type == 'post']
+    pinned_projects = [p for p in user_pins if p.pin_type == 'project']
+
     return render(request, 'innovator_dashboard.html', {
         'profile':                profile,
         'projects_with_interest': projects_with_interest,
@@ -6632,6 +6756,13 @@ def innovator_dashboard(request):
         'my_courses':             my_courses,
         'upcoming_events':        upcoming_events,
         'registered_event_ids':   registered_event_ids,
+        # Pins
+        'pinned_chats':           pinned_chats,
+        'pinned_posts':           pinned_posts,
+        'pinned_projects':        pinned_projects,
+        'pinned_chat_ids':        pinned_chat_ids,
+        'pinned_post_ids':        pinned_post_ids,
+        'pinned_project_ids':     pinned_project_ids,
     })
 
 
@@ -6642,6 +6773,47 @@ def get_counts(request):
     notif_count = Notification.objects.filter(user=request.user, is_read=False).count()
     msg_count   = Message.objects.filter(recipient=request.user, is_read=False).count()
     return JsonResponse({'notifications': notif_count, 'messages': msg_count})
+
+
+@login_required
+@require_POST
+def toggle_pin(request):
+    """Toggle pin on a chat, post, or project. Returns JSON {pinned: bool}."""
+    from .models import Pin, Conversation, Post, Project
+    pin_type = request.POST.get('type')
+    obj_id   = request.POST.get('id')
+    if pin_type not in ('chat', 'post', 'project') or not obj_id:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+    try:
+        obj_id = int(obj_id)
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid id'}, status=400)
+
+    if pin_type == 'chat':
+        obj = get_object_or_404(Conversation, pk=obj_id, participants=request.user)
+        existing = Pin.objects.filter(user=request.user, pin_type='chat', conversation=obj).first()
+        if existing:
+            existing.delete()
+            return JsonResponse({'pinned': False})
+        Pin.objects.create(user=request.user, pin_type='chat', conversation=obj)
+
+    elif pin_type == 'post':
+        obj = get_object_or_404(Post, pk=obj_id)
+        existing = Pin.objects.filter(user=request.user, pin_type='post', post=obj).first()
+        if existing:
+            existing.delete()
+            return JsonResponse({'pinned': False})
+        Pin.objects.create(user=request.user, pin_type='post', post=obj)
+
+    elif pin_type == 'project':
+        obj = get_object_or_404(Project, pk=obj_id)
+        existing = Pin.objects.filter(user=request.user, pin_type='project', project=obj).first()
+        if existing:
+            existing.delete()
+            return JsonResponse({'pinned': False})
+        Pin.objects.create(user=request.user, pin_type='project', project=obj)
+
+    return JsonResponse({'pinned': True})
 
 
 # ─── Hashtag helpers & views ──────────────────────────────────────────────────
