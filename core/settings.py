@@ -271,8 +271,15 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'docs')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 ##whitenoise for static files
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -343,16 +350,26 @@ ZOOM_CLIENT_SECRET = config('ZOOM_CLIENT_SECRET', default='')
 
 
 
-#claudinary
+# #claudinary
+
 INSTALLED_APPS += ['cloudinary', 'cloudinary_storage']
 
+
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": config("CLOUDINARY_API_KEY"),
+    "API_SECRET": config("CLOUDINARY_API_SECRET"),
+}
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-from decouple import config
-import cloudinary
 
-cloudinary.config(
-    cloud_name=config("CLOUDINARY_CLOUD_NAME"),
-    api_key=config("CLOUDINARY_API_KEY"),
-    api_secret=config("CLOUDINARY_API_SECRET"),
-)
+
+# import cloudinary
+
+# cloudinary.config(
+#     cloud_name=config("CLOUDINARY_CLOUD_NAME"),
+#     api_key=config("CLOUDINARY_API_KEY"),
+#     api_secret=config("CLOUDINARY_API_SECRET"),
+#     secure=True,
+# )

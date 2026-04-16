@@ -1806,41 +1806,6 @@ def toggle_message_reaction(request, message_id):
     return JsonResponse({'reactions': summary, 'message_id': message_id})
 
 
-# def chat_page(request, conversation_id):
-#     # conversation = get_object_or_404(Conversation, id=conversation_id)
-#     conversation = Conversation.objects.get(id=conversation_id)
-#     participant = conversation.participants.exclude(id=request.user.id).first()
-
-#     # Now get the participant's full name
-#     participant_name = participant.get_full_name if participant else "Unknown"
-
-#     # Pass this name to the template context
-#     context = {
-#         'conversation': conversation,
-#         'participant_name': participant_name,
-#         'messages': messages,
-#         'form': form,
-#     }
-
-#     if request.user not in conversation.participants.all():
-#         return redirect('home')  # Or raise PermissionDenied
-
-#     if request.method == 'POST':
-#         form = MessageForm(request.POST)
-#         if form.is_valid():
-#             message = form.save(commit=False)
-#             message.conversation = conversation
-#             message.sender = request.user
-#             message.save()
-#             return redirect('chat_page', conversation_id=conversation.id)
-#     else:
-#         form = MessageForm()
-
-#     messages = conversation.messages.order_by('timestamp')
-#     return render(request, 'chat_page.html', {'conversation': conversation, 'messages': messages, 'form': form})
-
-
-
 ##app.html
 @login_required
 def app_view(request):
