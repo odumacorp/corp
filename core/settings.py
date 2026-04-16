@@ -339,3 +339,20 @@ ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')
 ZOOM_ACCOUNT_ID    = config('ZOOM_ACCOUNT_ID',    default='')
 ZOOM_CLIENT_ID     = config('ZOOM_CLIENT_ID',     default='')
 ZOOM_CLIENT_SECRET = config('ZOOM_CLIENT_SECRET', default='')
+
+
+
+
+#claudinary
+INSTALLED_APPS += ['cloudinary', 'cloudinary_storage']
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+from decouple import config
+import cloudinary
+
+cloudinary.config(
+    cloud_name=config("CLOUDINARY_CLOUD_NAME"),
+    api_key=config("CLOUDINARY_API_KEY"),
+    api_secret=config("CLOUDINARY_API_SECRET"),
+)
