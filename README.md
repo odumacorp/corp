@@ -18,9 +18,3 @@
 docker build -t oduma-connect .
 docker run -p 8000:8000 --env-file .env oduma-connect
 
-
-from django.contrib.auth.models import User
-user = User.objects.get(username="admin")
-user.set_password("L@ndM1ne")
-user.save()
-exit()
