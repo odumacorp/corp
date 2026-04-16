@@ -29,13 +29,13 @@
 }
 .ep-header h1 {
   font-family: var(--ff);
-  font-size: 1.5rem;
+  font-size: 2.0rem;
   font-weight: 800;
   color: var(--ink);
   margin: 0 0 4px;
 }
 .ep-header p {
-  font-size: .875rem;
+  font-size: 1.2rem;
   color: var(--muted);
   margin: 0;
 }
@@ -93,18 +93,18 @@
 .ep-avatar-input { display: none; }
 .ep-avatar-name {
   font-family: var(--ff);
-  font-size: .95rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--ink);
   margin-bottom: 3px;
 }
 .ep-avatar-role {
-  font-size: .78rem;
+  font-size: 1.2rem;
   color: var(--muted);
   margin-bottom: 16px;
 }
 .ep-avatar-hint {
-  font-size: .72rem;
+  font-size: 1.2rem;
   color: #9ca3af;
   line-height: 1.5;
   margin-top: 10px;
@@ -117,7 +117,7 @@
   border-top: 1px solid var(--border);
 }
 .ep-completion-label {
-  font-size: .72rem;
+  font-size: 1.2rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .06em;
@@ -139,7 +139,7 @@
 }
 .ep-completion-pct {
   font-family: var(--ff);
-  font-size: .72rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--blue);
 }
@@ -172,13 +172,13 @@
 .ep-section-icon--purple { background: #ede9fe; }
 .ep-section-title {
   font-family: var(--ff);
-  font-size: .95rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--ink);
   margin: 0;
 }
 .ep-section-sub {
-  font-size: .75rem;
+  font-size: 1.2rem;
   color: var(--muted);
   margin: 0;
 }
@@ -196,7 +196,7 @@
 .ep-field { display: flex; flex-direction: column; gap: 5px; }
 .ep-label {
   font-family: var(--ff);
-  font-size: .78rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #374151;
 }
@@ -206,7 +206,7 @@
   padding: 10px 13px;
   border: 1.5px solid var(--border);
   border-radius: 10px;
-  font-size: .875rem;
+  font-size: 1.2rem;
   font-family: inherit;
   color: var(--ink);
   background: #fafafa;
@@ -220,8 +220,8 @@
 }
 .ep-input::placeholder, .ep-textarea::placeholder { color: #c4c9d4; }
 .ep-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
-.ep-hint { font-size: .78rem; color: #6b7280; margin-top: 3px; }
-.ep-error { font-size: .75rem; color: #dc2626; }
+.ep-hint { font-size: 1.2rem; color: #6b7280; margin-top: 3px; }
+.ep-error { font-size: 1.2rem; color: #dc2626; }
 
 /* char counter */
 .ep-field-foot { display: flex; justify-content: space-between; }
@@ -246,7 +246,7 @@
   border-radius: 10px;
   padding: 11px 28px;
   font-family: var(--ff);
-  font-size: .9rem;
+  font-size: 1.2rem;
   font-weight: 700;
   cursor: pointer;
   transition: background .18s, transform .15s;
@@ -259,7 +259,7 @@
   color: var(--muted);
   text-decoration: none;
   font-family: var(--ff);
-  font-size: .875rem;
+  font-size: 1.2rem;
   font-weight: 600;
   padding: 11px 18px;
   border-radius: 10px;
@@ -274,7 +274,7 @@
 .ep-msg {
   padding: 12px 16px;
   border-radius: 10px;
-  font-size: .875rem;
+  font-size: 1.2rem;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -394,7 +394,7 @@
                 <label class="ep-label" for="id_phone_number">Phone number</label>
                 <input type="tel" name="phone_number" id="id_phone_number" class="ep-input"
                        value="{{ up.phone_number|default:'' }}"
-                       placeholder="+234 800 000 0000">
+                       placeholder="" data-example="+234 800 000 0000">
               </div>
             </div>
 
@@ -427,11 +427,11 @@
                 <label class="ep-label" for="id_company">Company / Organisation</label>
                 <input type="text" name="company" id="id_company" class="ep-input"
                        value="{{ up.company|default:'' }}"
-                       placeholder="e.g. Oduma Ventures">
+                       placeholder="" data-example="e.g. Oduma Ventures">
               </div>
               <div class="ep-field">
                 <label class="ep-label" for="id_industry">Industry</label>
-                <select name="industry" id="id_industry" class="ep-select">
+                <select name="industry" id="id_industry" class="ep-select" data-combo data-placeholder="Search or select industry…">
                   <option value="">— Select industry —</option>
                   {% for val, label in industry_choices %}
                   <option value="{{ val }}" {% if up.industry == val %}selected{% endif %}>{{ label }}</option>
@@ -457,7 +457,7 @@
               <label class="ep-label" for="id_bio">About you</label>
               <textarea name="bio" id="id_bio" class="ep-textarea" rows="5"
                         maxlength="600"
-                        placeholder="What's your background? What are you building or investing in? What drives you?&#10;&#10;Keep it clear and compelling — this is your pitch to potential collaborators."
+                        placeholder="" data-example="What's your background? What are you building or investing in?"
                         oninput="epCountBio(this)">{{ up.bio|default:'' }}</textarea>
               <div class="ep-field-foot">
                 <span class="ep-hint">Be specific. Vague bios get ignored.</span>

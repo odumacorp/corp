@@ -11,6 +11,45 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from django.core.exceptions import ValidationError
 
+# ── Canonical industry list (used by all models that have an industry field) ──
+INDUSTRY_CHOICES = [
+    ('tech',           'Technology'),
+    ('finance',        'Finance & Banking'),
+    ('health',         'Healthcare'),
+    ('edu',            'Education'),
+    ('energy',         'Energy & Utilities'),
+    ('agriculture',    'Agriculture & Farming'),
+    ('manufacturing',  'Manufacturing'),
+    ('media',          'Media & Entertainment'),
+    ('retail',         'Retail & E-commerce'),
+    ('real_estate',    'Real Estate & Construction'),
+    ('transport',      'Transportation & Logistics'),
+    ('food',           'Food & Beverage'),
+    ('hospitality',    'Tourism & Hospitality'),
+    ('telecom',        'Telecommunications'),
+    ('legal',          'Legal & Compliance'),
+    ('consulting',     'Consulting & Professional Services'),
+    ('marketing',      'Marketing & Advertising'),
+    ('hr',             'Human Resources & Staffing'),
+    ('government',     'Government & Public Sector'),
+    ('nonprofit',      'Non-Profit & NGO'),
+    ('sports',         'Sports & Recreation'),
+    ('fashion',        'Fashion & Apparel'),
+    ('automotive',     'Automotive'),
+    ('aerospace',      'Aerospace & Defense'),
+    ('mining',         'Mining & Metals'),
+    ('chemicals',      'Chemicals & Materials'),
+    ('biotech',        'Biotechnology'),
+    ('cybersecurity',  'Cybersecurity'),
+    ('ai',             'Artificial Intelligence'),
+    ('cleantech',      'Environmental & Clean Tech'),
+    ('insurance',      'Insurance'),
+    ('pharma',         'Pharmaceuticals'),
+    ('design',         'Architecture & Design'),
+    ('research',       'Research & Development'),
+    ('other',          'Other'),
+]
+
 
     
 class Invention(models.Model):
@@ -82,23 +121,14 @@ class UserProfile(models.Model):
         ('rejected',   'Rejected'),
     )
 
-    INDUSTRY_CHOICES = [
-        ('tech', 'Technology'),
-        ('finance', 'Finance'),
-        ('health', 'Healthcare'),
-        ('edu', 'Education'),
-        ('energy', 'Energy'),
-        ('agriculture', 'Agriculture'),
-        ('manufacturing', 'Manufacturing'),
-        ('other', 'Other'),
-    ]
-    user_type = models.CharField(max_length=20, choices=USER_TYPES, default='innovator')    
+    INDUSTRY_CHOICES = INDUSTRY_CHOICES  # noqa: F821 — module-level list above
+    user_type = models.CharField(max_length=20, choices=USER_TYPES, default='innovator')
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='userprofile')
     profile_pics = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     company = models.CharField(max_length=100, blank=True, null=True)
-    industry = models.CharField(max_length=50, choices=INDUSTRY_CHOICES, blank=True, null=True)
+    industry = models.CharField(max_length=100, choices=INDUSTRY_CHOICES, blank=True, null=True)
 
     # Avoid using same related_name as in CustomUser
     friends = models.ManyToManyField(CustomUser, related_name='profile_friends', blank=True)
@@ -205,13 +235,7 @@ class Project(models.Model):
 
     industry = models.CharField(
         max_length=100,
-        choices=[
-            ("tech", "Technology"),
-            ("health", "Healthcare"),
-            ("finance", "Finance"),
-            ("education", "Education"),
-            ("energy", "Energy"),
-        ],
+        choices=INDUSTRY_CHOICES,
         default="tech"
     )
 
@@ -307,6 +331,15 @@ class Project(models.Model):
         # If no image is found, return None
         return None
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['owner', 'is_hidden'],         name='proj_owner_hidden_idx'),
+            models.Index(fields=['industry', 'is_hidden'],      name='proj_industry_hidden_idx'),
+            models.Index(fields=['status', 'is_hidden'],        name='proj_status_hidden_idx'),
+            models.Index(fields=['pipeline_stage', 'is_hidden'],name='proj_stage_hidden_idx'),
+            models.Index(fields=['-created_at'],                name='proj_created_idx'),
+        ]
+
     def __str__(self):
         return self.title
 
@@ -358,16 +391,7 @@ def get_default_user():
 
 class Post(models.Model):
     POST_TYPE_CHOICES = [('idea','💡 Idea'),('article','📝 Article'),('update','🚀 Update'),('announcement','📢 Announcement'),('question','❓ Question')]
-    industry = models.CharField(
-        max_length=255,
-        choices=[
-            ("tech", "Technology"),
-            ("health", "Healthcare"),
-            ("finance", "Finance"),
-            ("education", "Education"),
-            ("engineering", "Engineering"),
-            ("energy", "Energy"),
-        ], default="tech")
+    industry = models.CharField(max_length=100, choices=INDUSTRY_CHOICES, default='tech')
     user         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='posts')
     title        = models.CharField(max_length=255)
     content      = models.TextField()
@@ -382,10 +406,15 @@ class Post(models.Model):
     is_hidden    = models.BooleanField(default=False)
     created_at   = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'is_hidden'],     name='post_user_hidden_idx'),
+            models.Index(fields=['industry', 'is_hidden'], name='post_industry_hidden_idx'),
+            models.Index(fields=['-created_at'],           name='post_created_idx'),
+        ]
+
     def __str__(self):
         return f"Post by {self.user.username} - {self.industry}"
-    
-
 
 
 ##Notifications
@@ -406,6 +435,11 @@ class Notification(models.Model):
     is_read           = models.BooleanField(default=False)
     is_dismissed      = models.BooleanField(default=False)
     created_at        = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'is_read'], name='notif_user_read_idx'),
+        ]
 
     def __str__(self):
         return f"Notification for {self.user.username} - {self.message[:20]}"
@@ -471,12 +505,12 @@ class Interest(models.Model):
 
 ##user groups
 class Group(models.Model):
-    INDUSTRY_CHOICES = [('tech','Technology'),('finance','Finance'),('health','Healthcare'),('edu','Education'),('energy','Energy'),('agriculture','Agriculture'),('manufacturing','Manufacturing'),('other','Other')]
+    INDUSTRY_CHOICES = INDUSTRY_CHOICES  # noqa: F821
     name        = models.CharField(max_length=255)
     members     = models.ManyToManyField(CustomUser)
     creator     = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_groups')
     description = models.TextField(blank=True, default='')
-    industry    = models.CharField(max_length=50, choices=INDUSTRY_CHOICES, default='other')
+    industry    = models.CharField(max_length=100, choices=INDUSTRY_CHOICES, default='other')
     cover_image = models.ImageField(upload_to='group_covers/', blank=True, null=True)
     is_private  = models.BooleanField(default=False)
     is_hidden   = models.BooleanField(default=False)
@@ -484,11 +518,11 @@ class Group(models.Model):
 
 ##user page
 class Page(models.Model):
-    INDUSTRY_CHOICES = [('tech','Technology'),('finance','Finance'),('health','Healthcare'),('edu','Education'),('energy','Energy'),('agriculture','Agriculture'),('manufacturing','Manufacturing'),('media','Media & Entertainment'),('retail','Retail & Commerce'),('other','Other')]
+    INDUSTRY_CHOICES = INDUSTRY_CHOICES  # noqa: F821
     owner       = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     title       = models.CharField(max_length=255)
     description = models.TextField(blank=True, default='')
-    industry    = models.CharField(max_length=50, choices=INDUSTRY_CHOICES, default='other')
+    industry    = models.CharField(max_length=100, choices=INDUSTRY_CHOICES, default='other')
     cover_image = models.ImageField(upload_to='page_covers/', blank=True, null=True)
     logo        = models.ImageField(upload_to='page_logos/', blank=True, null=True)
     website     = models.URLField(blank=True, default='')
@@ -524,7 +558,7 @@ class Comment(models.Model):
 class Company(models.Model):
     COMPANY_TYPE_CHOICES = [('startup','Startup'),('sme','SME'),('enterprise','Enterprise'),('ngo','NGO / Non-Profit'),('government','Government'),('other','Other')]
     SIZE_CHOICES = [('1-10','1–10 employees'),('11-50','11–50 employees'),('51-200','51–200 employees'),('201-500','201–500 employees'),('500+','500+ employees')]
-    INDUSTRY_CHOICES = [('tech','Technology'),('finance','Finance'),('health','Healthcare'),('edu','Education'),('energy','Energy'),('agriculture','Agriculture'),('manufacturing','Manufacturing'),('other','Other')]
+    INDUSTRY_CHOICES = INDUSTRY_CHOICES  # noqa: F821
     owner        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='companies')
     name         = models.CharField(max_length=255)
     description  = models.TextField()
@@ -595,6 +629,12 @@ class Message(models.Model):
     flagged_by     = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='admin_flagged_messages')
     is_hidden      = models.BooleanField(default=False)
     conversation   = models.ForeignKey(Conversation, null=True, blank=True, on_delete=models.CASCADE, related_name='messages')
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['recipient', 'is_read'], name='msg_recipient_read_idx'),
+            models.Index(fields=['conversation', 'timestamp'],  name='msg_conv_ts_idx'),
+        ]
 
     def __str__(self):
         return f"From {self.sender} to {self.recipient} at {self.timestamp}"
@@ -823,7 +863,7 @@ class ProjectComment(models.Model):
 class ProjectView(models.Model):
     project     = models.ForeignKey('Project', on_delete=models.CASCADE, related_name='views')
     user        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
-    session_key = models.CharField(max_length=40, blank=True)
+    session_key = models.CharField(max_length=255, blank=True)
     viewed_at   = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -951,6 +991,10 @@ class PageView(models.Model):
 
     class Meta:
         ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['user', 'timestamp'],  name='pv_user_ts_idx'),
+            models.Index(fields=['path', 'timestamp'],  name='pv_path_ts_idx'),
+        ]
 
 
 class ClickEvent(models.Model):

@@ -4,15 +4,15 @@
 {% block content %}
 <div style="min-height:70vh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px 20px;font-family:'Jaldi',sans-serif;">
   <div style="display:flex;justify-content:center;color:#9ca3af;margin-bottom:20px;"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6c0 0 4-4 11-4s11 4 11 4"/><path d="M5 10s2.5-2.5 7-2.5 7 2.5 7 2.5"/><path d="M9 14s1.5-1.5 3-1.5 3 1.5 3 1.5"/><line x1="12" y1="18" x2="12" y2="18"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg></div>
-  <h1 style="font-family:'Jacques Francois',serif;font-size:1.8rem;color:#1a1a2e;margin:0 0 10px;">You're offline</h1>
-  <p style="color:#6b7280;font-size:1rem;max-width:420px;margin:0 0 28px;">
+  <h1 style="font-family:'Jacques Francois',serif;font-size: 2.4rem;color:#1a1a2e;margin:0 0 10px;">You're offline</h1>
+  <p style="color:#6b7280;font-size: 1.2rem;max-width:420px;margin:0 0 28px;">
     No internet connection detected. Pages you saved for offline reading are still available below.
   </p>
-  <button onclick="location.reload()" style="padding:10px 28px;border-radius:50px;background:#004AAD;color:#fff;border:none;font-family:'Jaldi',sans-serif;font-size:0.95rem;cursor:pointer;">
+  <button onclick="location.reload()" style="padding:10px 28px;border-radius:50px;background:#004AAD;color:#fff;border:none;font-family:'Jaldi',sans-serif;font-size: 1.2rem;cursor:pointer;">
     Try again
   </button>
   <div id="offline-cached" style="margin-top:40px;width:100%;max-width:500px;">
-    <p style="font-size:0.85rem;color:#9ca3af;margin-bottom:12px;">Saved pages available offline:</p>
+    <p style="font-size: 1.2rem;color:#9ca3af;margin-bottom:12px;">Saved pages available offline:</p>
     <div id="offline-list" style="text-align:left;"></div>
   </div>
 </div>
@@ -34,7 +34,7 @@ if ('caches' in window) {
         var a = document.createElement('a');
         a.href = path;
         a.textContent = path;
-        a.style.cssText = 'display:block;padding:8px 14px;border-radius:8px;background:#f0f4fb;color:#004AAD;text-decoration:none;margin-bottom:6px;font-family:"Jaldi",sans-serif;font-size:0.9rem;';
+        a.style.cssText = 'display:block;padding:8px 14px;border-radius:8px;background:#f0f4fb;color:#004AAD;text-decoration:none;margin-bottom:6px;font-family:"Jaldi",sans-serif;font-size: 1.2rem;';
         list.appendChild(a);
       });
     });

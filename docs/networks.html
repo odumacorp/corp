@@ -43,21 +43,21 @@
   width: 72px; height: 72px; border-radius: 50%;
   background: #1B5EC7; color: #fff;
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--ff-head); font-size: 1.5rem; font-weight: 900;
+  font-family: var(--ff-head); font-size: 2.0rem; font-weight: 900;
   flex-shrink: 0; position: relative; z-index: 1;
 }
 .nw-hero-info { flex: 1; min-width: 0; position: relative; z-index: 1; }
-.nw-hero-name { font-family: var(--ff-head); font-size: 1.35rem; font-weight: 800; color: #0A1628; margin: 0 0 2px; }
-.nw-hero-sub  { font-family: var(--ff-body); font-size: .85rem; color: #6b7280; margin: 0 0 14px; }
+.nw-hero-name { font-family: var(--ff-head); font-size: 1.8rem; font-weight: 800; color: #0A1628; margin: 0 0 2px; }
+.nw-hero-sub  { font-family: var(--ff-body); font-size: 1.2rem; color: #6b7280; margin: 0 0 14px; }
 .nw-stats { display: flex; gap: 20px; flex-wrap: wrap; }
 .nw-stat { text-align: left; }
-.nw-stat-num { font-family: var(--ff-head); font-size: 1.4rem; font-weight: 900; color: #0A1628; line-height: 1; }
-.nw-stat-label { font-family: var(--ff-body); font-size: .68rem; color: #6b7280; text-transform: uppercase; letter-spacing: .06em; margin-top: 1px; }
+.nw-stat-num { font-family: var(--ff-head); font-size: 1.9rem; font-weight: 900; color: #0A1628; line-height: 1; }
+.nw-stat-label { font-family: var(--ff-body); font-size: 1.2rem; color: #6b7280; text-transform: uppercase; letter-spacing: .06em; margin-top: 1px; }
 .nw-hero-actions { display: flex; gap: 8px; flex-shrink: 0; position: relative; z-index: 1; flex-wrap: wrap; align-items: flex-start; }
 .nw-hero-btn {
   background: rgba(27,94,199,.08); border: 1.5px solid #1B5EC7;
   color: #1B5EC7; padding: 8px 16px; border-radius: 9px;
-  font-family: var(--ff-head); font-size: .8rem; font-weight: 700;
+  font-family: var(--ff-head); font-size: 1.2rem; font-weight: 700;
   text-decoration: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;
   transition: background .15s;
 }
@@ -73,7 +73,7 @@
 .nw-tab {
   display: flex; align-items: center; gap: 6px;
   padding: 9px 18px; border-radius: 8px;
-  font-family: var(--ff-head); font-size: .82rem; font-weight: 700;
+  font-family: var(--ff-head); font-size: 1.2rem; font-weight: 700;
   color: var(--nw-muted); border: none; background: none;
   cursor: pointer; white-space: nowrap; transition: background .15s, color .15s;
 }
@@ -81,7 +81,7 @@
 .nw-tab.active { background: var(--nw-blue); color: #fff; }
 .nw-tab-badge {
   background: rgba(255,255,255,.25); color: #fff;
-  font-size: .65rem; font-weight: 900;
+  font-size: 1.2rem; font-weight: 900;
   padding: 1px 6px; border-radius: 10px;
   font-family: var(--ff-head);
 }
@@ -98,12 +98,12 @@
   margin: 0 0 16px; flex-wrap: wrap; gap: 8px;
 }
 .nw-sh-title {
-  font-family: var(--ff-head); font-size: 1rem; font-weight: 800;
+  font-family: var(--ff-head); font-size: 1.2rem; font-weight: 800;
   color: var(--nw-ink); margin: 0;
   display: flex; align-items: center; gap: 8px; letter-spacing: -.02em;
 }
-.nw-sh-count { font-size: .78rem; color: var(--nw-muted); font-weight: 400; font-family: var(--ff-body); }
-.nw-sh-link { font-family: var(--ff-body); font-size: .82rem; font-weight: 700; color: var(--nw-blue); text-decoration: none; }
+.nw-sh-count { font-size: 1.2rem; color: var(--nw-muted); font-weight: 400; font-family: var(--ff-body); }
+.nw-sh-link { font-family: var(--ff-body); font-size: 1.2rem; font-weight: 700; color: var(--nw-blue); text-decoration: none; }
 .nw-sh-link:hover { text-decoration: underline; }
 .nw-divider { border: none; border-top: 1px solid var(--nw-border); margin: 28px 0; }
 
@@ -112,7 +112,7 @@
   background: #fffbeb; border: 1.5px solid #fbbf24;
   border-radius: 14px; padding: 16px 20px; margin-bottom: 20px;
 }
-.nw-pending-title { font-family: var(--ff-head); font-size: .9rem; font-weight: 800; color: #92400e; margin: 0 0 12px; }
+.nw-pending-title { font-family: var(--ff-head); font-size: 1.2rem; font-weight: 800; color: #92400e; margin: 0 0 12px; }
 .nw-pend-list { display: flex; flex-direction: column; gap: 10px; }
 .nw-pend-row {
   display: flex; align-items: center; gap: 12px;
@@ -124,11 +124,11 @@
   width: 40px; height: 40px; border-radius: 50%;
   background: linear-gradient(135deg, var(--nw-blue), #3b82f6);
   color: #fff; display: flex; align-items: center; justify-content: center;
-  font-family: var(--ff-head); font-size: .9rem; font-weight: 800; flex-shrink: 0;
+  font-family: var(--ff-head); font-size: 1.2rem; font-weight: 800; flex-shrink: 0;
 }
-.nw-pend-name { font-family: var(--ff-head); font-size: .875rem; font-weight: 700; color: var(--nw-ink); text-decoration: none; display: block; }
+.nw-pend-name { font-family: var(--ff-head); font-size: 1.2rem; font-weight: 700; color: var(--nw-ink); text-decoration: none; display: block; }
 .nw-pend-name:hover { color: var(--nw-blue); }
-.nw-pend-sub  { font-size: .73rem; color: var(--nw-muted); }
+.nw-pend-sub  { font-size: 1.2rem; color: var(--nw-muted); }
 .nw-pend-btns { display: flex; gap: 6px; margin-left: auto; flex-shrink: 0; }
 
 /* ── Connection cards (horizontal list) ── */
@@ -144,7 +144,7 @@
 .nw-conn-av-init {
   width: 48px; height: 48px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--ff-head); font-size: 1rem; font-weight: 800;
+  font-family: var(--ff-head); font-size: 1.2rem; font-weight: 800;
   color: #fff; flex-shrink: 0;
 }
 .nw-conn-av-init--innovator { background: linear-gradient(135deg, #1B5EC7, #3b82f6); }
@@ -152,14 +152,14 @@
 .nw-conn-av-init--admin     { background: linear-gradient(135deg, #7c3aed, #8b5cf6); }
 .nw-conn-info { flex: 1; min-width: 0; }
 .nw-conn-name {
-  font-family: var(--ff-head); font-size: .9rem; font-weight: 700;
+  font-family: var(--ff-head); font-size: 1.2rem; font-weight: 700;
   color: var(--nw-ink); text-decoration: none; display: block; margin-bottom: 2px;
 }
 .nw-conn-name:hover { color: var(--nw-blue); }
-.nw-conn-meta { font-family: var(--ff-body); font-size: .76rem; color: var(--nw-muted); }
+.nw-conn-meta { font-family: var(--ff-body); font-size: 1.2rem; color: var(--nw-muted); }
 .nw-conn-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
 .nw-role-pill {
-  font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
   padding: 2px 8px; border-radius: 20px; white-space: nowrap;
 }
 .nw-role-pill--innovator { background: #e0e8ff; color: #3730a3; }
@@ -167,11 +167,11 @@
 .nw-role-pill--admin     { background: #f3e8ff; color: #6d28d9; }
 .nw-verified-pip {
   display: inline-flex; align-items: center; gap: 3px;
-  font-size: .62rem; font-weight: 700; color: var(--nw-green);
+  font-size: 1.2rem; font-weight: 700; color: var(--nw-green);
   background: #dcfce7; padding: 2px 7px; border-radius: 20px;
 }
 .nw-conn-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
-.nw-conn-bio { font-family: var(--ff-body); font-size: .76rem; color: #4b5563; line-height: 1.4; margin-top: 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 340px; }
+.nw-conn-bio { font-family: var(--ff-body); font-size: 1.2rem; color: #4b5563; line-height: 1.4; margin-top: 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 340px; }
 
 /* ── Suggestion cards (grid) ── */
 .nw-sugg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
@@ -186,12 +186,12 @@
 .nw-sugg-av-init {
   width: 64px; height: 64px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--ff-head); font-size: 1.25rem; font-weight: 900; color: #fff;
+  font-family: var(--ff-head); font-size: 1.7rem; font-weight: 900; color: #fff;
 }
-.nw-sugg-name { font-family: var(--ff-head); font-size: .875rem; font-weight: 700; color: var(--nw-ink); text-decoration: none; display: block; margin-bottom: 1px; }
+.nw-sugg-name { font-family: var(--ff-head); font-size: 1.2rem; font-weight: 700; color: var(--nw-ink); text-decoration: none; display: block; margin-bottom: 1px; }
 .nw-sugg-name:hover { color: var(--nw-blue); }
-.nw-sugg-meta { font-family: var(--ff-body); font-size: .74rem; color: var(--nw-muted); }
-.nw-sugg-bio  { font-family: var(--ff-body); font-size: .74rem; color: #4b5563; line-height: 1.4; }
+.nw-sugg-meta { font-family: var(--ff-body); font-size: 1.2rem; color: var(--nw-muted); }
+.nw-sugg-bio  { font-family: var(--ff-body); font-size: 1.2rem; color: #4b5563; line-height: 1.4; }
 
 /* ── Item cards (companies / groups / pages) ── */
 .nw-item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
@@ -203,21 +203,21 @@
 .nw-item-card:hover { box-shadow: 0 6px 22px rgba(0,0,0,.08); transform: translateY(-2px); }
 .nw-item-banner {
   height: 72px; display: flex; align-items: center; justify-content: center;
-  font-size: 2rem; color: rgba(255,255,255,.3); overflow: hidden; position: relative;
+  font-size: 2.7rem; color: rgba(255,255,255,.3); overflow: hidden; position: relative;
 }
 .nw-item-banner img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .nw-item-body { padding: 14px; flex: 1; display: flex; flex-direction: column; gap: 5px; }
-.nw-item-name { font-family: var(--ff-head); font-size: .88rem; font-weight: 700; color: var(--nw-ink); text-decoration: none; }
+.nw-item-name { font-family: var(--ff-head); font-size: 1.2rem; font-weight: 700; color: var(--nw-ink); text-decoration: none; }
 .nw-item-name:hover { color: var(--nw-blue); }
-.nw-item-meta { font-family: var(--ff-body); font-size: .73rem; color: var(--nw-muted); }
-.nw-item-desc { font-family: var(--ff-body); font-size: .76rem; color: #4b5563; line-height: 1.4; flex: 1; }
+.nw-item-meta { font-family: var(--ff-body); font-size: 1.2rem; color: var(--nw-muted); }
+.nw-item-desc { font-family: var(--ff-body); font-size: 1.2rem; color: #4b5563; line-height: 1.4; flex: 1; }
 .nw-item-foot {
   padding: 10px 14px; border-top: 1px solid var(--nw-border);
   display: flex; gap: 8px;
 }
 .nw-item-owned {
   position: absolute; top: 6px; left: 8px;
-  font-size: .62rem; font-weight: 700; background: rgba(27,94,199,.85);
+  font-size: 1.2rem; font-weight: 700; background: rgba(27,94,199,.85);
   color: #fff; padding: 2px 7px; border-radius: 20px;
 }
 
@@ -234,19 +234,19 @@
   background: var(--nw-blue); color: #fff; border-radius: 10px;
   padding: 8px 12px; text-align: center; flex-shrink: 0; min-width: 50px;
 }
-.nw-event-date-day  { font-family: var(--ff-head); font-size: 1.3rem; font-weight: 900; line-height: 1; }
-.nw-event-date-mon  { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; opacity: .8; }
+.nw-event-date-day  { font-family: var(--ff-head); font-size: 1.8rem; font-weight: 900; line-height: 1; }
+.nw-event-date-mon  { font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; opacity: .8; }
 .nw-event-info { flex: 1; min-width: 0; }
-.nw-event-name { font-family: var(--ff-head); font-size: .9rem; font-weight: 700; color: var(--nw-ink); margin-bottom: 3px; }
-.nw-event-meta { font-family: var(--ff-body); font-size: .74rem; color: var(--nw-muted); }
+.nw-event-name { font-family: var(--ff-head); font-size: 1.2rem; font-weight: 700; color: var(--nw-ink); margin-bottom: 3px; }
+.nw-event-meta { font-family: var(--ff-body); font-size: 1.2rem; color: var(--nw-muted); }
 .nw-event-type {
-  display: inline-block; font-size: .62rem; font-weight: 700;
+  display: inline-block; font-size: 1.2rem; font-weight: 700;
   background: #7c3aed; color: #fff; padding: 1px 7px; border-radius: 20px; margin-left: 5px;
 }
 
 /* ── Shared buttons ── */
 .nw-btn {
-  font-family: var(--ff-head); font-size: .8rem; font-weight: 700;
+  font-family: var(--ff-head); font-size: 1.2rem; font-weight: 700;
   padding: 6px 15px; border-radius: 8px;
   text-decoration: none; border: none; cursor: pointer;
   transition: opacity .15s; display: inline-flex; align-items: center; gap: 5px;
@@ -256,7 +256,7 @@
 .nw-btn--primary  { background: var(--nw-blue); color: #fff; }
 .nw-btn--outline  { background: #fff; border: 1.5px solid var(--nw-border); color: var(--nw-ink); }
 .nw-btn--ghost    { background: #fef2f2; color: #dc2626; }
-.nw-btn--sm { padding: 5px 12px; font-size: .74rem; }
+.nw-btn--sm { padding: 5px 12px; font-size: 1.2rem; }
 .nw-btn--green { background: var(--nw-green); color: #fff; }
 .nw-btn--amber { background: var(--nw-amber); color: #fff; }
 
@@ -266,7 +266,7 @@
   border-radius: 14px; padding: 40px 24px; text-align: center;
 }
 .nw-empty-icon { display: flex; justify-content: center; margin-bottom: 10px; opacity: .45; color: #6b7280; }
-.nw-empty-text { font-family: var(--ff-body); font-size: .875rem; color: var(--nw-muted); }
+.nw-empty-text { font-family: var(--ff-body); font-size: 1.2rem; color: var(--nw-muted); }
 
 /* ── Search ── */
 .nw-search-bar {
@@ -277,7 +277,7 @@
 }
 .nw-search-input {
   flex: 1; border: none; outline: none; font-family: var(--ff-body);
-  font-size: .875rem; color: var(--nw-ink); background: transparent;
+  font-size: 1.2rem; color: var(--nw-ink); background: transparent;
 }
 
 /* ── Two-col: Your + Discover ── */
@@ -408,7 +408,7 @@
             <span class="nw-verified-pip">✓ Verified</span>
             {% endif %}
             {% if person.userprofile.industry %}
-            <span style="font-size:.63rem;color:var(--nw-muted);font-family:var(--ff-body);">{{ person.userprofile.industry }}</span>
+            <span style="font-size: 1.2rem;color:var(--nw-muted);font-family:var(--ff-body);">{{ person.userprofile.industry }}</span>
             {% endif %}
           </div>
           {% if person.userprofile.bio %}
@@ -471,10 +471,10 @@
           <div class="nw-conn-tags">
             <span class="nw-role-pill nw-role-pill--{{ conn.initiator.user_type }}">{{ conn.initiator.user_type|capfirst }}</span>
             {% if conn.initiator.userprofile.industry %}
-            <span style="font-size:.63rem;color:var(--nw-muted);font-family:var(--ff-body);">{{ conn.initiator.userprofile.industry }}</span>
+            <span style="font-size: 1.2rem;color:var(--nw-muted);font-family:var(--ff-body);">{{ conn.initiator.userprofile.industry }}</span>
             {% endif %}
           </div>
-          <div style="font-size:.72rem;color:var(--nw-muted);font-family:var(--ff-body);margin-top:2px;">Sent {{ conn.created_at|timesince }} ago</div>
+          <div style="font-size: 1.2rem;color:var(--nw-muted);font-family:var(--ff-body);margin-top:2px;">Sent {{ conn.created_at|timesince }} ago</div>
         </div>
         <div class="nw-conn-actions">
           <form method="POST" action="{% url 'accept_connection' conn.id %}" style="display:contents;">
@@ -577,7 +577,7 @@
           <p class="nw-sugg-bio" style="margin-top:5px;">{{ person.userprofile.bio|truncatewords:9 }}</p>
           {% endif %}
           {% if person.userprofile.ticket_size_min or person.userprofile.ticket_size_max %}
-          <div style="font-size:.67rem;font-weight:700;color:var(--nw-green);margin-top:4px;font-family:var(--ff-head);">
+          <div style="font-size: 1.2rem;font-weight:700;color:var(--nw-green);margin-top:4px;font-family:var(--ff-head);">
             ${{ person.userprofile.ticket_size_min|default:"—" }}–${{ person.userprofile.ticket_size_max|default:"—" }}
           </div>
           {% endif %}
@@ -687,7 +687,7 @@
           <a href="{% url 'company_profile' company.id %}" class="nw-item-name">{{ company.name }}</a>
           <div class="nw-item-meta">{% if company.industry %}{{ company.industry }}{% endif %}{% if company.size %} · {{ company.get_size_display }}{% endif %}</div>
           {% if company.description %}<p class="nw-item-desc">{{ company.description|truncatewords:14 }}</p>{% endif %}
-          <div style="font-size:.7rem;color:var(--nw-muted);font-family:var(--ff-body);">{{ company.followers.count }} follower{{ company.followers.count|pluralize }}</div>
+          <div style="font-size: 1.2rem;color:var(--nw-muted);font-family:var(--ff-body);">{{ company.followers.count }} follower{{ company.followers.count|pluralize }}</div>
         </div>
         <div class="nw-item-foot">
           <a href="{% url 'company_profile' company.id %}" class="nw-btn nw-btn--primary" style="flex:1;justify-content:center;">Manage</a>
@@ -703,7 +703,7 @@
           <a href="{% url 'company_profile' company.id %}" class="nw-item-name">{{ company.name }}</a>
           <div class="nw-item-meta">{% if company.industry %}{{ company.industry }}{% endif %}{% if company.size %} · {{ company.get_size_display }}{% endif %}</div>
           {% if company.description %}<p class="nw-item-desc">{{ company.description|truncatewords:14 }}</p>{% endif %}
-          <div style="font-size:.7rem;color:var(--nw-muted);font-family:var(--ff-body);">{{ company.followers.count }} follower{{ company.followers.count|pluralize }}</div>
+          <div style="font-size: 1.2rem;color:var(--nw-muted);font-family:var(--ff-body);">{{ company.followers.count }} follower{{ company.followers.count|pluralize }}</div>
         </div>
         <div class="nw-item-foot">
           <a href="{% url 'company_profile' company.id %}" class="nw-btn nw-btn--outline" style="flex:1;justify-content:center;">View</a>
@@ -733,7 +733,7 @@
           <a href="{% url 'company_profile' company.id %}" class="nw-item-name">{{ company.name }}</a>
           <div class="nw-item-meta">{% if company.industry %}{{ company.industry }}{% endif %}{% if company.size %} · {{ company.get_size_display }}{% endif %}</div>
           {% if company.description %}<p class="nw-item-desc">{{ company.description|truncatewords:14 }}</p>{% endif %}
-          <div style="font-size:.7rem;color:var(--nw-muted);font-family:var(--ff-body);">{{ company.followers.count }} follower{{ company.followers.count|pluralize }}</div>
+          <div style="font-size: 1.2rem;color:var(--nw-muted);font-family:var(--ff-body);">{{ company.followers.count }} follower{{ company.followers.count|pluralize }}</div>
         </div>
         <div class="nw-item-foot">
           <a href="{% url 'company_profile' company.id %}" class="nw-btn nw-btn--outline" style="flex:1;text-align:center;">View</a>
@@ -861,12 +861,12 @@
             {% if event.organizer %} · by {{ event.organizer }}{% endif %}
           </div>
           {% if event.description %}
-          <p style="font-family:var(--ff-body);font-size:.78rem;color:#4b5563;margin:6px 0 0;line-height:1.5;">{{ event.description|truncatewords:20 }}</p>
+          <p style="font-family:var(--ff-body);font-size: 1.2rem;color:#4b5563;margin:6px 0 0;line-height:1.5;">{{ event.description|truncatewords:20 }}</p>
           {% endif %}
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
           {% if event.id in registered_event_ids %}
-          <span style="font-size:.78rem;color:var(--nw-green);font-weight:700;font-family:var(--ff-head);">✓ Registered</span>
+          <span style="font-size: 1.2rem;color:var(--nw-green);font-weight:700;font-family:var(--ff-head);">✓ Registered</span>
           {% else %}
           <form method="post" action="{% url 'register_for_event' event.pk %}">
             {% csrf_token %}

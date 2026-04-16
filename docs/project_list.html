@@ -31,7 +31,7 @@
 
 .pl-page-title {
   font-family: var(--ff-serif);
-  font-size: 2rem;
+  font-size: 2.7rem;
   color: var(--ink);
   margin: 0 0 6px;
 }
@@ -102,9 +102,9 @@
 .pl-cat-card--active { background:var(--blue); border-color:var(--blue); box-shadow:0 4px 18px rgba(0,74,173,.28); }
 .pl-cat-icon { width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:#4b6cb7; }
 .pl-cat-card--active .pl-cat-icon { color:rgba(255,255,255,.85); }
-.pl-cat-name { font-family:'Space Grotesk',sans-serif; font-size:1.2rem; font-weight:800; color:#0A1628; line-height:1.2; }
+.pl-cat-name { font-family:'Space Grotesk',sans-serif; font-size: 1.2rem; font-weight:800; color:#0A1628; line-height:1.2; }
 .pl-cat-card--active .pl-cat-name { color:#fff; }
-.pl-cat-count { font-size:1rem; color:#6b7280; font-weight:600; }
+.pl-cat-count { font-size: 1.2rem; color:#6b7280; font-weight:600; }
 .pl-cat-card--active .pl-cat-count { color:rgba(255,255,255,.75); }
 
 /* ── Filter bar ───────────────────────────────────────────────── */
@@ -122,7 +122,7 @@
   display: flex; align-items: center; gap: 6px;
 }
 .pl-filter-label {
-  font-size: .75rem; font-weight: 700;
+  font-size: 1.2rem; font-weight: 700;
   color: #6b7280; text-transform: uppercase; letter-spacing: .04em;
   white-space: nowrap;
 }
@@ -130,7 +130,7 @@
   padding: 6px 10px;
   border: 1.5px solid var(--border);
   border-radius: 8px;
-  font-size: .82rem; font-family: inherit; color: var(--ink);
+  font-size: 1.2rem; font-family: inherit; color: var(--ink);
   background: #fafbff; outline: none; cursor: pointer;
   transition: border-color .15s;
 }
@@ -142,14 +142,14 @@
 }
 .pl-result-count {
   margin-left: auto;
-  font-size: .8rem; color: #6b7280; font-weight: 600;
+  font-size: 1.2rem; color: #6b7280; font-weight: 600;
   white-space: nowrap;
 }
 .pl-add-btn {
   padding: 8px 18px;
   background: var(--blue); color: #fff;
   border: none; border-radius: 9px;
-  font-size: .82rem; font-weight: 700;
+  font-size: 1.2rem; font-weight: 700;
   font-family: inherit; cursor: pointer;
   text-decoration: none; white-space: nowrap;
   transition: background .15s;
@@ -196,7 +196,7 @@
 .pl-card-ribbon {
   position: absolute; top: 12px; left: 12px;
   background: #f59e0b; color: #fff;
-  font-size: .68rem; font-weight: 800;
+  font-size: 1.2rem; font-weight: 800;
   padding: 3px 10px; border-radius: 20px;
   text-transform: uppercase; letter-spacing: .05em;
 }
@@ -270,8 +270,8 @@
   border-radius: 16px;
 }
 .pl-empty-icon { margin-bottom: 12px; display:flex; justify-content:center; color:#6b7280; }
-.pl-empty-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--ink); margin: 0 0 6px; }
-.pl-empty-sub { font-size: .875rem; color: #6b7280; }
+.pl-empty-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--ink); margin: 0 0 6px; }
+.pl-empty-sub { font-size: 1.2rem; color: #6b7280; }
 
 /* ── Pagination ───────────────────────────────────────────────── */
 .pl-pagination {
@@ -332,7 +332,7 @@
       Search
     </button>
     {% if current_query or current_industry %}
-    <a href="{% url 'project_list' %}" style="font-family:var(--ff-sans);font-size:.88rem;color:#6b7280;align-self:center;text-decoration:none;white-space:nowrap;">Clear</a>
+    <a href="{% url 'project_list' %}" style="font-family:var(--ff-sans);font-size: 1.2rem;color:#6b7280;align-self:center;text-decoration:none;white-space:nowrap;">Clear</a>
     {% endif %}
   </form>
 
@@ -340,11 +340,11 @@
   <div style="margin-bottom:28px;">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
       <div>
-        <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:800;color:#0A1628;margin:0 0 3px;">Browse by Industry</h2>
-        <p style="font-size:1.2rem;color:#6b7280;margin:0;">{{ total_count }} project{{ total_count|pluralize }} found</p>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;margin:0 0 3px;">Browse by Industry</h2>
+        <p style="font-size: 1.2rem;color:#6b7280;margin:0;">{{ total_count }} project{{ total_count|pluralize }} found</p>
       </div>
       {% if current_industry %}
-      <a href="{% url 'project_list' %}{% if current_query %}?q={{ current_query }}{% endif %}" style="font-size:1.2rem;font-weight:700;color:#ef4444;text-decoration:none;padding:5px 12px;border-radius:20px;background:#fff1f1;border:1px solid #fecaca;white-space:nowrap;">Clear filter</a>
+      <a href="{% url 'project_list' %}{% if current_query %}?q={{ current_query }}{% endif %}" style="font-size: 1.2rem;font-weight:700;color:#ef4444;text-decoration:none;padding:5px 12px;border-radius:20px;background:#fff1f1;border:1px solid #fecaca;white-space:nowrap;">Clear filter</a>
       {% endif %}
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;">

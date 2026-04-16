@@ -42,7 +42,7 @@
   .auth-panel__brand img { width: 32px; height: 32px; border-radius: 6px; }
   .auth-panel__brand span {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: #fff;
     letter-spacing: -0.01em;
@@ -55,7 +55,7 @@
 
   }
   .auth-panel__eyebrow {
-    font-size: .7rem;
+    font-size: 1.2rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .1em;
@@ -64,7 +64,7 @@
   }
   .auth-panel__title {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 2rem;
+    font-size: 2.7rem;
     font-weight: 800;
     color: #fff;
     letter-spacing: -0.04em;
@@ -72,7 +72,7 @@
     margin-bottom: 16px;
   }
   .auth-panel__desc {
-    font-size: .875rem;
+    font-size: 1.2rem;
     color: rgba(255,255,255,0.45);
     line-height: 1.7;
   }
@@ -85,13 +85,13 @@
   .auth-panel__stat strong {
     display: block;
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.5rem;
+    font-size: 2.0rem;
     font-weight: 800;
     color: #fff;
     letter-spacing: -0.03em;
   }
   .auth-panel__stat span {
-    font-size: .72rem;
+    font-size: 1.2rem;
     color: rgba(255,255,255,0.35);
     text-transform: uppercase;
     letter-spacing: .07em;
@@ -117,17 +117,17 @@
   }
   .auth-card h2 {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.4rem;
+    font-size: 1.9rem;
     font-weight: 800;
     color: #0A0C12;
     margin-bottom: 4px;
     letter-spacing: -0.025em;
   }
-  .auth-card .subtitle { font-size: .85rem; color: #7084A0; margin-bottom: 28px; }
+  .auth-card .subtitle { font-size: 1.2rem; color: #7084A0; margin-bottom: 28px; }
   .auth-field { margin-bottom: 16px; }
   .auth-field label {
     display: block;
-    font-size: .78rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: #3D4A5C;
     margin-bottom: 6px;
@@ -135,7 +135,7 @@
   }
   .auth-field input {
     width: 100%; padding: 10px 14px; border: 1.5px solid rgba(0,0,0,0.12);
-    border-radius: 6px; font-size: .9rem; font-family: inherit; box-sizing: border-box;
+    border-radius: 6px; font-size: 1.2rem; font-family: inherit; box-sizing: border-box;
     transition: border-color .18s, box-shadow .18s; outline: none;
     background: #fff; color: #0A0C12;
   }
@@ -147,11 +147,11 @@
   .auth-field .pw-wrap input { padding-right: 52px; }
   .auth-field .pw-toggle {
     position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-    background: none; border: none; cursor: pointer; font-size: .76rem;
+    background: none; border: none; cursor: pointer; font-size: 1.2rem;
     color: #7084A0; padding: 0; font-weight: 600;
   }
   .auth-submit {
-    width: 100%; padding: 11px; font-size: .92rem; font-weight: 700;
+    width: 100%; padding: 11px; font-size: 1.2rem; font-weight: 700;
     background: #0057FF; color: #fff; border: none;
     border-radius: 6px; cursor: pointer; transition: background .18s, box-shadow .18s;
     margin-top: 4px; letter-spacing: 0.01em;
@@ -159,7 +159,7 @@
   .auth-submit:hover { background: #0041CC; box-shadow: 0 4px 16px rgba(0,87,255,0.3); }
   .auth-divider {
     display: flex; align-items: center; gap: 12px;
-    margin: 20px 0; color: #7084A0; font-size: .78rem;
+    margin: 20px 0; color: #7084A0; font-size: 1.2rem;
   }
   .auth-divider::before, .auth-divider::after {
     content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.08);
@@ -167,15 +167,15 @@
   .google-btn {
     display: flex; align-items: center; justify-content: center; gap: 10px;
     width: 100%; padding: 10px; border: 1.5px solid rgba(0,0,0,0.12);
-    border-radius: 6px; font-size: .86rem; font-weight: 600; color: #3D4A5C;
+    border-radius: 6px; font-size: 1.2rem; font-weight: 600; color: #3D4A5C;
     background: #fff; cursor: pointer; text-decoration: none; transition: background .15s, border-color .15s;
   }
   .google-btn:hover { background: #F4F6FA; border-color: rgba(0,0,0,0.2); }
-  .auth-footer { text-align: center; margin-top: 22px; font-size: .84rem; color: #7084A0; }
+  .auth-footer { text-align: center; margin-top: 22px; font-size: 1.2rem; color: #7084A0; }
   .auth-footer a { color: #0057FF; font-weight: 600; text-decoration: none; }
   .auth-error {
     background: #FEF2F2; border: 1px solid #FECACA; color: #DC2626;
-    border-radius: 6px; padding: 10px 14px; font-size: .84rem; margin-bottom: 16px;
+    border-radius: 6px; padding: 10px 14px; font-size: 1.2rem; margin-bottom: 16px;
   }
   @media (max-width: 860px) {
     .auth-panel { display: none; }
@@ -225,7 +225,7 @@
       <div class="auth-field">
         <label for="id_username">Username</label>
         {{ form.username }}
-        {% if form.username.errors %}<div style="color:#dc2626;font-size:.78rem;margin-top:4px;">{{ form.username.errors }}</div>{% endif %}
+        {% if form.username.errors %}<div style="color:#dc2626;font-size: 1.2rem;margin-top:4px;">{{ form.username.errors }}</div>{% endif %}
       </div>
       <div class="auth-field">
         <label for="id_password">Password</label>
@@ -233,11 +233,11 @@
           {{ form.password }}
           <button type="button" class="pw-toggle" onclick="togglePw('id_password', this)">Show</button>
         </div>
-        {% if form.password.errors %}<div style="color:#dc2626;font-size:.78rem;margin-top:4px;">{{ form.password.errors }}</div>{% endif %}
+        {% if form.password.errors %}<div style="color:#dc2626;font-size: 1.2rem;margin-top:4px;">{{ form.password.errors }}</div>{% endif %}
       </div>
 
       <div style="text-align:right;margin-bottom:18px;">
-        <a href="{% url 'account_reset_password' %}" style="font-size:.8rem;color:var(--oc-primary);text-decoration:none;">Forgot password?</a>
+        <a href="{% url 'account_reset_password' %}" style="font-size: 1.2rem;color:var(--oc-primary);text-decoration:none;">Forgot password?</a>
       </div>
 
       <button type="submit" class="auth-submit">Log In</button>
@@ -264,7 +264,7 @@ function togglePw(id, btn) {
 }
 // Style the raw Django form inputs
 document.querySelectorAll('.auth-field input').forEach(function(el) {
-  el.style.cssText = 'width:100%;padding:10px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:6px;font-size:.9rem;box-sizing:border-box;outline:none;font-family:inherit;color:#0A0C12;background:#fff;';
+  el.style.cssText = 'width:100%;padding:10px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:6px;font-size: 1.2rem;box-sizing:border-box;outline:none;font-family:inherit;color:#0A0C12;background:#fff;';
   el.addEventListener('focus', function(){ this.style.borderColor='#0057FF'; this.style.boxShadow='0 0 0 3px rgba(0,87,255,0.10)'; });
   el.addEventListener('blur',  function(){ this.style.borderColor='rgba(0,0,0,0.12)'; this.style.boxShadow='none'; });
 });

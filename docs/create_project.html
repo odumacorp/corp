@@ -39,33 +39,34 @@
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
             <label class="cp-label" style="margin:0;" for="id_title">Project Title *</label>
             <button type="button" id="toggle-title-ai" onclick="toggleTitleAI()"
-                    style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-size:1.2rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
+                    style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-size: 1.2rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
               <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
               Suggest titles
             </button>
           </div>
           <input type="text" name="title" id="id_title" class="oc-input {% if form.title.errors %}oc-input--error{% endif %}"
-                 placeholder="e.g. Smart Water Purification System" value="{{ form.title.value|default:'' }}" required maxlength="255" />
+                 placeholder="" value="{{ form.title.value|default:'' }}" required maxlength="255"
+                 data-example="e.g. Smart Water Purification System" />
           {% if form.title.errors %}<span class="cp-err">{{ form.title.errors|join:", " }}</span>{% endif %}
 
           <!-- AI title suggestions panel -->
           <div id="title-ai-panel" style="display:none;margin-top:10px;background:#f8faff;border:1.5px solid #c7d9ff;border-radius:12px;padding:16px;">
-            <p style="font-size:1.2rem;color:#374151;margin:0 0 12px;line-height:1.5;">
+            <p style="font-size: 1.2rem;color:#374151;margin:0 0 12px;line-height:1.5;">
               Fill in your problem &amp; solution questions below first, then click generate — or just type a quick idea here:
             </p>
             <textarea id="title-ai-hint" rows="2"
-                      style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:1.2rem;resize:vertical;margin-bottom:10px;"
-                      placeholder="e.g. A solar-powered filtration unit that makes clean water affordable for rural communities…"></textarea>
+                      style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size: 1.2rem;resize:vertical;margin-bottom:10px;"
+                      placeholder="" data-example="e.g. A solar-powered filtration unit for rural communities…"></textarea>
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
               <button type="button" id="generate-titles-btn" onclick="generateTitles()"
-                      style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:1.2rem;font-weight:600;cursor:pointer;">
+                      style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size: 1.2rem;font-weight:600;cursor:pointer;">
                 Generate Titles
               </button>
-              <span id="title-spinner" style="display:none;font-size:1.2rem;color:#6b7280;">Thinking…</span>
-              <span id="title-error" style="display:none;font-size:1.2rem;color:#dc2626;"></span>
+              <span id="title-spinner" style="display:none;font-size: 1.2rem;color:#6b7280;">Thinking…</span>
+              <span id="title-error" style="display:none;font-size: 1.2rem;color:#dc2626;"></span>
             </div>
             <div id="title-suggestions" style="display:none;margin-top:14px;">
-              <p style="font-size:1.2rem;font-weight:600;color:#374151;margin:0 0 8px;">Click a title to use it:</p>
+              <p style="font-size: 1.2rem;font-weight:600;color:#374151;margin:0 0 8px;">Click a title to use it:</p>
               <div id="title-chips" style="display:flex;flex-direction:column;gap:7px;"></div>
             </div>
           </div>
@@ -109,53 +110,53 @@
             <label class="cp-label" style="margin:0;" for="id_description">Project Description *</label>
             <button type="button" id="toggle-questionnaire"
                     onclick="toggleQuestionnaire()"
-                    style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:1.2rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                    style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size: 1.2rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
               Use AI to write my description
             </button>
           </div>
 
           <!-- ── Questionnaire panel ── -->
           <div id="questionnaire-panel" style="display:none;background:#f8faff;border:1.5px solid #c7d9ff;border-radius:14px;padding:22px;margin-bottom:16px;">
-            <p style="font-size:1.2rem;color:#374151;margin:0 0 18px;line-height:1.6;">
+            <p style="font-size: 1.2rem;color:#374151;margin:0 0 18px;line-height:1.6;">
               Answer a few quick questions and our AI will craft a professional description for you.
               <strong>All fields are optional</strong> — the more you fill in, the better the result.
             </p>
 
             <div style="display:grid;gap:14px;">
               <div>
-                <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                <label style="display:block;font-size: 1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                   1. What problem does your project solve? *
                 </label>
                 <textarea id="q_problem" rows="2"
-                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:1.2rem;resize:vertical;"
-                          placeholder="e.g. 600 million Africans lack access to clean drinking water due to…"></textarea>
+                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;resize:vertical;"
+                          placeholder="" data-example="e.g. 600 million Africans lack access to clean drinking water due to…"></textarea>
               </div>
 
               <div>
-                <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                <label style="display:block;font-size: 1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                   2. What is your solution / technology? *
                 </label>
                 <textarea id="q_solution" rows="2"
-                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:1.2rem;resize:vertical;"
-                          placeholder="e.g. A low-cost solar-powered filtration device that uses…"></textarea>
+                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;resize:vertical;"
+                          placeholder="" data-example="e.g. A low-cost solar-powered filtration device that uses…"></textarea>
               </div>
 
               <div>
-                <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                <label style="display:block;font-size: 1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                   3. Who are your target users / customers?
                 </label>
                 <input type="text" id="q_target"
-                       style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:1.2rem;"
-                       placeholder="e.g. Rural households and small communities in Sub-Saharan Africa">
+                       style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;"
+                       placeholder="" data-example="e.g. Rural households and small communities in Sub-Saharan Africa">
               </div>
 
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
                 <div>
-                  <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  <label style="display:block;font-size: 1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                     4. Current project stage
                   </label>
                   <select id="q_stage"
-                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:1.2rem;background:#fff;">
+                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;background:#fff;">
                     <option value="">Select stage…</option>
                     <option value="Idea / Concept">Idea / Concept</option>
                     <option value="Research & Development">Research & Development</option>
@@ -166,91 +167,91 @@
                   </select>
                 </div>
                 <div>
-                  <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  <label style="display:block;font-size: 1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                     5. Industry / sector
                   </label>
                   <input type="text" id="q_industry"
-                         style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:1.2rem;"
-                         placeholder="e.g. Clean Energy, AgriTech…">
+                         style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;"
+                         placeholder="" data-example="e.g. Clean Energy, AgriTech…">
                 </div>
               </div>
 
               <div>
-                <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                <label style="display:block;font-size: 1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                   6. What makes it unique compared to existing solutions?
                 </label>
                 <textarea id="q_unique" rows="2"
-                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:1.2rem;resize:vertical;"
-                          placeholder="e.g. Unlike existing products, ours costs 80% less and requires no electricity…"></textarea>
+                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;resize:vertical;"
+                          placeholder="" data-example="e.g. Unlike existing products, ours costs 80% less…"></textarea>
               </div>
 
               <div>
-                <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                <label style="display:block;font-size: 1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                   7. Revenue / business model
                 </label>
                 <input type="text" id="q_revenue"
-                       style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;"
-                       placeholder="e.g. Hardware sales + subscription for maintenance, B2B licensing…">
+                       style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;"
+                       placeholder="" data-example="e.g. Hardware sales + subscription for maintenance">
               </div>
 
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
                 <div>
-                  <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  <label style="display:block;font-size: 1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                     8. Team (brief)
                   </label>
                   <input type="text" id="q_team"
-                         style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;"
-                         placeholder="e.g. 2 engineers, 1 business lead">
+                         style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;"
+                         placeholder="" data-example="e.g. 2 engineers, 1 business lead">
                 </div>
                 <div>
-                  <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                  <label style="display:block;font-size: 1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                     9. Funding needed
                   </label>
                   <input type="text" id="q_funding"
-                         style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;"
-                         placeholder="e.g. $50,000 seed funding for manufacturing">
+                         style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;"
+                         placeholder="" data-example="e.g. $50,000 seed funding for manufacturing">
                 </div>
               </div>
 
               <div>
-                <label style="display:block;font-size:1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
+                <label style="display:block;font-size: 1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                   10. Milestones or traction so far
                 </label>
                 <input type="text" id="q_milestones"
-                       style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:.875rem;"
-                       placeholder="e.g. Pilot with 200 households, 3 awards, patent filed…">
+                       style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;"
+                       placeholder="" data-example="e.g. Pilot with 200 households, 3 awards, patent filed…">
               </div>
             </div>
 
             <div style="margin-top:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
               <button type="button" id="generate-btn" onclick="generateDescription()"
-                      style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:.875rem;font-weight:700;cursor:pointer;">
+                      style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size: 1.2rem;font-weight:700;cursor:pointer;">
                 Generate Description
               </button>
-              <span id="generate-spinner" style="display:none;font-size:1.2rem;color:#6b7280;">Analyzing your project…</span>
-              <span id="generate-error" style="display:none;font-size:.8rem;color:#dc2626;"></span>
+              <span id="generate-spinner" style="display:none;font-size: 1.2rem;color:#6b7280;">Analyzing your project…</span>
+              <span id="generate-error" style="display:none;font-size: 1.2rem;color:#dc2626;"></span>
             </div>
           </div>
 
           <!-- ── AI result panel (shown after generation) ── -->
           <div id="ai-result-panel" style="display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:20px;margin-bottom:16px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-              <span style="font-size:1.2rem;font-weight:700;color:#14532d;">AI-Generated Description</span>
-              <span style="font-size:1.2rem;color:#6b7280;">You can edit it before using</span>
+              <span style="font-size: 1.2rem;font-weight:700;color:#14532d;">AI-Generated Description</span>
+              <span style="font-size: 1.2rem;color:#6b7280;">You can edit it before using</span>
             </div>
             <textarea id="ai-description-text" rows="7"
-                      style="width:100%;border:1.5px solid #86efac;border-radius:8px;padding:12px;font-size:1.2rem;line-height:1.7;resize:vertical;background:#fff;"></textarea>
+                      style="width:100%;border:1.5px solid #86efac;border-radius:8px;padding:12px;font-size: 1.2rem;line-height:1.7;resize:vertical;background:#fff;"></textarea>
             <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
               <button type="button" onclick="useAIDescription()"
-                      style="background:#16a34a;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:1.2rem;font-weight:700;cursor:pointer;">
+                      style="background:#16a34a;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size: 1.2rem;font-weight:700;cursor:pointer;">
                 ✓ Use this description
               </button>
               <button type="button" onclick="keepOwnDescription()"
-                      style="background:#f3f4f6;color:#374151;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 20px;font-size:.85rem;font-weight:600;cursor:pointer;">
+                      style="background:#f3f4f6;color:#374151;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 20px;font-size: 1.2rem;font-weight:600;cursor:pointer;">
                 ✎ Keep my own description
               </button>
               <button type="button" onclick="generateDescription()"
-                      style="background:transparent;color:#004AAD;border:1.5px solid #004AAD;border-radius:8px;padding:9px 20px;font-size:1.2rem;font-weight:600;cursor:pointer;">
+                      style="background:transparent;color:#004AAD;border:1.5px solid #004AAD;border-radius:8px;padding:9px 20px;font-size: 1.2rem;font-weight:600;cursor:pointer;">
                 ↺ Regenerate
               </button>
             </div>
@@ -259,14 +260,13 @@
           <!-- ── The actual description textarea ── -->
           <div id="own-description-wrap">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-              <span id="description-source-label" style="font-size:1.2rem;color:#6b7280;"></span>
+              <span id="description-source-label" style="font-size: 1.2rem;color:#6b7280;"></span>
             </div>
             <textarea name="description" id="id_description"
                       class="oc-textarea {% if form.description.errors %}oc-input--error{% endif %}"
                       rows="6"
-                      placeholder="Describe your project — what problem it solves, how it works, and what stage it's at.
-
-Tip: Click 'Use AI to write my description' above to answer a few questions and get a professional description generated automatically."
+                      placeholder=""
+                      data-example="Describe your project — what problem it solves, how it works, and what stage it's at."
                       required>{{ form.description.value|default:'' }}</textarea>
             {% if form.description.errors %}<span class="cp-err">{{ form.description.errors|join:", " }}</span>{% endif %}
           </div>
@@ -275,7 +275,8 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
         <div class="cp-field">
           <label class="cp-label" for="id_website_link">Website / Demo URL</label>
           <input type="url" name="website_link" id="id_website_link" class="oc-input"
-                 placeholder="https://yourproject.com" value="{{ form.website_link.value|default:'' }}" />
+                 placeholder="" value="{{ form.website_link.value|default:'' }}"
+                 data-example="https://yourproject.com" />
         </div>
       </fieldset>
 
@@ -288,8 +289,8 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
             <span class="cp-hint">Comma-separated — helps investors find your project via search.</span>
           </label>
           <input type="text" name="keywords" id="id_keywords" class="oc-input"
-                 placeholder="e.g. cleantech, water, IoT, Africa, sustainability"
-                 value="{{ form.keywords.value|default:'' }}" maxlength="500" />
+                 placeholder="" value="{{ form.keywords.value|default:'' }}" maxlength="500"
+                 data-example="e.g. cleantech, water, IoT, Africa, sustainability" />
         </div>
       </fieldset>
 
@@ -331,13 +332,13 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
           <div class="cp-field">
             <label class="cp-label" for="id_video_name">Video Name <span class="cp-hint-inline">SEO title</span></label>
             <input type="text" name="video_name" id="id_video_name" class="oc-input"
-                   placeholder="e.g. Product Demo v1" maxlength="255" value="{{ form.video_name.value|default:'' }}" />
+                   placeholder="" data-example="e.g. Product Demo v1" maxlength="255" value="{{ form.video_name.value|default:'' }}" />
           </div>
         </div>
         <div class="cp-field">
           <label class="cp-label" for="id_video_description">Video Description</label>
           <textarea name="video_description" id="id_video_description" class="oc-textarea" rows="2"
-                    placeholder="Brief description of what the video shows…">{{ form.video_description.value|default:'' }}</textarea>
+                    placeholder="" data-example="Brief description of what the video shows…">{{ form.video_description.value|default:'' }}</textarea>
         </div>
       </fieldset>
 
@@ -470,7 +471,7 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
           </div>
           <textarea name="problem_statement" class="oc-textarea pb-textarea" rows="4" id="pb-ta-problem_statement"
             oninput="pbUpdate()"
-            placeholder="What pain point are you solving? Who suffers from it and at what scale? What happens if it goes unsolved?">{{ form.problem_statement.value|default:'' }}</textarea>
+            placeholder="" data-example="What pain point are you solving and who suffers from it?">{{ form.problem_statement.value|default:'' }}</textarea>
         </div>
 
         <!-- Slide 2: Solution -->
@@ -486,7 +487,7 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
           </div>
           <textarea name="solution_overview" class="oc-textarea pb-textarea" rows="4" id="pb-ta-solution_overview"
             oninput="pbUpdate()"
-            placeholder="Describe your product or service. What's the core technology or approach? What's your key differentiator vs. alternatives?">{{ form.solution_overview.value|default:'' }}</textarea>
+            placeholder="" data-example="Describe your product or service and what makes it different.">{{ form.solution_overview.value|default:'' }}</textarea>
         </div>
 
         <!-- Slide 3: Market -->
@@ -502,7 +503,7 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
           </div>
           <textarea name="market_opportunity" class="oc-textarea pb-textarea" rows="4" id="pb-ta-market_opportunity"
             oninput="pbUpdate()"
-            placeholder="Total Addressable Market (TAM), Serviceable Market (SAM), initial target segment (SOM). Who is your ideal customer? Include data sources.">{{ form.market_opportunity.value|default:'' }}</textarea>
+            placeholder="" data-example="TAM, SAM, SOM — who is your ideal customer and how big is the opportunity?">{{ form.market_opportunity.value|default:'' }}</textarea>
         </div>
 
         <!-- Slide 4: Business Model -->
@@ -518,7 +519,7 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
           </div>
           <textarea name="business_model" class="oc-textarea pb-textarea" rows="4" id="pb-ta-business_model"
             oninput="pbUpdate()"
-            placeholder="Revenue streams (subscriptions, licensing, hardware, marketplace, B2B SaaS…). Unit economics. Pricing strategy. Path to profitability.">{{ form.business_model.value|default:'' }}</textarea>
+            placeholder="" data-example="Revenue streams, pricing strategy, path to profitability.">{{ form.business_model.value|default:'' }}</textarea>
         </div>
 
         <!-- Slide 5: Traction -->
@@ -534,7 +535,7 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
           </div>
           <textarea name="traction" class="oc-textarea pb-textarea" rows="4" id="pb-ta-traction"
             oninput="pbUpdate()"
-            placeholder="Paying customers, pilots, LOIs, revenue figures, user growth, partnerships, awards, media coverage, IP filed. Numbers over adjectives.">{{ form.traction.value|default:'' }}</textarea>
+            placeholder="" data-example="Paying customers, pilots, revenue figures, partnerships, awards.">{{ form.traction.value|default:'' }}</textarea>
         </div>
 
         <!-- Slide 6: Funding Ask -->
@@ -551,7 +552,7 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
           <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;margin-top:4px;">
             <input type="text" name="funding_requirement" class="oc-input" id="pb-ta-funding_requirement"
               oninput="pbUpdate()"
-              placeholder="e.g. $500,000 seed round" value="{{ form.funding_requirement.value|default:'' }}" />
+              placeholder="" data-example="e.g. $500,000 seed round" value="{{ form.funding_requirement.value|default:'' }}" />
             <select name="funding_stage" class="oc-select" style="min-width:150px;">
               <option value="">Funding Stage</option>
               <option value="pre_seed" {% if form.funding_stage.value == 'pre_seed' %}selected{% endif %}>Pre-Seed</option>
@@ -577,7 +578,7 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
           </div>
           <textarea name="use_of_funds" class="oc-textarea pb-textarea" rows="4" id="pb-ta-use_of_funds"
             oninput="pbUpdate()"
-            placeholder="Breakdown by category: e.g. 40% product &amp; engineering, 30% sales &amp; marketing, 20% operations, 10% working capital. Include key milestones this funding achieves.">{{ form.use_of_funds.value|default:'' }}</textarea>
+            placeholder="" data-example="e.g. 40% product, 30% sales, 20% operations, 10% working capital.">{{ form.use_of_funds.value|default:'' }}</textarea>
         </div>
 
         <!-- Slide 8: Team -->
@@ -593,7 +594,7 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
           </div>
           <textarea name="team_overview" class="oc-textarea pb-textarea" rows="4" id="pb-ta-team_overview"
             oninput="pbUpdate()"
-            placeholder="Co-founders and key hires: name, role, relevant experience, notable credentials. Advisors. Why this team has the domain expertise and execution ability to win.">{{ form.team_overview.value|default:'' }}</textarea>
+            placeholder="" data-example="Co-founders, key hires: name, role, relevant experience. Why this team wins.">{{ form.team_overview.value|default:'' }}</textarea>
         </div>
 
       </fieldset>
@@ -609,9 +610,9 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
 <style>
 .cp-page { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
 .cp-card { background: #fff; border-radius: 20px; padding: 32px; box-shadow: 0 2px 20px rgba(0,0,0,.07); }
-.cp-title { font-family: 'Jacques Francois', serif; font-size: 1.6rem; color: #1a1a2e; margin: 0 0 4px; }
+.cp-title { font-family: 'Jacques Francois', serif; font-size: 2.2rem; color: #1a1a2e; margin: 0 0 4px; }
 .cp-sub { color: #6b7280; font-family: 'Jaldi', sans-serif; margin: 0 0 24px; font-size: 1.2rem; }
-.cp-errors { background: #fee2e2; color: #991b1b; padding: 10px 16px; border-radius: 10px; margin-bottom: 20px; font-family: 'Jaldi', sans-serif; font-size: 1rem; }
+.cp-errors { background: #fee2e2; color: #991b1b; padding: 10px 16px; border-radius: 10px; margin-bottom: 20px; font-family: 'Jaldi', sans-serif; font-size: 1.2rem; }
 .cp-section { border: none; padding: 0; margin: 0 0 28px; }
 .cp-legend { font-family: 'Jacques Francois', serif; font-size: 1.2rem; color: #1a1a2e; margin-bottom: 14px; padding: 0; width: 100%; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
 .cp-field { margin-bottom: 14px; }
@@ -635,17 +636,17 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
 .cp-photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-top: 14px; }
 .cp-photo-item { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid #e5e7eb; }
 .cp-photo-item img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
-.cp-photo-item__main { position: absolute; top: 5px; left: 5px; background: #004AAD; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; font-family: 'Jaldi', sans-serif; }
+.cp-photo-item__main { position: absolute; top: 5px; left: 5px; background: #004AAD; color: #fff; font-size: 1.2rem; padding: 2px 6px; border-radius: 10px; font-family: 'Jaldi', sans-serif; }
 .cp-photo-item__name { padding: 6px 8px; background: #fff; }
-.cp-photo-item__name input { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 4px 6px; font-family: 'Jaldi', sans-serif; font-size: 0.75rem; outline: none; }
+.cp-photo-item__name input { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 4px 6px; font-family: 'Jaldi', sans-serif; font-size: 1.2rem; outline: none; }
 .cp-photo-item__name input:focus { border-color: #004AAD; }
-.cp-photo-remove { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,.6); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7rem; cursor: pointer; line-height: 20px; text-align: center; padding: 0; }
+.cp-photo-remove { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,.6); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 1.2rem; cursor: pointer; line-height: 20px; text-align: center; padding: 0; }
 
 /* Doc slots */
 .cp-doc-slot { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
 .cp-doc-slot__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.cp-doc-slot__num { font-family: 'Jacques Francois', serif; font-size: 0.88rem; color: #374151; }
-.cp-doc-remove { background: none; border: none; color: #ef4444; font-family: 'Jaldi', sans-serif; font-size: 0.8rem; cursor: pointer; padding: 0; }
+.cp-doc-slot__num { font-family: 'Jacques Francois', serif; font-size: 1.2rem; color: #374151; }
+.cp-doc-remove { background: none; border: none; color: #ef4444; font-family: 'Jaldi', sans-serif; font-size: 1.2rem; cursor: pointer; padding: 0; }
 
 /* ── Pitch Builder ── */
 .pb-header {
@@ -661,7 +662,7 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
 .pb-progress-ring { position: relative; width: 52px; height: 52px; }
 .pb-progress-ring__pct {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-family: 'Jaldi', sans-serif; font-size: .72rem; font-weight: 700; color: #fff;
+  font-family: 'Jaldi', sans-serif; font-size: 1.2rem; font-weight: 700; color: #fff;
 }
 
 .pb-slide {
@@ -681,7 +682,7 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
 .pb-slide__num {
   flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Jacques Francois', serif; font-size: .8rem; font-weight: 700; color: #0A1628;
+  font-family: 'Jacques Francois', serif; font-size: 1.2rem; font-weight: 700; color: #0A1628;
   margin-top: 1px;
 }
 .pb-num--1 { background: #ef4444; }
@@ -695,11 +696,11 @@ Tip: Click 'Use AI to write my description' above to answer a few questions and 
 
 .pb-slide__icon { width:28px; height:28px; border-radius:7px; display:flex; align-items:center; justify-content:center; margin-top:1px; flex-shrink:0; }
 .pb-slide__meta { flex: 1; min-width: 0; }
-.pb-slide__title { font-family: 'Jaldi', sans-serif; font-size: .92rem; font-weight: 700; color: #1a1a2e; }
-.pb-slide__inv { font-family: 'Jaldi', sans-serif; font-size: .78rem; color: #9ca3af; margin-top: 2px; }
+.pb-slide__title { font-family: 'Jaldi', sans-serif; font-size: 1.2rem; font-weight: 700; color: #1a1a2e; }
+.pb-slide__inv { font-family: 'Jaldi', sans-serif; font-size: 1.2rem; color: #9ca3af; margin-top: 2px; }
 .pb-slide__inv em { font-style: italic; color: #6b7280; }
 .pb-slide__check {
-  flex-shrink: 0; font-size: 1.1rem; line-height: 1; margin-top: 2px;
+  flex-shrink: 0; font-size: 1.2rem; line-height: 1; margin-top: 2px;
   transition: opacity .2s;
 }
 .pb-slide__check.filled { color: #10b981; }
@@ -727,7 +728,7 @@ function pbUpdate() {
     var el = document.getElementById('pb-ta-' + name);
     var chk = document.getElementById('pb-check-' + name);
     var slide = el && el.closest('.pb-slide');
-    var isFilled = el && el.value.trim().length > 0;
+    var isFilled = el && el.value.trim().length > 0 && !el.classList.contains('cp-ghost-text');
     if (isFilled) {
       filled++;
       if (chk) { chk.textContent = '✓'; chk.classList.add('filled'); }
@@ -807,10 +808,14 @@ function removePhoto(idx) {
 }
 
 function syncPhotoInputs() {
-  // Remove old hidden inputs
+  // Keep the native file input in sync immediately so files are ready on first submit
   document.querySelectorAll('.cp-photo-data').forEach(function(e){ e.remove(); });
-  // Re-build a DataTransfer to set file inputs — not universally supported.
-  // We'll instead inject hidden file inputs per slot at form submit.
+  var live = photoFiles.filter(Boolean);
+  try {
+    var dt = new DataTransfer();
+    live.forEach(function(p){ dt.items.add(p.file); });
+    imgInput.files = dt.files;
+  } catch(e) { /* DataTransfer not supported */ }
 }
 
 // On form submit: inject files via a new FileList trick
@@ -833,7 +838,9 @@ document.getElementById('project-form').addEventListener('submit', function(e) {
     videoInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
-  // Inject photo names as hidden fields
+  // Re-sync file input in case anything changed since last addPhotos/removePhoto
+  syncPhotoInputs();
+  // Inject photo name hidden fields
   var live = photoFiles.filter(Boolean);
   live.forEach(function(p, i) {
     var inp = document.createElement('input');
@@ -842,15 +849,6 @@ document.getElementById('project-form').addEventListener('submit', function(e) {
     inp.value = p.name || '';
     document.getElementById('project-form').appendChild(inp);
   });
-  // Transfer actual files using a new multi-file input
-  if (live.length > 0) {
-    var dt = new DataTransfer();
-    live.forEach(function(p){ dt.items.add(p.file); });
-    imgInput.files = dt.files;
-    imgInput.name = 'images';
-    imgInput.style.display = 'none';
-    document.getElementById('project-form').appendChild(imgInput);
-  }
 });
 
 /* ── Video duration check ── */
@@ -892,76 +890,7 @@ function removeDocSlot(slotId, btnId) {
   document.getElementById('add-doc-btn').style.display = '';
 }
 
-/* ══════════════════════════════════════════
-   Searchable combobox (industry)
-   ══════════════════════════════════════════ */
-(function() {
-  function initCombo(combo) {
-    var hiddenInput = document.getElementById(combo.dataset.hidden);
-    var textInput   = combo.querySelector('.oc-combo__input');
-    var list        = combo.querySelector('.oc-combo__list');
-    var items       = Array.from(combo.querySelectorAll('.oc-combo__item'));
-    var addRow      = null;
-
-    function openList() {
-      filterList();
-      list.style.display = 'block';
-    }
-
-    function closeList() {
-      list.style.display = 'none';
-    }
-
-    function filterList() {
-      var q = textInput.value.trim().toLowerCase();
-      var anyVisible = false;
-      items.forEach(function(li) {
-        var show = !q || li.textContent.toLowerCase().indexOf(q) !== -1;
-        li.style.display = show ? '' : 'none';
-        if (show) anyVisible = true;
-      });
-
-      var typed = textInput.value.trim();
-      if (typed && !anyVisible) {
-        if (!addRow) {
-          addRow = document.createElement('li');
-          addRow.className = 'oc-combo__add';
-          list.appendChild(addRow);
-        }
-        addRow.textContent = 'Add "' + typed + '"';
-        addRow.style.display = '';
-        addRow.onclick = function() {
-          hiddenInput.value = typed;
-          textInput.value   = typed;
-          closeList();
-        };
-      } else {
-        if (addRow) addRow.style.display = 'none';
-      }
-
-      // Keep hidden in sync as user types (enables custom free-text submission)
-      hiddenInput.value = typed;
-    }
-
-    textInput.addEventListener('focus', openList);
-    textInput.addEventListener('input', filterList);
-
-    items.forEach(function(li) {
-      li.addEventListener('click', function() {
-        hiddenInput.value = li.dataset.value;
-        textInput.value   = li.textContent.trim();
-        closeList();
-      });
-    });
-
-    // Close on click outside (no blur race condition)
-    document.addEventListener('click', function(e) {
-      if (!combo.contains(e.target)) closeList();
-    });
-  }
-
-  document.querySelectorAll('.oc-combo[data-hidden]').forEach(initCombo);
-})();
+/* Combo init handled by oc-combo.js (loaded globally in base.html) */
 
 /* ══════════════════════════════════════════
    AI Title Suggestions
@@ -1019,7 +948,7 @@ function generateTitles() {
       var chip = document.createElement('button');
       chip.type = 'button';
       chip.textContent = s;
-      chip.style.cssText = 'background:#fff;border:1.5px solid #c7d9ff;border-radius:8px;padding:9px 14px;font-size:.875rem;color:#004AAD;cursor:pointer;text-align:left;font-weight:500;transition:background .15s,border-color .15s;';
+      chip.style.cssText = 'background:#fff;border:1.5px solid #c7d9ff;border-radius:8px;padding:9px 14px;font-size: 1.2rem;color:#004AAD;cursor:pointer;text-align:left;font-weight:500;transition:background .15s,border-color .15s;';
       chip.onmouseenter = function() { this.style.background='#f0f5ff'; this.style.borderColor='#004AAD'; };
       chip.onmouseleave = function() { this.style.background='#fff'; this.style.borderColor='#c7d9ff'; };
       chip.onclick = function() {
@@ -1135,5 +1064,6 @@ function keepOwnDescription() {
   document.getElementById('description-source-label').style.color = '#6b7280';
   document.getElementById('id_description').focus();
 }
+
 </script>
 {% endblock %}

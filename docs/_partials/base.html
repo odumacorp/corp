@@ -82,7 +82,7 @@
         setTimeout(function() {
           t.classList.add('is-leaving');
           setTimeout(function() { t.remove(); }, 320);
-        }, 3500);
+        }, 5000);
       });
     })();
   </script>
@@ -100,6 +100,9 @@
     if (backdrop)   backdrop.addEventListener('click', closeMenu);
   </script>
 
+  <!-- Searchable + creatable industry combobox -->
+  <script src="{% static 'js/oc-combo.js' %}"></script>
+
   {% block extra_js %}{% endblock %}
 
   <!-- Shepherd.js -->
@@ -112,7 +115,7 @@
       background: #fff; color: var(--oc-primary, #1B5EC7);
       border: 1.5px solid var(--oc-primary, #1B5EC7);
       border-radius: 20px; padding: 7px 14px;
-      font-family: "Jaldi", sans-serif; font-size: 0.9rem; font-weight: 700;
+      font-family: "Jaldi", sans-serif; font-size:1.2rem; font-weight: 700;
       cursor: pointer; box-shadow: 0 2px 12px rgba(0,74,173,0.15);
       opacity: 1; transform: none;
       transition: background 0.2s, color 0.2s;
@@ -124,31 +127,108 @@
   <button class="oc-feedback-btn" id="oc-feedback-btn" onclick="document.getElementById('oc-feedback-modal').classList.add('open')">
     Feedback
   </button>
-  <div id="oc-feedback-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:16px;padding:28px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;">
-      <button onclick="document.getElementById('oc-feedback-modal').classList.remove('open')" style="position:absolute;top:12px;right:14px;background:none;border:none;cursor:pointer;font-size:1.1rem;color:#aaa;">✕</button>
-      <p style="font-family:'Jacques Francois',serif;font-size:1.05rem;color:#1a1a2e;margin:0 0 16px;">Share your feedback</p>
+  <style>
+  .oc-fb-modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 2000;
+    background: rgba(10,12,20,0.55); backdrop-filter: blur(3px);
+    align-items: center; justify-content: center;
+  }
+  .oc-fb-modal-overlay.open { display: flex; }
+  .oc-fb-card {
+    background: #fff; border-radius: 18px; padding: 30px 28px 24px;
+    width: 100%; max-width: 430px; box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+    position: relative; animation: fbSlideIn .18s ease;
+  }
+  @keyframes fbSlideIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  .oc-fb-close {
+    position: absolute; top: 14px; right: 14px; background: #f3f4f6;
+    border: none; border-radius: 50%; width: 30px; height: 30px;
+    cursor: pointer; font-size: 1rem; color: #6b7280; line-height: 30px;
+    text-align: center; transition: background .15s;
+  }
+  .oc-fb-close:hover { background: #e5e7eb; color: #111; }
+  .oc-fb-title {
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem;
+    font-weight: 700; color: #0A0C12; margin: 0 0 6px;
+  }
+  .oc-fb-sub {
+    font-family: 'Jaldi', sans-serif; font-size: 1.2rem; color: #6b7280; margin: 0 0 20px;
+  }
+  .oc-fb-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .oc-fb-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+  .oc-fb-field:last-of-type { margin-bottom: 0; }
+  .oc-fb-label {
+    font-family: 'Space Grotesk', sans-serif; font-size: .78rem;
+    font-weight: 600; color: #374151; letter-spacing: .02em; text-transform: uppercase;
+  }
+  .oc-fb-label .oc-fb-opt { font-weight: 400; color: #9ca3af; text-transform: none; letter-spacing: 0; }
+  .oc-fb-input, .oc-fb-select, .oc-fb-textarea {
+    width: 100%; box-sizing: border-box;
+    padding: 9px 13px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 9px;
+    font-family: 'Jaldi', sans-serif; font-size: 1.2rem; color: #111;
+    background: #fafbff;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .oc-fb-input:focus, .oc-fb-select:focus, .oc-fb-textarea:focus {
+    border-color: #004AAD;
+    box-shadow: 0 0 0 3px rgba(0,74,173,0.1);
+    background: #fff;
+  }
+  .oc-fb-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px;
+  }
+  .oc-fb-textarea { resize: vertical; min-height: 90px; line-height: 1.55; }
+  .oc-fb-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .oc-fb-submit {
+    flex: 1; padding: 10px; border-radius: 10px;
+    background: #004AAD; color: #fff; border: none;
+    font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 600;
+    cursor: pointer; transition: background .15s;
+  }
+  .oc-fb-submit:hover { background: #003490; }
+  .oc-fb-cancel {
+    padding: 10px 18px; border-radius: 10px;
+    background: #f3f4f6; border: 1.5px solid #e5e7eb;
+    font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 600;
+    color: #374151; cursor: pointer; transition: background .15s;
+  }
+  .oc-fb-cancel:hover { background: #e5e7eb; }
+  .oc-fb-thanks {
+    display: none; text-align: center; color: #059669;
+    font-family: 'Jaldi', sans-serif; font-size: 1.2rem; margin-top: 12px;
+  }
+  </style>
+  <div id="oc-feedback-modal" class="oc-fb-modal-overlay">
+    <div class="oc-fb-card">
+      <button class="oc-fb-close" onclick="document.getElementById('oc-feedback-modal').classList.remove('open')">✕</button>
+      <p class="oc-fb-title">Share your feedback</p>
+      <p class="oc-fb-sub">Help us make Oduma Corp better for you.</p>
       <form id="oc-feedback-form">
         {% csrf_token %}
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-          <div>
-            <label style="font-family:'Jaldi',sans-serif;font-size:0.875rem;color:#6b7280;display:block;margin-bottom:3px;">Type</label>
-            <select name="feedback_type" style="width:100%;padding:8px 11px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-family:'Jaldi',sans-serif;font-size:0.9375rem;">
-              <option value="suggestion">Suggestion</option>
-              <option value="bug">Bug / Issue</option>
-              <option value="praise">Praise</option>
-              <option value="question">Question</option>
+        <div class="oc-fb-row">
+          <div class="oc-fb-field" style="margin-bottom:0;">
+            <label class="oc-fb-label">Type</label>
+            <select name="feedback_type" class="oc-fb-select">
+              <option value="suggestion">💡 Suggestion</option>
+              <option value="bug">🐛 Bug / Issue</option>
+              <option value="praise">🙌 Praise</option>
+              <option value="question">❓ Question</option>
               <option value="other">Other</option>
             </select>
           </div>
-          <div>
-            <label style="font-family:'Jaldi',sans-serif;font-size:0.875rem;color:#6b7280;display:block;margin-bottom:3px;">Page / Section</label>
-            <input name="page" id="oc-fb-page" type="text" placeholder="e.g. /app/" value="" style="width:100%;padding:8px 11px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-family:'Jaldi',sans-serif;font-size:0.9375rem;box-sizing:border-box;">
+          <div class="oc-fb-field" style="margin-bottom:0;">
+            <label class="oc-fb-label">Page</label>
+            <input name="page" id="oc-fb-page" type="text" placeholder="/companies/create/" class="oc-fb-input">
           </div>
         </div>
-        <div style="margin-bottom:10px;">
-          <label style="font-family:'Jaldi',sans-serif;font-size:0.875rem;color:#6b7280;display:block;margin-bottom:3px;">Which section? <span style="opacity:.6;">(optional)</span></label>
-          <select name="section" style="width:100%;padding:8px 11px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-family:'Jaldi',sans-serif;font-size:0.9375rem;">
+        <div class="oc-fb-field" style="margin-top:14px;">
+          <label class="oc-fb-label">Section <span class="oc-fb-opt">(optional)</span></label>
+          <select name="section" class="oc-fb-select">
             <option value="">— Whole page —</option>
             <option value="navbar">Navigation bar</option>
             <option value="feed">Home feed</option>
@@ -166,12 +246,15 @@
             <option value="other">Other</option>
           </select>
         </div>
-        <textarea name="feedback_text" rows="4" placeholder="Tell us what you think…" style="width:100%;padding:9px 12px;border:1.5px solid rgba(0,0,0,0.12);border-radius:8px;font-family:'Jaldi',sans-serif;font-size:0.9375rem;resize:vertical;box-sizing:border-box;margin-bottom:12px;"></textarea>
-        <div style="display:flex;gap:10px;">
-          <button type="submit" style="flex:1;padding:9px;border-radius:9px;background:var(--oc-primary,#004AAD);color:#fff;border:none;font-family:'Jaldi',sans-serif;font-size:0.9375rem;cursor:pointer;">Send feedback</button>
-          <button type="button" onclick="document.getElementById('oc-feedback-modal').classList.remove('open')" style="padding:9px 16px;border-radius:9px;background:#f3f4f6;border:1px solid rgba(0,0,0,0.1);font-family:'Jaldi',sans-serif;font-size:0.9375rem;cursor:pointer;color:#374151;">Cancel</button>
+        <div class="oc-fb-field">
+          <label class="oc-fb-label">Your message</label>
+          <textarea name="feedback_text" class="oc-fb-textarea" placeholder="Tell us what you think…"></textarea>
         </div>
-        <p id="oc-feedback-thanks" style="display:none;text-align:center;color:#059669;font-family:'Jaldi',sans-serif;font-size:0.9375rem;margin-top:10px;">Thanks for your feedback!</p>
+        <div class="oc-fb-actions">
+          <button type="submit" class="oc-fb-submit">Send feedback</button>
+          <button type="button" class="oc-fb-cancel" onclick="document.getElementById('oc-feedback-modal').classList.remove('open')">Cancel</button>
+        </div>
+        <p id="oc-feedback-thanks" class="oc-fb-thanks">✓ Thanks for your feedback!</p>
       </form>
     </div>
   </div>
@@ -403,7 +486,7 @@
 
       // Header
       var hdr = document.createElement('div');
-      hdr.style.cssText = 'padding:8px 10px 6px;font-weight:800;color:#0A1628;font-size:0.78rem;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid #f0f4f8;margin-bottom:4px;';
+      hdr.style.cssText = 'padding:8px 10px 6px;font-weight:800;color:#0A1628;font-size: 1.2rem;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid #f0f4f8;margin-bottom:4px;';
       hdr.textContent = 'Share via';
       dd.appendChild(hdr);
 
@@ -423,7 +506,7 @@
         iconWrap.innerHTML = p.icon;
 
         var lbl = document.createElement('span');
-        lbl.style.cssText = 'font-size:.84rem;font-weight:600;color:#1a202c;';
+        lbl.style.cssText = 'font-size: 1.2rem;font-weight:600;color:#1a202c;';
         lbl.textContent = label;
 
         item.appendChild(iconWrap);
@@ -509,7 +592,7 @@
     /* ── Toast helper ─────────────────────────────────────────────────── */
     window.ocToast = function(msg) {
       var t = document.createElement('div');
-      t.style.cssText = 'position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:#092147;color:#fff;padding:9px 20px;border-radius:6px;font-family:"Inter",sans-serif;font-size:.85rem;z-index:9999;pointer-events:none;box-shadow:0 4px 16px rgba(9,33,71,.35);';
+      t.style.cssText = 'position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:#092147;color:#fff;padding:9px 20px;border-radius:6px;font-family:"Inter",sans-serif;font-size: 1.2rem;z-index:9999;pointer-events:none;box-shadow:0 4px 16px rgba(9,33,71,.35);';
       t.textContent = msg;
       document.body.appendChild(t);
       setTimeout(function(){ t.style.transition='opacity .4s'; t.style.opacity='0'; setTimeout(function(){ t.remove(); }, 400); }, 2000);
@@ -554,7 +637,7 @@
     }
     .odu-panel-head-close {
       margin-left: auto; background: none; border: none; color: rgba(255,255,255,.8);
-      cursor: pointer; font-size: 1.1rem; padding: 0;
+      cursor: pointer; font-size:1.2rem; padding: 0;
     }
     .odu-messages {
       flex: 1; overflow-y: auto; padding: 14px 14px 6px;
@@ -562,7 +645,7 @@
     }
     .odu-msg {
       max-width: 85%; padding: 8px 12px; border-radius: 12px;
-      font-family: "Jaldi", sans-serif; font-size: 0.9375rem; line-height: 1.5;
+      font-family: "Jaldi", sans-serif; font-size: 1.2rem; line-height: 1.5;
     }
     .odu-msg.bot  { background: #f0f4fb; color: #1a1a2e; align-self: flex-start; border-bottom-left-radius: 4px; }
     .odu-msg.user { background: var(--oc-primary, #004AAD); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
@@ -573,7 +656,7 @@
     }
     .odu-input {
       flex: 1; border: 1.5px solid rgba(0,0,0,0.12); border-radius: 8px;
-      padding: 7px 11px; font-family: "Jaldi", sans-serif; font-size: 0.9375rem;
+      padding: 7px 11px; font-family: "Jaldi", sans-serif; font-size: 1.2rem;
       outline: none; transition: border-color 0.2s;
     }
     .odu-input:focus { border-color: var(--oc-primary, #004AAD); }
@@ -581,7 +664,7 @@
       width: 34px; height: 34px; border-radius: 8px;
       background: var(--oc-primary, #004AAD); color: #fff; border: none;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
-      font-size: 0.95rem; flex-shrink: 0; transition: background 0.15s;
+      font-size: 1.2rem; flex-shrink: 0; transition: background 0.15s;
     }
     .odu-send:hover { background: #003490; }
     .odu-chips {
@@ -591,7 +674,7 @@
     .odu-chip {
       background: #eff6ff; border: 1px solid #bfdbfe;
       color: #1e40af; border-radius: 20px;
-      font-family: "Jaldi", sans-serif; font-size: 0.875rem; font-weight: 700;
+      font-family: "Jaldi", sans-serif; font-size:  1.2rem; font-weight: 700;
       padding: 4px 11px; cursor: pointer; white-space: nowrap;
       transition: background .15s;
     }
@@ -607,7 +690,7 @@
       <div class="odu-avatar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 2v4"/><circle cx="12" cy="6" r="2"/><path d="M7 11V8a5 5 0 0 1 10 0v3"/><circle cx="9" cy="15" r="1" fill="currentColor"/><circle cx="15" cy="15" r="1" fill="currentColor"/></svg></div>
       <div>
         <div>Odu</div>
-        <div style="font-size:0.8rem;font-weight:400;opacity:0.85;">Oduma Corp Assistant</div>
+        <div style="font-size: 1.2rem;font-weight:400;opacity:0.85;">Oduma Corp Assistant</div>
       </div>
       <button class="odu-panel-head-close" id="odu-close" aria-label="Close chat">✕</button>
     </div>
@@ -745,31 +828,31 @@
     width:40px;height:40px;border-radius:50%;
     background:linear-gradient(135deg,#1B5EC7,#0A1628);
     display:flex;align-items:center;justify-content:center;
-    font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:800;color:#fff;
+    font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:800;color:#fff;
     flex-shrink:0;border:2px solid rgba(255,255,255,.15);
   }
   .qm-head-info{flex:1;min-width:0;}
-  .qm-head-name{font-family:'Space Grotesk',sans-serif;font-size:.9375rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .qm-head-name{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .qm-head-label{
     display:inline-flex;align-items:center;gap:4px;margin-top:2px;
-    font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+    font-size:1.2rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
     background:rgba(27,94,199,.4);color:#93c5fd;padding:2px 8px;border-radius:20px;
   }
   .qm-close{
     width:28px;height:28px;border-radius:8px;border:none;
     background:rgba(255,255,255,.12);color:#fff;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;font-size:.8rem;
+    display:flex;align-items:center;justify-content:center;font-size:1.2rem;
     flex-shrink:0;transition:background .15s;
   }
   .qm-close:hover{background:rgba(255,255,255,.22);}
 
   /* Body — compose */
   .qm-body{padding:16px 18px;}
-  .qm-hint{font-size:.83rem;color:#9ca3af;margin-bottom:10px;line-height:1.5;}
+  .qm-hint{font-size:1.2rem;color:#9ca3af;margin-bottom:10px;line-height:1.5;}
   .qm-textarea{
     width:100%;box-sizing:border-box;
     border:1.5px solid #e0e6f0;border-radius:12px;
-    padding:10px 14px;font-size:.9375rem;font-family:inherit;
+    padding:10px 14px;font-size:1.2rem;font-family:inherit;
     color:#0A1628;line-height:1.5;resize:none;
     min-height:88px;max-height:160px;
     background:#fafbff;outline:none;
@@ -784,7 +867,7 @@
     padding:0 18px 16px;
   }
   .qm-open-link{
-    font-size:.83rem;font-weight:600;color:#6b7280;text-decoration:none;
+    font-size:1.2rem;font-weight:600;color:#6b7280;text-decoration:none;
     display:flex;align-items:center;gap:4px;
     transition:color .15s;
   }
@@ -807,12 +890,12 @@
   }
   .qm-sent.show{display:flex;}
   .qm-sent-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#dcfce7;color:#16a34a;}
-  .qm-sent-title{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#0A1628;}
-  .qm-sent-sub{font-size:.875rem;color:#6b7280;}
+  .qm-sent-title{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:800;color:#0A1628;}
+  .qm-sent-sub{font-size:1.2rem;color:#6b7280;}
   .qm-sent-link{
     margin-top:6px;background:#0A1628;color:#fff;
     padding:9px 22px;border-radius:12px;
-    font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:700;
+    font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;
     text-decoration:none;display:inline-flex;align-items:center;gap:6px;
     transition:background .18s;
   }
@@ -898,8 +981,8 @@
         av.textContent = initials || name.slice(0,2).toUpperCase();
       }
 
-      // Inbox link (pre-load; will update after send with conv id)
-      document.getElementById('qm-inbox-link').href = '/inbox/';
+      // Inbox link — direct to chat with this user
+      document.getElementById('qm-inbox-link').href = '/start_conversation/' + userId + '/';
 
       document.getElementById('qm-panel').classList.add('open');
       document.getElementById('qm-overlay').classList.add('open');
@@ -1102,6 +1185,86 @@
       if (_activeEl) positionDropdown(_activeEl);
     }, true);
   })();
+  </script>
+
+  <!-- ── Ghost-text example fields (global) ──────────────────────────────
+       Any input/textarea with data-example="..." gets ghost-text behaviour.
+       CSS is in design-system.css (.cp-ghost-text / .cp-example-hint).
+       ─────────────────────────────────────────────────────────────────── -->
+  <script>
+  (function () {
+    var NAV_KEYS = ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',
+                    'Home','End','PageUp','PageDown','Tab','Shift',
+                    'Control','Alt','Meta','CapsLock','Escape',
+                    'F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12'];
+
+    function initGhost(el) {
+      if (el._ghostInited) return;
+      el._ghostInited = true;
+      var example = el.dataset.example;
+      var isTA = el.tagName === 'TEXTAREA';
+
+      /* Build hint element */
+      var hint = document.createElement('div');
+      hint.className = 'cp-example-hint';
+      hint.innerHTML = '<span>Example:</span> ' + example;
+      el.parentNode.insertBefore(hint, el.nextSibling);
+
+      function showGhost() {
+        el.value = example;
+        el.classList.add('cp-ghost-text');
+        el.style.color = '#9ca3af';   /* inline style beats any CSS class rule */
+        hint.style.display = 'none';
+      }
+      function clearGhost() {
+        el.value = '';
+        el.classList.remove('cp-ghost-text');
+        el.style.color = '';          /* restore to stylesheet default */
+        hint.style.display = 'block';
+      }
+      function restoreIfEmpty() {
+        if (!el.value.trim()) showGhost();
+        else {
+          el.classList.remove('cp-ghost-text');
+          el.style.color = '';
+          hint.style.display = 'none';
+        }
+      }
+
+      /* Init */
+      if (!el.value.trim()) showGhost();
+
+      el.addEventListener('keydown', function (e) {
+        if (el.classList.contains('cp-ghost-text') && NAV_KEYS.indexOf(e.key) === -1) clearGhost();
+      });
+      el.addEventListener('focus', function () {
+        if (el.classList.contains('cp-ghost-text')) el.select();
+      });
+      el.addEventListener('blur', restoreIfEmpty);
+
+      /* Strip ghost before submit */
+      var form = el.closest('form');
+      if (form && !form._ghostSubmitBound) {
+        form._ghostSubmitBound = true;
+        form.addEventListener('submit', function () {
+          form.querySelectorAll('.cp-ghost-text').forEach(function (g) { g.value = ''; });
+        }, true);
+      }
+    }
+
+    function scanGhosts() {
+      document.querySelectorAll('[data-example]:not([data-example=""])').forEach(initGhost);
+    }
+
+    /* Script is at the end of <body> — all DOM nodes above are already
+       available. Call directly, no event listener needed. */
+    scanGhosts();
+
+    /* Re-scan when new nodes are added (modals, dynamic fields) */
+    new MutationObserver(function (muts) {
+      muts.forEach(function (m) { if (m.addedNodes.length) scanGhosts(); });
+    }).observe(document.body, { childList: true, subtree: true });
+  }());
   </script>
 </body>
 </html>

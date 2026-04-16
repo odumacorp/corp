@@ -39,11 +39,11 @@
   border: 1.5px solid var(--border);
   border-radius: 14px;
   padding: 20px;
-  font-size: 0.83rem;
+  font-size: 1.2rem;
 }
 .pp-toc-title {
   font-family: "Jacques Francois", serif;
-  font-size: 0.85rem;
+  font-size: 1.2rem;
   color: #0f172a;
   margin-bottom: 14px;
   padding-bottom: 10px;
@@ -53,68 +53,59 @@
   display: block;
   color: #64748b;
   text-decoration: none;
-  padding: 5px 0 5px 10px;
-  border-left: 2px solid transparent;
+  padding: 5px 8px;
+  border-radius: 7px;
   font-family: var(--ff-sans);
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s, background 0.15s;
   line-height: 1.4;
 }
 .pp-toc a:hover, .pp-toc a.active {
   color: var(--blue);
-  border-left-color: var(--blue);
+  background: #eff6ff;
 }
-.pp-toc a.sub { padding-left: 22px; font-size: 0.78rem; }
+.pp-toc a.sub { padding-left: 20px; font-size: 1.2rem; }
 
 /* Main content */
 .pp-content {}
 
 /* Hero */
 .pp-hero {
-  background: linear-gradient(135deg, #0a0f2c 0%, #003080 100%);
+  background: #eef4ff;
+  border: 1.5px solid #d0e2ff;
   border-radius: 20px;
   padding: 40px 36px;
-  color: #fff;
   margin-bottom: 40px;
-  position: relative;
-  overflow: hidden;
-}
-.pp-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='28'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
-  pointer-events: none;
 }
 .pp-hero-badge {
   display: inline-flex; align-items: center; gap: 7px;
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.2);
+  background: #dbeafe;
+  border: 1px solid #bfdbfe;
   border-radius: 99px;
   padding: 5px 14px;
-  font-size: 0.75rem;
+  font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   margin-bottom: 16px;
-  color: rgba(255,255,255,0.9);
+  color: #1e40af;
 }
 .pp-hero h1 {
   font-family: "Jacques Francois", serif;
-  font-size: 1.9rem;
-  color: #fff;
+  font-size: 2.6rem;
+  color: #0f172a;
   margin-bottom: 10px;
   line-height: 1.2;
 }
 .pp-hero p {
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.72);
+  font-size: 1.2rem;
+  color: #475569;
   line-height: 1.65;
   max-width: 580px;
   margin-bottom: 20px;
 }
 .pp-hero-meta {
   display: flex; gap: 24px; flex-wrap: wrap;
-  font-size: 0.78rem; color: rgba(255,255,255,0.55);
+  font-size: 1.2rem; color: #64748b;
 }
 .pp-hero-meta span { display: flex; align-items: center; gap: 6px; }
 
@@ -124,7 +115,7 @@
   padding: 16px 18px;
   border-radius: 12px;
   margin-bottom: 32px;
-  font-size: 0.875rem;
+  font-size: 1.2rem;
   line-height: 1.6;
 }
 .pp-alert-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
@@ -147,7 +138,7 @@
   width: 40px; height: 40px;
   border-radius: 11px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem; flex-shrink: 0;
+  font-size: 1.2rem; flex-shrink: 0;
 }
 .pp-section-header h2 {
   font-family: "Jacques Francois", serif;
@@ -162,26 +153,12 @@
   padding: 22px 24px;
   margin-bottom: 16px;
   border: 1.5px solid;
-  position: relative;
-  overflow: hidden;
-}
-.pp-contract-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 4px; height: 100%;
-  border-radius: 4px 0 0 4px;
 }
 .pp-contract-card.blue   { background: #eff6ff; border-color: #bfdbfe; }
-.pp-contract-card.blue::before { background: #004AAD; }
 .pp-contract-card.purple { background: #faf5ff; border-color: #ddd6fe; }
-.pp-contract-card.purple::before { background: #7c3aed; }
 .pp-contract-card.green  { background: #f0fdf4; border-color: #bbf7d0; }
-.pp-contract-card.green::before { background: #059669; }
 .pp-contract-card.amber  { background: #fffbeb; border-color: #fde68a; }
-.pp-contract-card.amber::before { background: #d97706; }
-.pp-contract-card.dark   { background: #0a0f2c; border-color: #1e3a6e; }
-.pp-contract-card.dark::before { background: #60a5fa; }
+.pp-contract-card.dark   { background: #eef4ff; border-color: #bfdbfe; }
 
 .pp-contract-card .cc-header {
   display: flex; align-items: center; gap: 10px;
@@ -190,49 +167,48 @@
 .pp-contract-card .cc-icon {
   width: 34px; height: 34px; border-radius: 9px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; flex-shrink: 0;
+  font-size: 1.2rem; flex-shrink: 0;
 }
 .pp-contract-card.blue   .cc-icon { background: rgba(0,74,173,0.12); color: #004AAD; }
 .pp-contract-card.purple .cc-icon { background: rgba(124,58,237,0.12); color: #7c3aed; }
 .pp-contract-card.green  .cc-icon { background: rgba(5,150,105,0.12); color: #059669; }
 .pp-contract-card.amber  .cc-icon { background: rgba(217,119,6,0.12); color: #d97706; }
-.pp-contract-card.dark   .cc-icon { background: rgba(96,165,250,0.12); color: #60a5fa; }
+.pp-contract-card.dark   .cc-icon { background: rgba(0,74,173,0.12); color: #004AAD; }
 
 .pp-contract-card .cc-title {
-  font-weight: 700; font-size: 0.95rem;
+  font-weight: 700; font-size: 1.2rem; color: #0f172a;
 }
-.pp-contract-card.dark .cc-title { color: #fff; }
 .pp-contract-card .cc-body {
-  font-size: 0.875rem; line-height: 1.65; color: #475569;
+  font-size: 1.2rem; line-height: 1.65; color: #475569;
 }
-.pp-contract-card.dark .cc-body { color: rgba(255,255,255,0.72); }
 .pp-contract-card .cc-body ul { margin: 8px 0 0 18px; padding: 0; }
 .pp-contract-card .cc-body li { margin-bottom: 5px; }
 
 /* Share highlight */
 .pp-share-highlight {
-  background: linear-gradient(135deg, #0a0f2c, #003080);
+  background: #eef4ff;
+  border: 1.5px solid #bfdbfe;
   border-radius: 16px;
   padding: 28px 28px;
-  color: #fff;
   text-align: center;
   margin: 24px 0;
 }
 .pp-share-highlight .sh-num {
   font-family: "Jacques Francois", serif;
-  font-size: 3rem;
-  color: #60a5fa;
+  font-size: 4.1rem;
+  color: #004AAD;
   line-height: 1;
   margin-bottom: 6px;
 }
 .pp-share-highlight .sh-label {
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.72);
+  font-size: 1.2rem;
+  color: #1e40af;
+  font-weight: 700;
   margin-bottom: 12px;
 }
 .pp-share-highlight .sh-note {
-  font-size: 0.78rem;
-  color: rgba(255,255,255,0.45);
+  font-size: 1.2rem;
+  color: #64748b;
   max-width: 420px;
   margin: 0 auto;
   line-height: 1.5;
@@ -240,7 +216,7 @@
 
 /* Body text */
 .pp-body {
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   line-height: 1.75;
   color: #374151;
 }
@@ -272,12 +248,12 @@
 }
 .pp-acceptance h3 {
   font-family: "Jacques Francois", serif;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   color: #0f172a;
   margin-bottom: 10px;
 }
 .pp-acceptance p {
-  font-size: 0.875rem;
+  font-size: 1.2rem;
   color: #64748b;
   max-width: 520px;
   margin: 0 auto 20px;
@@ -286,7 +262,7 @@
 .pp-acceptance-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .pp-acc-btn {
   padding: 10px 26px; border-radius: 10px;
-  font-family: var(--ff-sans); font-size: 0.875rem; font-weight: 700;
+  font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700;
   text-decoration: none; cursor: pointer; border: none;
   transition: opacity 0.15s;
 }
@@ -498,7 +474,7 @@
         <div class="pp-contract-card dark">
           <div class="cc-header">
             <div class="cc-icon"><i class="fi fi-rr-building"></i></div>
-            <div class="cc-title" style="color:#fff;">Oduma Corp — Platform Equity &amp; Revenue Share</div>
+            <div class="cc-title">Oduma Corp — Platform Equity &amp; Revenue Share</div>
           </div>
           <div class="cc-body">
             <p>In exchange for providing the infrastructure, matchmaking technology, legal framework, dispute resolution, and ongoing platform support, <strong>Oduma Corp receives a percentage share from every project successfully completed on the platform.</strong></p>

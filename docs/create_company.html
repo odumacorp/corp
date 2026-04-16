@@ -28,13 +28,13 @@
   .cc-header { margin-bottom: 32px; }
   .cc-header-title {
     font-family: var(--ff-serif);
-    font-size: 2rem;
+    font-size: 2.7rem;
     color: var(--text);
     margin: 0 0 6px;
   }
   .cc-header-sub {
     font-family: var(--ff-sans);
-    font-size: 1rem;
+    font-size: 1.2rem;
     color: var(--muted);
     margin: 0;
   }
@@ -49,7 +49,7 @@
   }
   .cc-card-title {
     font-family: var(--ff-serif);
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: var(--text);
     margin: 0 0 22px;
     padding-bottom: 12px;
@@ -83,7 +83,7 @@
     text-align: center;
     pointer-events: none;
     font-family: var(--ff-sans);
-    font-size: .92rem;
+    font-size: 1.2rem;
     color: var(--muted);
   }
   .cc-cover-placeholder svg { display: block; margin: 0 auto 6px; color: var(--blue); opacity: .55; }
@@ -104,8 +104,8 @@
   .cc-logo-upload input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
   .cc-logo-upload svg { color: var(--blue); opacity: .5; pointer-events: none; }
   #cc-logo-preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 10px; }
-  .cc-logo-hint { font-family: var(--ff-sans); font-size: .88rem; color: var(--muted); line-height: 1.55; }
-  .cc-logo-hint strong { display: block; font-size: .94rem; color: var(--text); margin-bottom: 2px; }
+  .cc-logo-hint { font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); line-height: 1.55; }
+  .cc-logo-hint strong { display: block; font-size: 1.2rem; color: var(--text); margin-bottom: 2px; }
 
   /* Fields */
   .cc-field { margin-bottom: 18px; }
@@ -113,7 +113,7 @@
   .cc-label {
     display: block;
     font-family: var(--ff-sans);
-    font-size: .88rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--text);
     margin-bottom: 6px;
@@ -126,7 +126,7 @@
     border: 1.5px solid var(--border);
     border-radius: 8px;
     font-family: var(--ff-sans);
-    font-size: .97rem;
+    font-size: 1.2rem;
     color: var(--text);
     background: #fafbff;
     transition: border-color .2s, box-shadow .2s;
@@ -145,9 +145,9 @@
     background-position: right 13px center;
     padding-right: 36px;
   }
-  .cc-hint { font-family: var(--ff-sans); font-size: .8rem; color: var(--muted); margin-top: 4px; }
+  .cc-hint { font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); margin-top: 4px; }
   .cc-char-row { display: flex; justify-content: flex-end; margin-top: 3px; }
-  .cc-char-count { font-family: var(--ff-sans); font-size: .78rem; color: var(--muted); }
+  .cc-char-count { font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); }
 
   .cc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media (max-width: 560px) { .cc-grid-2 { grid-template-columns: 1fr; } .cc-card { padding: 20px 18px; } }
@@ -161,7 +161,7 @@
   }
   .cc-btn-cancel {
     font-family: var(--ff-sans);
-    font-size: .97rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: var(--muted);
     background: none;
@@ -175,7 +175,7 @@
   .cc-btn-cancel:hover { border-color: #9ca3af; color: var(--text); }
   .cc-btn-submit {
     font-family: var(--ff-sans);
-    font-size: .97rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: #fff;
     background: var(--blue);
@@ -193,7 +193,7 @@
 
   /* Django messages */
   .cc-alerts { margin-bottom: 20px; }
-  .cc-alert { padding: 12px 16px; border-radius: 8px; font-family: var(--ff-sans); font-size: .92rem; margin-bottom: 8px; }
+  .cc-alert { padding: 12px 16px; border-radius: 8px; font-family: var(--ff-sans); font-size: 1.2rem; margin-bottom: 8px; }
   .cc-alert-error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
   .cc-alert-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
   .cc-alert-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
@@ -228,12 +228,12 @@
       <div class="cc-field" data-picker-wrap>
         <label class="cc-label">Cover Image</label>
         <div class="cc-cover-upload" onclick="document.getElementById('cc-cover-input').click()">
-          <input type="file" name="cover_image" accept="image/*" id="cc-cover-input">
+          <input type="file" name="cover_image" accept="image/*" id="cc-cover-input" onclick="event.stopPropagation()">
           <img id="cc-cover-preview" alt="">
           <div class="cc-cover-placeholder" id="cc-cover-placeholder">
             <svg width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
             Click to upload cover image
-            <span style="display:block;font-size:.78rem;margin-top:2px;opacity:.8;">Recommended 1200 × 300 px · JPG or PNG</span>
+            <span style="display:block;font-size: 1.2rem;margin-top:2px;opacity:.8;">Recommended 1200 × 300 px · JPG or PNG</span>
           </div>
         </div>
         <button type="button" class="oc-pick-btn"
@@ -246,7 +246,7 @@
 
       <div class="cc-logo-row" data-picker-wrap>
         <div class="cc-logo-upload" onclick="document.getElementById('cc-logo-input').click()">
-          <input type="file" name="logo" accept="image/*" id="cc-logo-input">
+          <input type="file" name="logo" accept="image/*" id="cc-logo-input" onclick="event.stopPropagation()">
           <img id="cc-logo-preview" alt="">
           <svg id="cc-logo-icon" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         </div>
@@ -272,39 +272,39 @@
 
       <div class="cc-field">
         <label class="cc-label" for="id_name">Company Name <span class="req">*</span></label>
-        <input type="text" name="name" id="id_name" class="cc-input" placeholder="e.g. Oduma Technologies Ltd." required maxlength="255" value="{{ request.POST.name }}">
+        <input type="text" name="name" id="id_name" class="cc-input" placeholder="" data-example="e.g. Oduma Technologies Ltd." required maxlength="255" value="{{ request.POST.name }}">
       </div>
 
       <div class="cc-field">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
           <label class="cc-label" style="margin:0;" for="id_tagline">Tagline</label>
           <button type="button" onclick="toggleTaglineAI()"
-                  style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-size:.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
+                  style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-size: 1.2rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
             Suggest taglines
           </button>
         </div>
-        <input type="text" name="tagline" id="id_tagline" class="cc-input" placeholder="A short line that captures what you do" maxlength="300" value="{{ request.POST.tagline }}">
+        <input type="text" name="tagline" id="id_tagline" class="cc-input" placeholder="" data-example="A short line that captures what you do" maxlength="300" value="{{ request.POST.tagline }}">
         <div class="cc-char-row"><span class="cc-char-count"><span id="cc-tagline-count">0</span> / 300</span></div>
 
         <!-- AI tagline panel -->
         <div id="tagline-ai-panel" style="display:none;margin-top:10px;background:#f8faff;border:1.5px solid #c7d9ff;border-radius:12px;padding:16px;">
-          <p style="font-size:.82rem;color:#374151;margin:0 0 10px;line-height:1.5;">
+          <p style="font-size: 1.2rem;color:#374151;margin:0 0 10px;line-height:1.5;">
             Briefly describe what your company does and we'll suggest five punchy taglines.
           </p>
           <textarea id="tagline-ai-mission" rows="2"
-                    style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:.85rem;resize:vertical;margin-bottom:10px;"
-                    placeholder="e.g. We make solar-powered clean water solutions affordable for rural African communities…"></textarea>
+                    style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size: 1.2rem;resize:vertical;margin-bottom:10px;"
+                    placeholder="" data-example="e.g. We make solar-powered clean water solutions affordable…"></textarea>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <button type="button" id="gen-tagline-btn" onclick="generateTaglines()"
-                    style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.83rem;font-weight:600;cursor:pointer;">
+                    style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size: 1.2rem;font-weight:600;cursor:pointer;">
               Generate Taglines
             </button>
-            <span id="tagline-spinner" style="display:none;font-size:.82rem;color:#6b7280;">Thinking…</span>
-            <span id="tagline-error" style="display:none;font-size:.82rem;color:#dc2626;"></span>
+            <span id="tagline-spinner" style="display:none;font-size: 1.2rem;color:#6b7280;">Thinking…</span>
+            <span id="tagline-error" style="display:none;font-size: 1.2rem;color:#dc2626;"></span>
           </div>
           <div id="tagline-suggestions" style="display:none;margin-top:12px;">
-            <p style="font-size:.8rem;font-weight:600;color:#374151;margin:0 0 8px;">Click to use:</p>
+            <p style="font-size: 1.2rem;font-weight:600;color:#374151;margin:0 0 8px;">Click to use:</p>
             <div id="tagline-chips" style="display:flex;flex-direction:column;gap:7px;"></div>
           </div>
         </div>
@@ -314,35 +314,35 @@
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
           <label class="cc-label" style="margin:0;" for="id_description">Description <span class="req">*</span></label>
           <button type="button" onclick="toggleDescAI()"
-                  style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-size:.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
+                  style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:6px 13px;font-size: 1.2rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
             Write with AI
           </button>
         </div>
-        <textarea name="description" id="id_description" class="cc-textarea" placeholder="Tell investors and innovators about your company — your mission, what you build, and where you're headed." required>{{ request.POST.description }}</textarea>
+        <textarea name="description" id="id_description" class="cc-textarea" placeholder="" data-example="Our mission, what we build, and where we're headed." required>{{ request.POST.description }}</textarea>
 
         <!-- AI description panel -->
         <div id="desc-ai-panel" style="display:none;margin-top:10px;background:#f8faff;border:1.5px solid #c7d9ff;border-radius:12px;padding:16px;">
-          <p style="font-size:.82rem;color:#374151;margin:0 0 10px;line-height:1.5;">
+          <p style="font-size: 1.2rem;color:#374151;margin:0 0 10px;line-height:1.5;">
             Tell us what your company does and we'll write a professional description for you.
           </p>
           <textarea id="desc-ai-mission" rows="3"
-                    style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size:.85rem;resize:vertical;margin-bottom:10px;"
-                    placeholder="e.g. We build AI-powered logistics tools for small African retailers, cutting delivery costs by 40%…"></textarea>
+                    style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size: 1.2rem;resize:vertical;margin-bottom:10px;"
+                    placeholder="" data-example="e.g. We build AI-powered logistics tools, cutting delivery costs by 40%…"></textarea>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <button type="button" id="gen-desc-btn" onclick="generateCompanyDesc()"
-                    style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.83rem;font-weight:600;cursor:pointer;">
+                    style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size: 1.2rem;font-weight:600;cursor:pointer;">
               Generate Description
             </button>
-            <span id="desc-spinner" style="display:none;font-size:.82rem;color:#6b7280;">Writing…</span>
-            <span id="desc-error" style="display:none;font-size:.82rem;color:#dc2626;"></span>
+            <span id="desc-spinner" style="display:none;font-size: 1.2rem;color:#6b7280;">Writing…</span>
+            <span id="desc-error" style="display:none;font-size: 1.2rem;color:#dc2626;"></span>
           </div>
           <div id="desc-ai-result" style="display:none;margin-top:14px;">
-            <p style="font-size:.8rem;font-weight:600;color:#374151;margin:0 0 6px;">AI-generated description — edit freely before using:</p>
+            <p style="font-size: 1.2rem;font-weight:600;color:#374151;margin:0 0 6px;">AI-generated description — edit freely before using:</p>
             <textarea id="desc-ai-text" rows="6"
-                      style="width:100%;border:1.5px solid #c7d9ff;border-radius:8px;padding:10px 12px;font-size:.875rem;resize:vertical;background:#fff;"></textarea>
+                      style="width:100%;border:1.5px solid #c7d9ff;border-radius:8px;padding:10px 12px;font-size: 1.2rem;resize:vertical;background:#fff;"></textarea>
             <button type="button" onclick="useCompanyDesc()"
-                    style="margin-top:10px;background:#16a34a;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.83rem;font-weight:600;cursor:pointer;">
+                    style="margin-top:10px;background:#16a34a;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size: 1.2rem;font-weight:600;cursor:pointer;">
               Use this description
             </button>
           </div>
@@ -387,7 +387,7 @@
         </div>
         <div class="cc-field">
           <label class="cc-label" for="id_location">Location</label>
-          <input type="text" name="location" id="id_location" class="cc-input" placeholder="e.g. Lagos, Nigeria" value="{{ request.POST.location }}">
+          <input type="text" name="location" id="id_location" class="cc-input" placeholder="" data-example="e.g. Lagos, Nigeria" value="{{ request.POST.location }}">
         </div>
       </div>
     </div>
@@ -402,17 +402,17 @@
       <div class="cc-grid-2">
         <div class="cc-field">
           <label class="cc-label" for="id_website">Website</label>
-          <input type="url" name="website" id="id_website" class="cc-input" placeholder="https://yourcompany.com" value="{{ request.POST.website }}">
+          <input type="url" name="website" id="id_website" class="cc-input" placeholder="" data-example="https://yourcompany.com" value="{{ request.POST.website }}">
         </div>
         <div class="cc-field">
           <label class="cc-label" for="id_email">Business Email</label>
-          <input type="email" name="email" id="id_email" class="cc-input" placeholder="contact@yourcompany.com" value="{{ request.POST.email }}">
+          <input type="email" name="email" id="id_email" class="cc-input" placeholder="" data-example="contact@yourcompany.com" value="{{ request.POST.email }}">
         </div>
       </div>
 
       <div class="cc-field" style="max-width:320px;">
         <label class="cc-label" for="id_phone">Phone Number</label>
-        <input type="tel" name="phone" id="id_phone" class="cc-input" placeholder="+234 800 000 0000" value="{{ request.POST.phone }}">
+        <input type="tel" name="phone" id="id_phone" class="cc-input" placeholder="" data-example="+234 800 000 0000" value="{{ request.POST.phone }}">
       </div>
     </div>
 
@@ -429,72 +429,7 @@
 </div>
 
 <script>
-/* ── Searchable combobox ── */
-(function() {
-  function initCombo(combo) {
-    var hiddenInput = document.getElementById(combo.dataset.hidden);
-    var textInput   = combo.querySelector('.oc-combo__input');
-    var list        = combo.querySelector('.oc-combo__list');
-    var items       = Array.from(combo.querySelectorAll('.oc-combo__item'));
-    var addRow      = null;
-
-    function openList() {
-      filterList();
-      list.style.display = 'block';
-    }
-
-    function closeList() {
-      list.style.display = 'none';
-    }
-
-    function filterList() {
-      var q = textInput.value.trim().toLowerCase();
-      var anyVisible = false;
-      items.forEach(function(li) {
-        var show = !q || li.textContent.toLowerCase().indexOf(q) !== -1;
-        li.style.display = show ? '' : 'none';
-        if (show) anyVisible = true;
-      });
-
-      var typed = textInput.value.trim();
-      if (typed && !anyVisible) {
-        if (!addRow) {
-          addRow = document.createElement('li');
-          addRow.className = 'oc-combo__add';
-          list.appendChild(addRow);
-        }
-        addRow.textContent = 'Add "' + typed + '"';
-        addRow.style.display = '';
-        addRow.onclick = function() {
-          hiddenInput.value = typed;
-          textInput.value   = typed;
-          closeList();
-        };
-      } else {
-        if (addRow) addRow.style.display = 'none';
-      }
-
-      hiddenInput.value = typed;
-    }
-
-    textInput.addEventListener('focus', openList);
-    textInput.addEventListener('input', filterList);
-
-    items.forEach(function(li) {
-      li.addEventListener('click', function() {
-        hiddenInput.value = li.dataset.value;
-        textInput.value   = li.textContent.trim();
-        closeList();
-      });
-    });
-
-    document.addEventListener('click', function(e) {
-      if (!combo.contains(e.target)) closeList();
-    });
-  }
-
-  document.querySelectorAll('.oc-combo[data-hidden]').forEach(initCombo);
-})();
+/* Combo init handled by oc-combo.js (loaded globally in base.html) */
 
 /* ── AI Assist helpers ── */
 var AI_ASSIST_URL = '{% url "ai_assist" %}';
@@ -538,7 +473,7 @@ function generateTaglines() {
     (data.suggestions || []).forEach(function(s) {
       var chip = document.createElement('button');
       chip.type = 'button'; chip.textContent = s;
-      chip.style.cssText = 'background:#fff;border:1.5px solid #c7d9ff;border-radius:8px;padding:9px 14px;font-size:.875rem;color:#004AAD;cursor:pointer;text-align:left;font-weight:500;';
+      chip.style.cssText = 'background:#fff;border:1.5px solid #c7d9ff;border-radius:8px;padding:9px 14px;font-size: 1.2rem;color:#004AAD;cursor:pointer;text-align:left;font-weight:500;';
       chip.onclick = function() {
         document.getElementById('id_tagline').value = s;
         document.getElementById('cc-tagline-count').textContent = s.length;

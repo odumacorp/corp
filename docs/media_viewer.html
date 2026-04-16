@@ -50,7 +50,7 @@
     display: inline-flex; align-items: center; gap: 5px;
     background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
     border-radius: 8px; padding: 6px 14px;
-    color: var(--mv-text); font-family: inherit; font-size: 0.88rem;
+    color: var(--mv-text); font-family: inherit; font-size: 1.2rem;
     cursor: pointer; text-decoration: none; white-space: nowrap;
     transition: background 0.15s;
     flex-shrink: 0;
@@ -62,19 +62,19 @@
     display: flex; flex-direction: column; justify-content: center;
   }
   .mv-topbar-name {
-    font-size: 0.94rem; font-weight: 700; color: var(--mv-text);
+    font-size: 1.2rem; font-weight: 700; color: var(--mv-text);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     line-height: 1.2;
   }
   .mv-topbar-counter {
-    font-size: 0.75rem; color: var(--mv-muted); line-height: 1.2;
+    font-size: 1.2rem; color: var(--mv-muted); line-height: 1.2;
   }
 
   .mv-btn-dl {
     display: inline-flex; align-items: center; gap: 5px;
     background: var(--mv-blue); border: none; border-radius: 8px;
     padding: 7px 15px; color: #fff;
-    font-family: inherit; font-size: 0.86rem; font-weight: 700;
+    font-family: inherit; font-size: 1.2rem; font-weight: 700;
     cursor: pointer; text-decoration: none; white-space: nowrap;
     flex-shrink: 0; transition: opacity 0.15s;
   }
@@ -115,7 +115,7 @@
     background: rgba(255,255,255,0.09);
     border: 1px solid rgba(255,255,255,0.14);
     border-radius: 12px;
-    color: #fff; font-size: 1.5rem;
+    color: #fff; font-size: 2.0rem;
     transition: background 0.18s, transform 0.18s;
     position: relative; z-index: 1;
   }
@@ -172,12 +172,12 @@
   }
   .mv-file-big-icon { font-size: clamp(2.4rem,7vw,3.8rem); display: block; margin-bottom: 14px; }
   .mv-file-card-name { font-size: clamp(0.9rem,2.5vw,1.05rem); font-weight: 700; color: var(--mv-text); margin-bottom: 5px; word-break: break-all; }
-  .mv-file-card-ext  { font-size: 0.78rem; color: var(--mv-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 22px; }
+  .mv-file-card-ext  { font-size: 1.2rem; color: var(--mv-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 22px; }
 
   /* Caption overlay */
   .mv-caption {
     position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-    font-size: 0.83rem; color: rgba(255,255,255,0.55); text-align: center;
+    font-size: 1.2rem; color: rgba(255,255,255,0.55); text-align: center;
     pointer-events: none; max-width: min(600px, 90%);
     background: rgba(0,0,0,0.35); border-radius: 8px; padding: 4px 12px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -187,7 +187,7 @@
   /* Zoom hint */
   .mv-hint {
     position: absolute; bottom: 38px; left: 50%; transform: translateX(-50%);
-    font-size: 0.72rem; color: rgba(255,255,255,0.28);
+    font-size: 1.2rem; color: rgba(255,255,255,0.28);
     pointer-events: none; transition: opacity 0.5s; white-space: nowrap;
   }
 
@@ -216,7 +216,7 @@
   }
   .mv-thumb.active { border-color: var(--mv-blue); transform: scale(1.1); }
   .mv-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .mv-thumb-icon { font-size: 1.4rem; color: var(--mv-muted); }
+  .mv-thumb-icon { font-size: 1.9rem; color: var(--mv-muted); }
 
   /* Hide strip & sides when single item */
   {% if total <= 1 %}
@@ -231,7 +231,7 @@
   /* Tablet */
   @media (max-width: 900px) {
     .mv-side { width: clamp(40px, 7vw, 60px); }
-    .mv-side-arrow { width: 40px; height: 68px; font-size: 1.3rem; border-radius: 10px; }
+    .mv-side-arrow { width: 40px; height: 68px; font-size: 1.8rem; border-radius: 10px; }
     .mv-thumb { width: 50px; height: 50px; }
   }
 
@@ -240,15 +240,15 @@
     :root { --mv-topbar-h: 52px; }
 
     .mv-topbar { padding: 0 10px; gap: 7px; }
-    .mv-topbar-name { font-size: 0.85rem; }
-    .mv-topbar-counter { font-size: 0.7rem; }
-    .mv-btn-back { padding: 5px 10px; font-size: 0.82rem; }
-    .mv-btn-dl   { padding: 5px 11px; font-size: 0.82rem; }
+    .mv-topbar-name { font-size: 1.2rem; }
+    .mv-topbar-counter { font-size: 1.2rem; }
+    .mv-btn-back { padding: 5px 10px; font-size: 1.2rem; }
+    .mv-btn-dl   { padding: 5px 11px; font-size: 1.2rem; }
 
     /* Arrows: slim vertical strip */
     .mv-side { width: 36px; }
     .mv-side-arrow {
-      width: 30px; height: 58px; font-size: 1.1rem;
+      width: 30px; height: 58px; font-size: 1.2rem;
       border-radius: 8px;
     }
 
@@ -259,7 +259,7 @@
   /* Very small phones */
   @media (max-width: 380px) {
     .mv-side { width: 30px; }
-    .mv-side-arrow { width: 26px; height: 50px; font-size: 1rem; }
+    .mv-side-arrow { width: 26px; height: 50px; font-size: 1.2rem; }
     .mv-btn-dl span { display: none; }  /* hide "Download" text, keep icon */
   }
 </style>
@@ -319,7 +319,7 @@
         {% elif item.type == 'audio' %}
           <div class="mv-audio-card">
             <span class="mv-audio-icon"><i class="fi fi-rr-music"></i></span>
-            <div style="font-size:1rem;font-weight:700;color:var(--mv-text);margin-bottom:14px;">{{ name|default:"Audio" }}</div>
+            <div style="font-size: 1.2rem;font-weight:700;color:var(--mv-text);margin-bottom:14px;">{{ name|default:"Audio" }}</div>
             <audio controls style="width:100%;" {% if forloop.counter0 == index %}autoplay{% endif %}>
               <source src="{{ item.src }}">
             </audio>

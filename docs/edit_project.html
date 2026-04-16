@@ -68,8 +68,8 @@
         <div class="ep-row">
           <div class="ep-field">
             <label class="ep-label">Industry *</label>
-            <select name="industry" class="oc-select" required>
-              {% for val, label in form.fields.industry.choices %}
+            <select name="industry" class="oc-select" required data-combo>
+              {% for val, label in industry_choices %}
               <option value="{{ val }}" {% if project.industry == val %}selected{% endif %}>{{ label }}</option>
               {% endfor %}
             </select>
@@ -98,7 +98,7 @@
 
         <div class="ep-field">
           <label class="ep-label">Website / Demo URL</label>
-          <input type="url" name="website_link" class="oc-input" value="{{ project.website_link|default:'' }}" placeholder="https://yourproject.com" />
+          <input type="url" name="website_link" class="oc-input" value="{{ project.website_link|default:'' }}" placeholder="" data-example="https://yourproject.com" />
         </div>
       </fieldset>
 
@@ -110,7 +110,7 @@
             Keywords
             <span class="ep-hint">Comma-separated keywords for search engines and filters.</span>
           </label>
-          <input type="text" name="keywords" class="oc-input" value="{{ project.keywords|default:'' }}" placeholder="e.g. fintech, mobile, payments, Africa" maxlength="500" />
+          <input type="text" name="keywords" class="oc-input" value="{{ project.keywords|default:'' }}" placeholder="" data-example="e.g. fintech, mobile, payments, Africa" maxlength="500" />
         </div>
       </fieldset>
 
@@ -135,12 +135,12 @@
               Video Name
               <span class="ep-hint">Shown below video; used for SEO.</span>
             </label>
-            <input type="text" name="video_name" class="oc-input" value="{{ project.video_name|default:'' }}" placeholder="e.g. Product Demo v2" maxlength="255" />
+            <input type="text" name="video_name" class="oc-input" value="{{ project.video_name|default:'' }}" placeholder="" data-example="e.g. Product Demo v2" maxlength="255" />
           </div>
         </div>
         <div class="ep-field">
           <label class="ep-label">Video Description</label>
-          <textarea name="video_description" class="oc-textarea" rows="2" placeholder="Brief description of the video…">{{ project.video_description|default:'' }}</textarea>
+          <textarea name="video_description" class="oc-textarea" rows="2" placeholder="" data-example="Brief description of what the video shows…">{{ project.video_description|default:'' }}</textarea>
         </div>
       </fieldset>
 
@@ -148,7 +148,7 @@
       <fieldset class="ep-section" id="sect-pitch">
         <legend class="ep-legend">
           Investment Profile
-          <span style="font-size:.75rem;font-weight:400;color:#6b7280;margin-left:8px;">— pitch deck sections</span>
+          <span style="font-size: 1.2rem;font-weight:400;color:#6b7280;margin-left:8px;">— pitch deck sections</span>
         </legend>
 
         <!-- Pitch builder header with server-side baseline + live ring -->
@@ -191,7 +191,7 @@
           </div>
           <textarea name="problem_statement" class="oc-textarea pb-textarea" rows="4" id="pb-ta-problem_statement"
             oninput="pbUpdate()"
-            placeholder="What pain point are you solving? Who suffers from it and at what scale? What happens if it goes unsolved?">{{ project.problem_statement }}</textarea>
+            placeholder="" data-example="What pain point are you solving? Who suffers from it and at what scale?">{{ project.problem_statement }}</textarea>
         </div>
 
         <!-- Slide 2: Solution -->
@@ -207,7 +207,7 @@
           </div>
           <textarea name="solution_overview" class="oc-textarea pb-textarea" rows="4" id="pb-ta-solution_overview"
             oninput="pbUpdate()"
-            placeholder="Describe your product or service. What's the core technology or approach? What's your key differentiator vs. alternatives?">{{ project.solution_overview }}</textarea>
+            placeholder="" data-example="Describe your product or service and what makes it different from alternatives.">{{ project.solution_overview }}</textarea>
         </div>
 
         <!-- Slide 3: Market -->
@@ -223,7 +223,7 @@
           </div>
           <textarea name="market_opportunity" class="oc-textarea pb-textarea" rows="4" id="pb-ta-market_opportunity"
             oninput="pbUpdate()"
-            placeholder="Total Addressable Market (TAM), Serviceable Market (SAM), initial target segment (SOM). Who is your ideal customer? Include data sources.">{{ project.market_opportunity }}</textarea>
+            placeholder="" data-example="TAM, SAM, SOM — who is your ideal customer and how big is the opportunity?">{{ project.market_opportunity }}</textarea>
         </div>
 
         <!-- Slide 4: Business Model -->
@@ -239,7 +239,7 @@
           </div>
           <textarea name="business_model" class="oc-textarea pb-textarea" rows="4" id="pb-ta-business_model"
             oninput="pbUpdate()"
-            placeholder="Revenue streams (subscriptions, licensing, hardware, marketplace, B2B SaaS…). Unit economics. Pricing strategy. Path to profitability.">{{ project.business_model }}</textarea>
+            placeholder="" data-example="Revenue streams, pricing strategy, path to profitability.">{{ project.business_model }}</textarea>
         </div>
 
         <!-- Slide 5: Traction -->
@@ -255,7 +255,7 @@
           </div>
           <textarea name="traction" class="oc-textarea pb-textarea" rows="4" id="pb-ta-traction"
             oninput="pbUpdate()"
-            placeholder="Paying customers, pilots, LOIs, revenue figures, user growth, partnerships, awards, media coverage, IP filed. Numbers over adjectives.">{{ project.traction }}</textarea>
+            placeholder="" data-example="Paying customers, pilots, revenue figures, partnerships, awards. Numbers over adjectives.">{{ project.traction }}</textarea>
         </div>
 
         <!-- Slide 6: Funding Ask -->
@@ -272,7 +272,7 @@
           <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;margin-top:4px;">
             <input type="text" name="funding_requirement" class="oc-input" id="pb-ta-funding_requirement"
               oninput="pbUpdate()"
-              placeholder="e.g. $500,000 seed round" value="{{ project.funding_requirement }}" />
+              placeholder="" data-example="e.g. $500,000 seed round" value="{{ project.funding_requirement }}" />
             <select name="funding_stage" class="oc-select" style="min-width:150px;">
               <option value="">Funding Stage</option>
               <option value="pre_seed" {% if project.funding_stage == 'pre_seed' %}selected{% endif %}>Pre-Seed</option>
@@ -298,7 +298,7 @@
           </div>
           <textarea name="use_of_funds" class="oc-textarea pb-textarea" rows="4" id="pb-ta-use_of_funds"
             oninput="pbUpdate()"
-            placeholder="Breakdown by category: e.g. 40% product &amp; engineering, 30% sales &amp; marketing, 20% operations, 10% working capital. Include key milestones this funding achieves.">{{ project.use_of_funds }}</textarea>
+            placeholder="" data-example="e.g. 40% product, 30% sales, 20% operations, 10% working capital.">{{ project.use_of_funds }}</textarea>
         </div>
 
         <!-- Slide 8: Team -->
@@ -314,7 +314,7 @@
           </div>
           <textarea name="team_overview" class="oc-textarea pb-textarea" rows="4" id="pb-ta-team_overview"
             oninput="pbUpdate()"
-            placeholder="Co-founders and key hires: name, role, relevant experience, notable credentials. Advisors. Why this team has the domain expertise and execution ability to win.">{{ project.team_overview }}</textarea>
+            placeholder="" data-example="Co-founders, key hires: name, role, relevant experience. Why this team wins.">{{ project.team_overview }}</textarea>
         </div>
 
       </fieldset>
@@ -368,7 +368,7 @@
   <div class="ep-card" style="margin-top:20px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <h2 class="ep-section-title" style="margin:0;">Images</h2>
-      <a href="{% url 'upload_image' project.pk %}" class="oc-btn oc-btn--primary" style="font-size:0.85rem;padding:7px 16px;">+ Add Image</a>
+      <a href="{% url 'upload_image' project.pk %}" class="oc-btn oc-btn--primary" style="font-size: 1.2rem;padding:7px 16px;">+ Add Image</a>
     </div>
     {% with images=project.images.all %}
     {% if images %}
@@ -385,7 +385,7 @@
       {% endfor %}
     </div>
     {% else %}
-    <p style="color:#9ca3af;font-family:'Jaldi',sans-serif;font-size:0.9rem;">No images yet. <a href="{% url 'upload_image' project.pk %}">Upload your first image.</a></p>
+    <p style="color:#9ca3af;font-family:'Jaldi',sans-serif;font-size: 1.2rem;">No images yet. <a href="{% url 'upload_image' project.pk %}">Upload your first image.</a></p>
     {% endif %}
     {% endwith %}
   </div>
@@ -422,7 +422,7 @@
   background: rgba(255,255,255,.15);
   color: rgba(255,255,255,.85);
   font-family: 'Jaldi', sans-serif;
-  font-size: .72rem;
+  font-size: 1.2rem;
   font-weight: 700;
   padding: 2px 10px;
   border-radius: 20px;
@@ -437,7 +437,7 @@
 }
 .ep-hero-sub {
   font-family: 'Jaldi', sans-serif;
-  font-size: .82rem;
+  font-size: 1.2rem;
   color: rgba(255,255,255,.65);
   margin: 0;
 }
@@ -448,7 +448,7 @@
   padding: 8px 16px;
   border-radius: 9px;
   font-family: 'Jaldi', sans-serif;
-  font-size: .82rem;
+  font-size: 1.2rem;
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
@@ -471,7 +471,7 @@
   padding: 6px 14px;
   border-radius: 20px;
   font-family: 'Jaldi', sans-serif;
-  font-size: .82rem;
+  font-size: 1.2rem;
   font-weight: 700;
   text-decoration: none;
   transition: background .15s, border-color .15s;
@@ -480,40 +480,40 @@
 
 .ep-page { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
 .ep-card { background: #fff; border-radius: 20px; padding: 28px; box-shadow: 0 2px 16px rgba(0,0,0,.07); }
-.ep-title { font-family: 'Jacques Francois', serif; font-size: 1.5rem; color: #1a1a2e; margin: 0 0 20px; }
-.ep-section-title { font-family: 'Jacques Francois', serif; font-size: 1.05rem; color: #1a1a2e; margin: 0 0 8px; }
+.ep-title { font-family: 'Jacques Francois', serif; font-size: 2.0rem; color: #1a1a2e; margin: 0 0 20px; }
+.ep-section-title { font-family: 'Jacques Francois', serif; font-size: 1.2rem; color: #1a1a2e; margin: 0 0 8px; }
 .ep-section { border: none; padding: 0; margin: 0 0 22px; }
-.ep-legend { font-family: 'Jacques Francois', serif; font-size: 0.98rem; color: #1a1a2e; padding: 0 0 6px; margin-bottom: 14px; width: 100%; border-bottom: 1px solid #e5e7eb; }
+.ep-legend { font-family: 'Jacques Francois', serif; font-size: 1.2rem; color: #1a1a2e; padding: 0 0 6px; margin-bottom: 14px; width: 100%; border-bottom: 1px solid #e5e7eb; }
 .ep-field { margin-bottom: 14px; }
 .ep-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
-.ep-label { display: block; font-family: 'Jaldi', sans-serif; font-size: 0.88rem; font-weight: 700; color: #374151; margin-bottom: 5px; }
-.ep-hint { display: block; font-weight: 400; color: #9ca3af; font-size: 0.78rem; margin-top: 1px; }
-.ep-hint-text { font-family: 'Jaldi', sans-serif; font-size: 0.85rem; color: #9ca3af; margin: 0 0 14px; }
-.ep-msg { padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; font-family: 'Jaldi', sans-serif; font-size: 0.88rem; }
+.ep-label { display: block; font-family: 'Jaldi', sans-serif; font-size: 1.2rem; font-weight: 700; color: #374151; margin-bottom: 5px; }
+.ep-hint { display: block; font-weight: 400; color: #9ca3af; font-size: 1.2rem; margin-top: 1px; }
+.ep-hint-text { font-family: 'Jaldi', sans-serif; font-size: 1.2rem; color: #9ca3af; margin: 0 0 14px; }
+.ep-msg { padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; font-family: 'Jaldi', sans-serif; font-size: 1.2rem; }
 .ep-msg--success { background: #d1fae5; color: #065f46; }
 .ep-msg--error   { background: #fee2e2; color: #991b1b; }
 .ep-current-video { margin-bottom: 12px; }
-.ep-current-label { font-family: 'Jaldi', sans-serif; font-size: 0.82rem; color: #6b7280; margin: 5px 0 0; }
+.ep-current-label { font-family: 'Jaldi', sans-serif; font-size: 1.2rem; color: #6b7280; margin: 5px 0 0; }
 .ep-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
 
 .ep-att-list { display: flex; flex-direction: column; gap: 10px; }
 .ep-att-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #f8fafc; border-radius: 10px; }
 .ep-att-icon { flex-shrink: 0; width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:7px; background:#eef4ff; color:#1B5EC7; }
 .ep-att-info { flex: 1; min-width: 0; }
-.ep-att-name { display: block; font-family: 'Jaldi', sans-serif; font-weight: 700; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ep-att-desc { display: block; font-family: 'Jaldi', sans-serif; font-size: 0.78rem; color: #6b7280; }
+.ep-att-name { display: block; font-family: 'Jaldi', sans-serif; font-weight: 700; font-size: 1.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ep-att-desc { display: block; font-family: 'Jaldi', sans-serif; font-size: 1.2rem; color: #6b7280; }
 .ep-att-controls { flex-shrink: 0; }
-.ep-vis-select { font-size: 0.8rem !important; padding: 5px 10px !important; }
+.ep-vis-select { font-size: 1.2rem !important; padding: 5px 10px !important; }
 
 .ep-img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
 .ep-img-item { display: flex; flex-direction: column; gap: 4px; }
-.ep-main-badge { background: #dbeafe; color: #1e40af; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 50px; width: fit-content; font-family: 'Jaldi', sans-serif; }
-.ep-img-name-label { font-family: 'Jaldi', sans-serif; font-size: 0.76rem; color: #6b7280; }
+.ep-main-badge { background: #dbeafe; color: #1e40af; font-size: 1.2rem; font-weight: 700; padding: 2px 8px; border-radius: 50px; width: fit-content; font-family: 'Jaldi', sans-serif; }
+.ep-img-name-label { font-family: 'Jaldi', sans-serif; font-size: 1.2rem; color: #6b7280; }
 
 /* Investment readiness badge (reused from design-system) */
 .ir-badge {
   display: inline-flex; align-items: center; gap: 5px;
-  font-size: .72rem; font-weight: 700; letter-spacing: .04em;
+  font-size: 1.2rem; font-weight: 700; letter-spacing: .04em;
   text-transform: uppercase; padding: 4px 12px; border-radius: 20px;
   white-space: nowrap;
 }
@@ -531,13 +531,13 @@
 }
 .pb-header__left { display: flex; align-items: center; gap: 14px; }
 .pb-header__icon { width:44px; height:44px; border-radius:12px; background:rgba(27,94,199,.12); display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
-.pb-header__title { font-family: 'Jacques Francois', serif; font-size: 1rem; font-weight: 700; }
-.pb-header__sub { font-family: 'Jaldi', sans-serif; font-size: .8rem; color: #93c5fd; margin-top: 4px; }
+.pb-header__title { font-family: 'Jacques Francois', serif; font-size: 1.2rem; font-weight: 700; }
+.pb-header__sub { font-family: 'Jaldi', sans-serif; font-size: 1.2rem; color: #93c5fd; margin-top: 4px; }
 .pb-header__sub strong { color: #60a5fa; }
 .pb-progress-ring { position: relative; width: 52px; height: 52px; }
 .pb-progress-ring__pct {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-family: 'Jaldi', sans-serif; font-size: .72rem; font-weight: 700; color: #fff;
+  font-family: 'Jaldi', sans-serif; font-size: 1.2rem; font-weight: 700; color: #fff;
 }
 .pb-slide {
   background: #fff; border: 1.5px solid #e5e7eb; border-radius: 14px;
@@ -550,7 +550,7 @@
 .pb-slide__num {
   flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Jacques Francois', serif; font-size: .8rem; color: #0A1628; margin-top: 1px;
+  font-family: 'Jacques Francois', serif; font-size: 1.2rem; color: #0A1628; margin-top: 1px;
 }
 .pb-num--1 { background: #ef4444; }
 .pb-num--2 { background: #f59e0b; }
@@ -562,10 +562,10 @@
 .pb-num--8 { background: #ec4899; }
 .pb-slide__icon { width:28px; height:28px; border-radius:7px; display:flex; align-items:center; justify-content:center; margin-top:1px; flex-shrink:0; }
 .pb-slide__meta { flex: 1; min-width: 0; }
-.pb-slide__title { font-family: 'Jaldi', sans-serif; font-size: .92rem; font-weight: 700; color: #1a1a2e; }
-.pb-slide__inv { font-family: 'Jaldi', sans-serif; font-size: .78rem; color: #9ca3af; margin-top: 2px; }
+.pb-slide__title { font-family: 'Jaldi', sans-serif; font-size: 1.2rem; font-weight: 700; color: #1a1a2e; }
+.pb-slide__inv { font-family: 'Jaldi', sans-serif; font-size: 1.2rem; color: #9ca3af; margin-top: 2px; }
 .pb-slide__inv em { font-style: italic; color: #6b7280; }
-.pb-slide__check { flex-shrink: 0; font-size: 1.1rem; line-height: 1; margin-top: 2px; }
+.pb-slide__check { flex-shrink: 0; font-size: 1.2rem; line-height: 1; margin-top: 2px; }
 .pb-slide__check.filled { color: #10b981; }
 .pb-textarea { background: #fafafa !important; transition: background .2s; }
 .pb-slide:focus-within .pb-textarea { background: #fff !important; }
@@ -582,7 +582,7 @@ function pbUpdate() {
     var el = document.getElementById('pb-ta-' + name);
     var chk = document.getElementById('pb-check-' + name);
     var slide = el && el.closest('.pb-slide');
-    var isFilled = el && el.value.trim().length > 0;
+    var isFilled = el && el.value.trim().length > 0 && !el.classList.contains('cp-ghost-text');
     if (isFilled) {
       filled++;
       if (chk) { chk.textContent = '✓'; chk.classList.add('filled'); }

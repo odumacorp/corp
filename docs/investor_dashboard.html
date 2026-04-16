@@ -49,21 +49,21 @@
     font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem;
     font-weight: 800; margin-bottom: 10px;
   }
-  .id-sb-name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: .95rem; color: #fff; }
-  .id-sb-role { font-size: .72rem; color: rgba(255,255,255,.6); letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; }
+  .id-sb-name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.2rem; color: #fff; }
+  .id-sb-role { font-size: 1.2rem; color: rgba(255,255,255,.6); letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; }
   .id-sb-ticket {
     margin-top: 10px; padding: 8px 12px;
     background: rgba(255,255,255,.08); border-radius: 8px;
-    font-size: .76rem; color: rgba(255,255,255,.8);
+    font-size: 1.2rem; color: rgba(255,255,255,.8);
   }
-  .id-sb-ticket strong { color: #fff; display: block; font-size: .8rem; }
+  .id-sb-ticket strong { color: #fff; display: block; font-size: 1.2rem; }
 
   .id-sb-nav { flex: 1; padding: 0 12px; }
   .id-sb-link {
     display: flex; align-items: center; gap: 10px;
     padding: 10px 12px; border-radius: 8px;
     color: rgba(255,255,255,.7); text-decoration: none;
-    font-size: .85rem; font-weight: 600; margin-bottom: 2px;
+    font-size: 1.2rem; font-weight: 600; margin-bottom: 2px;
     transition: background .15s, color .15s; cursor: pointer;
     border: none; background: none; width: 100%; text-align: left;
   }
@@ -74,14 +74,34 @@
   .id-sb-link .id-sb-ic svg { width: 16px; height: 16px; }
   .id-sb-badge {
     margin-left: auto; background: var(--id-blue);
-    color: #fff; font-size: .65rem; font-weight: 800;
+    color: #fff; font-size: 1.2rem; font-weight: 800;
     padding: 1px 7px; border-radius: 10px;
   }
   .id-sb-badge--amber { background: var(--id-amber); }
   .id-sb-divider { height: 1px; background: rgba(255,255,255,.08); margin: 10px 12px; }
 
   /* ── Content area ── */
-  .id-content { padding: 28px 28px 80px; max-width: 1100px; }
+  .id-content { padding: 20px 28px 80px; max-width: 1100px; }
+
+  /* ── Top bar ── */
+  .id-topbar { display:flex; align-items:center; gap:12px; padding:0 0 20px; flex-wrap:wrap; }
+  .id-topbar-left { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+  .id-topbar-right { display:flex; align-items:center; gap:8px; }
+  .id-back-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:8px; background:#fff; border:1.5px solid var(--id-border); color:#374151; font-size:1.15rem; font-weight:600; text-decoration:none; transition:border-color .15s,color .15s; white-space:nowrap; }
+  .id-back-btn:hover { border-color:var(--id-blue); color:var(--id-blue); }
+  .id-topbar-title { font-family:'Space Grotesk',sans-serif; font-size:1.4rem; font-weight:800; color:var(--id-ink); }
+  .id-topbar-sub { font-size:1.1rem; color:var(--id-muted); margin-top:1px; }
+  .id-tb-icon-btn { position:relative; width:38px; height:38px; border-radius:9px; background:#fff; border:1.5px solid var(--id-border); display:flex; align-items:center; justify-content:center; color:#6b7280; text-decoration:none; transition:border-color .15s,color .15s; }
+  .id-tb-icon-btn:hover { border-color:var(--id-blue); color:var(--id-blue); }
+  .id-tb-badge { position:absolute; top:-5px; right:-5px; min-width:16px; height:16px; padding:0 4px; border-radius:99px; background:#dc2626; color:#fff; font-size:.7rem; font-weight:800; display:flex; align-items:center; justify-content:center; line-height:1; }
+
+  /* ── Quick stats strip ── */
+  .id-qs-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:24px; }
+  .id-qs { background:#fff; border:1.5px solid var(--id-border); border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; transition:box-shadow .15s,border-color .15s; cursor:pointer; text-decoration:none; }
+  .id-qs:hover { box-shadow:0 4px 16px rgba(27,94,199,.1); border-color:#c3d4ec; }
+  .id-qs-icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .id-qs-val { font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:800; color:var(--id-ink); line-height:1; }
+  .id-qs-label { font-size:1.05rem; color:var(--id-muted); font-weight:600; margin-top:2px; }
 
   /* ── Panel tabs ── */
   .id-panel { display: none; }
@@ -90,11 +110,11 @@
   /* ── Page header ── */
   .id-ph { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
   .id-ph-title {
-    font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem;
+    font-family: 'Space Grotesk', sans-serif; font-size: 2.2rem;
     font-weight: 800; color: var(--id-ink); margin: 0 0 4px;
     letter-spacing: -.03em;
   }
-  .id-ph-sub { font-size: .875rem; color: var(--id-muted); margin: 0; }
+  .id-ph-sub { font-size: 1.2rem; color: var(--id-muted); margin: 0; }
 
   /* ── Stats row ── */
   .id-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px,1fr)); gap: 12px; margin-bottom: 28px; }
@@ -105,8 +125,8 @@
     transition: box-shadow .2s, transform .15s;
   }
   .id-stat:hover { box-shadow: 0 4px 16px rgba(27,94,199,.12); transform: translateY(-2px); }
-  .id-stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--id-blue); line-height: 1; margin-bottom: 4px; }
-  .id-stat-label { font-size: .7rem; color: var(--id-muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+  .id-stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 800; color: var(--id-blue); line-height: 1; margin-bottom: 4px; }
+  .id-stat-label { font-size: 1.2rem; color: var(--id-muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
 
   /* ── Deal Flow filter bar ── */
   .id-filter-bar {
@@ -119,7 +139,7 @@
   .id-filter-bar form { display: contents; }
   .id-filter-select, .id-filter-input {
     border: 1px solid var(--id-border); border-radius: 8px;
-    padding: 8px 12px; font-size: .82rem; color: var(--id-ink);
+    padding: 8px 12px; font-size: 1.2rem; color: var(--id-ink);
     background: #f9fafb; min-width: 120px; flex: 1;
     font-family: inherit; height: 36px;
   }
@@ -131,21 +151,21 @@
     display: flex; align-items: center; gap: 4px; flex: 1; min-width: 200px;
   }
   .id-filter-range-group .id-filter-input { min-width: 80px; }
-  .id-filter-range-sep { font-size: .75rem; color: var(--id-muted); white-space: nowrap; flex-shrink: 0; }
+  .id-filter-range-sep { font-size: 1.2rem; color: var(--id-muted); white-space: nowrap; flex-shrink: 0; }
   .id-filter-btn {
     background: var(--id-blue); color: #fff; border: none;
-    border-radius: 8px; padding: 8px 20px; font-size: .82rem;
+    border-radius: 8px; padding: 8px 20px; font-size: 1.2rem;
     font-weight: 700; cursor: pointer; white-space: nowrap; font-family: inherit; height: 36px;
   }
   .id-filter-btn:hover { background: #144FA8; }
-  .id-filter-clear { font-size: .78rem; color: var(--id-muted); text-decoration: none; white-space: nowrap; }
+  .id-filter-clear { font-size: 1.2rem; color: var(--id-muted); text-decoration: none; white-space: nowrap; }
   .id-filter-clear:hover { color: var(--id-blue); }
 
   /* ── Recommended strip ── */
   .id-rec-strip { margin-bottom: 28px; }
   .id-rec-label {
     display: flex; align-items: center; gap: 8px;
-    font-family: 'Space Grotesk', sans-serif; font-size: .75rem; font-weight: 800;
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800;
     text-transform: uppercase; letter-spacing: .1em; color: var(--id-muted);
     margin-bottom: 12px;
   }
@@ -172,24 +192,24 @@
   .id-rec-score--medium { background: #dbeafe; border: 2px solid #3b82f6; }
   .id-rec-score--low    { background: #f3f4f6; border: 2px solid #9ca3af; }
   .id-rec-score-num {
-    font-size: .85rem; font-weight: 900; line-height: 1;
+    font-size: 1.2rem; font-weight: 900; line-height: 1;
   }
   .id-rec-score--high .id-rec-score-num   { color: #166534; }
   .id-rec-score--medium .id-rec-score-num { color: #1d4ed8; }
   .id-rec-score--low .id-rec-score-num    { color: #6b7280; }
-  .id-rec-score-label { font-size: .56rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: inherit; opacity: .7; }
+  .id-rec-score-label { font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: inherit; opacity: .7; }
   .id-rec-title {
-    font-family: 'Space Grotesk', sans-serif; font-size: .92rem; font-weight: 800;
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800;
     color: var(--id-ink); text-decoration: none; display: block; line-height: 1.3;
     letter-spacing: -.02em;
   }
   .id-rec-title:hover { color: var(--id-blue); }
   .id-rec-breakdown { display: flex; flex-direction: column; gap: 5px; }
   .id-rec-factor { display: flex; align-items: center; gap: 6px; }
-  .id-rec-factor-name { font-size: .68rem; color: var(--id-muted); min-width: 64px; }
+  .id-rec-factor-name { font-size: 1.2rem; color: var(--id-muted); min-width: 64px; }
   .id-rec-factor-bar { flex: 1; height: 4px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
   .id-rec-factor-fill { height: 100%; border-radius: 3px; background: var(--id-blue); }
-  .id-rec-factor-pct { font-size: .65rem; font-weight: 700; color: var(--id-blue); min-width: 28px; text-align: right; }
+  .id-rec-factor-pct { font-size: 1.2rem; font-weight: 700; color: var(--id-blue); min-width: 28px; text-align: right; }
   .id-rec-actions { display: flex; gap: 6px; margin-top: 4px; }
 
   /* ── Deal flow cards (upgraded) ── */
@@ -206,7 +226,7 @@
   .id-df-img { width: 100%; height: 140px; object-fit: cover; display: block; }
   .id-df-img-placeholder {
     width: 100%; height: 140px; display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, #0d1e3d 0%, #1B5EC7 100%); font-size: 2.5rem;
+    background: linear-gradient(135deg, #0d1e3d 0%, #1B5EC7 100%); font-size: 3.4rem;
   }
   .id-df-match-badge {
     position: absolute; top: 10px; right: 10px;
@@ -218,11 +238,11 @@
   .id-df-match-badge--high   { background: rgba(22,163,74,.9); border: 2px solid #16a34a; }
   .id-df-match-badge--medium { background: rgba(27,94,199,.9); border: 2px solid #1B5EC7; }
   .id-df-match-badge--low    { background: rgba(107,114,128,.9); border: 2px solid #9ca3af; }
-  .id-df-match-num { font-size: .82rem; font-weight: 900; color: #fff; line-height: 1; }
-  .id-df-match-lbl { font-size: .5rem; font-weight: 700; color: rgba(255,255,255,.8); text-transform: uppercase; }
+  .id-df-match-num { font-size: 1.2rem; font-weight: 900; color: #fff; line-height: 1; }
+  .id-df-match-lbl { font-size: 1.2rem; font-weight: 700; color: rgba(255,255,255,.8); text-transform: uppercase; }
   .id-df-status-overlay {
     position: absolute; bottom: 8px; left: 10px;
-    font-size: .65rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    font-size: 1.2rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
     padding: 2px 8px; border-radius: 20px;
   }
   .id-df-status--approved  { background: rgba(22,163,74,.9);  color: #fff; }
@@ -233,7 +253,7 @@
   .id-df-body { padding: 16px 18px 14px; flex: 1; display: flex; flex-direction: column; gap: 9px; }
   .id-df-tags { display: flex; gap: 5px; flex-wrap: wrap; }
   .id-df-tag {
-    font-size: .63rem; font-weight: 700; letter-spacing: .06em;
+    font-size: 1.2rem; font-weight: 700; letter-spacing: .06em;
     text-transform: uppercase; padding: 2px 8px; border-radius: 20px; white-space: nowrap;
   }
   .id-df-tag--industry { background: #e0e8ff; color: #3730a3; }
@@ -241,7 +261,7 @@
   .id-df-tag--funding  { background: #fef3c7; color: #92400e; }
   .id-df-tag--verified { background: #eff6ff; color: var(--id-blue); border: 1px solid #c3d4ec; }
   .id-df-title {
-    font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem; font-weight: 800;
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800;
     color: var(--id-ink); text-decoration: none; display: block; line-height: 1.3;
     letter-spacing: -.02em;
   }
@@ -250,13 +270,13 @@
   /* Three-cell data row */
   .id-df-data { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: #f0f2f5; border-radius: 10px; overflow: hidden; margin: 4px 0; }
   .id-df-data-cell { background: #f9fafb; padding: 8px 10px; }
-  .id-df-data-key { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--id-muted); margin-bottom: 3px; }
-  .id-df-data-val { font-size: .78rem; font-weight: 700; color: var(--id-ink); line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .id-df-data-key { font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--id-muted); margin-bottom: 3px; }
+  .id-df-data-val { font-size: 1.2rem; font-weight: 700; color: var(--id-ink); line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .id-df-data-val--ask { color: var(--id-blue); font-family: 'Space Grotesk', sans-serif; }
 
-  .id-df-meta { font-size: .73rem; color: var(--id-muted); }
+  .id-df-meta { font-size: 1.2rem; color: var(--id-muted); }
   .id-df-meta a { color: var(--id-blue); text-decoration: none; font-weight: 600; }
-  .id-df-verified { display: inline-flex; align-items: center; gap: 3px; font-size: .68rem; font-weight: 700; color: var(--id-blue); }
+  .id-df-verified { display: inline-flex; align-items: center; gap: 3px; font-size: 1.2rem; font-weight: 700; color: var(--id-blue); }
   .id-df-actions {
     display: flex; gap: 6px; flex-wrap: wrap;
     padding-top: 10px; border-top: 1px solid #f3f4f6; margin-top: auto;
@@ -266,7 +286,7 @@
   .id-btn {
     display: inline-flex; align-items: center; gap: 5px;
     padding: 6px 14px; border-radius: 8px;
-    font-size: .78rem; font-weight: 700; text-decoration: none;
+    font-size: 1.2rem; font-weight: 700; text-decoration: none;
     cursor: pointer; border: none; white-space: nowrap;
     transition: opacity .15s; font-family: inherit;
   }
@@ -289,40 +309,40 @@
     display: flex; align-items: flex-start; justify-content: space-between;
     gap: 14px; flex-wrap: wrap;
   }
-  .id-row-label { font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 700; color: var(--id-ink); text-decoration: none; display: block; margin-bottom: 3px; }
+  .id-row-label { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--id-ink); text-decoration: none; display: block; margin-bottom: 3px; }
   .id-row-label:hover { color: var(--id-blue); }
-  .id-row-sub { font-size: .77rem; color: var(--id-muted); line-height: 1.5; }
+  .id-row-sub { font-size: 1.2rem; color: var(--id-muted); line-height: 1.5; }
   .id-row-sub a { color: var(--id-blue); text-decoration: none; }
   .id-row-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
-  .id-amount { font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 800; color: var(--id-green); }
+  .id-amount { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--id-green); }
 
   /* ── Badges ── */
   .id-badge {
     display: inline-block; padding: 2px 10px; border-radius: 20px;
-    font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap;
+    font-size: 1.2rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap;
   }
   .id-b-blue   { background: rgba(27,94,199,.1); color: var(--id-blue); }
   .id-b-green  { background: rgba(22,163,74,.1); color: var(--id-green); }
   .id-b-yellow { background: rgba(217,119,6,.12); color: var(--id-amber); }
   .id-b-red    { background: rgba(220,38,38,.1); color: var(--id-red); }
   .id-b-gray   { background: rgba(107,114,128,.1); color: var(--id-muted); }
-  .id-b-count  { background: var(--id-blue); color: #fff; border-radius: 20px; padding: 0 7px; font-size: .68rem; font-weight: 800; }
+  .id-b-count  { background: var(--id-blue); color: #fff; border-radius: 20px; padding: 0 7px; font-size: 1.2rem; font-weight: 800; }
   .id-b-count--amber { background: var(--id-amber); }
 
   /* ── Section ── */
   .id-section { margin-bottom: 36px; }
   .id-section-title {
-    font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 800;
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800;
     color: var(--id-ink); margin: 0 0 16px; padding-bottom: 10px;
     border-bottom: 1px solid var(--id-border);
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
     letter-spacing: -.02em;
   }
-  .id-count { font-size: .78rem; color: var(--id-muted); font-weight: 400; font-family: inherit; }
+  .id-count { font-size: 1.2rem; color: var(--id-muted); font-weight: 400; font-family: inherit; }
 
   /* ── Empty state ── */
   .id-empty {
-    text-align: center; padding: 40px 20px; font-size: .875rem; color: var(--id-muted);
+    text-align: center; padding: 40px 20px; font-size: 1.2rem; color: var(--id-muted);
     background: var(--id-card); border-radius: 14px; border: 1.5px dashed #c3d4ec;
   }
   .id-empty-icon { display: flex; justify-content: center; margin-bottom: 10px; opacity: .45; color: #6b7280; }
@@ -340,12 +360,12 @@
     width: 56px; height: 56px; border-radius: 50%;
     background: linear-gradient(135deg, #1B5EC7, #3D78D8); color: #fff;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 800;
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800;
     margin: 0 auto 10px;
   }
-  .id-conn-name { font-family: 'Space Grotesk', sans-serif; font-size: .88rem; font-weight: 700; color: var(--id-ink); text-decoration: none; display: block; margin-bottom: 3px; }
+  .id-conn-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--id-ink); text-decoration: none; display: block; margin-bottom: 3px; }
   .id-conn-name:hover { color: var(--id-blue); }
-  .id-conn-role { font-size: .72rem; color: var(--id-muted); text-transform: capitalize; }
+  .id-conn-role { font-size: 1.2rem; color: var(--id-muted); text-transform: capitalize; }
   .id-conn-btns { display: flex; gap: 6px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
 
   /* ── Pending connections ── */
@@ -362,20 +382,20 @@
     display: flex; align-items: center; justify-content: center;
     font-family: 'Space Grotesk', sans-serif; font-weight: 800;
   }
-  .id-pend-name { font-family: 'Space Grotesk', sans-serif; font-size: .88rem; font-weight: 700; color: var(--id-ink); text-decoration: none; display: block; }
+  .id-pend-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--id-ink); text-decoration: none; display: block; }
   .id-pend-btns { display: flex; gap: 6px; margin-top: 6px; }
-  .id-accept-btn { padding: 4px 12px; border-radius: 8px; font-size: .75rem; font-weight: 700; background: var(--id-blue); color: #fff; border: none; cursor: pointer; font-family: inherit; }
-  .id-reject-btn { padding: 4px 12px; border-radius: 8px; font-size: .75rem; font-weight: 700; background: #fee2e2; color: var(--id-red); border: none; cursor: pointer; font-family: inherit; }
+  .id-accept-btn { padding: 4px 12px; border-radius: 8px; font-size: 1.2rem; font-weight: 700; background: var(--id-blue); color: #fff; border: none; cursor: pointer; font-family: inherit; }
+  .id-reject-btn { padding: 4px 12px; border-radius: 8px; font-size: 1.2rem; font-weight: 700; background: #fee2e2; color: var(--id-red); border: none; cursor: pointer; font-family: inherit; }
 
   /* ── Investor profile form ── */
   .id-pf-card { background: var(--id-card); border: 1px solid var(--id-border); border-radius: 16px; padding: 28px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
   .id-pf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
   .id-pf-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
-  .id-pf-label { font-size: .8rem; font-weight: 700; color: #374151; }
-  .id-pf-hint  { font-size: .74rem; color: var(--id-muted); }
+  .id-pf-label { font-size: 1.2rem; font-weight: 700; color: #374151; }
+  .id-pf-hint  { font-size: 1.2rem; color: var(--id-muted); }
   .id-pf-input, .id-pf-textarea, .id-pf-select {
     border: 1.5px solid var(--id-border); border-radius: 8px;
-    padding: 9px 12px; font-size: .875rem; font-family: inherit; color: var(--id-ink);
+    padding: 9px 12px; font-size: 1.2rem; font-family: inherit; color: var(--id-ink);
     background: #f9fafb; transition: border-color .15s;
   }
   .id-pf-input:focus, .id-pf-textarea:focus, .id-pf-select:focus {
@@ -383,7 +403,7 @@
     box-shadow: 0 0 0 3px rgba(27,94,199,.1);
   }
   .id-pf-textarea { resize: vertical; min-height: 90px; }
-  .id-pf-save { background: var(--id-blue); color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-size: .875rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .id-pf-save { background: var(--id-blue); color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-size: 1.2rem; font-weight: 700; cursor: pointer; font-family: inherit; }
   .id-pf-save:hover { background: #144FA8; }
 
   /* ── Pitch request modal ── */
@@ -391,19 +411,19 @@
   .id-modal-overlay.open { display: flex; }
   .id-modal { background: #fff; border-radius: 18px; padding: 28px; width: 90%; max-width: 460px; position: relative; }
   .id-modal-close { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--id-muted); }
-  .id-modal h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--id-ink); margin: 0 0 6px; letter-spacing: -.02em; }
-  .id-modal p  { font-size: .83rem; color: var(--id-muted); margin: 0 0 16px; }
-  .id-modal textarea { width: 100%; border: 1.5px solid var(--id-border); border-radius: 8px; padding: 10px 12px; font-size: .875rem; font-family: inherit; resize: vertical; min-height: 90px; box-sizing: border-box; }
+  .id-modal h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--id-ink); margin: 0 0 6px; letter-spacing: -.02em; }
+  .id-modal p  { font-size: 1.2rem; color: var(--id-muted); margin: 0 0 16px; }
+  .id-modal textarea { width: 100%; border: 1.5px solid var(--id-border); border-radius: 8px; padding: 10px 12px; font-size: 1.2rem; font-family: inherit; resize: vertical; min-height: 90px; box-sizing: border-box; }
   .id-modal textarea:focus { outline: none; border-color: var(--id-blue); }
   .id-modal-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; }
 
   /* ── Proposal modal ── */
   .id-prop-modal .id-modal { max-width: 480px; }
   .id-prop-field { margin-bottom: 12px; }
-  .id-prop-label { display: block; font-size: .8rem; font-weight: 700; color: #374151; margin-bottom: 5px; }
+  .id-prop-label { display: block; font-size: 1.2rem; font-weight: 700; color: #374151; margin-bottom: 5px; }
   .id-prop-input, .id-prop-textarea {
     width: 100%; border: 1.5px solid var(--id-border); border-radius: 8px;
-    padding: 8px 12px; font-size: .875rem; font-family: inherit;
+    padding: 8px 12px; font-size: 1.2rem; font-family: inherit;
     box-sizing: border-box;
   }
   .id-prop-input:focus, .id-prop-textarea:focus { outline: none; border-color: var(--id-blue); }
@@ -429,7 +449,7 @@
       <div class="id-sb-name">
         {{ user.get_full_name|default:user.username }}
         {% if user.userprofile.verification_status == 'verified' %}
-        <span style="display:inline-flex;align-items:center;gap:3px;background:rgba(22,163,74,.2);color:#4ade80;font-size:.65rem;font-weight:800;padding:1px 7px;border-radius:20px;margin-left:4px;vertical-align:middle;">✓ Verified</span>
+        <span style="display:inline-flex;align-items:center;gap:3px;background:rgba(22,163,74,.2);color:#4ade80;font-size: 1.2rem;font-weight:800;padding:1px 7px;border-radius:20px;margin-left:4px;vertical-align:middle;">✓ Verified</span>
         {% endif %}
       </div>
       <div class="id-sb-role">Investor</div>
@@ -440,7 +460,7 @@
       </div>
       {% endif %}
       {% if investor_profile.preferred_sectors %}
-      <div style="margin-top:6px;font-size:.7rem;color:rgba(255,255,255,.55);line-height:1.5;">
+      <div style="margin-top:6px;font-size: 1.2rem;color:rgba(255,255,255,.55);line-height:1.5;">
         {{ investor_profile.preferred_sectors|truncatechars:50 }}
       </div>
       {% endif %}
@@ -496,6 +516,67 @@
   <main class="id-main">
   <div class="id-content">
 
+    <!-- ══════ TOP BAR ══════ -->
+  <div class="id-topbar">
+    <div class="id-topbar-left">
+      <a href="{% url 'app' %}" class="id-back-btn">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Back
+      </a>
+      <div>
+        <div class="id-topbar-title">Investor Dashboard</div>
+        <div class="id-topbar-sub">Welcome back, {{ request.user.first_name|default:request.user.username }}</div>
+      </div>
+    </div>
+    <div class="id-topbar-right">
+      <a href="{% url 'inbox' %}" class="id-tb-icon-btn" title="Messages">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        {% if unread_message_count %}<span class="id-tb-badge">{{ unread_message_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'notifications' %}" class="id-tb-icon-btn" title="Notifications">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        {% if unread_notifications_count %}<span class="id-tb-badge">{{ unread_notifications_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'profile_view' id=request.user.id %}" class="id-tb-icon-btn" title="My Profile">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- ══════ QUICK STATS ══════ -->
+  <div class="id-qs-row">
+    <a class="id-qs" href="#" onclick="switchPanel('dealflow', this.closest('.id-content').querySelectorAll('.id-sb-link')[0]); return false;" data-panel="dealflow">
+      <div class="id-qs-icon" style="background:#eef4ff;color:#1B5EC7;">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <div><div class="id-qs-val">{{ deal_flow_count }}</div><div class="id-qs-label">Deal Flow</div></div>
+    </a>
+    <a class="id-qs" href="#" onclick="switchPanel('pitches', document.querySelectorAll('.id-sb-link')[3]); return false;" data-panel="pitches">
+      <div class="id-qs-icon" style="background:#f0fdf4;color:#16a34a;">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </div>
+      <div><div class="id-qs-val">{{ my_pitch_requests|length }}</div><div class="id-qs-label">Pitches</div></div>
+    </a>
+    <a class="id-qs" href="#" onclick="switchPanel('proposals', document.querySelectorAll('.id-sb-link')[2]); return false;" data-panel="proposals">
+      <div class="id-qs-icon" style="background:#fffbeb;color:#d97706;">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+      </div>
+      <div><div class="id-qs-val">{{ sent_proposals|length }}</div><div class="id-qs-label">Proposals</div></div>
+    </a>
+    <a class="id-qs" href="#" onclick="switchPanel('connections', document.querySelectorAll('.id-sb-link')[5]); return false;" data-panel="connections">
+      <div class="id-qs-icon" style="background:#faf5ff;color:#7c3aed;">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <div><div class="id-qs-val">{{ connections_count }}</div><div class="id-qs-label">Connections</div></div>
+    </a>
+    <a class="id-qs" href="#" onclick="switchPanel('saved', document.querySelectorAll('.id-sb-link')[4]); return false;" data-panel="saved">
+      <div class="id-qs-icon" style="background:#fff1f2;color:#dc2626;">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+      </div>
+      <div><div class="id-qs-val">{{ saved|length }}</div><div class="id-qs-label">Saved</div></div>
+    </a>
+  </div>
+
     <!-- ══════════════════════════════════════════
          DEAL FLOW TAB (primary)
     ══════════════════════════════════════════ -->
@@ -528,9 +609,9 @@
               <div style="flex:1;min-width:0;">
                 <a href="{% url 'project_detail' p.pk %}" class="id-rec-title">{{ p.title }}</a>
                 <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;">
-                  <span style="font-size:.63rem;font-weight:700;background:#e0e8ff;color:#3730a3;padding:1px 7px;border-radius:20px;">{{ p.industry }}</span>
+                  <span style="font-size: 1.2rem;font-weight:700;background:#e0e8ff;color:#3730a3;padding:1px 7px;border-radius:20px;">{{ p.industry }}</span>
                   {% if p.funding_requirement %}
-                  <span style="font-size:.63rem;font-weight:700;background:#dcfce7;color:#166534;padding:1px 7px;border-radius:20px;">{{ p.funding_requirement }}</span>
+                  <span style="font-size: 1.2rem;font-weight:700;background:#dcfce7;color:#166534;padding:1px 7px;border-radius:20px;">{{ p.funding_requirement }}</span>
                   {% endif %}
                 </div>
               </div>
@@ -560,10 +641,10 @@
             </div>
             {% endif %}
             <div class="id-rec-actions">
-              <a href="{% url 'project_detail' p.pk %}" class="id-btn id-btn-primary" style="font-size:.74rem;padding:5px 12px;flex:1;justify-content:center;">View Pitch →</a>
+              <a href="{% url 'project_detail' p.pk %}" class="id-btn id-btn-primary" style="font-size: 1.2rem;padding:5px 12px;flex:1;justify-content:center;">View Pitch →</a>
               <button class="id-btn id-btn-interest {% if p.id in interested_project_ids %}active{% endif %}"
                       onclick="toggleInterest(this, {{ p.pk }})"
-                      style="font-size:.74rem;padding:5px 10px;">
+                      style="font-size: 1.2rem;padding:5px 10px;">
                 {% if p.id in interested_project_ids %}★{% else %}☆{% endif %}
               </button>
             </div>
@@ -577,7 +658,7 @@
       <!-- ── Filter bar ── -->
       <form method="get" action="" class="id-filter-bar">
         <input type="text" name="q" class="id-filter-input" placeholder="Search keyword…" value="{{ f_search }}" style="min-width:140px;max-width:160px;">
-        <select name="industry" class="id-filter-select">
+        <select name="industry" class="id-filter-select" data-combo-filter data-auto-submit data-placeholder="All Industries">
           <option value="">All Industries</option>
           {% for val, label in industry_choices %}
           <option value="{{ val }}" {% if f_industry == val %}selected{% endif %}>{{ label }}</option>
@@ -676,7 +757,7 @@
                 {% endwith %}
                 · {{ proj.created_at|timesince }} ago
               </span>
-              <span style="font-size:.7rem;font-weight:700;
+              <span style="font-size: 1.2rem;font-weight:700;
                 {% if cmp >= 75 %}color:#16a34a;{% elif cmp >= 40 %}color:var(--id-blue);{% else %}color:var(--id-amber);{% endif %}">
                 {{ rdns.0 }}
               </span>
@@ -684,19 +765,19 @@
 
             <!-- Action buttons -->
             <div class="id-df-actions">
-              <a href="{% url 'project_detail' proj.pk %}" class="id-btn id-btn-primary" style="font-size:.75rem;padding:6px 14px;">View Pitch</a>
+              <a href="{% url 'project_detail' proj.pk %}" class="id-btn id-btn-primary" style="font-size: 1.2rem;padding:6px 14px;">View Pitch</a>
 
               <button class="id-btn id-btn-interest {% if proj.id in interested_project_ids %}active{% endif %}"
                       onclick="toggleInterest(this, {{ proj.pk }})"
                       title="Show Interest"
-                      style="font-size:.75rem;padding:6px 12px;">
+                      style="font-size: 1.2rem;padding:6px 12px;">
                 {% if proj.id in interested_project_ids %}★ Interested{% else %}☆ Interest{% endif %}
               </button>
 
               {% if proj.id not in pitched_project_ids %}
               <button class="id-btn id-btn-ghost"
                       onclick="openPitchModal({{ proj.pk }}, '{{ proj.title|escapejs }}')"
-                      style="font-size:.75rem;padding:6px 12px;display:flex;align-items:center;gap:5px;">
+                      style="font-size: 1.2rem;padding:6px 12px;display:flex;align-items:center;gap:5px;">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg> Request Pitch
               </button>
               {% else %}
@@ -706,7 +787,7 @@
               <button class="id-btn id-btn-save {% if proj.id in saved_project_ids %}saved{% endif %}"
                       onclick="ocToggleReadLater('project', {{ proj.pk }}, this)"
                       title="Save"
-                      style="font-size:.75rem;padding:6px 10px;">
+                      style="font-size: 1.2rem;padding:6px 10px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="{% if proj.id in saved_project_ids %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
               </button>
             </div>
@@ -775,7 +856,7 @@
       <div class="id-section">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
           <h2 class="id-section-title">Top Matches For You <span class="id-count">{{ top_matches|length }}</span></h2>
-          <a href="{% url 'top_matches_for_investor' %}" style="font-size:.8rem;color:var(--id-blue);font-weight:600;text-decoration:none;">See all matches →</a>
+          <a href="{% url 'top_matches_for_investor' %}" style="font-size: 1.2rem;color:var(--id-blue);font-weight:600;text-decoration:none;">See all matches →</a>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;">
           {% for match in top_matches %}
@@ -789,20 +870,20 @@
                  {% elif match.score >= 60 %}background:#d1fae5;border:2px solid #10b981;
                  {% elif match.score >= 40 %}background:#dbeafe;border:2px solid #3b82f6;
                  {% else %}background:#f3f4f6;border:2px solid #9ca3af;{% endif %}">
-              <span style="font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:800;
+              <span style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;
                     {% if match.score >= 80 %}color:#166534;{% elif match.score >= 60 %}color:#065f46;
                     {% elif match.score >= 40 %}color:#1d4ed8;{% else %}color:#6b7280;{% endif %}">{{ match.score }}</span>
             </div>
             <!-- Info -->
             <div style="flex:1;min-width:0;">
-              <a href="{% url 'project_detail' p.pk %}" style="font-family:'Space Grotesk',sans-serif;font-size:.875rem;font-weight:800;color:#0A1628;text-decoration:none;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.title }}</a>
+              <a href="{% url 'project_detail' p.pk %}" style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;text-decoration:none;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.title }}</a>
               <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;">
-                <span style="background:#e0e8f4;color:#1B5EC7;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;">{{ p.industry }}</span>
-                <span style="background:#f3f4f6;color:#6b7280;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;">{{ match.label }}</span>
+                <span style="background:#e0e8f4;color:#1B5EC7;font-size: 1.2rem;font-weight:700;padding:2px 7px;border-radius:20px;">{{ p.industry }}</span>
+                <span style="background:#f3f4f6;color:#6b7280;font-size: 1.2rem;font-weight:700;padding:2px 7px;border-radius:20px;">{{ match.label }}</span>
               </div>
             </div>
             <!-- CTA -->
-            <a href="{% url 'project_detail' p.pk %}" style="background:#1B5EC7;color:#fff;padding:6px 14px;border-radius:7px;font-size:.78rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;">View →</a>
+            <a href="{% url 'project_detail' p.pk %}" style="background:#1B5EC7;color:#fff;padding:6px 14px;border-radius:7px;font-size: 1.2rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;">View →</a>
           </div>
           {% endwith %}
           {% endfor %}
@@ -815,23 +896,23 @@
       <div class="id-section">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
           <h2 class="id-section-title">Upcoming Events</h2>
-          <a href="{% url 'events_hub' %}" style="font-size:.8rem;color:var(--id-blue);font-weight:600;text-decoration:none;">All events →</a>
+          <a href="{% url 'events_hub' %}" style="font-size: 1.2rem;color:var(--id-blue);font-weight:600;text-decoration:none;">All events →</a>
         </div>
         {% for event in upcoming_events %}
         <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f0f0f0;">
           <div style="background:#e0e8f4;border-radius:8px;padding:7px 10px;text-align:center;min-width:44px;flex-shrink:0;">
-            <div style="font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:800;color:#0A1628;line-height:1;">{{ event.date|date:"j" }}</div>
-            <div style="font-size:.62rem;font-weight:700;color:#6b7280;text-transform:uppercase;">{{ event.date|date:"M" }}</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;line-height:1;">{{ event.date|date:"j" }}</div>
+            <div style="font-size: 1.2rem;font-weight:700;color:#6b7280;text-transform:uppercase;">{{ event.date|date:"M" }}</div>
           </div>
           <div style="flex:1;">
-            <div style="font-weight:700;font-size:.875rem;color:#0A1628;">{{ event.name }}</div>
-            <div style="font-size:.75rem;color:#6b7280;">{{ event.location }} · <span style="background:#7c3aed;color:#fff;font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:20px;">{{ event.get_event_type_display }}</span></div>
+            <div style="font-weight:700;font-size: 1.2rem;color:#0A1628;">{{ event.name }}</div>
+            <div style="font-size: 1.2rem;color:#6b7280;">{{ event.location }} · <span style="background:#7c3aed;color:#fff;font-size: 1.2rem;font-weight:700;padding:1px 6px;border-radius:20px;">{{ event.get_event_type_display }}</span></div>
             {% if event.id in registered_event_ids %}
-            <span style="font-size:.72rem;color:#059669;font-weight:700;">✓ Registered</span>
+            <span style="font-size: 1.2rem;color:#059669;font-weight:700;">✓ Registered</span>
             {% else %}
             <form method="post" action="{% url 'register_for_event' event.pk %}" style="display:inline;">
               {% csrf_token %}
-              <button type="submit" style="font-size:.72rem;color:var(--id-blue);font-weight:600;background:none;border:none;cursor:pointer;padding:2px 0;">Register →</button>
+              <button type="submit" style="font-size: 1.2rem;color:var(--id-blue);font-weight:600;background:none;border:none;cursor:pointer;padding:2px 0;">Register →</button>
             </form>
             {% endif %}
           </div>
@@ -848,29 +929,29 @@
           <a href="{% url 'mentorship_hub' %}" style="display:flex;flex-direction:column;gap:6px;padding:16px;background:linear-gradient(135deg,#f0f7ff,#e8f2ff);border:1.5px solid #c3d4ec;border-radius:12px;text-decoration:none;transition:box-shadow .2s;"
              onmouseenter="this.style.boxShadow='0 4px 16px rgba(27,94,199,.12)'" onmouseleave="this.style.boxShadow=''">
             <span style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#dbeafe;color:#1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span>
-            <span style="font-family:'Space Grotesk',sans-serif;font-size:.875rem;font-weight:800;color:#0A1628;">Mentorship</span>
-            <span style="font-size:.75rem;color:#6b7280;">Connect with domain experts</span>
+            <span style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;">Mentorship</span>
+            <span style="font-size: 1.2rem;color:#6b7280;">Connect with domain experts</span>
           </a>
 
           <a href="{% url 'training_hub' %}" style="display:flex;flex-direction:column;gap:6px;padding:16px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1.5px solid #c4b5fd;border-radius:12px;text-decoration:none;transition:box-shadow .2s;"
              onmouseenter="this.style.boxShadow='0 4px 16px rgba(139,92,246,.12)'" onmouseleave="this.style.boxShadow=''">
             <span style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#ede9fe;color:#7c3aed;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
-            <span style="font-family:'Space Grotesk',sans-serif;font-size:.875rem;font-weight:800;color:#0A1628;">Training Modules</span>
-            <span style="font-size:.75rem;color:#6b7280;">Investment readiness courses</span>
+            <span style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;">Training Modules</span>
+            <span style="font-size: 1.2rem;color:#6b7280;">Investment readiness courses</span>
           </a>
 
           <a href="{% url 'events_hub' %}" style="display:flex;flex-direction:column;gap:6px;padding:16px;background:linear-gradient(135deg,#fff7ed,#ffedd5);border:1.5px solid #fed7aa;border-radius:12px;text-decoration:none;transition:box-shadow .2s;"
              onmouseenter="this.style.boxShadow='0 4px 16px rgba(249,115,22,.12)'" onmouseleave="this.style.boxShadow=''">
             <span style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#ffedd5;color:#ea580c;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-            <span style="font-family:'Space Grotesk',sans-serif;font-size:.875rem;font-weight:800;color:#0A1628;">Demo Days</span>
-            <span style="font-size:.75rem;color:#6b7280;">Live pitches &amp; networking</span>
+            <span style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;">Demo Days</span>
+            <span style="font-size: 1.2rem;color:#6b7280;">Live pitches &amp; networking</span>
           </a>
 
           <a href="{% url 'top_matches_for_investor' %}" style="display:flex;flex-direction:column;gap:6px;padding:16px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #86efac;border-radius:12px;text-decoration:none;transition:box-shadow .2s;"
              onmouseenter="this.style.boxShadow='0 4px 16px rgba(22,163,74,.12)'" onmouseleave="this.style.boxShadow=''">
             <span style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#dcfce7;color:#16a34a;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
-            <span style="font-family:'Space Grotesk',sans-serif;font-size:.875rem;font-weight:800;color:#0A1628;">AI Matching</span>
-            <span style="font-size:.75rem;color:#6b7280;">Your top project matches</span>
+            <span style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;">AI Matching</span>
+            <span style="font-size: 1.2rem;color:#6b7280;">Your top project matches</span>
           </a>
 
         </div>
@@ -912,8 +993,8 @@
               <a href="{% url 'project_detail' item.project.pk %}" class="id-df-title">{{ item.project.title }}</a>
               <p class="id-df-problem">{{ item.project.description|truncatewords:15 }}</p>
               <div class="id-df-actions">
-                <a href="{% url 'project_detail' item.project.pk %}" class="id-btn id-btn-primary" style="font-size:.75rem;padding:5px 12px;">View Pitch</a>
-                <button class="id-btn id-btn-ghost" onclick="openActionModal('proposal','{% url 'project_send_proposal' item.project.pk %}','{{ item.project.title|escapejs }}')" style="font-size:.75rem;padding:5px 12px;">Propose</button>
+                <a href="{% url 'project_detail' item.project.pk %}" class="id-btn id-btn-primary" style="font-size: 1.2rem;padding:5px 12px;">View Pitch</a>
+                <button class="id-btn id-btn-ghost" onclick="openActionModal('proposal','{% url 'project_send_proposal' item.project.pk %}','{{ item.project.title|escapejs }}')" style="font-size: 1.2rem;padding:5px 12px;">Propose</button>
               </div>
             </div>
           </div>
@@ -946,7 +1027,7 @@
           </div>
           <div class="id-row-right">
             {% if p.amount %}<span class="id-amount">${{ p.amount }}</span>{% endif %}
-            {% if p.equity_percentage %}<span style="font-size:.78rem;color:var(--id-muted);">{{ p.equity_percentage }}% equity</span>{% endif %}
+            {% if p.equity_percentage %}<span style="font-size: 1.2rem;color:var(--id-muted);">{{ p.equity_percentage }}% equity</span>{% endif %}
             <span class="id-badge {% if p.status == 'accepted' %}id-b-green{% elif p.status == 'declined' %}id-b-red{% elif p.status in 'countered,on_hold' %}id-b-yellow{% elif p.status == 'reviewing' %}id-b-blue{% else %}id-b-gray{% endif %}">{{ p.get_status_display }}</span>
           </div>
         </div>
@@ -1007,8 +1088,8 @@
             <a href="{% url 'project_detail' item.project.pk %}" class="id-df-title">{{ item.project.title }}</a>
             {% if item.project.funding_requirement %}<div class="id-df-funding-ask">{{ item.project.funding_requirement }}</div>{% endif %}
             <div class="id-df-actions">
-              <a href="{% url 'project_detail' item.project.pk %}" class="id-btn id-btn-primary" style="font-size:.75rem;padding:5px 12px;">View Pitch</a>
-              <button class="id-btn id-btn-ghost" onclick="openActionModal('proposal','{% url 'project_send_proposal' item.project.pk %}','{{ item.project.title|escapejs }}')" style="font-size:.75rem;padding:5px 12px;">Propose</button>
+              <a href="{% url 'project_detail' item.project.pk %}" class="id-btn id-btn-primary" style="font-size: 1.2rem;padding:5px 12px;">View Pitch</a>
+              <button class="id-btn id-btn-ghost" onclick="openActionModal('proposal','{% url 'project_send_proposal' item.project.pk %}','{{ item.project.title|escapejs }}')" style="font-size: 1.2rem;padding:5px 12px;">Propose</button>
             </div>
           </div>
         </div>
@@ -1037,9 +1118,9 @@
             <a href="{% url 'profile_view' id=u.id %}" class="id-conn-name">{{ u.get_full_name|default:u.username }}</a>
             <div class="id-conn-role">{{ u.userprofile.industry|default:"—" }}</div>
             <div class="id-conn-btns">
-              <button class="id-btn id-btn-outline" style="font-size:.74rem;padding:4px 10px;"
+              <button class="id-btn id-btn-outline" style="font-size: 1.2rem;padding:4px 10px;"
                 onclick="openQuickChat({{ u.pk }},'{{ u.get_full_name|escapejs }}','{{ u.first_name|first|upper }}{{ u.last_name|first|upper }}','{% if u.userprofile.profile_pics %}{{ u.userprofile.profile_pics.url }}{% endif %}')">Message</button>
-              <a href="{% url 'profile_view' id=u.id %}" class="id-btn id-btn-ghost" style="font-size:.74rem;padding:4px 10px;">View</a>
+              <a href="{% url 'profile_view' id=u.id %}" class="id-btn id-btn-ghost" style="font-size: 1.2rem;padding:4px 10px;">View</a>
             </div>
           </div>
           {% endfor %}
@@ -1066,7 +1147,7 @@
             </a>
             <div>
               <a href="{% url 'profile_view' id=conn.initiator.id %}" class="id-pend-name">{{ conn.initiator.get_full_name|default:conn.initiator.username }}</a>
-              <div style="font-size:.74rem;color:var(--id-muted);">Wants to connect</div>
+              <div style="font-size: 1.2rem;color:var(--id-muted);">Wants to connect</div>
               <div class="id-pend-btns">
                 <form method="post" action="{% url 'accept_connection' conn.id %}" style="display:contents;">{% csrf_token %}<button type="submit" class="id-accept-btn">Accept</button></form>
                 <form method="post" action="{% url 'reject_connection' conn.id %}" style="display:contents;">{% csrf_token %}<button type="submit" class="id-reject-btn">Decline</button></form>

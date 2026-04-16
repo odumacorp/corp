@@ -27,11 +27,11 @@
   font-weight: 900; color: #fff; margin: 0 0 8px;
 }
 .hf-tag span { color: #60a5fa; }
-.hf-sub { font-size: .95rem; color: rgba(255,255,255,.65); margin: 0 0 18px; }
+.hf-sub { font-size: 1.2rem; color: rgba(255,255,255,.65); margin: 0 0 18px; }
 .hf-total {
   display: inline-flex; align-items: center; gap: 6px;
   background: rgba(0,87,255,.25); color: #93c5fd;
-  font-size: .8rem; font-weight: 700; padding: 5px 14px;
+  font-size: 1.2rem; font-weight: 700; padding: 5px 14px;
   border-radius: 20px;
 }
 
@@ -40,7 +40,7 @@
 .hf-rel-tag {
   padding: 5px 13px; border-radius: 20px;
   background: #fff; border: 1.5px solid #e0e8f4;
-  font-size: .82rem; font-weight: 700; color: #0057FF;
+  font-size: 1.2rem; font-weight: 700; color: #0057FF;
   text-decoration: none; transition: all .15s;
 }
 .hf-rel-tag:hover { background: #0057FF; color: #fff; border-color: #0057FF; }
@@ -48,12 +48,12 @@
 /* Section headers */
 .hf-section-title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 1rem; font-weight: 800; color: #0A1628;
+  font-size: 1.2rem; font-weight: 800; color: #0A1628;
   margin: 0 0 14px;
   display: flex; align-items: center; gap: 8px;
 }
 .hf-section-count {
-  font-size: .72rem; font-weight: 700;
+  font-size: 1.2rem; font-weight: 700;
   background: #e8f0ff; color: #0057FF;
   padding: 2px 9px; border-radius: 20px;
 }
@@ -73,10 +73,10 @@
   width: 32px; height: 32px; border-radius: 50%;
   object-fit: cover; flex-shrink: 0;
 }
-.hf-post-name { font-size: .82rem; font-weight: 700; color: #0A1628; }
-.hf-post-time { font-size: .72rem; color: #9ca3af; }
+.hf-post-name { font-size: 1.2rem; font-weight: 700; color: #0A1628; }
+.hf-post-time { font-size: 1.2rem; color: #9ca3af; }
 .hf-post-content {
-  font-size: .9rem; color: #374151; line-height: 1.6;
+  font-size: 1.2rem; color: #374151; line-height: 1.6;
   display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
   -webkit-box-orient: vertical; overflow: hidden;
 }
@@ -104,16 +104,16 @@
 }
 .hf-proj-body { padding: 14px 16px; }
 .hf-proj-industry {
-  font-size: .68rem; font-weight: 700; color: #0057FF;
+  font-size: 1.2rem; font-weight: 700; color: #0057FF;
   text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px;
 }
 .hf-proj-title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: .92rem; font-weight: 800; color: #0A1628;
+  font-size: 1.2rem; font-weight: 800; color: #0A1628;
   margin: 0 0 6px; line-height: 1.3;
 }
 .hf-proj-desc {
-  font-size: .78rem; color: #6b7280; line-height: 1.5;
+  font-size: 1.2rem; color: #6b7280; line-height: 1.5;
   display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2;
   -webkit-box-orient: vertical; overflow: hidden;
 }
@@ -126,9 +126,9 @@
   transition: box-shadow .15s;
 }
 .hf-disc:hover { box-shadow: 0 4px 16px rgba(0,87,255,.1); border-color: #c3d7ff; }
-.hf-disc-group { font-size: .68rem; font-weight: 800; color: #0057FF; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
-.hf-disc-title { font-size: .92rem; font-weight: 700; color: #0A1628; margin-bottom: 4px; }
-.hf-disc-meta { font-size: .72rem; color: #9ca3af; }
+.hf-disc-group { font-size: 1.2rem; font-weight: 800; color: #0057FF; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.hf-disc-title { font-size: 1.2rem; font-weight: 700; color: #0A1628; margin-bottom: 4px; }
+.hf-disc-meta { font-size: 1.2rem; color: #9ca3af; }
 
 /* Empty state */
 .hf-empty {
@@ -136,7 +136,7 @@
   background: #fff; border: 1px dashed #e0e8f4;
   border-radius: 14px; color: #6b7280;
 }
-.hf-empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.hf-empty-icon { font-size: 3.4rem; margin-bottom: 12px; }
 
 @media (max-width: 600px) {
   .hf-hero { padding: 24px 18px; }
@@ -162,16 +162,16 @@
     <div class="hf-empty-icon">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#c3d4ec" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     </div>
-    <p style="font-size:1rem;font-weight:700;color:#374151;margin:0 0 6px;">No results for #{{ tag }}</p>
-    <p style="font-size:.875rem;margin:0;">Be the first — use <strong>#{{ tag }}</strong> in a post or project!</p>
-    <a href="{% url 'app' %}" style="display:inline-block;margin-top:18px;background:#0057FF;color:#fff;padding:10px 24px;border-radius:9px;font-weight:700;font-size:.875rem;text-decoration:none;">Post Something</a>
+    <p style="font-size: 1.2rem;font-weight:700;color:#374151;margin:0 0 6px;">No results for #{{ tag }}</p>
+    <p style="font-size: 1.2rem;margin:0;">Be the first — use <strong>#{{ tag }}</strong> in a post or project!</p>
+    <a href="{% url 'app' %}" style="display:inline-block;margin-top:18px;background:#0057FF;color:#fff;padding:10px 24px;border-radius:9px;font-weight:700;font-size: 1.2rem;text-decoration:none;">Post Something</a>
   </div>
   {% endif %}
 
   <!-- Related hashtags -->
   {% if related_hashtags %}
   <div class="hf-related">
-    <span style="font-size:.8rem;font-weight:700;color:#6b7280;align-self:center;white-space:nowrap;">Related:</span>
+    <span style="font-size: 1.2rem;font-weight:700;color:#6b7280;align-self:center;white-space:nowrap;">Related:</span>
     {% for rel in related_hashtags %}
     <a href="{% url 'hashtag_feed' rel %}" class="hf-rel-tag">#{{ rel }}</a>
     {% endfor %}
@@ -197,7 +197,7 @@
           <div class="hf-post-time">{{ post.created_at|timesince }} ago</div>
         </div>
       </div>
-      {% if post.title %}<strong style="display:block;font-size:.92rem;color:#0A1628;margin-bottom:5px;">{{ post.title }}</strong>{% endif %}
+      {% if post.title %}<strong style="display:block;font-size: 1.2rem;color:#0A1628;margin-bottom:5px;">{{ post.title }}</strong>{% endif %}
       <div class="hf-post-content">{{ post.content|linkify_hashtags }}</div>
     </a>
     {% endfor %}

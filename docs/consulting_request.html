@@ -17,16 +17,16 @@
 <div style="max-width:600px;margin:48px auto;padding:0 24px 64px;">
 
   <a href="{% if project %}{% url 'project_detail' project.pk %}{% else %}{% url 'services' %}{% endif %}"
-     style="font-size:.85rem;color:#1B5EC7;text-decoration:none;display:inline-block;margin-bottom:20px;">← Back</a>
+     style="font-size: 1.2rem;color:#1B5EC7;text-decoration:none;display:inline-block;margin-bottom:20px;">← Back</a>
 
   <div style="background:linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);border-radius:16px;padding:32px 36px;color:#fff;margin-bottom:28px;">
     <div style="margin-bottom:10px;color:#1B5EC7;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
-    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;margin:0 0 8px;color:#0A1628;">Innovation Consulting</h1>
-    <p style="font-size:.9rem;margin:0;color:#6b7280;">Tell us your challenge. Our consultants will reach out within 48 hours.</p>
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size: 2.0rem;font-weight:800;margin:0 0 8px;color:#0A1628;">Innovation Consulting</h1>
+    <p style="font-size: 1.2rem;margin:0;color:#6b7280;">Tell us your challenge. Our consultants will reach out within 48 hours.</p>
   </div>
 
   {% if project %}
-  <div style="background:#f0f9f4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:.875rem;color:#166534;">
+  <div style="background:#f0f9f4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size: 1.2rem;color:#166534;">
     <strong>Project:</strong> {{ project.title }}
   </div>
   {% endif %}
@@ -36,9 +36,9 @@
       {% csrf_token %}
 
       <div style="margin-bottom:18px;">
-        <label style="display:block;font-size:.85rem;font-weight:700;color:#374151;margin-bottom:6px;">Support Category *</label>
+        <label style="display:block;font-size: 1.2rem;font-weight:700;color:#374151;margin-bottom:6px;">Support Category *</label>
         <select name="category" required
-          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:10px 12px;font-size:.875rem;background:#fff;font-family:inherit;">
+          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:10px 12px;font-size: 1.2rem;background:#fff;font-family:inherit;">
           {% for key, label in category_choices %}
           <option value="{{ key }}">{{ label }}</option>
           {% endfor %}
@@ -46,10 +46,10 @@
       </div>
 
       <div style="margin-bottom:18px;">
-        <label style="display:block;font-size:.85rem;font-weight:700;color:#374151;margin-bottom:6px;">Urgency</label>
+        <label style="display:block;font-size: 1.2rem;font-weight:700;color:#374151;margin-bottom:6px;">Urgency</label>
         <div style="display:flex;gap:10px;">
           {% for key, label in urgency_choices %}
-          <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;
+          <label style="display:flex;align-items:center;gap:6px;font-size: 1.2rem;cursor:pointer;
             flex:1;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 14px;transition:all .2s;"
             onclick="this.parentNode.querySelectorAll('label').forEach(l=>l.style.borderColor='#d1d5db');this.style.borderColor='#1B5EC7';">
             <input type="radio" name="urgency" value="{{ key }}" {% if key == 'medium' %}checked{% endif %}
@@ -60,24 +60,24 @@
       </div>
 
       <div style="margin-bottom:22px;">
-        <label style="display:block;font-size:.85rem;font-weight:700;color:#374151;margin-bottom:6px;">
+        <label style="display:block;font-size: 1.2rem;font-weight:700;color:#374151;margin-bottom:6px;">
           Describe your challenge or support needed *
         </label>
         <textarea name="description" rows="5" required
-          placeholder="What specific challenge are you facing? What outcome do you want? The more context, the better we can help…"
+          placeholder="" data-example="What specific challenge are you facing and what outcome do you want?"
           style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:10px 12px;
-          font-size:.875rem;resize:vertical;box-sizing:border-box;font-family:inherit;line-height:1.5;"></textarea>
+          font-size: 1.2rem;resize:vertical;box-sizing:border-box;font-family:inherit;line-height:1.5;"></textarea>
       </div>
 
       <button type="submit"
         style="width:100%;background:#1B5EC7;color:#fff;border:none;padding:13px;border-radius:10px;
-        font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s;">
+        font-size: 1.2rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s;">
         Submit Support Request
       </button>
     </form>
   </div>
 
-  <div style="margin-top:20px;padding:16px 20px;background:#f4f7fb;border-radius:10px;font-size:.82rem;color:#6b7280;text-align:center;">
+  <div style="margin-top:20px;padding:16px 20px;background:#f4f7fb;border-radius:10px;font-size: 1.2rem;color:#6b7280;text-align:center;">
     Our team typically responds within <strong>1–2 business days</strong>. You can track your requests at <a href="{% url 'my_consulting_requests' %}" style="color:#1B5EC7;">My Requests</a>.
   </div>
 </div>

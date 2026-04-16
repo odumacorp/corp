@@ -18,19 +18,19 @@
   }
   .auth-card h2 {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.4rem; font-weight: 800; color: #0A0C12; margin-bottom: 4px;
+    font-size: 1.9rem; font-weight: 800; color: #0A0C12; margin-bottom: 4px;
     letter-spacing: -0.025em;
   }
-  .auth-card .subtitle { font-size: .85rem; color: #7084A0; margin-bottom: 24px; }
+  .auth-card .subtitle { font-size: 1.2rem; color: #7084A0; margin-bottom: 24px; }
   .auth-field { margin-bottom: 14px; }
   .auth-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .auth-field label {
-    display: block; font-size: .78rem; font-weight: 600; color: #3D4A5C;
+    display: block; font-size: 1.2rem; font-weight: 600; color: #3D4A5C;
     margin-bottom: 6px; letter-spacing: 0.01em;
   }
   .auth-field input, .auth-field select {
     width: 100%; padding: 10px 14px; border: 1.5px solid rgba(0,0,0,0.12);
-    border-radius: 6px; font-size: .875rem; font-family: inherit;
+    border-radius: 6px; font-size: 1.2rem; font-family: inherit;
     box-sizing: border-box; transition: border-color .18s, box-shadow .18s; outline: none; background: #fff;
     color: #0A0C12;
   }
@@ -42,19 +42,19 @@
   .pw-wrap input { padding-right: 52px; }
   .pw-toggle {
     position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-    background: none; border: none; cursor: pointer; font-size: .76rem;
+    background: none; border: none; cursor: pointer; font-size: 1.2rem;
     color: #7084A0; padding: 0; font-weight: 600;
   }
-  .field-error { color: #DC2626; font-size: .78rem; margin-top: 4px; }
+  .field-error { color: #DC2626; font-size: 1.2rem; margin-top: 4px; }
   .auth-submit {
-    width: 100%; padding: 11px; font-size: .92rem; font-weight: 700;
+    width: 100%; padding: 11px; font-size: 1.2rem; font-weight: 700;
     background: #0057FF; color: #fff; border: none;
     border-radius: 6px; cursor: pointer; transition: background .18s, box-shadow .18s; margin-top: 8px;
     letter-spacing: 0.01em;
   }
   .auth-submit:hover { background: #0041CC; box-shadow: 0 4px 16px rgba(0,87,255,0.3); }
-  .auth-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: 8px; padding: 10px 14px; font-size: .85rem; margin-bottom: 16px; }
-  .auth-footer { text-align: center; margin-top: 24px; font-size: .85rem; color: var(--oc-text-muted); }
+  .auth-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: 8px; padding: 10px 14px; font-size: 1.2rem; margin-bottom: 16px; }
+  .auth-footer { text-align: center; margin-top: 24px; font-size: 1.2rem; color: var(--oc-text-muted); }
   .auth-footer a { color: var(--oc-primary); font-weight: 600; text-decoration: none; }
   .role-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
   .role-card {
@@ -64,8 +64,8 @@
   }
   .role-card input[type=radio] { position: absolute; opacity: 0; }
   .role-card .role-icon { margin-bottom: 6px; display:flex; align-items:center; justify-content:center; }
-  .role-card .role-name { font-size: .82rem; font-weight: 700; color: var(--oc-text-primary); }
-  .role-card .role-desc { font-size: .72rem; color: var(--oc-text-muted); margin-top: 2px; }
+  .role-card .role-name { font-size: 1.2rem; font-weight: 700; color: var(--oc-text-primary); }
+  .role-card .role-desc { font-size: 1.2rem; color: var(--oc-text-muted); margin-top: 2px; }
   .role-card { border-radius: 8px !important; }
   .role-card.selected { border-color: #0057FF; background: #EAF0FF; }
   @media (max-width: 480px) { .auth-row { grid-template-columns: 1fr; } .role-picker { grid-template-columns: 1fr 1fr; } }
@@ -175,10 +175,10 @@
       box-shadow:0 6px 20px rgba(27,94,199,.3);color:#fff;">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
-    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:800;color:#0A1628;margin:0 0 8px;">
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size: 1.8rem;font-weight:800;color:#0A1628;margin:0 0 8px;">
       You're already a member!
     </h2>
-    <p style="font-family:'Jaldi',sans-serif;font-size:.95rem;color:#6b7280;margin:0 0 24px;line-height:1.5;">
+    <p style="font-family:'Jaldi',sans-serif;font-size: 1.2rem;color:#6b7280;margin:0 0 24px;line-height:1.5;">
       You're currently logged in as <strong style="color:#0A1628;">{{ request.user.get_full_name|default:request.user.username }}</strong>.
       Head back to the app or log out if you want to switch accounts.
     </p>
@@ -186,19 +186,19 @@
       <a href="{% url 'app' %}"
          style="display:block;background:linear-gradient(135deg,#1B5EC7,#0A1628);color:#fff;
                 padding:13px 24px;border-radius:12px;font-family:'Space Grotesk',sans-serif;
-                font-weight:700;font-size:.95rem;text-decoration:none;
+                font-weight:700;font-size: 1.2rem;text-decoration:none;
                 transition:opacity .18s;">
         Go to My Feed →
       </a>
       <a href="{% url 'dashboard' %}"
          style="display:block;background:#f3f6fb;color:#0A1628;
                 padding:12px 24px;border-radius:12px;font-family:'Jaldi',sans-serif;
-                font-weight:700;font-size:.9rem;text-decoration:none;border:1.5px solid #e5e7eb;">
+                font-weight:700;font-size: 1.2rem;text-decoration:none;border:1.5px solid #e5e7eb;">
         Open Dashboard
       </a>
       <a href="{% url 'logout' %}"
          style="display:block;color:#dc2626;font-family:'Jaldi',sans-serif;
-                font-size:.85rem;font-weight:700;text-decoration:none;
+                font-size: 1.2rem;font-weight:700;text-decoration:none;
                 padding:8px;margin-top:2px;">
         Log out &amp; create new account
       </a>
@@ -220,7 +220,7 @@ function togglePw(id, btn) {
 }
 // Style all inputs
 document.querySelectorAll('.auth-field input:not([type=radio]), .auth-field select').forEach(function(el) {
-  el.style.cssText = 'width:100%;padding:10px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:6px;font-size:.875rem;box-sizing:border-box;outline:none;font-family:inherit;background:#fff;color:#0A0C12;';
+  el.style.cssText = 'width:100%;padding:10px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:6px;font-size: 1.2rem;box-sizing:border-box;outline:none;font-family:inherit;background:#fff;color:#0A0C12;';
   el.addEventListener('focus', function(){ this.style.borderColor='#0057FF'; this.style.boxShadow='0 0 0 3px rgba(0,87,255,0.10)'; });
   el.addEventListener('blur',  function(){ this.style.borderColor='rgba(0,0,0,0.12)'; this.style.boxShadow='none'; });
 });

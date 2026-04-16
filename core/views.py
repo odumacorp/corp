@@ -1,4 +1,4 @@
-from .models import CustomUser, Company, Project, UserProfile
+from .models import CustomUser, Company, Project, UserProfile, INDUSTRY_CHOICES
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -84,12 +84,6 @@ def project_list(request):
         imgs = list(proj.images.all())
         proj.main_img = next((i for i in imgs if i.is_main), imgs[0] if imgs else None)
 
-    INDUSTRY_CHOICES = [
-        ("tech", "Technology"), ("finance", "Finance"), ("health", "Healthcare"),
-        ("edu", "Education"), ("energy", "Energy"), ("agriculture", "Agriculture"),
-        ("manufacturing", "Manufacturing"), ("other", "Other"),
-    ]
-
     industry_counts = {
         r['industry']: r['cnt']
         for r in Project.objects.filter(is_hidden=False)
@@ -124,7 +118,6 @@ from django.views.generic import DetailView
 ##user posts
 
 # ##Edit profile pic
-@login_required
 @login_required
 def edit_profile(request):
     user = request.user
@@ -163,6 +156,7 @@ def edit_profile(request):
         'form': form,
         'up': up,
         'profile_completion': profile_completion,
+        'industry_choices': INDUSTRY_CHOICES,
     })
 
 
@@ -223,6 +217,12 @@ def profile_view(request, id):
     from .models import ProfileView as PV, Project, Patent, Like, Interest, Post, Group, Page, Company, Proposal
     user_obj = get_object_or_404(CustomUser, id=id)
     profile  = get_object_or_404(UserProfile, user=user_obj)
+
+    # Block regular users from viewing admin profiles
+    if user_obj.user_type == 'admin' or user_obj.is_staff or user_obj.is_superuser:
+        if not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser or request.user.user_type == 'admin')):
+            from django.http import HttpResponseForbidden
+            return HttpResponseForbidden("You do not have permission to view this profile.")
 
     # Track this profile view
     if request.user.is_authenticated and request.user != user_obj:
@@ -395,7 +395,8 @@ def dashboard(request, user_id=None):
 
     from .models import (
         Post, Connection, ProfileView, GroupMembership, Group, Page,
-        Notification, ProjectView, Company
+        Notification, ProjectView, Company, Event, Job, JobApplication,
+        Meeting, Proposal
     )
     from django.db.models import Sum, Count
 
@@ -417,8 +418,31 @@ def dashboard(request, user_id=None):
     companies_owned = Company.objects.filter(owner=user).count()
     notifications_unread = Notification.objects.filter(user=user, is_read=False).count()
 
-    # Recent posts (latest 5)
+    # Recent posts (latest 5 for sidebar)
     recent_posts = Post.objects.filter(user=user).order_by('-created_at')[:5]
+
+    # All posts for Posts tab
+    my_posts = Post.objects.filter(user=user).order_by('-created_at')
+
+    # Communities
+    my_groups_created = Group.objects.filter(creator=user).order_by('-created_at')
+    my_groups_joined = GroupMembership.objects.filter(
+        user=user, status='accepted'
+    ).exclude(group__creator=user).select_related('group').order_by('-created_at')
+    my_pages = Page.objects.filter(owner=user).order_by('-created_at')
+    my_companies = Company.objects.filter(owner=user).order_by('-created_at')
+
+    # Work & Activity
+    my_events = Event.objects.filter(created_by=user).order_by('-date')
+    my_jobs = Job.objects.filter(created_by=user).order_by('-created_at')
+    my_meetings = Meeting.objects.filter(
+        Q(creator=user) | Q(participants=user)
+    ).distinct().order_by('-scheduled_at', '-created_at')
+    my_applications = JobApplication.objects.filter(applicant=user).select_related('job').order_by('-applied_at')
+
+    # Deals / Proposals
+    my_proposals_sent = Proposal.objects.filter(from_investor=user).select_related('post').order_by('-created_at')
+    my_proposals_received = Proposal.objects.filter(post__user=user).select_related('from_investor').order_by('-created_at')
 
     # Profile completion (based on UserProfile fields that exist)
     up = getattr(user, 'userprofile', None)
@@ -480,6 +504,18 @@ def dashboard(request, user_id=None):
         'profile_completion': profile_completion,
         'investor_interest_alerts': investor_interest_alerts,
         'suggested_actions': suggested_actions[:4],
+        # Extended dashboard data
+        'my_posts': my_posts,
+        'my_groups_created': my_groups_created,
+        'my_groups_joined': my_groups_joined,
+        'my_pages': my_pages,
+        'my_companies': my_companies,
+        'my_events': my_events,
+        'my_jobs': my_jobs,
+        'my_meetings': my_meetings,
+        'my_applications': my_applications,
+        'my_proposals_sent': my_proposals_sent,
+        'my_proposals_received': my_proposals_received,
     })
 
 
@@ -555,6 +591,43 @@ def download_message_attachment(request, attachment_id):
 
 
 @login_required
+def view_message_attachment(request, attachment_id):
+    """Render a chat attachment in a styled viewer page."""
+    from .models import MessageAttachment
+    att = get_object_or_404(MessageAttachment, pk=attachment_id)
+    conversation = att.message.conversation
+    if not conversation.participants.filter(pk=request.user.pk).exists():
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden()
+    return render(request, 'attachment_viewer.html', {
+        'att': att,
+        'conversation': conversation,
+    })
+
+
+@login_required
+def media_chat_attachment_viewer(request, file_path):
+    """Intercept direct /media/chat_attachments/... browser navigations → styled viewer.
+    Image/video src requests (Accept != text/html) are served as raw files so <img> tags work."""
+    from django.conf import settings
+    from django.views.static import serve
+
+    # Only intercept full browser page navigations, not asset loads (<img src>, etc.)
+    accept = request.META.get('HTTP_ACCEPT', '')
+    if 'text/html' not in accept:
+        return serve(request, 'chat_attachments/' + file_path, document_root=settings.MEDIA_ROOT)
+
+    from .models import MessageAttachment
+    from django.http import HttpResponseRedirect
+    lookup = 'chat_attachments/' + file_path.lstrip('/')
+    att = MessageAttachment.objects.filter(file=lookup).first()
+    if att and att.message.conversation.participants.filter(pk=request.user.pk).exists():
+        return HttpResponseRedirect(f'/chat/attachments/{att.pk}/view/')
+    # Fall back to raw file for unmatched paths
+    return serve(request, 'chat_attachments/' + file_path, document_root=settings.MEDIA_ROOT)
+
+
+@login_required
 def add_project_comment(request, project_id):
     """Add a comment or reply to a project."""
     from .models import ProjectComment, Notification
@@ -583,8 +656,9 @@ def add_project_comment(request, project_id):
 
 
 # View to handle attachment creation
+@login_required
 def add_attachment(request, project_id):
-    project = get_object_or_404(Project, id=project_id)
+    project = get_object_or_404(Project, id=project_id, owner=request.user)
     if request.method == 'POST':
         files = request.FILES.getlist('attachments') or (
             [request.FILES['file']] if 'file' in request.FILES else []
@@ -613,8 +687,9 @@ from django.shortcuts import render, redirect
 from .models import Project, ProjectImage
 from .forms import ProjectImageForm
 
+@login_required
 def upload_image(request, project_id):
-    project = Project.objects.get(id=project_id)
+    project = get_object_or_404(Project, id=project_id, owner=request.user)
     if request.method == 'POST':
         if 'image' in request.FILES:
             img = ProjectImage(
@@ -794,12 +869,35 @@ def networks(request):
     return render(request, 'networks.html', context)
 ##notifications.html
 @login_required
-@login_required
 def notifications(request):
-    from .models import Notification
+    from .models import Notification, Conversation
     notifs = Notification.objects.filter(user=request.user).order_by('-created_at')
     unread_count = notifs.filter(is_read=False).count()
     notifs.filter(is_read=False).update(is_read=True)
+
+    # Build inbox items — same logic as the inbox view
+    conversations = Conversation.objects.filter(
+        participants=request.user
+    ).select_related('project', 'post').prefetch_related('participants', 'messages').order_by('-created_at')
+
+    inbox_items = []
+    msg_unread_total = 0
+    for convo in conversations:
+        other = convo.participants.exclude(id=request.user.id).first()
+        last_msg = convo.messages.order_by('-timestamp').first()
+        unread = convo.messages.filter(recipient=request.user, is_read=False).count()
+        msg_unread_total += unread
+        inbox_items.append({
+            'conversation': convo,
+            'other_user':   other,
+            'last_msg':     last_msg,
+            'unread':       unread,
+        })
+    inbox_items.sort(
+        key=lambda x: x['last_msg'].timestamp if x['last_msg'] else x['conversation'].created_at,
+        reverse=True
+    )
+
     context = {
         "page_title": "Notifications", "page_name": "Notifications",
         'all_notifications':       notifs,
@@ -807,6 +905,8 @@ def notifications(request):
         'message_notifications':   notifs.filter(notification_type='message_sent'),
         'other_notifications':     notifs.filter(notification_type='other'),
         'unread_count':            unread_count,
+        'inbox_items':             inbox_items,
+        'msg_unread_total':        msg_unread_total,
     }
     return render(request, 'notifications.html', context)
 
@@ -1403,7 +1503,6 @@ def quick_message(request):
 
     return JsonResponse({'ok': True, 'conversation_id': conversation.id})
 
-@login_required
 @login_required
 def chat_page(request, conversation_id):
     conversation = get_object_or_404(Conversation, id=conversation_id)
@@ -2214,7 +2313,11 @@ def edit_project(request, project_id):
     else:
         form = ProjectForm(instance=project)
 
-    return render(request, 'edit_project.html', {'form': form, 'project': project})
+    return render(request, 'edit_project.html', {
+        'form': form,
+        'project': project,
+        'industry_choices': INDUSTRY_CHOICES,
+    })
 
 
 @login_required
@@ -3167,11 +3270,7 @@ def investor_dashboard(request):
         # Investor profile
         'investor_profile': profile,
         # Choices for filter dropdowns
-        'industry_choices': [
-            ('tech','Technology'),('health','Healthcare'),('finance','Finance'),
-            ('edu','Education'),('energy','Energy'),('agriculture','Agriculture'),
-            ('manufacturing','Manufacturing'),('other','Other'),
-        ],
+        'industry_choices': INDUSTRY_CHOICES,
         'pipeline_stage_choices': [
             ('idea','Idea Stage'),('validation','Validation Stage'),
             ('investment','Investment Stage'),('growth','Growth Stage'),
@@ -3975,6 +4074,21 @@ def admin_delete_job(request, job_id):
     return redirect('admin_panel')
 
 @login_required
+def admin_accept_connection(request, connection_id):
+    if not (request.user.is_superuser or request.user.is_staff or getattr(request.user, 'user_type', '') == 'admin'):
+        messages.error(request, 'Permission denied.')
+        return redirect('admin_panel')
+    if request.method == 'POST':
+        from .models import Connection
+        conn = get_object_or_404(Connection, pk=connection_id, status='pending')
+        conn.status = 'accepted'
+        conn.save()
+        conn.initiator.connected_users.add(conn.target)
+        conn.target.connected_users.add(conn.initiator)
+        messages.success(request, f'Connection between {conn.initiator.get_full_name() or conn.initiator.username} and {conn.target.get_full_name() or conn.target.username} accepted.')
+    return redirect('admin_panel')
+
+@login_required
 def admin_delete_connection(request, connection_id):
     if request.method == 'POST':
         from .models import Connection
@@ -4238,32 +4352,66 @@ def blog_detail(request, slug):
 def companies_list(request):
     from .models import Company
     from django.db.models import Count, Q
-    q = request.GET.get('q', '').strip()
+    q             = request.GET.get('q', '').strip()
     industry_filter = request.GET.get('industry', '')
+    date_sort     = request.GET.get('date_sort', 'newest')
+    owner_filter  = request.GET.get('owner_id', '')
+
     base_qs = Company.objects.all()
     qs = base_qs
     if industry_filter:
         qs = qs.filter(industry=industry_filter)
     if q:
         qs = qs.filter(Q(name__icontains=q) | Q(tagline__icontains=q) | Q(description__icontains=q))
-    companies = qs.order_by('-created_at')
+    if owner_filter:
+        qs = qs.filter(owner_id=owner_filter)
+
+    order = 'created_at' if date_sort == 'oldest' else '-created_at'
+    companies = qs.order_by(order)
 
     counts_qs = base_qs.values('industry').annotate(cnt=Count('id'))
     industry_counts = {r['industry']: r['cnt'] for r in counts_qs}
 
     user_company = None
+    my_companies = []
+    rl_company_ids = set()
+    company_owners = []
     if request.user.is_authenticated:
         user_company = Company.objects.filter(owner=request.user).first()
+        my_companies = list(Company.objects.filter(owner=request.user).order_by('-created_at'))
+        # Exclude user's own companies from the all-companies list
+        companies = companies.exclude(owner=request.user)
+        from .models import ReadLater
+        rl_company_ids = set(
+            ReadLater.objects.filter(user=request.user, company__isnull=False)
+            .values_list('company_id', flat=True)
+        )
+        # Owners for the filter dropdown (exclude current user since they have their own tab)
+        owner_ids = Company.objects.exclude(owner=request.user).values_list('owner_id', flat=True).distinct()
+    else:
+        owner_ids = Company.objects.values_list('owner_id', flat=True).distinct()
+
+    from django.contrib.auth import get_user_model
+    _User = get_user_model()
+    company_owners = list(
+        _User.objects.filter(pk__in=owner_ids)
+             .order_by('first_name', 'last_name')
+             .values('pk', 'first_name', 'last_name', 'username')
+    )
 
     return render(request, 'companies.html', {
         'companies': companies,
+        'my_companies': my_companies,
         'industry_counts': industry_counts,
         'selected_industry': industry_filter,
-        # Legacy template vars kept for compatibility
         'industry': industry_filter,
         'industry_choices': Company.INDUSTRY_CHOICES,
         'q': q,
+        'date_sort': date_sort,
+        'owner_filter': owner_filter,
+        'company_owners': company_owners,
         'user_company': user_company,
+        'rl_company_ids': rl_company_ids,
     })
 
 
@@ -4273,7 +4421,7 @@ def company_profile(request, company_id):
     company     = get_object_or_404(Company, pk=company_id)
     media_items = CompanyMedia.objects.filter(company=company).order_by('-uploaded_at')
     updates     = CompanyUpdate.objects.filter(company=company).order_by('-created_at')
-    is_following = company.followers.filter(pk=request.user.pk).exists()
+    is_following = company.followers.filter(id=request.user.id).exists()
     is_owner     = company.owner == request.user
     # Read Later status
     is_saved = False
@@ -4305,54 +4453,68 @@ def company_edit(request, company_id):
         company.save()
         messages.success(request, 'Business updated.')
         return redirect('company_profile', company_id=company_id)
-    return render(request, 'company_edit.html', {'company': company})
+    return render(request, 'company_edit.html', {
+        'company': company,
+        'industry_choices': INDUSTRY_CHOICES,
+    })
 
 
-@login_required
 @login_required
 def create_company(request):
     from .models import Company, CustomIndustry
+
+    preset = list(Company.INDUSTRY_CHOICES)
+    custom = list(CustomIndustry.objects.values_list('name', flat=True))
+    preset_vals_set = {v for v, _ in preset}
+    ctx = {
+        'industry_choices': preset + [(n, n) for n in custom if n not in preset_vals_set],
+        'type_choices': Company.COMPANY_TYPE_CHOICES,
+        'size_choices': Company.SIZE_CHOICES,
+    }
+
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
         description = request.POST.get('description', '').strip()
+
         if not name or not description:
             messages.error(request, 'Company name and description are required.')
-        else:
-            industry_val = request.POST.get('industry', 'other').strip()[:50]
-            # Persist custom industry
-            preset_vals = {v for v, _ in Company.INDUSTRY_CHOICES}
-            if industry_val and industry_val not in preset_vals:
-                CustomIndustry.objects.get_or_create(name=industry_val)
-            company = Company(
-                owner        = request.user,
-                name         = name,
-                description  = description,
-                tagline      = request.POST.get('tagline', ''),
-                industry     = industry_val,
-                company_type = request.POST.get('company_type', 'startup'),
-                size         = request.POST.get('size', ''),
-                location     = request.POST.get('location', ''),
-                website      = request.POST.get('website', ''),
-                email        = request.POST.get('email', ''),
-                phone        = request.POST.get('phone', ''),
-            )
-            if 'logo' in request.FILES:
-                company.logo = request.FILES['logo']
-            if 'cover_image' in request.FILES:
-                company.cover_image = request.FILES['cover_image']
-            company.save()
-            messages.success(request, 'Business page created!')
-            return redirect('company_profile', company_id=company.id)
-    preset = list(Company.INDUSTRY_CHOICES)
-    custom = list(CustomIndustry.objects.values_list('name', flat=True))
-    preset_vals = {v for v, _ in preset}
-    ctx = {
-        'industry_choices': preset + [(n, n) for n in custom if n not in preset_vals],
-        'type_choices':     Company.COMPANY_TYPE_CHOICES,
-        'size_choices':     Company.SIZE_CHOICES,
-    }
-    return render(request, 'create_company.html', ctx)
+            return render(request, 'create_company.html', ctx)
 
+        industry_val = (request.POST.get('industry') or 'other').strip()
+
+        if industry_val and industry_val not in preset_vals_set:
+            CustomIndustry.objects.get_or_create(name=industry_val)
+
+        company = Company(
+            owner=request.user,
+            name=name,
+            description=description,
+            tagline=request.POST.get('tagline', ''),
+            industry=industry_val,
+            company_type=request.POST.get('company_type', 'startup') or 'startup',
+            size=request.POST.get('size', ''),
+            location=request.POST.get('location', ''),
+            website=request.POST.get('website', ''),
+            email=request.POST.get('email', ''),
+            phone=request.POST.get('phone', ''),
+        )
+
+        if request.FILES.get('logo'):
+            company.logo = request.FILES['logo']
+
+        if request.FILES.get('cover_image'):
+            company.cover_image = request.FILES['cover_image']
+
+        try:
+            company.save()
+        except Exception as e:
+            messages.error(request, f'Could not create business page: {e}')
+            return render(request, 'create_company.html', ctx)
+
+        messages.success(request, 'Business page created!')
+        return redirect('company_profile', company_id=company.id)
+
+    return render(request, 'create_company.html', ctx)
 
 @login_required
 def company_follow(request, company_id):
@@ -4475,8 +4637,83 @@ def group_create(request):
 
 @login_required
 def group_detail(request, group_id):
+    from .models import GroupMembership, GroupDiscussion, GroupDiscussionComment
+    from django.db.models import Count
     group = get_object_or_404(Group, pk=group_id)
-    return render(request, 'group_detail.html', {'group': group})
+    is_creator = group.creator == request.user
+
+    membership = GroupMembership.objects.filter(group=group, user=request.user).first()
+    is_member = membership and membership.status == 'accepted'
+
+    # Discussions with annotated counts
+    discussions = (
+        GroupDiscussion.objects
+        .filter(group=group)
+        .annotate(
+            comment_count=Count('comments', distinct=True),
+            like_count=Count('likes', distinct=True),
+        )
+        .prefetch_related('images')
+        .select_related('author')
+        .order_by('-created_at')
+    )
+
+    # Trending (last 30 days)
+    from django.utils import timezone
+    import datetime
+    cutoff = timezone.now() - datetime.timedelta(days=30)
+    trending = (
+        GroupDiscussion.objects
+        .filter(group=group, created_at__gte=cutoff)
+        .annotate(
+            comment_count=Count('comments', distinct=True),
+            like_count=Count('likes', distinct=True),
+        )
+        .order_by('-like_count', '-comment_count')[:5]
+    )
+
+    # Members list (accepted)
+    members = (
+        GroupMembership.objects
+        .filter(group=group, status='accepted')
+        .select_related('user', 'user__userprofile')
+    )
+
+    # Creator-only data
+    pending_requests = []
+    invitable_users = []
+    if is_creator:
+        pending_requests = (
+            GroupMembership.objects
+            .filter(group=group, status='pending')
+            .select_related('user')
+        )
+        from .models import CustomUser
+        member_ids = group.members.values_list('id', flat=True)
+        invitable_users = CustomUser.objects.exclude(id__in=member_ids).order_by('first_name')
+
+    # Stats
+    stats = {
+        'member_count': group.members.count(),
+        'total_discussions': GroupDiscussion.objects.filter(group=group).count(),
+        'total_comments': GroupDiscussionComment.objects.filter(discussion__group=group).count(),
+        'invites_sent': GroupMembership.objects.filter(group=group, status='invited').count(),
+        'invites_accepted': GroupMembership.objects.filter(group=group, status='accepted').count(),
+        'join_requests_pending': GroupMembership.objects.filter(group=group, status='pending').count(),
+    }
+
+    return render(request, 'group_detail.html', {
+        'group': group,
+        'is_creator': is_creator,
+        'is_member': is_member,
+        'membership': membership,
+        'discussions': discussions,
+        'trending': trending,
+        'members': members,
+        'pending_requests': pending_requests,
+        'invitable_users': invitable_users,
+        'stats': stats,
+    })
 
 @login_required
 def group_discussion_detail(request, group_id, discussion_id):
@@ -4519,6 +4756,90 @@ def group_accept_invite(request, group_id):
 @login_required
 def group_comment_react(request, group_id, discussion_id, comment_id):
     return redirect(request.META.get('HTTP_REFERER', 'groups_list'))
+
+@login_required
+def group_edit(request, group_id):
+    from .models import Group, CustomIndustry
+    group = get_object_or_404(Group, pk=group_id)
+    if group.creator != request.user:
+        messages.error(request, "Only the group creator can edit this group.")
+        return redirect('group_detail', group_id=group_id)
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        if not name:
+            messages.error(request, 'Group name is required.')
+            return redirect('group_detail', group_id=group_id)
+        group.name = name
+        group.description = request.POST.get('description', '').strip()
+        industry = request.POST.get('industry', group.industry).strip()[:50]
+        preset_vals = {v for v, _ in Group.INDUSTRY_CHOICES}
+        if industry and industry not in preset_vals:
+            CustomIndustry.objects.get_or_create(name=industry)
+        group.industry = industry or 'other'
+        group.is_private = bool(request.POST.get('is_private'))
+        if request.FILES.get('cover_image'):
+            group.cover_image = request.FILES['cover_image']
+        group.save()
+        messages.success(request, 'Group updated.')
+    return redirect('group_detail', group_id=group_id)
+
+
+@login_required
+def group_delete(request, group_id):
+    from .models import Group
+    group = get_object_or_404(Group, pk=group_id)
+    if group.creator != request.user:
+        messages.error(request, "Only the group creator can delete this group.")
+        return redirect('group_detail', group_id=group_id)
+    if request.method == 'POST':
+        group.delete()
+        messages.success(request, 'Group deleted.')
+        return redirect('groups_list')
+    return redirect('group_detail', group_id=group_id)
+
+
+@login_required
+def page_edit(request, page_id):
+    from .models import Page, CustomIndustry
+    pg = get_object_or_404(Page, pk=page_id)
+    if pg.owner != request.user:
+        messages.error(request, "Only the page owner can edit this page.")
+        return redirect('page_detail', page_id=page_id)
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        if not title:
+            messages.error(request, 'Page title is required.')
+            return redirect('page_detail', page_id=page_id)
+        pg.title = title
+        pg.description = request.POST.get('description', '').strip()
+        industry = request.POST.get('industry', pg.industry).strip()[:50]
+        preset_vals = {v for v, _ in Page.INDUSTRY_CHOICES}
+        if industry and industry not in preset_vals:
+            CustomIndustry.objects.get_or_create(name=industry)
+        pg.industry = industry or 'other'
+        pg.website = request.POST.get('website', '').strip()
+        if request.FILES.get('cover_image'):
+            pg.cover_image = request.FILES['cover_image']
+        if request.FILES.get('logo'):
+            pg.logo = request.FILES['logo']
+        pg.save()
+        messages.success(request, 'Page updated.')
+    return redirect('page_detail', page_id=page_id)
+
+
+@login_required
+def page_delete(request, page_id):
+    from .models import Page
+    pg = get_object_or_404(Page, pk=page_id)
+    if pg.owner != request.user:
+        messages.error(request, "Only the page owner can delete this page.")
+        return redirect('page_detail', page_id=page_id)
+    if request.method == 'POST':
+        pg.delete()
+        messages.success(request, 'Page deleted.')
+        return redirect('pages_list')
+    return redirect('page_detail', page_id=page_id)
+
 
 # --- innovator page / profile ---
 @login_required
@@ -4740,10 +5061,6 @@ def add_comment(request, post_id):
 @login_required
 def edit_post(request, post_id):
     post = get_object_or_404(Post, pk=post_id, user=request.user)
-    INDUSTRY_CHOICES = [
-        ("tech","Technology"),("health","Healthcare"),("finance","Finance"),
-        ("education","Education"),("engineering","Engineering"),("energy","Energy"),
-    ]
     POST_TYPE_CHOICES = [
         ('idea','💡 Idea'),('article','📝 Article'),('update','🚀 Update'),
         ('announcement','📢 Announcement'),('question','❓ Question'),
@@ -5188,49 +5505,15 @@ Output ONLY the description text, nothing else."""
         #     for block in resp.content:
         #         if hasattr(block, "text"):
         #             result += block.text
-        if assist_type in ('project_title', 'company_tagline'):
-            suggestions = [line.strip() for line in result.split('\n') if line.strip()]
-            return JsonResponse(
-                {'suggestions': suggestions},
-                json_dumps_params={'ensure_ascii': False}
-            )
-        else:
-            return JsonResponse(
-                {'result': result},
-                json_dumps_params={'ensure_ascii': False}
-            )
-        ##
-
-        # if resp.content and len(resp.content) > 0:
-        #     result = getattr(resp.content[0], "text", "").strip()
-        #     result = result.encode('utf-8', 'ignore').decode('utf-8')
-
-        #     result = unicodedata.normalize('NFKD', result)
-        #     result = result.replace('•', '-')
         if not result:
             return JsonResponse({'error': 'No result generated. Please try again.'}, status=500)
 
-        # if assist_type in ('project_title', 'company_tagline'):
-        #     suggestions = [line.strip() for line in result.split('\n') if line.strip()]
-        #     # return JsonResponse({'suggestions': suggestions})
-        #     return JsonResponse({'suggestions': suggestions}, json_dumps_params={'ensure_ascii': False})
-        # else:
-        #     # return JsonResponse({'result': result})
-        #     return JsonResponse({'result': result}, json_dumps_params={'ensure_ascii': False})
-           
-            
-    # except Exception:
-    #     return JsonResponse({'error': 'AI generation failed. Please try again.'}, status=500)
-    # except Exception as e:
-    #     return JsonResponse({'error': str(e)}, status=500)
+        if assist_type in ('project_title', 'company_tagline'):
+            suggestions = [line.strip() for line in result.split('\n') if line.strip()]
+            return JsonResponse({'suggestions': suggestions})
+        else:
+            return JsonResponse({'result': result})
 
-    # except Exception as e:
-    #     import traceback
-    #     return JsonResponse({
-    #         'error': str(e),
-    #         'trace': traceback.format_exc()
-    #     }, status=500)
-    
     except Exception as e:
         import traceback
         print(traceback.format_exc())

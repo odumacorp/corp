@@ -1,103 +1,167 @@
 {% extends "_partials/base.html" %}
+{% load static %}
+{% block title %}My Posts — Oduma Corp{% endblock %}
 
 {% block content %}
-<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
-  <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">My Projects</span></li>
-  </ol>
-</nav>
-<button onclick="history.back()" class="oc-back-btn">
-  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-  Back
-</button>
+<style>
+  :root {
+    --mp-blue: #1B5EC7;
+    --mp-navy: #0A1628;
+    --mp-bg:   #F4F7FB;
+    --mp-card: #ffffff;
+    --mp-border: #e5e7eb;
+    --mp-muted: #6b7280;
+  }
 
-<!-- ########## -->
+  .mp-wrap { max-width: 900px; margin: 0 auto; padding: 28px 20px 80px; }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post List</title>
-    <style>
-        .container {
-            display: flex;
-            justify-content: space-between;
-            width: 80%;
-            margin: auto;
-            padding-top: 20px;
-        }
-        .post-form {
-            width: 30%;
-            padding: 20px;
-            background: #f4f4f4;
-            border-radius: 8px;
-        }
-        .post-list {
-            width: 65%;
-        }
-        .post {
-            border-bottom: 1px solid #ddd;
-            padding: 10px 0;
-        }
-        .post img {
-            max-width: 100%;
-            height: auto;
-            margin-top: 10px;
-        }
-        .attachment {
-            display: block;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-    {% if user.is_authenticated %}
-    <h3 class="mt-4">Welcome, {{ user.get_full_name }}</h3>
-    <!-- <h3 class="mt-4">Welcome, {{ user.first_name }} {{ user.last_name }}</h3> -->
-    {% else %}
-        <h3 class="mt-4">Welcome, Guest!</h3>
-    {% endif %}
+  /* ── Top bar ── */
+  .mp-topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+  .mp-topbar-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+  .mp-back-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; background: #fff; border: 1.5px solid var(--mp-border); color: #374151; font-size: 1.15rem; font-weight: 600; text-decoration: none; transition: border-color .15s, color .15s; white-space: nowrap; cursor: pointer; }
+  .mp-back-btn:hover { border-color: var(--mp-blue); color: var(--mp-blue); }
+  .mp-page-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.7rem; font-weight: 800; color: var(--mp-navy); margin: 0; }
+  .mp-page-sub { font-size: 1.1rem; color: var(--mp-muted); margin-top: 2px; }
+  .mp-new-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 9px; background: var(--mp-blue); color: #fff; font-size: 1.2rem; font-weight: 700; text-decoration: none; border: none; cursor: pointer; transition: background .15s; white-space: nowrap; }
+  .mp-new-btn:hover { background: #1448a3; color: #fff; }
 
-<div class="container">
-    <!-- Post Form on the Left -->
-    <div class="post-form">
-        <h2>Create a Project</h2>
-        <!-- <form method="post" enctype="multipart/form-data"> -->
-       
+  /* ── Stats strip ── */
+  .mp-stats { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+  .mp-stat-pill { background: #fff; border: 1.5px solid var(--mp-border); border-radius: 10px; padding: 8px 16px; font-size: 1.2rem; color: var(--mp-muted); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .mp-stat-pill strong { color: var(--mp-navy); font-family: 'Space Grotesk', sans-serif; }
+
+  /* ── Empty state ── */
+  .mp-empty { text-align: center; padding: 64px 24px; background: #fff; border: 1.5px solid var(--mp-border); border-radius: 16px; }
+  .mp-empty-icon { width: 56px; height: 56px; border-radius: 14px; background: #eef4ff; color: var(--mp-blue); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  .mp-empty h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--mp-navy); margin: 0 0 6px; }
+  .mp-empty p { font-size: 1.2rem; color: var(--mp-muted); margin: 0 auto 20px; max-width: 340px; line-height: 1.65; }
+
+  /* ── Post grid ── */
+  .mp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+  @media (max-width: 640px) { .mp-grid { grid-template-columns: 1fr; } }
+
+  /* ── Post card ── */
+  .mp-card { background: var(--mp-card); border: 1.5px solid var(--mp-border); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; transition: box-shadow .2s, transform .15s; }
+  .mp-card:hover { box-shadow: 0 6px 24px rgba(27,94,199,.1); transform: translateY(-2px); }
+
+  .mp-card-img { width: 100%; height: 160px; object-fit: cover; display: block; }
+  .mp-card-img-ph { width: 100%; height: 160px; background: linear-gradient(135deg, #eef4ff 0%, #dbeafe 100%); display: flex; align-items: center; justify-content: center; color: var(--mp-blue); opacity: .5; }
+
+  .mp-card-body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+
+  .mp-card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mp-tag { font-size: 1.1rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+  .mp-tag--type     { background: #eef4ff; color: #1d4ed8; }
+  .mp-tag--industry { background: #f0fdf4; color: #166534; }
+
+  .mp-card-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--mp-navy); text-decoration: none; line-height: 1.3; letter-spacing: -.02em; }
+  .mp-card-title:hover { color: var(--mp-blue); }
+
+  .mp-card-content { font-size: 1.2rem; color: var(--mp-muted); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+  .mp-card-footer { padding: 12px 18px; border-top: 1px solid var(--mp-border); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .mp-card-date { font-size: 1.1rem; color: var(--mp-muted); }
+  .mp-card-stats { display: flex; align-items: center; gap: 10px; }
+  .mp-card-stat { display: flex; align-items: center; gap: 4px; font-size: 1.1rem; color: var(--mp-muted); font-weight: 600; }
+
+  .mp-card-actions { padding: 10px 18px; border-top: 1px solid var(--mp-border); display: flex; gap: 8px; }
+  .mp-action-btn { flex: 1; padding: 7px 0; border-radius: 8px; font-size: 1.1rem; font-weight: 700; text-align: center; text-decoration: none; border: none; cursor: pointer; transition: background .15s; }
+  .mp-action-btn--view   { background: #eef4ff; color: var(--mp-blue); }
+  .mp-action-btn--view:hover { background: #dbeafe; }
+  .mp-action-btn--edit   { background: #f3f4f6; color: #374151; }
+  .mp-action-btn--edit:hover { background: #e5e7eb; }
+  .mp-action-btn--delete { background: #fff1f2; color: #b91c1c; }
+  .mp-action-btn--delete:hover { background: #fee2e2; }
+</style>
+
+<div class="mp-wrap">
+
+  <!-- Top bar -->
+  <div class="mp-topbar">
+    <div class="mp-topbar-left">
+      <button onclick="history.back()" class="mp-back-btn">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Back
+      </button>
+      <div>
+        <div class="mp-page-title">My Posts</div>
+        <div class="mp-page-sub">{{ posts|length }} post{{ posts|length|pluralize }} published</div>
+      </div>
     </div>
+    <a href="{% url 'app' %}" class="mp-new-btn">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Post
+    </a>
+  </div>
 
-    <div class="post-list">
-        <h2>My Posts</h2>
-        {% for post in posts %}
-            <div class="post" style="border: 1px solid #ccc; padding: 1em; margin-bottom: 1em; background: #f9f9f9;">
-                <h3>{{ post.title }}</h3>
-                <p><strong>Industry:</strong> {{ post.industry }}</p>
-                <p><strong>By:</strong> {{ post.user.username }}</p>
-                <p>{{ post.content }}</p>
-    
-                {% if post.image %}
-                    <img src="{{ post.image.url }}" alt="Post Image" style="max-width: 300px; height: auto;">
-                {% endif %}
-    
-                {% if post.attachment %}
-                    <p><a class="attachment btn btn-sm btn-secondary mt-2" href="{{ post.attachment.url }}" download>Download Attachment</a></p>
-                {% endif %}
-    
-                <small class="text-muted">Posted on: {{ post.created_at }}</small>
-            </div>
-        {% empty %}
-            <p>No posts yet.</p>
-        {% endfor %}
+  {% if posts %}
+  <!-- Stats -->
+  <div class="mp-stats">
+    <div class="mp-stat-pill">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <strong>{{ posts|length }}</strong> total posts
     </div>
-    
+  </div>
+
+  <!-- Grid -->
+  <div class="mp-grid">
+    {% for post in posts %}
+    <div class="mp-card">
+      {% if post.image %}
+        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="mp-card-img">
+      {% else %}
+        <div class="mp-card-img-ph">
+          <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+      {% endif %}
+
+      <div class="mp-card-body">
+        <div class="mp-card-tags">
+          {% if post.post_type %}<span class="mp-tag mp-tag--type">{{ post.get_post_type_display }}</span>{% endif %}
+          {% if post.industry %}<span class="mp-tag mp-tag--industry">{{ post.industry }}</span>{% endif %}
+        </div>
+        <a href="{% url 'post_detail' post_id=post.id %}" class="mp-card-title">{{ post.title }}</a>
+        <p class="mp-card-content">{{ post.content }}</p>
+      </div>
+
+      <div class="mp-card-footer">
+        <span class="mp-card-date">{{ post.created_at|date:"M j, Y" }}</span>
+        <div class="mp-card-stats">
+          <span class="mp-card-stat">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+            {{ post.likes.count }}
+          </span>
+          <span class="mp-card-stat">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+            {{ post.reposts.count }}
+          </span>
+        </div>
+      </div>
+
+      <div class="mp-card-actions">
+        <a href="{% url 'post_detail' post_id=post.id %}" class="mp-action-btn mp-action-btn--view">View</a>
+        <a href="{% url 'edit_post' post_id=post.id %}" class="mp-action-btn mp-action-btn--edit">Edit</a>
+        <a href="{% url 'delete_post' post_id=post.id %}" class="mp-action-btn mp-action-btn--delete"
+           onclick="return confirm('Delete this post? This cannot be undone.')">Delete</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <!-- Empty state -->
+  <div class="mp-empty">
+    <div class="mp-empty-icon">
+      <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    </div>
+    <h3>No posts yet</h3>
+    <p>Share your ideas, updates, and projects with the Oduma community.</p>
+    <a href="{% url 'app' %}" class="mp-new-btn" style="display:inline-flex;">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Create your first post
+    </a>
+  </div>
+  {% endif %}
+
 </div>
-
-</body>
-</html>
-
-<!-- #### -->
-
-
 {% endblock %}

@@ -29,7 +29,7 @@
     border-top: none;
     border-radius: 0 0 9px 9px;
     font-family: var(--ff-sans);
-    font-size: 0.92rem;
+    font-size: 1.2rem;
     min-height: 140px;
     background: #fff;
   }
@@ -55,7 +55,7 @@
     width: 100%; height: 100%;
   }
   .adm-upload-zone p {
-    font-family: var(--ff-sans); font-size: .8rem; color: var(--muted); margin: 0;
+    font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); margin: 0;
   }
   .adm-upload-zone strong { color: var(--blue); }
   .adm-img-preview {
@@ -90,24 +90,24 @@
   }
   .adm-sidebar-logo-icon {
     width: 34px; height: 34px; background: var(--blue); border-radius: 9px;
-    display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
   }
-  .adm-sidebar-logo-text { font-family: var(--ff-serif); font-size: 0.93rem; color: var(--text); line-height: 1.2; }
-  .adm-sidebar-logo-sub { font-family: var(--ff-sans); font-size: 0.62rem; color: var(--blue); letter-spacing: 1.5px; text-transform: uppercase; }
+  .adm-sidebar-logo-text { font-family: var(--ff-serif); font-size: 1.2rem; color: var(--text); line-height: 1.2; }
+  .adm-sidebar-logo-sub { font-family: var(--ff-sans); font-size: 1.2rem; color: var(--blue); letter-spacing: 1.5px; text-transform: uppercase; }
 
   .adm-nav-group { padding: 0 10px; margin-bottom: 6px; }
-  .adm-nav-label { font-family: var(--ff-sans); font-size: 0.65rem; color: #aab; letter-spacing: 2px; text-transform: uppercase; padding: 0 10px; margin-bottom: 4px; display: block; }
+  .adm-nav-label { font-family: var(--ff-sans); font-size: 1.2rem; color: #aab; letter-spacing: 2px; text-transform: uppercase; padding: 0 10px; margin-bottom: 4px; display: block; }
   .adm-nav-link {
     display: flex; align-items: center; gap: 9px; padding: 8px 12px;
-    border-radius: 9px; font-family: var(--ff-sans); font-size: 0.88rem;
+    border-radius: 9px; font-family: var(--ff-sans); font-size: 1.2rem;
     color: var(--text); text-decoration: none; transition: background 0.15s, color 0.15s; margin-bottom: 2px;
   }
   .adm-nav-link:hover, .adm-nav-link.active { background: rgba(0,74,173,0.08); color: var(--blue); text-decoration: none; }
-  .adm-nav-link .nav-icon { font-size: 0.95rem; width: 18px; text-align: center; }
-  .adm-nav-count { margin-left: auto; background: rgba(0,74,173,0.1); color: var(--blue); border-radius: 10px; padding: 1px 7px; font-size: 0.7rem; font-family: var(--ff-sans); }
+  .adm-nav-link .nav-icon { font-size: 1.2rem; width: 18px; text-align: center; }
+  .adm-nav-count { margin-left: auto; background: rgba(0,74,173,0.1); color: var(--blue); border-radius: 10px; padding: 1px 7px; font-size: 1.2rem; font-family: var(--ff-sans); }
 
   .adm-sidebar-bottom { margin-top: auto; padding: 14px 20px 0; border-top: 1px solid var(--border); }
-  .adm-sidebar-back { display: flex; align-items: center; gap: 8px; font-family: var(--ff-sans); font-size: 0.83rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .adm-sidebar-back { display: flex; align-items: center; gap: 8px; font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
   .adm-sidebar-back:hover { color: var(--blue); text-decoration: none; }
 
   /* ---- Main ---- */
@@ -115,7 +115,7 @@
 
   .adm-page-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
   .adm-page-title { font-family: var(--ff-serif); font-size: clamp(1.3rem, 3vw, 1.7rem); color: var(--text); margin: 0; }
-  .adm-badge-admin { background: rgba(0,74,173,0.1); color: var(--blue); font-family: var(--ff-sans); font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; }
+  .adm-badge-admin { background: rgba(0,74,173,0.1); color: var(--blue); font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; }
 
   /* ---- Stats ---- */
   .adm-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; margin-bottom: 32px; }
@@ -130,50 +130,50 @@
   }
   .adm-stat:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,74,173,0.09); }
   /* .adm-stat::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--stat-accent, var(--blue)); border-radius: 4px 0 0 4px; } */
-  .adm-stat-icon { font-size: 1.3rem; margin-bottom: 8px; }
-  .adm-stat-value { font-family: var(--ff-serif); font-size: 1.9rem; color: var(--text); line-height: 1; margin-bottom: 3px; }
-  .adm-stat-label { font-family: var(--ff-sans); font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .adm-stat-icon { font-size: 1.8rem; margin-bottom: 8px; }
+  .adm-stat-value { font-family: var(--ff-serif); font-size: 2.6rem; color: var(--text); line-height: 1; margin-bottom: 3px; }
+  .adm-stat-label { font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
   /* ---- Section ---- */
   .adm-section { margin-bottom: 40px; }
   .adm-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
-  .adm-section-title { font-family: var(--ff-serif); font-size: 1.08rem; color: var(--text); margin: 0; }
-  .adm-section-label { display: inline-block; background: rgba(0,74,173,0.08); color: var(--blue); font-family: var(--ff-sans); font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; }
+  .adm-section-title { font-family: var(--ff-serif); font-size: 1.2rem; color: var(--text); margin: 0; }
+  .adm-section-label { display: inline-block; background: rgba(0,74,173,0.08); color: var(--blue); font-family: var(--ff-sans); font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; }
 
   /* ---- Table ---- */
   .adm-table-wrap { background: #fff; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.04); overflow: hidden; }
   .adm-table { width: 100%; border-collapse: collapse; }
-  .adm-table thead th { background: var(--card-bg); font-family: var(--ff-sans); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  .adm-table thead th { background: var(--card-bg); font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--border); }
   .adm-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.13s; }
   .adm-table tbody tr:last-child { border-bottom: none; }
   .adm-table tbody tr:hover { background: rgba(0,74,173,0.022); }
-  .adm-table td { padding: 10px 14px; font-family: var(--ff-sans); font-size: 0.85rem; color: var(--text); vertical-align: middle; }
+  .adm-table td { padding: 10px 14px; font-family: var(--ff-sans); font-size: 1.2rem; color: var(--text); vertical-align: middle; }
 
   /* User cell */
   .adm-user-cell { display: flex; align-items: center; gap: 9px; }
   .adm-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(0,74,173,0.13); flex-shrink: 0; }
-  .adm-avatar-init { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--blue) 0%, #0062d4 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--ff-serif); font-size: 0.82rem; flex-shrink: 0; }
-  .adm-user-name { font-family: var(--ff-serif); font-size: 0.9rem; color: var(--text); }
-  .adm-user-username { font-family: var(--ff-sans); font-size: 0.73rem; color: var(--muted); }
+  .adm-avatar-init { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--blue) 0%, #0062d4 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--ff-serif); font-size: 1.2rem; flex-shrink: 0; }
+  .adm-user-name { font-family: var(--ff-serif); font-size: 1.2rem; color: var(--text); }
+  .adm-user-username { font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); }
 
   /* Badges */
-  .adm-role { display: inline-block; padding: 2px 9px; border-radius: 20px; font-family: var(--ff-sans); font-size: 0.7rem; font-weight: 700; text-transform: capitalize; }
+  .adm-role { display: inline-block; padding: 2px 9px; border-radius: 20px; font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700; text-transform: capitalize; }
   .role-innovator { background: rgba(5,150,105,0.1); color: #059669; }
   .role-investor  { background: rgba(0,74,173,0.1);  color: var(--blue); }
   .role-admin     { background: rgba(124,58,237,0.1); color: #7c3aed; }
 
-  .adm-status { display: inline-block; padding: 2px 9px; border-radius: 20px; font-family: var(--ff-sans); font-size: 0.7rem; font-weight: 700; text-transform: capitalize; }
+  .adm-status { display: inline-block; padding: 2px 9px; border-radius: 20px; font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700; text-transform: capitalize; }
   .st-draft       { background: rgba(107,114,128,0.1); color: #6b7280; }
   .st-in_progress { background: rgba(0,74,173,0.1);    color: var(--blue); }
   .st-completed   { background: rgba(5,150,105,0.1);   color: #059669; }
 
-  .adm-active-badge   { background: rgba(5,150,105,0.1); color: #059669; padding: 2px 9px; border-radius: 20px; font-family: var(--ff-sans); font-size: 0.7rem; font-weight: 700; }
-  .adm-inactive-badge { background: rgba(192,57,43,0.1); color: #c0392b; padding: 2px 9px; border-radius: 20px; font-family: var(--ff-sans); font-size: 0.7rem; font-weight: 700; }
+  .adm-active-badge   { background: rgba(5,150,105,0.1); color: #059669; padding: 2px 9px; border-radius: 20px; font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700; }
+  .adm-inactive-badge { background: rgba(192,57,43,0.1); color: #c0392b; padding: 2px 9px; border-radius: 20px; font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700; }
 
   /* Inline action forms */
   .adm-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .adm-act-btn {
-    padding: 3px 10px; border-radius: 7px; font-family: var(--ff-sans); font-size: 0.75rem;
+    padding: 3px 10px; border-radius: 7px; font-family: var(--ff-sans); font-size: 1.2rem;
     font-weight: 700; border: 1.5px solid; cursor: pointer; text-decoration: none;
     transition: background 0.15s, transform 0.15s; background: transparent; display: inline-block; line-height: 1.5;
   }
@@ -193,7 +193,7 @@
   .adm-role-form { display: flex; align-items: center; gap: 4px; }
   .adm-role-select {
     padding: 3px 6px; border: 1.5px solid var(--border); border-radius: 7px;
-    font-family: var(--ff-sans); font-size: 0.75rem; color: var(--text); background: var(--card-bg);
+    font-family: var(--ff-sans); font-size: 1.2rem; color: var(--text); background: var(--card-bg);
     cursor: pointer; outline: none;
   }
   .adm-role-select:focus { border-color: var(--blue); }
@@ -202,63 +202,64 @@
   .adm-status-form { display: flex; align-items: center; gap: 4px; }
   .adm-status-select {
     padding: 3px 6px; border: 1.5px solid var(--border); border-radius: 7px;
-    font-family: var(--ff-sans); font-size: 0.75rem; color: var(--text); background: var(--card-bg);
+    font-family: var(--ff-sans); font-size: 1.2rem; color: var(--text); background: var(--card-bg);
     cursor: pointer; outline: none;
   }
   .adm-status-select:focus { border-color: var(--blue); }
 
   /* ---- Search ---- */
   .adm-search-bar { position: relative; max-width: 260px; }
-  .adm-search-input { width: 100%; padding: 7px 12px 7px 32px; border: 1.5px solid var(--border); border-radius: 9px; font-family: var(--ff-sans); font-size: 0.86rem; color: var(--text); background: var(--card-bg); outline: none; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; }
+  .adm-search-input { width: 100%; padding: 7px 12px 7px 32px; border: 1.5px solid var(--border); border-radius: 9px; font-family: var(--ff-sans); font-size: 1.2rem; color: var(--text); background: var(--card-bg); outline: none; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; }
   .adm-search-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,74,173,0.09); background: #fff; }
-  .adm-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.8rem; pointer-events: none; }
+  .adm-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1.2rem; pointer-events: none; }
 
   /* ---- Broadcast form ---- */
   .adm-broadcast-card { background: #fff; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.04); padding: 22px 20px; margin-bottom: 20px; }
-  .adm-broadcast-card h3 { font-family: var(--ff-serif); font-size: 0.98rem; color: var(--text); margin: 0 0 14px; }
+  .adm-broadcast-card h3 { font-family: var(--ff-serif); font-size: 1.2rem; color: var(--text); margin: 0 0 14px; }
   .adm-broadcast-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
   .adm-broadcast-field { display: flex; flex-direction: column; gap: 4px; }
-  .adm-broadcast-field label { font-family: var(--ff-sans); font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
-  .adm-broadcast-textarea { padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 9px; font-family: var(--ff-sans); font-size: 0.88rem; color: var(--text); background: var(--card-bg); outline: none; resize: vertical; min-width: 280px; transition: border-color 0.2s; }
+  .adm-broadcast-field label { font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+  .adm-broadcast-textarea { padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 9px; font-family: var(--ff-sans); font-size: 1.2rem; color: var(--text); background: var(--card-bg); outline: none; resize: vertical; min-width: 280px; transition: border-color 0.2s; }
   .adm-broadcast-textarea:focus { border-color: var(--blue); background: #fff; }
-  .adm-broadcast-select { padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 9px; font-family: var(--ff-sans); font-size: 0.86rem; color: var(--text); background: var(--card-bg); outline: none; cursor: pointer; }
+  .adm-broadcast-select { padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 9px; font-family: var(--ff-sans); font-size: 1.2rem; color: var(--text); background: var(--card-bg); outline: none; cursor: pointer; }
   .adm-broadcast-select:focus { border-color: var(--blue); }
-  .adm-broadcast-btn { padding: 9px 22px; background: var(--blue); color: #fff; border: none; border-radius: 9px; font-family: var(--ff-sans); font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: background 0.2s, transform 0.2s; white-space: nowrap; }
+  .adm-broadcast-btn { padding: 9px 22px; background: var(--blue); color: #fff; border: none; border-radius: 9px; font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: background 0.2s, transform 0.2s; white-space: nowrap; }
   .adm-broadcast-btn:hover { background: var(--blue-dark); transform: translateY(-1px); }
 
   /* ---- Empty state ---- */
-  .adm-empty { text-align: center; padding: 36px 20px; background: #fff; border-radius: 14px; border: 1px dashed rgba(0,74,173,0.18); font-family: var(--ff-sans); color: var(--muted); font-size: 0.88rem; }
+  .adm-empty { text-align: center; padding: 36px 20px; background: #fff; border-radius: 14px; border: 1px dashed rgba(0,74,173,0.18); font-family: var(--ff-sans); color: var(--muted); font-size: 1.2rem; }
 
   /* ---- Confirm modal ---- */
   .adm-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2000; align-items: center; justify-content: center; }
   .adm-modal-overlay.open { display: flex; }
   .adm-modal { background: #fff; border-radius: 16px; padding: 28px 28px 22px; max-width: 380px; width: 90%; box-shadow: 0 16px 48px rgba(0,0,0,0.18); }
-  .adm-modal h3 { font-family: var(--ff-serif); font-size: 1.1rem; color: var(--text); margin: 0 0 10px; }
-  .adm-modal p { font-family: var(--ff-sans); font-size: 0.88rem; color: var(--muted); margin: 0 0 22px; }
+  .adm-modal h3 { font-family: var(--ff-serif); font-size: 1.2rem; color: var(--text); margin: 0 0 10px; }
+  .adm-modal p { font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); margin: 0 0 22px; }
   .adm-modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
-  .adm-modal-cancel { padding: 8px 18px; border: 1.5px solid var(--border); border-radius: 8px; background: transparent; color: var(--muted); font-family: var(--ff-sans); font-size: 0.85rem; cursor: pointer; }
-  .adm-modal-confirm { padding: 8px 18px; border: none; border-radius: 8px; background: #c0392b; color: #fff; font-family: var(--ff-sans); font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+  .adm-modal-cancel { padding: 8px 18px; border: 1.5px solid var(--border); border-radius: 8px; background: transparent; color: var(--muted); font-family: var(--ff-sans); font-size: 1.2rem; cursor: pointer; }
+  .adm-modal-confirm { padding: 8px 18px; border: none; border-radius: 8px; background: #c0392b; color: #fff; font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700; cursor: pointer; }
 
   /* ---- Tab bar ---- */
   .adm-tab-bar {
-    display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 24px;
-    border-bottom: 2px solid var(--border); padding-bottom: 0; overflow-x: auto;
+    display: flex; gap: 2px; flex-wrap: nowrap; margin-bottom: 24px;
+    border-bottom: 2px solid var(--border); padding-bottom: 0;
+    overflow-x: auto; scrollbar-width: none;
   }
+  .adm-tab-bar::-webkit-scrollbar { display: none; }
   .adm-tab-btn {
-    padding: 9px 14px; background: none; border: none; border-bottom: 2px solid transparent;
-    font-family: var(--ff-sans); font-size: 0.85rem; color: var(--muted); cursor: pointer;
+    padding: 9px 13px; background: none; border: none; border-bottom: 2.5px solid transparent;
+    font-family: var(--ff-sans); font-size: 1.15rem; color: var(--muted); cursor: pointer;
     white-space: nowrap; display: flex; align-items: center; gap: 5px; margin-bottom: -2px;
-    transition: color 0.15s, border-color 0.15s;
-    max-width: 20px;
-    justify-content: center;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    border-radius: 8px 8px 0 0; flex-shrink: 0;
   }
-  .adm-tab-btn:hover { color: var(--blue); box-shadow: none }
-  .adm-tab-btn.active { color: var(--blue); border-bottom-color: none; font-weight: 700; background-color:rgba(0, 102, 255, 0.329);}
+  .adm-tab-btn:hover { color: var(--blue); background: rgba(0,74,173,0.06); }
+  .adm-tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 700; background: rgba(0,74,173,0.08); }
 
   /* ---- Filter buttons ---- */
   .adm-filter-btn {
     padding: 4px 12px; border: 1.5px solid var(--border); border-radius: 20px;
-    background: transparent; font-family: var(--ff-sans); font-size: 0.78rem; cursor: pointer;
+    background: transparent; font-family: var(--ff-sans); font-size: 1.2rem; cursor: pointer;
     color: var(--muted); transition: all 0.15s;
   }
   .adm-filter-btn:hover, .adm-filter-btn.active {
@@ -271,7 +272,7 @@
     .adm-sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; padding: 10px 12px; gap: 3px; border-right: none; border-bottom: 1px solid var(--border); overflow-x: auto; }
     .adm-sidebar-logo { border-bottom: none; margin-bottom: 0; padding-bottom: 0; flex-shrink: 0; }
     .adm-nav-group { display: flex; gap: 2px; padding: 0; }
-    .adm-nav-link { padding: 6px 10px; font-size: 0.82rem; white-space: nowrap; }
+    .adm-nav-link { padding: 6px 10px; font-size: 1.2rem; white-space: nowrap; }
     .adm-nav-label, .adm-sidebar-bottom { display: none; }
     .adm-main { padding: 16px 12px 40px; }
     /* Wrap each table in a scroll container */
@@ -280,7 +281,7 @@
   }
   @media (max-width: 600px) {
     .adm-stats { grid-template-columns: repeat(2, 1fr); }
-    .adm-stat-value { font-size: 1.5rem; }
+    .adm-stat-value { font-size: 2.0rem; }
   }
   @media (max-width: 420px) {
     .adm-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -297,22 +298,22 @@
     <form id="sp-form" method="post" action="">
       {% csrf_token %}
       <div style="margin-bottom:12px;">
-        <label style="font-family:var(--ff-sans);font-size:0.82rem;color:#444;display:block;margin-bottom:4px;">New Password</label>
+        <label style="font-family:var(--ff-sans);font-size: 1.2rem;color:#444;display:block;margin-bottom:4px;">New Password</label>
         <input type="password" name="new_password" id="sp-new-password" autocomplete="new-password"
-          style="width:100%;padding:8px 12px;border:1.5px solid #ddd;border-radius:8px;font-family:var(--ff-sans);font-size:0.88rem;box-sizing:border-box;"
+          style="width:100%;padding:8px 12px;border:1.5px solid #ddd;border-radius:8px;font-family:var(--ff-sans);font-size: 1.2rem;box-sizing:border-box;"
           placeholder="Min. 8 characters" required>
       </div>
       <div style="margin-bottom:4px;">
-        <label style="font-family:var(--ff-sans);font-size:0.82rem;color:#444;display:block;margin-bottom:4px;">Confirm Password</label>
+        <label style="font-family:var(--ff-sans);font-size: 1.2rem;color:#444;display:block;margin-bottom:4px;">Confirm Password</label>
         <input type="password" name="confirm_password" id="sp-confirm-password" autocomplete="new-password"
-          style="width:100%;padding:8px 12px;border:1.5px solid #ddd;border-radius:8px;font-family:var(--ff-sans);font-size:0.88rem;box-sizing:border-box;"
+          style="width:100%;padding:8px 12px;border:1.5px solid #ddd;border-radius:8px;font-family:var(--ff-sans);font-size: 1.2rem;box-sizing:border-box;"
           placeholder="Re-enter password" required>
       </div>
-      <p id="sp-mismatch" style="color:#c0392b;font-family:var(--ff-sans);font-size:0.8rem;margin:6px 0 0;display:none;">Passwords do not match.</p>
+      <p id="sp-mismatch" style="color:#c0392b;font-family:var(--ff-sans);font-size: 1.2rem;margin:6px 0 0;display:none;">Passwords do not match.</p>
       <div class="adm-modal-actions" style="margin-top:18px;">
         <button type="button" class="adm-modal-cancel" onclick="closeSetPassword()">Cancel</button>
         <button type="submit" id="sp-submit-btn"
-          style="padding:8px 18px;border:none;border-radius:8px;background:#004AAD;color:#fff;font-family:var(--ff-sans);font-size:0.85rem;font-weight:700;cursor:pointer;">
+          style="padding:8px 18px;border:none;border-radius:8px;background:#004AAD;color:#fff;font-family:var(--ff-sans);font-size: 1.2rem;font-weight:700;cursor:pointer;">
           Set Password
         </button>
       </div>
@@ -520,8 +521,8 @@
               <tbody>
               {% for u in top_connected %}
               <tr>
-                <td style="color:#aaa;font-size:0.8rem;">{{ forloop.counter }}</td>
-                <td><a href="{% url 'profile_view' id=u.id %}" style="color:var(--blue);font-weight:600;">{{ u.first_name }} {{ u.last_name }}</a><br><span style="font-size:0.75rem;color:#aaa;">@{{ u.username }}</span></td>
+                <td style="color:#aaa;font-size: 1.2rem;">{{ forloop.counter }}</td>
+                <td><a href="{% url 'profile_view' id=u.id %}" style="color:var(--blue);font-weight:600;">{{ u.first_name }} {{ u.last_name }}</a><br><span style="font-size: 1.2rem;color:#aaa;">@{{ u.username }}</span></td>
                 <td><span class="adm-badge" style="{% if u.user_type == 'innovator' %}background:rgba(5,150,105,0.1);color:#059669;{% elif u.user_type == 'investor' %}background:rgba(0,74,173,0.1);color:#004aad;{% else %}background:rgba(124,58,237,0.1);color:#7c3aed;{% endif %}">{{ u.user_type|title }}</span></td>
                 <td style="text-align:center;">{{ u.initiated }}</td>
                 <td style="text-align:center;">{{ u.received }}</td>
@@ -549,7 +550,7 @@
       .ds-filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; align-items:center; }
       .ds-filter-btn {
         padding:6px 16px; border-radius:20px; border:1px solid #e5e7eb;
-        background:#fff; font-family:var(--ff-sans); font-size:0.82rem; color:#555;
+        background:#fff; font-family:var(--ff-sans); font-size: 1.2rem; color:#555;
         cursor:pointer; transition:all 0.18s; white-space:nowrap;
       }
       .ds-filter-btn:hover { border-color:var(--blue); color:var(--blue); }
@@ -562,27 +563,27 @@
         padding:12px 16px; background:#f0f5ff; border-radius:12px;
         margin-bottom:16px; border:1px solid #d0e0ff;
       }
-      .ds-range-lbl { font-family:var(--ff-sans); font-size:0.8rem; color:#555; font-weight:600; }
+      .ds-range-lbl { font-family:var(--ff-sans); font-size: 1.2rem; color:#555; font-weight:600; }
       .ds-range-input {
         padding:6px 10px; border:1px solid #d1d5db; border-radius:8px;
-        font-family:var(--ff-sans); font-size:0.82rem; color:#1a1a1a;
+        font-family:var(--ff-sans); font-size: 1.2rem; color:#1a1a1a;
         background:#fff; cursor:pointer;
       }
       .ds-range-input:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(0,74,173,0.12); }
       .ds-range-apply {
         padding:6px 18px; border-radius:8px; border:none;
         background:var(--blue); color:#fff; font-family:var(--ff-sans);
-        font-size:0.82rem; font-weight:600; cursor:pointer; transition:opacity 0.15s;
+        font-size: 1.2rem; font-weight:600; cursor:pointer; transition:opacity 0.15s;
       }
       .ds-range-apply:hover { opacity:0.88; }
-      .ds-range-status { font-family:var(--ff-sans); font-size:0.8rem; color:#888; }
+      .ds-range-status { font-family:var(--ff-sans); font-size: 1.2rem; color:#888; }
       .ds-range-status.err { color:#dc2626; }
 
       .ds-totals-row {
         display:flex; flex-wrap:wrap; gap:10px 24px;
         margin-top:14px; padding:14px 18px;
         background:#f8f9fb; border-radius:12px;
-        font-family:var(--ff-sans); font-size:0.82rem; color:#666;
+        font-family:var(--ff-sans); font-size: 1.2rem; color:#666;
       }
       .ds-totals-row strong { color:#1a1a1a; }
 
@@ -590,14 +591,14 @@
       .sec-fb-bar { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:10px; }
       .sec-fb {
         padding:4px 12px; border-radius:16px; border:1px solid #e5e7eb;
-        background:#fff; font-family:var(--ff-sans); font-size:0.76rem; color:#555;
+        background:#fff; font-family:var(--ff-sans); font-size: 1.2rem; color:#555;
         cursor:pointer; transition:all 0.15s; white-space:nowrap;
       }
       .sec-fb:hover { border-color:var(--blue); color:var(--blue); }
       .sec-fb.sec-fb-active { background:var(--blue); color:#fff; border-color:var(--blue); font-weight:600; }
       .sec-fb.sec-fb-range { border-style:dashed; }
       .sec-fb.sec-fb-range.sec-fb-active { border-style:solid; }
-      .sec-fb-count { font-family:var(--ff-sans); font-size:0.75rem; color:#999; margin-left:2px; }
+      .sec-fb-count { font-family:var(--ff-sans); font-size: 1.2rem; color:#999; margin-left:2px; }
       .sec-range-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; padding:8px 12px; background:#f0f5ff; border-radius:10px; border:1px solid #d0e0ff; }
     </style>
 
@@ -711,9 +712,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -864,9 +865,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -977,9 +978,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -1067,7 +1068,7 @@
       </div>
 
       <div class="adm-section-head" style="margin-top:20px;">
-        <h3 class="adm-section-title" style="font-size:0.95rem;">Recent Notifications</h3>
+        <h3 class="adm-section-title" style="font-size: 1.2rem;">Recent Notifications</h3>
         <span class="adm-section-label">{{ total_notifications }} total</span>
       </div>
 
@@ -1129,9 +1130,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -1152,7 +1153,7 @@
             <tr data-search="{{ m.sender.username|lower }} {{ m.recipient.username|lower }} {{ m.content|lower }}" data-date="{{ m.timestamp|date:'U' }}">
               <td><a href="{% url 'profile_view' id=m.sender.id %}" style="color:var(--blue);text-decoration:none;">{{ m.sender.get_full_name|default:m.sender.username }}</a></td>
               <td><a href="{% url 'profile_view' id=m.recipient.id %}" style="color:var(--blue);text-decoration:none;">{{ m.recipient.get_full_name|default:m.recipient.username }}</a></td>
-              <td style="max-width:220px;">{{ m.content|truncatechars:60 }}{% if m.is_flagged %} <span style="color:#c0392b;font-weight:700;font-size:0.72rem;"><i class="fi fi-rr-flag"></i> FLAGGED</span>{% endif %}</td>
+              <td style="max-width:220px;">{{ m.content|truncatechars:60 }}{% if m.is_flagged %} <span style="color:#c0392b;font-weight:700;font-size: 1.2rem;"><i class="fi fi-rr-flag"></i> FLAGGED</span>{% endif %}</td>
               <td>{% if m.is_read %}<span class="adm-active-badge">Read</span>{% else %}<span class="adm-inactive-badge">Unread</span>{% endif %}</td>
               <td>{{ m.timestamp|date:"M d, H:i" }}</td>
               <td>
@@ -1208,9 +1209,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -1311,9 +1312,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -1411,9 +1412,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -1429,9 +1430,9 @@
               <td>{{ item.created_at|date:"M d, Y" }}</td>
               <td>
                 {% if item.is_published %}
-                  <span style="color:#065f46;background:#d1fae5;padding:2px 8px;border-radius:20px;font-size:.75rem;font-weight:700;">Live</span>
+                  <span style="color:#065f46;background:#d1fae5;padding:2px 8px;border-radius:20px;font-size: 1.2rem;font-weight:700;">Live</span>
                 {% else %}
-                  <span style="color:#92400e;background:#fef3c7;padding:2px 8px;border-radius:20px;font-size:.75rem;font-weight:700;">Hidden</span>
+                  <span style="color:#92400e;background:#fef3c7;padding:2px 8px;border-radius:20px;font-size: 1.2rem;font-weight:700;">Hidden</span>
                 {% endif %}
               </td>
               <td style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -1525,9 +1526,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -1590,9 +1591,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -1608,11 +1609,17 @@
               <td><a href="{% url 'profile_view' id=c.target.id %}" style="color:var(--blue);text-decoration:none;">{{ c.target.get_full_name|default:c.target.username }}</a></td>
               <td>
                 {% if c.status == 'accepted' %}<span class="adm-active-badge">Accepted</span>
-                {% elif c.status == 'pending' %}<span style="background:rgba(217,119,6,0.1);color:#d97706;padding:2px 9px;border-radius:20px;font-size:0.7rem;font-weight:700;">Pending</span>
+                {% elif c.status == 'pending' %}<span style="background:rgba(217,119,6,0.1);color:#d97706;padding:2px 9px;border-radius:20px;font-size: 1.2rem;font-weight:700;">Pending</span>
                 {% else %}<span class="adm-inactive-badge">{{ c.status }}</span>{% endif %}
               </td>
               <td>{{ c.created_at|date:"M d, Y" }}</td>
-              <td>
+              <td style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+                {% if c.status == 'pending' %}
+                <form method="post" action="{% url 'admin_accept_connection' c.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="adm-act-btn adm-btn-success">Accept</button>
+                </form>
+                {% endif %}
                 <button type="button" class="adm-act-btn adm-btn-danger"
                   onclick="openConfirm('Delete connection?', 'This will remove the connection between these two users.', '{% url "admin_delete_connection" c.id %}')">
                   Delete
@@ -1657,9 +1664,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -1722,9 +1729,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -1786,9 +1793,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -1805,7 +1812,7 @@
               <td style="max-width:200px;">{{ col.message|truncatechars:60|default:"—" }}</td>
               <td>
                 {% if col.status == 'accepted' %}<span class="adm-active-badge">Accepted</span>
-                {% elif col.status == 'pending' %}<span style="background:rgba(217,119,6,0.1);color:#d97706;padding:2px 9px;border-radius:20px;font-size:0.7rem;font-weight:700;">Pending</span>
+                {% elif col.status == 'pending' %}<span style="background:rgba(217,119,6,0.1);color:#d97706;padding:2px 9px;border-radius:20px;font-size: 1.2rem;font-weight:700;">Pending</span>
                 {% else %}<span class="adm-inactive-badge">{{ col.status }}</span>{% endif %}
               </td>
               <td>{{ col.created_at|date:"M d, Y" }}</td>
@@ -1837,8 +1844,8 @@
               <td><a href="{% url 'profile_view' id=r.user.id %}" style="color:var(--blue);text-decoration:none;">{{ r.user.get_full_name|default:r.user.username }}</a></td>
               <td><a href="{% url 'project_detail' r.project.id %}" style="color:var(--blue);text-decoration:none;">{{ r.project.title|truncatechars:40 }}</a></td>
               <td>
-                <span style="color:#f59e0b;font-size:1rem;">{% for i in "12345" %}{% if forloop.counter <= r.value %}<i class="fi fi-rr-star"></i>{% else %}<i class="fi fi-rr-star"></i>{% endif %}{% endfor %}</span>
-                <span style="font-size:0.8rem;color:var(--muted);margin-left:4px;">{{ r.value }}/5</span>
+                <span style="color:#f59e0b;font-size: 1.2rem;">{% for i in "12345" %}{% if forloop.counter <= r.value %}<i class="fi fi-rr-star"></i>{% else %}<i class="fi fi-rr-star"></i>{% endif %}{% endfor %}</span>
+                <span style="font-size: 1.2rem;color:var(--muted);margin-left:4px;">{{ r.value }}/5</span>
               </td>
               <td>—</td>
             </tr>
@@ -1869,9 +1876,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -1921,9 +1928,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -1968,9 +1975,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -1994,12 +2001,12 @@
                   <a href="{% url 'profile_view' id=dl.downloaded_by.id %}" style="color:#004AAD;">
                     {{ dl.downloaded_by.get_full_name|default:dl.downloaded_by.username }}
                   </a>
-                  <span style="font-size:0.75rem;color:#888;display:block;">{{ dl.downloaded_by.user_type }}</span>
+                  <span style="font-size: 1.2rem;color:#888;display:block;">{{ dl.downloaded_by.user_type }}</span>
                 {% else %}
                   <span style="color:#aaa;">Anonymous</span>
                 {% endif %}
               </td>
-              <td style="font-size:0.82rem;max-width:180px;word-break:break-all;">
+              <td style="font-size: 1.2rem;max-width:180px;word-break:break-all;">
                 {{ dl.attachment.file.name|cut:"attachments/" }}
               </td>
               <td>
@@ -2012,8 +2019,8 @@
                   {{ dl.attachment.project.owner.get_full_name|default:dl.attachment.project.owner.username }}
                 </a>
               </td>
-              <td style="font-size:0.8rem;color:#888;">{{ dl.ip_address|default:"—" }}</td>
-              <td style="font-size:0.8rem;white-space:nowrap;">{{ dl.downloaded_at|date:"M d, Y H:i" }}</td>
+              <td style="font-size: 1.2rem;color:#888;">{{ dl.ip_address|default:"—" }}</td>
+              <td style="font-size: 1.2rem;white-space:nowrap;">{{ dl.downloaded_at|date:"M d, Y H:i" }}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -2042,9 +2049,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -2131,9 +2138,9 @@
         <span class="sec-fb-count"></span>
       </div>
       <div class="sec-range-row" style="display:none;">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">From</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">From</span>
         <input type="date" class="sec-range-from ds-range-input">
-        <span style="font-size:.78rem;color:#555;font-weight:600;">To</span>
+        <span style="font-size: 1.2rem;color:#555;font-weight:600;">To</span>
         <input type="date" class="sec-range-to ds-range-input">
         <button class="ds-range-apply" onclick="secApplyRange(this)">Apply</button>
       </div>
@@ -2216,22 +2223,22 @@
             </div>
             <div class="adm-broadcast-field">
               <label style="visibility:hidden;">placeholder</label>
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size:0.85rem;color:var(--text);">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;color:var(--text);">
                 <input type="checkbox" name="is_superadmin" style="width:16px;height:16px;cursor:pointer;">
                 Super-Admin (all permissions)
               </label>
             </div>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:16px;background:rgba(0,74,173,0.03);padding:14px;border-radius:10px;">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size:0.82rem;"><input type="checkbox" name="can_manage_users"> Manage Users</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size:0.82rem;"><input type="checkbox" name="can_manage_projects"> Manage Projects</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size:0.82rem;"><input type="checkbox" name="can_manage_posts"> Manage Posts</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size:0.82rem;"><input type="checkbox" name="can_manage_messages"> Manage Messages</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size:0.82rem;"><input type="checkbox" name="can_manage_events"> Manage Events</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size:0.82rem;"><input type="checkbox" name="can_manage_jobs"> Manage Jobs</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size:0.82rem;"><input type="checkbox" name="can_manage_comments"> Manage Comments</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size:0.82rem;"><input type="checkbox" name="can_manage_connections"> Manage Connections</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size:0.82rem;"><input type="checkbox" name="can_view_reports" checked> View Reports</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_users"> Manage Users</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_projects"> Manage Projects</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_posts"> Manage Posts</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_messages"> Manage Messages</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_events"> Manage Events</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_jobs"> Manage Jobs</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_comments"> Manage Comments</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_connections"> Manage Connections</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_view_reports" checked> View Reports</label>
           </div>
           <button type="submit" class="adm-broadcast-btn"><i class="fi fi-rr-shield-check"></i> Grant Admin Access</button>
         </form>
@@ -2239,7 +2246,7 @@
 
       <!-- Existing sub-admins -->
       {% if sub_admins %}
-      <h3 style="font-family:var(--ff-serif);font-size:0.95rem;color:var(--text);margin:0 0 12px;">Current Admins</h3>
+      <h3 style="font-family:var(--ff-serif);font-size: 1.2rem;color:var(--text);margin:0 0 12px;">Current Admins</h3>
       <div style="display:grid;gap:14px;">
         {% for sa, perms in sub_admins %}
         <div style="background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
@@ -2254,7 +2261,7 @@
             </div>
             <div style="display:flex;gap:8px;align-items:center;">
               {% if perms and perms.is_superadmin %}<span class="adm-role role-admin">Super Admin</span>{% endif %}
-              <span style="font-family:var(--ff-sans);font-size:0.75rem;color:var(--muted);">Since {{ sa.date_joined|date:"M Y" }}</span>
+              <span style="font-family:var(--ff-sans);font-size: 1.2rem;color:var(--muted);">Since {{ sa.date_joined|date:"M Y" }}</span>
               <button type="button" class="adm-act-btn adm-btn-danger"
                 onclick="openConfirm('Revoke admin access?', 'This will demote {{ sa.get_full_name|default:sa.username|escapejs }} back to innovator.', '{% url "admin_remove_sub_admin" sa.id %}')">
                 Revoke
@@ -2264,16 +2271,16 @@
           <form method="post" action="{% url 'admin_manage_sub_admin' sa.id %}">
             {% csrf_token %}
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;background:rgba(0,74,173,0.03);padding:12px;border-radius:10px;margin-bottom:10px;">
-              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size:0.8rem;"><input type="checkbox" name="is_superadmin" {% if perms and perms.is_superadmin %}checked{% endif %}> Super-Admin</label>
-              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size:0.8rem;"><input type="checkbox" name="can_manage_users" {% if perms and perms.can_manage_users %}checked{% endif %}> Manage Users</label>
-              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size:0.8rem;"><input type="checkbox" name="can_manage_projects" {% if perms and perms.can_manage_projects %}checked{% endif %}> Manage Projects</label>
-              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size:0.8rem;"><input type="checkbox" name="can_manage_posts" {% if perms and perms.can_manage_posts %}checked{% endif %}> Manage Posts</label>
-              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size:0.8rem;"><input type="checkbox" name="can_manage_messages" {% if perms and perms.can_manage_messages %}checked{% endif %}> Manage Messages</label>
-              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size:0.8rem;"><input type="checkbox" name="can_manage_events" {% if perms and perms.can_manage_events %}checked{% endif %}> Manage Events</label>
-              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size:0.8rem;"><input type="checkbox" name="can_manage_jobs" {% if perms and perms.can_manage_jobs %}checked{% endif %}> Manage Jobs</label>
-              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size:0.8rem;"><input type="checkbox" name="can_manage_comments" {% if perms and perms.can_manage_comments %}checked{% endif %}> Manage Comments</label>
-              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size:0.8rem;"><input type="checkbox" name="can_manage_connections" {% if perms and perms.can_manage_connections %}checked{% endif %}> Manage Connections</label>
-              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size:0.8rem;"><input type="checkbox" name="can_view_reports" {% if perms and perms.can_view_reports %}checked{% endif %}> View Reports</label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="is_superadmin" {% if perms and perms.is_superadmin %}checked{% endif %}> Super-Admin</label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_users" {% if perms and perms.can_manage_users %}checked{% endif %}> Manage Users</label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_projects" {% if perms and perms.can_manage_projects %}checked{% endif %}> Manage Projects</label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_posts" {% if perms and perms.can_manage_posts %}checked{% endif %}> Manage Posts</label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_messages" {% if perms and perms.can_manage_messages %}checked{% endif %}> Manage Messages</label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_events" {% if perms and perms.can_manage_events %}checked{% endif %}> Manage Events</label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_jobs" {% if perms and perms.can_manage_jobs %}checked{% endif %}> Manage Jobs</label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_comments" {% if perms and perms.can_manage_comments %}checked{% endif %}> Manage Comments</label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_manage_connections" {% if perms and perms.can_manage_connections %}checked{% endif %}> Manage Connections</label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;"><input type="checkbox" name="can_view_reports" {% if perms and perms.can_view_reports %}checked{% endif %}> View Reports</label>
             </div>
             <button type="submit" class="adm-act-btn adm-btn-success" style="padding:6px 16px;">Save Permissions</button>
           </form>
@@ -2292,19 +2299,19 @@
       <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:22px;">
         <h2 class="adm-section-title" style="margin:0;flex:1;min-width:160px;">Analytics</h2>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <label style="font-family:var(--ff-sans);font-size:0.8rem;color:var(--muted);">From</label>
-          <input type="date" id="an-start" style="border:1.5px solid var(--border);border-radius:7px;padding:6px 10px;font-size:0.82rem;font-family:var(--ff-sans);outline:none;" />
-          <label style="font-family:var(--ff-sans);font-size:0.8rem;color:var(--muted);">To</label>
-          <input type="date" id="an-end" style="border:1.5px solid var(--border);border-radius:7px;padding:6px 10px;font-size:0.82rem;font-family:var(--ff-sans);outline:none;" />
-          <button onclick="anLoad()" style="background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-family:var(--ff-serif);font-size:0.82rem;cursor:pointer;">Apply</button>
-          <button onclick="anPreset(7)"  style="background:var(--card-bg);border:1.5px solid var(--border);border-radius:7px;padding:6px 12px;font-family:var(--ff-sans);font-size:0.78rem;cursor:pointer;color:var(--muted);">7d</button>
-          <button onclick="anPreset(30)" style="background:var(--card-bg);border:1.5px solid var(--border);border-radius:7px;padding:6px 12px;font-family:var(--ff-sans);font-size:0.78rem;cursor:pointer;color:var(--muted);">30d</button>
-          <button onclick="anPreset(90)" style="background:var(--card-bg);border:1.5px solid var(--border);border-radius:7px;padding:6px 12px;font-family:var(--ff-sans);font-size:0.78rem;cursor:pointer;color:var(--muted);">90d</button>
+          <label style="font-family:var(--ff-sans);font-size: 1.2rem;color:var(--muted);">From</label>
+          <input type="date" id="an-start" style="border:1.5px solid var(--border);border-radius:7px;padding:6px 10px;font-size: 1.2rem;font-family:var(--ff-sans);outline:none;" />
+          <label style="font-family:var(--ff-sans);font-size: 1.2rem;color:var(--muted);">To</label>
+          <input type="date" id="an-end" style="border:1.5px solid var(--border);border-radius:7px;padding:6px 10px;font-size: 1.2rem;font-family:var(--ff-sans);outline:none;" />
+          <button onclick="anLoad()" style="background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-family:var(--ff-serif);font-size: 1.2rem;cursor:pointer;">Apply</button>
+          <button onclick="anPreset(7)"  style="background:var(--card-bg);border:1.5px solid var(--border);border-radius:7px;padding:6px 12px;font-family:var(--ff-sans);font-size: 1.2rem;cursor:pointer;color:var(--muted);">7d</button>
+          <button onclick="anPreset(30)" style="background:var(--card-bg);border:1.5px solid var(--border);border-radius:7px;padding:6px 12px;font-family:var(--ff-sans);font-size: 1.2rem;cursor:pointer;color:var(--muted);">30d</button>
+          <button onclick="anPreset(90)" style="background:var(--card-bg);border:1.5px solid var(--border);border-radius:7px;padding:6px 12px;font-family:var(--ff-sans);font-size: 1.2rem;cursor:pointer;color:var(--muted);">90d</button>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button onclick="anExport('pageviews')" style="background:#fff;border:1.5px solid var(--border);border-radius:7px;padding:6px 14px;font-family:var(--ff-sans);font-size:0.78rem;cursor:pointer;color:var(--muted);">&#11015; Page Views CSV</button>
-          <button onclick="anExport('clicks')"    style="background:#fff;border:1.5px solid var(--border);border-radius:7px;padding:6px 14px;font-family:var(--ff-sans);font-size:0.78rem;cursor:pointer;color:var(--muted);">&#11015; Clicks CSV</button>
-          <button onclick="anExport('engagement')" style="background:#fff;border:1.5px solid var(--border);border-radius:7px;padding:6px 14px;font-family:var(--ff-sans);font-size:0.78rem;cursor:pointer;color:var(--muted);">&#11015; Engagement CSV</button>
+          <button onclick="anExport('pageviews')" style="background:#fff;border:1.5px solid var(--border);border-radius:7px;padding:6px 14px;font-family:var(--ff-sans);font-size: 1.2rem;cursor:pointer;color:var(--muted);">&#11015; Page Views CSV</button>
+          <button onclick="anExport('clicks')"    style="background:#fff;border:1.5px solid var(--border);border-radius:7px;padding:6px 14px;font-family:var(--ff-sans);font-size: 1.2rem;cursor:pointer;color:var(--muted);">&#11015; Clicks CSV</button>
+          <button onclick="anExport('engagement')" style="background:#fff;border:1.5px solid var(--border);border-radius:7px;padding:6px 14px;font-family:var(--ff-sans);font-size: 1.2rem;cursor:pointer;color:var(--muted);">&#11015; Engagement CSV</button>
         </div>
       </div>
 
@@ -2319,7 +2326,7 @@
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:20px;">
         <div class="adm-table-wrap" style="padding:18px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <span style="font-family:var(--ff-serif);font-size:0.9rem;color:var(--text);">Daily Traffic</span>
+            <span style="font-family:var(--ff-serif);font-size: 1.2rem;color:var(--text);">Daily Traffic</span>
             <div style="display:flex;gap:6px;">
               <button class="an-fmt-btn active" onclick="anSetFmt('traffic','bar',this)">Bar</button>
               <button class="an-fmt-btn" onclick="anSetFmt('traffic','line',this)">Line</button>
@@ -2329,7 +2336,7 @@
         </div>
         <div class="adm-table-wrap" style="padding:18px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <span style="font-family:var(--ff-serif);font-size:0.9rem;color:var(--text);">Peak Hours</span>
+            <span style="font-family:var(--ff-serif);font-size: 1.2rem;color:var(--text);">Peak Hours</span>
           </div>
           <canvas id="an-hourly-chart" height="100"></canvas>
         </div>
@@ -2339,7 +2346,7 @@
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:20px;">
         <div class="adm-table-wrap" style="padding:18px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <span style="font-family:var(--ff-serif);font-size:0.9rem;color:var(--text);">Devices</span>
+            <span style="font-family:var(--ff-serif);font-size: 1.2rem;color:var(--text);">Devices</span>
             <div style="display:flex;gap:6px;">
               <button class="an-fmt-btn active" onclick="anSetFmt('devices','doughnut',this)">Donut</button>
               <button class="an-fmt-btn" onclick="anSetFmt('devices','table',this)">Table</button>
@@ -2350,7 +2357,7 @@
         </div>
         <div class="adm-table-wrap" style="padding:18px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <span style="font-family:var(--ff-serif);font-size:0.9rem;color:var(--text);">Browsers</span>
+            <span style="font-family:var(--ff-serif);font-size: 1.2rem;color:var(--text);">Browsers</span>
             <div style="display:flex;gap:6px;">
               <button class="an-fmt-btn active" onclick="anSetFmt('browsers','bar',this)">Bar</button>
               <button class="an-fmt-btn" onclick="anSetFmt('browsers','table',this)">Table</button>
@@ -2361,7 +2368,7 @@
         </div>
         <div class="adm-table-wrap" style="padding:18px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <span style="font-family:var(--ff-serif);font-size:0.9rem;color:var(--text);">Operating Systems</span>
+            <span style="font-family:var(--ff-serif);font-size: 1.2rem;color:var(--text);">Operating Systems</span>
             <div style="display:flex;gap:6px;">
               <button class="an-fmt-btn active" onclick="anSetFmt('os','bar',this)">Bar</button>
               <button class="an-fmt-btn" onclick="anSetFmt('os','table',this)">Table</button>
@@ -2376,7 +2383,7 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;">
         <div class="adm-table-wrap" style="cursor:pointer;" onclick="anDrillDown('pages')">
           <div style="padding:14px 16px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">
-            <span style="font-family:var(--ff-serif);font-size:0.88rem;color:var(--text);">Top Pages <span style="font-size:0.72rem;color:var(--blue);">click to expand &#8594;</span></span>
+            <span style="font-family:var(--ff-serif);font-size: 1.2rem;color:var(--text);">Top Pages <span style="font-size: 1.2rem;color:var(--blue);">click to expand &#8594;</span></span>
             <div style="display:flex;gap:6px;" onclick="event.stopPropagation()">
               <button class="an-fmt-btn active" onclick="anSetFmt('pages','table',this)">Table</button>
               <button class="an-fmt-btn" onclick="anSetFmt('pages','bar',this)">Bar</button>
@@ -2386,7 +2393,7 @@
         </div>
         <div class="adm-table-wrap" style="cursor:pointer;" onclick="anDrillDown('referrers')">
           <div style="padding:14px 16px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">
-            <span style="font-family:var(--ff-serif);font-size:0.88rem;color:var(--text);">Referrers <span style="font-size:0.72rem;color:var(--blue);">click to expand &#8594;</span></span>
+            <span style="font-family:var(--ff-serif);font-size: 1.2rem;color:var(--text);">Referrers <span style="font-size: 1.2rem;color:var(--blue);">click to expand &#8594;</span></span>
           </div>
           <div id="an-referrers-table"></div>
         </div>
@@ -2396,13 +2403,13 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;">
         <div class="adm-table-wrap" style="cursor:pointer;" onclick="anDrillDown('project_views')">
           <div style="padding:14px 16px 8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-family:var(--ff-serif);font-size:0.88rem;color:var(--text);">Most Viewed Projects <span style="font-size:0.72rem;color:var(--blue);">expand &#8594;</span></span>
+            <span style="font-family:var(--ff-serif);font-size: 1.2rem;color:var(--text);">Most Viewed Projects <span style="font-size: 1.2rem;color:var(--blue);">expand &#8594;</span></span>
           </div>
           <div id="an-project-views-table"></div>
         </div>
         <div class="adm-table-wrap" style="cursor:pointer;" onclick="anDrillDown('clicks')">
           <div style="padding:14px 16px 8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-family:var(--ff-serif);font-size:0.88rem;color:var(--text);">Top Clicks <span style="font-size:0.72rem;color:var(--blue);">expand &#8594;</span></span>
+            <span style="font-family:var(--ff-serif);font-size: 1.2rem;color:var(--text);">Top Clicks <span style="font-size: 1.2rem;color:var(--blue);">expand &#8594;</span></span>
           </div>
           <div id="an-clicks-table"></div>
         </div>
@@ -2411,7 +2418,7 @@
       <!-- Engagement summary -->
       <div class="adm-table-wrap" style="padding:18px;margin-bottom:20px;cursor:pointer;" onclick="anDrillDown('engagement')">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-          <span style="font-family:var(--ff-serif);font-size:0.9rem;color:var(--text);">User Engagement <span style="font-size:0.72rem;color:var(--blue);">click to expand &#8594;</span></span>
+          <span style="font-family:var(--ff-serif);font-size: 1.2rem;color:var(--text);">User Engagement <span style="font-size: 1.2rem;color:var(--blue);">click to expand &#8594;</span></span>
           <div style="display:flex;gap:6px;" onclick="event.stopPropagation()">
             <button class="an-fmt-btn active" onclick="anSetFmt('engagement','bar',this)">Bar</button>
             <button class="an-fmt-btn" onclick="anSetFmt('engagement','table',this)">Table</button>
@@ -2431,30 +2438,30 @@
       </div>
 
       {% if survey.total == 0 %}
-        <p style="color:#888;font-family:var(--ff-sans);font-size:0.9rem;padding:24px 0;">No survey responses yet. They will appear here once users submit feedback.</p>
+        <p style="color:#888;font-family:var(--ff-sans);font-size: 1.2rem;padding:24px 0;">No survey responses yet. They will appear here once users submit feedback.</p>
       {% else %}
 
       <!-- ── Stat strip ── -->
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;margin-bottom:24px;">
         <div class="adm-stat-card" style="text-align:center;">
-          <div style="font-size:2.4rem;font-weight:800;color:var(--blue);font-family:var(--ff-serif);line-height:1;">{% if survey.overall %}{{ survey.overall }}{% else %}—{% endif %}</div>
-          <div style="font-size:0.75rem;color:#888;font-family:var(--ff-sans);margin-top:4px;">Overall Avg / 5</div>
+          <div style="font-size: 3.2rem;font-weight:800;color:var(--blue);font-family:var(--ff-serif);line-height:1;">{% if survey.overall %}{{ survey.overall }}{% else %}—{% endif %}</div>
+          <div style="font-size: 1.2rem;color:#888;font-family:var(--ff-sans);margin-top:4px;">Overall Avg / 5</div>
         </div>
         <div class="adm-stat-card" style="text-align:center;">
-          <div style="font-size:2.4rem;font-weight:800;color:#059669;font-family:var(--ff-serif);line-height:1;">{{ survey.recommend.yes }}</div>
-          <div style="font-size:0.75rem;color:#888;font-family:var(--ff-sans);margin-top:4px;">Would Recommend</div>
+          <div style="font-size: 3.2rem;font-weight:800;color:#059669;font-family:var(--ff-serif);line-height:1;">{{ survey.recommend.yes }}</div>
+          <div style="font-size: 1.2rem;color:#888;font-family:var(--ff-sans);margin-top:4px;">Would Recommend</div>
         </div>
         <div class="adm-stat-card" style="text-align:center;">
-          <div style="font-size:2.4rem;font-weight:800;color:#f59e0b;font-family:var(--ff-serif);line-height:1;">{{ survey.recommend.maybe }}</div>
-          <div style="font-size:0.75rem;color:#888;font-family:var(--ff-sans);margin-top:4px;">Maybe</div>
+          <div style="font-size: 3.2rem;font-weight:800;color:#f59e0b;font-family:var(--ff-serif);line-height:1;">{{ survey.recommend.maybe }}</div>
+          <div style="font-size: 1.2rem;color:#888;font-family:var(--ff-sans);margin-top:4px;">Maybe</div>
         </div>
         <div class="adm-stat-card" style="text-align:center;">
-          <div style="font-size:2.4rem;font-weight:800;color:#ef4444;font-family:var(--ff-serif);line-height:1;">{{ survey.recommend.no }}</div>
-          <div style="font-size:0.75rem;color:#888;font-family:var(--ff-sans);margin-top:4px;">Would Not Recommend</div>
+          <div style="font-size: 3.2rem;font-weight:800;color:#ef4444;font-family:var(--ff-serif);line-height:1;">{{ survey.recommend.no }}</div>
+          <div style="font-size: 1.2rem;color:#888;font-family:var(--ff-sans);margin-top:4px;">Would Not Recommend</div>
         </div>
         <div class="adm-stat-card" style="text-align:center;">
-          <div style="font-size:2.4rem;font-weight:800;color:#7c3aed;font-family:var(--ff-serif);line-height:1;">{{ survey.feedback_total }}</div>
-          <div style="font-size:0.75rem;color:#888;font-family:var(--ff-sans);margin-top:4px;">Written Feedback</div>
+          <div style="font-size: 3.2rem;font-weight:800;color:#7c3aed;font-family:var(--ff-serif);line-height:1;">{{ survey.feedback_total }}</div>
+          <div style="font-size: 1.2rem;color:#888;font-family:var(--ff-sans);margin-top:4px;">Written Feedback</div>
         </div>
       </div>
 
@@ -2563,9 +2570,9 @@
             {% for r in survey.recent %}
             <tr>
               <td>{% if r.submitted_by %}{{ r.submitted_by.get_full_name|default:r.submitted_by.username }}{% else %}<span style="color:#aaa;">Anon</span>{% endif %}</td>
-              <td style="white-space:nowrap;font-size:0.8rem;">{{ r.submitted_at|date:"M d" }}</td>
-              <td style="font-size:0.8rem;">{% if r.page %}<span class="sv-feedback-page">{{ r.page }}</span>{% else %}—{% endif %}</td>
-              <td style="font-size:0.8rem;color:#777;">{{ r.section|default:"—" }}</td>
+              <td style="white-space:nowrap;font-size: 1.2rem;">{{ r.submitted_at|date:"M d" }}</td>
+              <td style="font-size: 1.2rem;">{% if r.page %}<span class="sv-feedback-page">{{ r.page }}</span>{% else %}—{% endif %}</td>
+              <td style="font-size: 1.2rem;color:#777;">{{ r.section|default:"—" }}</td>
               <td>
                 {% if r.feedback_type %}
                 <span class="sv-feedback-type sv-ftype-{{ r.feedback_type }}">
@@ -2583,7 +2590,7 @@
                 {% elif r.exp_recommend == 'no' %}<span class="adm-badge" style="background:rgba(239,68,68,0.1);color:#ef4444;">No</span>
                 {% else %}—{% endif %}
               </td>
-              <td style="max-width:220px;white-space:normal;font-size:0.8rem;color:#555;">
+              <td style="max-width:220px;white-space:normal;font-size: 1.2rem;color:#555;">
                 {% if r.feedback_text %}{{ r.feedback_text|truncatechars:100 }}
                 {% elif r.comments %}{{ r.comments|truncatechars:100 }}
                 {% else %}—{% endif %}
@@ -2598,18 +2605,18 @@
       {% endif %}<!-- /survey.total > 0 -->
 
       <style>
-        .sv-card-head { font-family:var(--ff-sans); font-size:0.78rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); }
+        .sv-card-head { font-family:var(--ff-sans); font-size: 1.2rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--blue); }
         .sv-score-row { display:flex; align-items:center; gap:10px; }
-        .sv-score-label { font-family:var(--ff-sans); font-size:0.82rem; color:#555; min-width:110px; }
+        .sv-score-label { font-family:var(--ff-sans); font-size: 1.2rem; color:#555; min-width:110px; }
         .sv-score-bar-wrap { flex:1; background:#f3f4f6; border-radius:99px; height:10px; overflow:hidden; }
         .sv-score-bar { height:100%; background:linear-gradient(90deg,#004aad,#3b82f6); border-radius:99px; transition:width 0.6s ease; }
-        .sv-score-val { font-family:var(--ff-sans); font-size:0.82rem; font-weight:700; color:var(--blue); min-width:28px; text-align:right; }
+        .sv-score-val { font-family:var(--ff-sans); font-size: 1.2rem; font-weight:700; color:var(--blue); min-width:28px; text-align:right; }
 
         /* type pills */
         .sv-type-pill {
           display:inline-flex; align-items:center; gap:6px;
           border:1.5px solid var(--tc,#aaa); border-radius:50px;
-          padding:5px 12px; font-family:var(--ff-sans); font-size:0.82rem; color:var(--tc,#555);
+          padding:5px 12px; font-family:var(--ff-sans); font-size: 1.2rem; color:var(--tc,#555);
           background:color-mix(in srgb, var(--tc,#aaa) 8%, white);
         }
         .sv-type-pill-dot { width:7px; height:7px; border-radius:50%; background:var(--tc,#aaa); flex-shrink:0; }
@@ -2618,12 +2625,12 @@
         .sv-feedback-entry { padding:14px 20px; border-bottom:1px solid #f5f5f5; }
         .sv-feedback-entry:last-child { border-bottom:none; }
         .sv-feedback-meta { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:6px; }
-        .sv-feedback-user { font-family:var(--ff-sans); font-size:0.82rem; font-weight:700; color:var(--text); }
-        .sv-feedback-date { font-family:var(--ff-sans); font-size:0.75rem; color:#aaa; }
-        .sv-feedback-page { background:rgba(0,74,173,0.08); color:var(--blue); border-radius:50px; padding:2px 9px; font-family:var(--ff-sans); font-size:0.72rem; font-weight:700; }
-        .sv-feedback-section { font-family:var(--ff-sans); font-size:0.75rem; color:#888; }
-        .sv-feedback-text { font-family:var(--ff-sans); font-size:0.87rem; color:#333; line-height:1.5; }
-        .sv-feedback-type { border-radius:50px; padding:2px 9px; font-family:var(--ff-sans); font-size:0.72rem; font-weight:700; }
+        .sv-feedback-user { font-family:var(--ff-sans); font-size: 1.2rem; font-weight:700; color:var(--text); }
+        .sv-feedback-date { font-family:var(--ff-sans); font-size: 1.2rem; color:#aaa; }
+        .sv-feedback-page { background:rgba(0,74,173,0.08); color:var(--blue); border-radius:50px; padding:2px 9px; font-family:var(--ff-sans); font-size: 1.2rem; font-weight:700; }
+        .sv-feedback-section { font-family:var(--ff-sans); font-size: 1.2rem; color:#888; }
+        .sv-feedback-text { font-family:var(--ff-sans); font-size: 1.2rem; color:#333; line-height:1.5; }
+        .sv-feedback-type { border-radius:50px; padding:2px 9px; font-family:var(--ff-sans); font-size: 1.2rem; font-weight:700; }
         .sv-ftype-bug        { background:rgba(229,62,62,0.1);  color:#e53e3e; }
         .sv-ftype-suggestion { background:rgba(49,130,206,0.1); color:#3182ce; }
         .sv-ftype-praise     { background:rgba(56,161,105,0.1); color:#38a169; }
@@ -2722,17 +2729,17 @@
       <!-- Charts row -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;">
         <div style="background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;">
-          <h4 style="font-family:var(--ff-serif);font-size:0.95rem;margin:0 0 16px;color:var(--text);">Shares by Platform</h4>
+          <h4 style="font-family:var(--ff-serif);font-size: 1.2rem;margin:0 0 16px;color:var(--text);">Shares by Platform</h4>
           <canvas id="sh-platform-chart" height="200"></canvas>
         </div>
         <div style="background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;">
-          <h4 style="font-family:var(--ff-serif);font-size:0.95rem;margin:0 0 16px;color:var(--text);">Group vs Individual</h4>
+          <h4 style="font-family:var(--ff-serif);font-size: 1.2rem;margin:0 0 16px;color:var(--text);">Group vs Individual</h4>
           <canvas id="sh-type-chart" height="200"></canvas>
         </div>
       </div>
 
       <!-- Recent shares table -->
-      <h4 style="font-family:var(--ff-serif);font-size:0.95rem;margin:0 0 12px;color:var(--text);">Recent Share Events</h4>
+      <h4 style="font-family:var(--ff-serif);font-size: 1.2rem;margin:0 0 12px;color:var(--text);">Recent Share Events</h4>
       <div style="overflow-x:auto;">
         <table class="adm-table">
           <thead>
@@ -2767,25 +2774,25 @@
               </td>
               <td>
                 {% if ev.share_type == 'group' %}
-                  <span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:8px;font-size:0.75rem;font-weight:600;">Group</span>
+                  <span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:8px;font-size: 1.2rem;font-weight:600;">Group</span>
                 {% elif ev.share_type == 'individual' %}
-                  <span style="background:#ede9fe;color:#7c3aed;padding:2px 8px;border-radius:8px;font-size:0.75rem;font-weight:600;">Individual</span>
+                  <span style="background:#ede9fe;color:#7c3aed;padding:2px 8px;border-radius:8px;font-size: 1.2rem;font-weight:600;">Individual</span>
                 {% else %}
-                  <span style="background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:8px;font-size:0.75rem;">General</span>
+                  <span style="background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:8px;font-size: 1.2rem;">General</span>
                 {% endif %}
               </td>
               <td>
                 {% if ev.content_type %}
                   <span style="text-transform:capitalize;">{{ ev.content_type }}</span>
-                  {% if ev.object_id %}<span style="color:var(--muted);font-size:0.8rem;"> #{{ ev.object_id }}</span>{% endif %}
+                  {% if ev.object_id %}<span style="color:var(--muted);font-size: 1.2rem;"> #{{ ev.object_id }}</span>{% endif %}
                 {% else %}—{% endif %}
               </td>
               <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
                 {% if ev.shared_url %}
-                  <a href="{{ ev.shared_url }}" target="_blank" rel="noopener" style="font-size:0.8rem;color:var(--blue);">{{ ev.shared_url|truncatechars:40 }}</a>
+                  <a href="{{ ev.shared_url }}" target="_blank" rel="noopener" style="font-size: 1.2rem;color:var(--blue);">{{ ev.shared_url|truncatechars:40 }}</a>
                 {% else %}—{% endif %}
               </td>
-              <td style="white-space:nowrap;font-size:0.82rem;color:var(--muted);">{{ ev.shared_at|date:"M d, Y H:i" }}</td>
+              <td style="white-space:nowrap;font-size: 1.2rem;color:var(--muted);">{{ ev.shared_at|date:"M d, Y H:i" }}</td>
             </tr>
             {% empty %}
             <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:28px;">No share events recorded yet.</td></tr>
@@ -2837,7 +2844,7 @@
     <div id="section-locations" class="adm-section">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
         <h2 class="adm-section-title">User Locations</h2>
-        <span style="font-size:.83rem;color:#6b7280;">{{ total_with_location }} user{{ total_with_location|pluralize }} with location set</span>
+        <span style="font-size: 1.2rem;color:#6b7280;">{{ total_with_location }} user{{ total_with_location|pluralize }} with location set</span>
       </div>
 
       <!-- Leaflet map -->
@@ -2872,8 +2879,8 @@
             fillOpacity: 0.82,
           }).addTo(map);
           circle.bindPopup(
-            '<strong style="font-size:.9rem;">' + item.location + '</strong><br>' +
-            '<span style="font-size:.8rem;color:#374151;">' +
+            '<strong style="font-size: 1.2rem;">' + item.location + '</strong><br>' +
+            '<span style="font-size: 1.2rem;color:#374151;">' +
             item.total + ' user' + (item.total !== 1 ? 's' : '') +
             (item.innovators ? ' · ' + item.innovators + ' innovator' + (item.innovators !== 1 ? 's' : '') : '') +
             (item.investors  ? ' · ' + item.investors  + ' investor'  + (item.investors  !== 1 ? 's' : '') : '') +
@@ -2903,16 +2910,16 @@
         } else {
           map.remove();
           document.getElementById('loc-map').innerHTML =
-            '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9ca3af;font-size:.9rem;">No location data yet — users can add their location in profile settings.</div>';
+            '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9ca3af;font-size: 1.2rem;">No location data yet — users can add their location in profile settings.</div>';
         }
 
         // Legend
         var legend = L.control({ position: 'bottomright' });
         legend.onAdd = function() {
           var div = L.DomUtil.create('div');
-          div.style.cssText = 'background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.12);font-size:.78rem;line-height:1.8;';
+          div.style.cssText = 'background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.12);font-size: 1.2rem;line-height:1.8;';
           div.innerHTML =
-            '<strong style="display:block;margin-bottom:4px;font-size:.8rem;">User type</strong>' +
+            '<strong style="display:block;margin-bottom:4px;font-size: 1.2rem;">User type</strong>' +
             '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#C9A44A;margin-right:6px;vertical-align:middle;"></span>Innovators<br>' +
             '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#059669;margin-right:6px;vertical-align:middle;"></span>Investors<br>' +
             '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#1B5EC7;margin-right:6px;vertical-align:middle;"></span>Both';
@@ -2924,7 +2931,7 @@
 
       <!-- Location breakdown table -->
       {% if location_list %}
-      <table style="width:100%;border-collapse:collapse;font-size:.875rem;">
+      <table style="width:100%;border-collapse:collapse;font-size: 1.2rem;">
         <thead>
           <tr style="background:#f4f7fb;">
             <th style="text-align:left;padding:10px 14px;font-weight:700;color:#374151;border-bottom:2px solid #e0e8f4;">Location</th>
@@ -2960,7 +2967,7 @@
       {% else %}
       <div style="text-align:center;padding:48px 24px;background:#f9fafb;border-radius:12px;border:1px dashed #d1d5db;">
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 12px;display:block;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <p style="color:#6b7280;font-size:.9rem;margin:0;">No users have set a location yet.</p>
+        <p style="color:#6b7280;font-size: 1.2rem;margin:0;">No users have set a location yet.</p>
       </div>
       {% endif %}
     </div><!-- /section-locations -->
@@ -2968,8 +2975,8 @@
     <!-- Drill-down modal -->
     <div id="an-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9990;align-items:center;justify-content:center;">
       <div style="background:#fff;border-radius:16px;max-width:720px;width:94%;max-height:82vh;overflow-y:auto;padding:28px 28px 20px;position:relative;">
-        <button onclick="anCloseModal()" style="position:absolute;top:14px;right:18px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#aaa;">&times;</button>
-        <h3 id="an-modal-title" style="font-family:var(--ff-serif);font-size:1.1rem;margin:0 0 18px;color:var(--text);"></h3>
+        <button onclick="anCloseModal()" style="position:absolute;top:14px;right:18px;background:none;border:none;font-size: 1.9rem;cursor:pointer;color:#aaa;">&times;</button>
+        <h3 id="an-modal-title" style="font-family:var(--ff-serif);font-size: 1.2rem;margin:0 0 18px;color:var(--text);"></h3>
         <div id="an-modal-body"></div>
       </div>
     </div>
@@ -2982,7 +2989,7 @@
 .an-fmt-btn {
   background: var(--card-bg); border: 1.5px solid var(--border);
   border-radius: 6px; padding: 3px 10px;
-  font-family: var(--ff-sans); font-size: 0.72rem;
+  font-family: var(--ff-sans); font-size: 1.2rem;
   cursor: pointer; color: var(--muted); transition: 0.15s;
 }
 .an-fmt-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
@@ -3092,9 +3099,9 @@ function anRenderHourly(d) {
 }
 
 function anSimpleTable(rows, headers) {
-  if (!rows || !rows.length) return '<p style="text-align:center;color:var(--muted);padding:16px;font-family:var(--ff-sans);font-size:0.83rem;">No data yet</p>';
-  var h = headers.map(function(x){return '<th style="text-align:left;padding:7px 12px;font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);">'+x+'</th>';}).join('');
-  var body = rows.map(function(r){return '<tr>'+r.map(function(c){return '<td style="padding:7px 12px;font-family:var(--ff-sans);font-size:0.82rem;border-bottom:1px solid var(--border);">'+c+'</td>';}).join('')+'</tr>';}).join('');
+  if (!rows || !rows.length) return '<p style="text-align:center;color:var(--muted);padding:16px;font-family:var(--ff-sans);font-size: 1.2rem;">No data yet</p>';
+  var h = headers.map(function(x){return '<th style="text-align:left;padding:7px 12px;font-size: 1.2rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);">'+x+'</th>';}).join('');
+  var body = rows.map(function(r){return '<tr>'+r.map(function(c){return '<td style="padding:7px 12px;font-family:var(--ff-sans);font-size: 1.2rem;border-bottom:1px solid var(--border);">'+c+'</td>';}).join('')+'</tr>';}).join('');
   return '<table style="width:100%;border-collapse:collapse;"><thead><tr>'+h+'</tr></thead><tbody>'+body+'</tbody></table>';
 }
 
@@ -3440,14 +3447,14 @@ document.addEventListener('DOMContentLoaded', function() {
     <form method="post" id="eg-form">
       {% csrf_token %}
       <div class="adm-broadcast-field" style="margin-bottom:12px;">
-        <label style="font-family:var(--ff-sans);font-size:0.82rem;color:var(--muted);display:block;margin-bottom:4px;">Name *</label>
+        <label style="font-family:var(--ff-sans);font-size: 1.2rem;color:var(--muted);display:block;margin-bottom:4px;">Name *</label>
         <input type="text" name="name" id="eg-name" required
-          style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--ff-sans);font-size:0.9rem;box-sizing:border-box;">
+          style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--ff-sans);font-size: 1.2rem;box-sizing:border-box;">
       </div>
       <div class="adm-broadcast-field" style="margin-bottom:14px;">
-        <label style="font-family:var(--ff-sans);font-size:0.82rem;color:var(--muted);display:block;margin-bottom:4px;">Description</label>
+        <label style="font-family:var(--ff-sans);font-size: 1.2rem;color:var(--muted);display:block;margin-bottom:4px;">Description</label>
         <textarea name="description" id="eg-description" rows="3"
-          style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--ff-sans);font-size:0.9rem;resize:vertical;box-sizing:border-box;"></textarea>
+          style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--ff-sans);font-size: 1.2rem;resize:vertical;box-sizing:border-box;"></textarea>
       </div>
       <div class="adm-modal-actions">
         <button type="button" class="adm-modal-cancel" onclick="closeEditGroup()">Cancel</button>
@@ -3464,14 +3471,14 @@ document.addEventListener('DOMContentLoaded', function() {
     <form method="post" id="ep-form">
       {% csrf_token %}
       <div class="adm-broadcast-field" style="margin-bottom:12px;">
-        <label style="font-family:var(--ff-sans);font-size:0.82rem;color:var(--muted);display:block;margin-bottom:4px;">Title *</label>
+        <label style="font-family:var(--ff-sans);font-size: 1.2rem;color:var(--muted);display:block;margin-bottom:4px;">Title *</label>
         <input type="text" name="title" id="ep-title" required
-          style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--ff-sans);font-size:0.9rem;box-sizing:border-box;">
+          style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--ff-sans);font-size: 1.2rem;box-sizing:border-box;">
       </div>
       <div class="adm-broadcast-field" style="margin-bottom:14px;">
-        <label style="font-family:var(--ff-sans);font-size:0.82rem;color:var(--muted);display:block;margin-bottom:4px;">Description</label>
+        <label style="font-family:var(--ff-sans);font-size: 1.2rem;color:var(--muted);display:block;margin-bottom:4px;">Description</label>
         <textarea name="description" id="ep-description" rows="3"
-          style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--ff-sans);font-size:0.9rem;resize:vertical;box-sizing:border-box;"></textarea>
+          style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--ff-sans);font-size: 1.2rem;resize:vertical;box-sizing:border-box;"></textarea>
       </div>
       <div class="adm-modal-actions">
         <button type="button" class="adm-modal-cancel" onclick="closeEditPage()">Cancel</button>
@@ -3539,7 +3546,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <form method="post" id="flag-form" action="">
       {% csrf_token %}
       <div class="adm-broadcast-field" style="margin-bottom:16px;">
-        <label style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;">Reason (optional)</label>
+        <label style="font-size: 1.2rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;">Reason (optional)</label>
         <textarea name="reason" class="adm-broadcast-textarea" rows="3" placeholder="Describe why this message is suspicious…" style="width:100%;min-width:0;"></textarea>
       </div>
       <div class="adm-modal-actions">
@@ -3559,7 +3566,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="adm-modal-overlay" id="attendees-modal">
   <div class="adm-modal" style="max-width:580px;width:100%;">
     <h3 id="att-modal-title">Event Attendees</h3>
-    <p id="att-modal-count" style="color:var(--blue);font-weight:700;margin:0 0 14px;font-family:var(--ff-sans);font-size:.85rem;"></p>
+    <p id="att-modal-count" style="color:var(--blue);font-weight:700;margin:0 0 14px;font-family:var(--ff-sans);font-size: 1.2rem;"></p>
     <div id="att-modal-body" style="max-height:340px;overflow-y:auto;">
       <div style="text-align:center;padding:24px;color:var(--muted);font-family:var(--ff-sans);">Loading…</div>
     </div>
@@ -3858,7 +3865,7 @@ document.addEventListener('DOMContentLoaded', function() {
             + '<td style="font-family:var(--ff-sans);font-weight:700;">' + (a.full_name||'—') + '</td>'
             + '<td style="font-family:var(--ff-sans);">' + (a.email||'—') + '</td>'
             + '<td style="font-family:var(--ff-sans);">' + (a.phone||'—') + '</td>'
-            + '<td style="font-family:var(--ff-sans);font-size:.8rem;color:var(--muted);">' + a.registered_at + '</td>'
+            + '<td style="font-family:var(--ff-sans);font-size: 1.2rem;color:var(--muted);">' + a.registered_at + '</td>'
             + '</tr>';
         }).join('');
         document.getElementById('att-modal-body').innerHTML =

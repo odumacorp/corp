@@ -17,7 +17,7 @@ import sys
 from decouple import config
 # from dotenv import load_dotenv
 
-print(f"Python version: {sys.version}")
+import sys as _sys; print(f"Python version: {_sys.version}") if "--verbosity" in _sys.argv or any(a in _sys.argv for a in ["runserver", "runserver_plus"]) else None
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
@@ -35,6 +35,10 @@ if hasattr(sys.stderr, "reconfigure"):
 ##
 CSRF_TRUSTED_ORIGINS = [
     "https://corp-jmny.onrender.com",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+    "http://127.0.0.1",
+    "http://localhost",
 ]
 ##
 LOGGING = {
@@ -127,18 +131,28 @@ ASGI_APPLICATION = 'core.asgi.application'
 SECRET_KEY = config('SECRET_KEY')
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
-# SECURITY WARNING: keep the secret key used in production secret!
-# ALLOWED_HOSTS = config('ALLOWED_HOSTS', default="").split(",")
-# ALLOWED_HOSTS = "*","127.0.0.1", "localhost", "0.0.0.0", "connect.onrender.com","corp-jmny.onrender.com", "connect-j2bu.onrender.com", "connect-ihni.onrender.com"
+DEBUG = config('DEBUG', default=False, cast=bool)  # safe default: off in prod
+
 ALLOWED_HOSTS = [
     "corp-jmny.onrender.com",
     "localhost",
     "127.0.0.1",
 ]
 
-# ALLOWED_HOSTS = "127.0.0.1, localhost, 0.0.0.0, connect.onrender.com, connect-j2bu.onrender.com, connect-ihni.onrender.com"
+# ── Production security headers (active whenever DEBUG is False) ────────────
+if not DEBUG:
+    SECURE_BROWSER_XSS_FILTER   = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS             = 'DENY'
+    SESSION_COOKIE_SECURE       = True
+    CSRF_COOKIE_SECURE          = True
+    SECURE_HSTS_SECONDS         = 31536000   # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD         = True
+    # Render.com terminates HTTPS at the load balancer and forwards X-Forwarded-Proto.
+    # Use this instead of SECURE_SSL_REDIRECT to avoid infinite redirect loops.
+    SECURE_PROXY_SSL_HEADER     = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SILENCED_SYSTEM_CHECKS      = ['security.W008']  # W008: SSL redirect handled by Render
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -162,6 +176,24 @@ ALLOWED_HOSTS = [
 #         }
 #     }
 
+# DATABASE_URL = config("DATABASE_URL", default=None)
+
+# if DATABASE_URL:
+#     DATABASES = {
+#         "default": dj_database_url.parse(
+#             DATABASE_URL,
+#             conn_max_age=600,
+#             ssl_require=True
+#         )
+#     }
+# else:
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.sqlite3",
+#             "NAME": BASE_DIR / "db.sqlite3",
+#         }
+#     }
+
 DATABASE_URL = config("DATABASE_URL", default=None)
 
 if DATABASE_URL:
@@ -169,7 +201,8 @@ if DATABASE_URL:
         "default": dj_database_url.parse(
             DATABASE_URL,
             conn_max_age=600,
-            ssl_require=True
+            conn_health_checks=False,  # avoid extra ping on every request
+            ssl_require=True,
         )
     }
 else:
@@ -177,6 +210,7 @@ else:
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
+            "OPTIONS": {"timeout": 20},
         }
     }
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"

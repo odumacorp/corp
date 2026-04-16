@@ -19,17 +19,17 @@
 
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
     <div>
-      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:800;color:#0a1628;margin:0 0 4px;">Verification Queue</h1>
-      <p style="color:#6b7280;font-size:.875rem;margin:0;">Review user identity and credibility verification requests.</p>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size: 2.2rem;font-weight:800;color:#0a1628;margin:0 0 4px;">Verification Queue</h1>
+      <p style="color:#6b7280;font-size: 1.2rem;margin:0;">Review user identity and credibility verification requests.</p>
     </div>
-    <a href="{% url 'admin_panel' %}" style="font-size:.85rem;color:#1B5EC7;text-decoration:none;">← Back to Admin Panel</a>
+    <a href="{% url 'admin_panel' %}" style="font-size: 1.2rem;color:#1B5EC7;text-decoration:none;">← Back to Admin Panel</a>
   </div>
 
   <!-- Pending -->
   <section style="margin-bottom:40px;">
-    <h2 style="font-size:1rem;font-weight:700;color:#374151;margin-bottom:14px;">
+    <h2 style="font-size: 1.2rem;font-weight:700;color:#374151;margin-bottom:14px;">
       Pending Requests
-      {% if pending %}<span style="background:#fef9c3;color:#854d0e;font-size:.75rem;padding:2px 10px;border-radius:20px;margin-left:8px;">{{ pending|length }}</span>{% endif %}
+      {% if pending %}<span style="background:#fef9c3;color:#854d0e;font-size: 1.2rem;padding:2px 10px;border-radius:20px;margin-left:8px;">{{ pending|length }}</span>{% endif %}
     </h2>
 
     {% if pending %}
@@ -43,42 +43,42 @@
             {% if vr.user.userprofile.profile_pics %}
               <img src="{{ vr.user.userprofile.profile_pics.url }}" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
             {% else %}
-              <div style="width:48px;height:48px;border-radius:50%;background:#e0e8f4;display:flex;align-items:center;justify-content:center;font-weight:700;color:#1B5EC7;font-size:1.1rem;">
+              <div style="width:48px;height:48px;border-radius:50%;background:#e0e8f4;display:flex;align-items:center;justify-content:center;font-weight:700;color:#1B5EC7;font-size: 1.2rem;">
                 {{ vr.user.first_name|first|upper }}{{ vr.user.last_name|first|upper }}
               </div>
             {% endif %}
             <div>
-              <div style="font-weight:700;color:#0a1628;font-size:.95rem;">{{ vr.user.get_full_name|default:vr.user.username }}</div>
-              <div style="color:#6b7280;font-size:.8rem;">{{ vr.user.email }} · {{ vr.user.user_type|title }}</div>
-              <div style="color:#6b7280;font-size:.78rem;">Submitted {{ vr.submitted_at|date:"M j, Y" }}</div>
+              <div style="font-weight:700;color:#0a1628;font-size: 1.2rem;">{{ vr.user.get_full_name|default:vr.user.username }}</div>
+              <div style="color:#6b7280;font-size: 1.2rem;">{{ vr.user.email }} · {{ vr.user.user_type|title }}</div>
+              <div style="color:#6b7280;font-size: 1.2rem;">Submitted {{ vr.submitted_at|date:"M j, Y" }}</div>
             </div>
           </div>
 
           <!-- Details -->
           <div style="flex:1;min-width:240px;">
             {% if vr.bio_statement %}
-            <p style="margin:0 0 8px;font-size:.875rem;color:#374151;"><strong>Statement:</strong> {{ vr.bio_statement }}</p>
+            <p style="margin:0 0 8px;font-size: 1.2rem;color:#374151;"><strong>Statement:</strong> {{ vr.bio_statement }}</p>
             {% endif %}
             {% if vr.linkedin_url %}
-            <p style="margin:0 0 4px;font-size:.82rem;">
+            <p style="margin:0 0 4px;font-size: 1.2rem;">
               <strong>LinkedIn:</strong>
               <a href="{{ vr.linkedin_url }}" target="_blank" rel="noopener" style="color:#1B5EC7;">{{ vr.linkedin_url }}</a>
             </p>
             {% endif %}
             {% if vr.website_url %}
-            <p style="margin:0 0 4px;font-size:.82rem;">
+            <p style="margin:0 0 4px;font-size: 1.2rem;">
               <strong>Website:</strong>
               <a href="{{ vr.website_url }}" target="_blank" rel="noopener" style="color:#1B5EC7;">{{ vr.website_url }}</a>
             </p>
             {% endif %}
             {% if vr.id_document %}
-            <p style="margin:0 0 4px;font-size:.82rem;">
+            <p style="margin:0 0 4px;font-size: 1.2rem;">
               <strong>ID Document:</strong>
               <a href="{{ vr.id_document.url }}" target="_blank" rel="noopener" style="color:#1B5EC7;">View document</a>
             </p>
             {% endif %}
             {% if vr.notes %}
-            <p style="margin:0;font-size:.82rem;color:#6b7280;"><strong>Notes:</strong> {{ vr.notes }}</p>
+            <p style="margin:0;font-size: 1.2rem;color:#6b7280;"><strong>Notes:</strong> {{ vr.notes }}</p>
             {% endif %}
           </div>
 
@@ -87,13 +87,13 @@
             <form method="post" action="{% url 'admin_approve_verification' vr.pk %}" style="display:flex;gap:6px;">
               {% csrf_token %}
               <input type="text" name="admin_note" placeholder="Admin note (optional)…"
-                style="flex:1;border:1px solid #d1d5db;border-radius:6px;padding:5px 10px;font-size:.8rem;">
+                style="flex:1;border:1px solid #d1d5db;border-radius:6px;padding:5px 10px;font-size: 1.2rem;">
               <button type="submit" class="btn-approve" style="white-space:nowrap;">✓ Verify</button>
             </form>
             <form method="post" action="{% url 'admin_reject_verification' vr.pk %}" style="display:flex;gap:6px;">
               {% csrf_token %}
               <input type="text" name="admin_note" placeholder="Rejection reason…"
-                style="flex:1;border:1px solid #d1d5db;border-radius:6px;padding:5px 10px;font-size:.8rem;">
+                style="flex:1;border:1px solid #d1d5db;border-radius:6px;padding:5px 10px;font-size: 1.2rem;">
               <button type="submit" class="btn-reject" style="white-space:nowrap;">✗ Reject</button>
             </form>
           </div>
@@ -103,7 +103,7 @@
       {% endfor %}
     </div>
     {% else %}
-    <div style="background:#f4f7fb;border:1px dashed #c3d4ec;border-radius:10px;padding:32px;text-align:center;color:#6b7280;font-size:.9rem;">
+    <div style="background:#f4f7fb;border:1px dashed #c3d4ec;border-radius:10px;padding:32px;text-align:center;color:#6b7280;font-size: 1.2rem;">
       No pending verification requests.
     </div>
     {% endif %}
@@ -111,7 +111,7 @@
 
   <!-- Recent Decisions -->
   <section>
-    <h2 style="font-size:1rem;font-weight:700;color:#374151;margin-bottom:14px;">Recent Decisions</h2>
+    <h2 style="font-size: 1.2rem;font-weight:700;color:#374151;margin-bottom:14px;">Recent Decisions</h2>
     {% if recent %}
     <div style="border:1px solid #e0e8f4;border-radius:12px;overflow:hidden;">
       <table class="adm-queue-table">
@@ -129,7 +129,7 @@
           <tr>
             <td>
               <div style="font-weight:600;color:#0a1628;">{{ vr.user.get_full_name|default:vr.user.username }}</div>
-              <div style="color:#6b7280;font-size:.78rem;">{{ vr.user.user_type|title }}</div>
+              <div style="color:#6b7280;font-size: 1.2rem;">{{ vr.user.user_type|title }}</div>
             </td>
             <td>
               {% if vr.status == 'approved' %}
@@ -138,16 +138,16 @@
                 <span class="oc-review-badge oc-review-badge--rejected">Rejected</span>
               {% endif %}
             </td>
-            <td style="color:#6b7280;font-size:.82rem;">{{ vr.admin_note|default:"—" }}</td>
-            <td style="color:#6b7280;font-size:.82rem;">{{ vr.reviewed_by.get_full_name|default:"—" }}</td>
-            <td style="color:#6b7280;font-size:.82rem;">{{ vr.reviewed_at|date:"M j, Y"|default:"—" }}</td>
+            <td style="color:#6b7280;font-size: 1.2rem;">{{ vr.admin_note|default:"—" }}</td>
+            <td style="color:#6b7280;font-size: 1.2rem;">{{ vr.reviewed_by.get_full_name|default:"—" }}</td>
+            <td style="color:#6b7280;font-size: 1.2rem;">{{ vr.reviewed_at|date:"M j, Y"|default:"—" }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
     {% else %}
-    <p style="color:#6b7280;font-size:.875rem;">No decisions made yet.</p>
+    <p style="color:#6b7280;font-size: 1.2rem;">No decisions made yet.</p>
     {% endif %}
   </section>
 

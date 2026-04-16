@@ -1,7 +1,28 @@
+import time
+
 EXCLUDED_PREFIXES = (
     '/static/', '/media/', '/django-admin/', '/favicon',
     '/accounts/social/', '/__debug__/', '/admin/track-click/',
 )
+
+# ── SitePage visibility cache ────────────────────────────────────────────────
+# Avoids a DB round-trip on every request. Refreshes every 60 seconds.
+_SITEPAGE_CACHE: dict = {}      # key → is_active
+_SITEPAGE_CACHE_TS: float = 0.0 # last-populated timestamp
+_SITEPAGE_TTL = 60              # seconds
+
+def _sitepage_is_active(key: str) -> bool:
+    """Return True if the named page is active (or not registered)."""
+    global _SITEPAGE_CACHE, _SITEPAGE_CACHE_TS
+    now = time.monotonic()
+    if now - _SITEPAGE_CACHE_TS > _SITEPAGE_TTL:
+        try:
+            from .models import SitePage
+            _SITEPAGE_CACHE = {p.key: p.is_active for p in SitePage.objects.only('key', 'is_active')}
+            _SITEPAGE_CACHE_TS = now
+        except Exception:
+            return True
+    return _SITEPAGE_CACHE.get(key, True)  # not registered = active
 
 
 def _parse_ua(ua_string):
@@ -47,17 +68,17 @@ class PageVisibilityMiddleware:
             return None
         try:
             url_name = request.resolver_match.url_name if request.resolver_match else None
-            if url_name:
-                from .models import SitePage
+            if url_name and not _sitepage_is_active(url_name):
+                # Fetch label/message only when page is actually disabled (rare)
                 try:
-                    page = SitePage.objects.get(key=url_name)
-                    if not page.is_active:
-                        from django.shortcuts import render
-                        return render(request, 'page_disabled.html', {
-                            'page_label': page.label,
-                            'disabled_message': page.disabled_message,
-                        }, status=410)
-                except SitePage.DoesNotExist:
+                    from .models import SitePage
+                    page = SitePage.objects.only('label', 'disabled_message').get(key=url_name)
+                    from django.shortcuts import render
+                    return render(request, 'page_disabled.html', {
+                        'page_label': page.label,
+                        'disabled_message': page.disabled_message,
+                    }, status=410)
+                except Exception:
                     pass
         except Exception:
             pass

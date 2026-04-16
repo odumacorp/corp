@@ -15,9 +15,9 @@
 </button>
 <div style="max-width:800px;margin:40px auto;padding:0 24px 64px;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
-    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;color:#0A1628;margin:0;">My Support Requests</h1>
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size: 2.0rem;font-weight:800;color:#0A1628;margin:0;">My Support Requests</h1>
     <a href="{% url 'request_consulting' %}"
-       style="background:#1B5EC7;color:#fff;padding:9px 20px;border-radius:8px;font-size:.85rem;font-weight:700;text-decoration:none;">+ New Request</a>
+       style="background:#1B5EC7;color:#fff;padding:9px 20px;border-radius:8px;font-size: 1.2rem;font-weight:700;text-decoration:none;">+ New Request</a>
   </div>
 
   {% if requests %}
@@ -26,11 +26,11 @@
     <div style="background:#fff;border:1px solid #e0e8f4;border-radius:12px;padding:20px 24px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
         <div>
-          <div style="font-family:'Space Grotesk',sans-serif;font-weight:800;color:#0A1628;font-size:.95rem;">{{ req.get_category_display }}</div>
-          {% if req.project %}<div style="font-size:.78rem;color:#6b7280;margin-top:2px;">Project: {{ req.project.title }}</div>{% endif %}
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:800;color:#0A1628;font-size: 1.2rem;">{{ req.get_category_display }}</div>
+          {% if req.project %}<div style="font-size: 1.2rem;color:#6b7280;margin-top:2px;">Project: {{ req.project.title }}</div>{% endif %}
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;
+          <span style="font-size: 1.2rem;font-weight:700;padding:3px 10px;border-radius:20px;
             {% if req.status == 'submitted' %}background:#e0e8f4;color:#1B5EC7;
             {% elif req.status == 'reviewing' %}background:#fef9c3;color:#854d0e;
             {% elif req.status == 'scheduled' %}background:#dbeafe;color:#1d4ed8;
@@ -38,7 +38,7 @@
             {% else %}background:#fee2e2;color:#991b1b;{% endif %}">
             {{ req.get_status_display }}
           </span>
-          <span style="font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;
+          <span style="font-size: 1.2rem;font-weight:700;padding:3px 10px;border-radius:20px;
             {% if req.urgency == 'high' %}background:#fee2e2;color:#991b1b;
             {% elif req.urgency == 'medium' %}background:#fef9c3;color:#854d0e;
             {% else %}background:#f3f4f6;color:#6b7280;{% endif %}">
@@ -46,15 +46,15 @@
           </span>
         </div>
       </div>
-      <p style="color:#374151;font-size:.875rem;line-height:1.5;margin:0 0 8px;">{{ req.description|truncatewords:40 }}</p>
-      <div style="font-size:.78rem;color:#6b7280;">Submitted {{ req.submitted_at|date:"M j, Y" }}</div>
+      <p style="color:#374151;font-size: 1.2rem;line-height:1.5;margin:0 0 8px;">{{ req.description|truncatewords:40 }}</p>
+      <div style="font-size: 1.2rem;color:#6b7280;">Submitted {{ req.submitted_at|date:"M j, Y" }}</div>
       {% if req.admin_note %}
-      <div style="margin-top:10px;padding:10px 14px;background:#f0f9f4;border-radius:8px;font-size:.82rem;color:#166534;">
+      <div style="margin-top:10px;padding:10px 14px;background:#f0f9f4;border-radius:8px;font-size: 1.2rem;color:#166534;">
         <strong>Team response:</strong> {{ req.admin_note }}
       </div>
       {% endif %}
       {% if req.scheduled_at %}
-      <div style="margin-top:8px;font-size:.82rem;color:#1B5EC7;font-weight:600;">
+      <div style="margin-top:8px;font-size: 1.2rem;color:#1B5EC7;font-weight:600;">
         Call scheduled: {{ req.scheduled_at|date:"N j, Y, g:i a" }}
       </div>
       {% endif %}
@@ -65,9 +65,9 @@
   <div style="background:#f4f7fb;border:1.5px dashed #c3d4ec;border-radius:12px;padding:48px;text-align:center;color:#6b7280;">
     <p style="margin-bottom:8px;color:#9ca3af;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></p>
     <p style="font-weight:700;margin-bottom:4px;">No support requests yet</p>
-    <p style="font-size:.85rem;margin-bottom:16px;">Submit a consulting request and our team will help guide your innovation journey.</p>
+    <p style="font-size: 1.2rem;margin-bottom:16px;">Submit a consulting request and our team will help guide your innovation journey.</p>
     <a href="{% url 'request_consulting' %}"
-       style="background:#1B5EC7;color:#fff;padding:10px 24px;border-radius:8px;font-size:.875rem;font-weight:700;text-decoration:none;">Request Support</a>
+       style="background:#1B5EC7;color:#fff;padding:10px 24px;border-radius:8px;font-size: 1.2rem;font-weight:700;text-decoration:none;">Request Support</a>
   </div>
   {% endif %}
 </div>

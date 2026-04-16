@@ -29,15 +29,15 @@
 
   .rl-header { margin-bottom: 28px; }
   .rl-header h1 {
-    font-family: var(--ff-serif); font-size: 1.8rem; color: var(--text); margin: 0 0 4px;
+    font-family: var(--ff-serif); font-size: 2.4rem; color: var(--text); margin: 0 0 4px;
     display: flex; align-items: center; gap: 10px;
   }
-  .rl-header p { font-family: var(--ff-sans); color: var(--muted); font-size: .95rem; margin: 0; }
+  .rl-header p { font-family: var(--ff-sans); color: var(--muted); font-size: 1.2rem; margin: 0; }
 
   /* Tab bar */
   .rl-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; border-bottom: 2px solid var(--border); padding-bottom: 0; }
   .rl-tab {
-    font-family: var(--ff-sans); font-size: .9rem; font-weight: 700;
+    font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700;
     padding: 9px 20px; border-radius: 8px 8px 0 0; border: none; background: none;
     cursor: pointer; color: var(--muted); position: relative; bottom: -2px;
     border-bottom: 2px solid transparent; transition: color .15s;
@@ -46,7 +46,7 @@
   .rl-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
   .rl-tab-count {
     display: inline-block; background: rgba(0,74,173,0.1); color: var(--blue);
-    border-radius: 20px; font-size: .72rem; padding: 1px 7px; margin-left: 4px;
+    border-radius: 20px; font-size: 1.2rem; padding: 1px 7px; margin-left: 4px;
   }
 
   /* Section */
@@ -55,9 +55,9 @@
 
   .rl-empty {
     text-align: center; padding: 56px 24px;
-    font-family: var(--ff-sans); color: var(--muted); font-size: .95rem;
+    font-family: var(--ff-sans); color: var(--muted); font-size: 1.2rem;
   }
-  .rl-empty i { font-size: 2.8rem; display: block; margin-bottom: 12px; color: #c7d2fe; }
+  .rl-empty i { font-size: 3.8rem; display: block; margin-bottom: 12px; color: #c7d2fe; }
 
   /* Cards */
   .rl-list { display: flex; flex-direction: column; gap: 14px; }
@@ -70,13 +70,13 @@
 
   .rl-card-thumb {
     width: 110px; flex-shrink: 0; background: #e8f0fe;
-    display: flex; align-items: center; justify-content: center; font-size: 2.4rem;
+    display: flex; align-items: center; justify-content: center; font-size: 3.2rem;
   }
   .rl-card-thumb img { width: 110px; height: 100%; object-fit: cover; display: block; }
 
   .rl-card-body { flex: 1; padding: 16px 18px; min-width: 0; }
   .rl-card-type {
-    font-family: var(--ff-sans); font-size: .72rem; font-weight: 700;
+    font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700;
     text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 4px;
   }
   .rl-card-type.type-project { color: #004AAD; }
@@ -84,21 +84,21 @@
   .rl-card-type.type-company { color: #b45309; }
 
   .rl-card-title {
-    font-family: var(--ff-serif); font-size: 1.05rem; color: var(--text);
+    font-family: var(--ff-serif); font-size: 1.2rem; color: var(--text);
     margin: 0 0 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .rl-card-snippet {
-    font-family: var(--ff-sans); font-size: .84rem; color: var(--muted);
+    font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted);
     margin: 0 0 10px;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .rl-card-meta {
     display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-    font-family: var(--ff-sans); font-size: .78rem; color: var(--muted);
+    font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted);
   }
   .rl-badge {
     background: rgba(0,74,173,0.08); color: var(--blue);
-    border-radius: 20px; padding: 2px 10px; font-size: .72rem; font-weight: 700;
+    border-radius: 20px; padding: 2px 10px; font-size: 1.2rem; font-weight: 700;
   }
 
   .rl-card-actions {
@@ -106,7 +106,7 @@
     padding: 14px 16px; gap: 10px; flex-shrink: 0;
   }
   .rl-view-btn {
-    font-family: var(--ff-sans); font-size: .85rem; font-weight: 700;
+    font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700;
     padding: 7px 18px; border-radius: 50px; background: var(--blue); color: #fff;
     text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
     white-space: nowrap; transition: background .15s;
@@ -114,16 +114,16 @@
   .rl-view-btn:hover { background: var(--blue-dark); color: #fff; }
   .rl-remove-btn {
     background: none; border: 1px solid var(--border); border-radius: 50px;
-    font-family: var(--ff-sans); font-size: .78rem; color: var(--muted);
+    font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted);
     padding: 5px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
     transition: all .15s; white-space: nowrap;
   }
   .rl-remove-btn:hover { border-color: #e53e3e; color: #e53e3e; background: #fff5f5; }
 
-  .rl-saved-date { font-family: var(--ff-sans); font-size: .72rem; color: var(--muted); }
+  .rl-saved-date { font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); }
 
   @media(max-width:560px) {
-    .rl-card-thumb { width: 72px; font-size: 1.8rem; }
+    .rl-card-thumb { width: 72px; font-size: 2.4rem; }
     .rl-card-thumb img { width: 72px; }
     .rl-card-actions { padding: 10px 10px; }
   }

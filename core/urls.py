@@ -236,6 +236,7 @@ urlpatterns = [
     path('admin-panel/event/<int:event_id>/delete/',         views.admin_delete_event,      name='admin_delete_event'),
     path('admin-panel/news/<int:news_id>/delete/',           views.admin_delete_news,       name='admin_delete_news'),
     path('admin-panel/job/<int:job_id>/delete/',             views.admin_delete_job,        name='admin_delete_job'),
+    path('admin-panel/connection/<int:connection_id>/accept/', views.admin_accept_connection, name='admin_accept_connection'),
     path('admin-panel/connection/<int:connection_id>/delete/', views.admin_delete_connection, name='admin_delete_connection'),
     path('admin-panel/comment/<int:comment_id>/delete/',     views.admin_delete_comment,    name='admin_delete_comment'),
     path('admin-panel/group/<int:group_id>/delete/',         views.admin_delete_group,      name='admin_delete_group'),
@@ -290,6 +291,8 @@ urlpatterns = [
     path('groups/<int:group_id>/respond/<int:member_id>/', views.group_respond, name='group_respond'),
     path('groups/<int:group_id>/accept/', views.group_accept_invite, name='group_accept_invite'),
     path('groups/<int:group_id>/discussions/<int:discussion_id>/comments/<int:comment_id>/react/', views.group_comment_react, name='group_comment_react'),
+    path('groups/<int:group_id>/edit/', views.group_edit, name='group_edit'),
+    path('groups/<int:group_id>/delete/', views.group_delete, name='group_delete'),
 
     # Innovator page / profile
     path('innovator/page/', views.innovator_page, name='innovator_page'),
@@ -306,6 +309,8 @@ urlpatterns = [
     path('pages/<int:page_id>/posts/<int:post_id>/react/', views.page_post_react, name='page_post_react'),
     path('pages/<int:page_id>/posts/<int:post_id>/share/', views.page_post_share, name='page_post_share'),
     path('pages/<int:page_id>/media/<int:post_id>/', views.page_post_media, name='page_post_media'),
+    path('pages/<int:page_id>/edit/', views.page_edit, name='page_edit'),
+    path('pages/<int:page_id>/delete/', views.page_delete, name='page_delete'),
 
     # Posts
     path('posts/<int:post_id>/', views.post_detail, name='post_detail'),
@@ -326,6 +331,7 @@ urlpatterns = [
     # Attachment download tracking
     path('attachments/<int:attachment_id>/download/', views.download_attachment, name='download_attachment'),
     path('chat/attachments/<int:attachment_id>/download/', views.download_message_attachment, name='download_message_attachment'),
+    path('chat/attachments/<int:attachment_id>/view/', views.view_message_attachment, name='view_message_attachment'),
 
     # Jobs
     path('jobs/post/',              views.user_post_job, name='user_post_job'),
@@ -396,5 +402,7 @@ urlpatterns = [
     path('subscription/upgrade/',  views.upgrade_subscription,  name='upgrade_subscription'),
     path('subscription/cancel/',   views.cancel_subscription,   name='cancel_subscription'),
 
+    # Intercept raw chat attachment media URLs → styled viewer
+    path('media/chat_attachments/<path:file_path>', views.media_chat_attachment_viewer, name='media_chat_attachment_viewer'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

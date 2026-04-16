@@ -7,7 +7,7 @@
 <div class="oc-container" style="padding-top:40px;padding-bottom:64px;max-width:720px;">
 
   <!-- Breadcrumb -->
-  <nav style="font-size:.82rem;color:var(--oc-text-muted);margin-bottom:20px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+  <nav style="font-size: 1.2rem;color:var(--oc-text-muted);margin-bottom:20px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
     <a href="{% url 'app' %}" style="color:var(--oc-primary);text-decoration:none;">Feed</a>
     <span>›</span>
     <a href="{% url 'post_detail' post_id=post.id %}" style="color:var(--oc-primary);text-decoration:none;">{{ post.title|truncatechars:40 }}</a>
@@ -16,14 +16,14 @@
   </nav>
 
   <div class="oc-card" style="padding:28px 32px;">
-    <h1 style="font-size:1.4rem;font-weight:700;color:var(--oc-text-primary);margin-bottom:24px;">Edit Post</h1>
+    <h1 style="font-size: 1.9rem;font-weight:700;color:var(--oc-text-primary);margin-bottom:24px;">Edit Post</h1>
 
     <form method="POST" enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:18px;">
       {% csrf_token %}
 
       <!-- Title -->
       <div>
-        <label style="display:block;font-size:.85rem;font-weight:600;color:var(--oc-text-muted);margin-bottom:5px;">Title *</label>
+        <label style="display:block;font-size: 1.2rem;font-weight:600;color:var(--oc-text-muted);margin-bottom:5px;">Title *</label>
         <input type="text" name="title" value="{{ post.title }}" required
                class="oc-input" style="width:100%;box-sizing:border-box;">
       </div>
@@ -31,7 +31,7 @@
       <!-- Post Type & Industry row -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <div>
-          <label style="display:block;font-size:.85rem;font-weight:600;color:var(--oc-text-muted);margin-bottom:5px;">Post Type</label>
+          <label style="display:block;font-size: 1.2rem;font-weight:600;color:var(--oc-text-muted);margin-bottom:5px;">Post Type</label>
           <select name="post_type" class="oc-select" style="width:100%;box-sizing:border-box;">
             {% for value, label in post_type_choices %}
               <option value="{{ value }}" {% if post.post_type == value %}selected{% endif %}>{{ label }}</option>
@@ -39,8 +39,8 @@
           </select>
         </div>
         <div>
-          <label style="display:block;font-size:.85rem;font-weight:600;color:var(--oc-text-muted);margin-bottom:5px;">Industry</label>
-          <select name="industry" class="oc-select" style="width:100%;box-sizing:border-box;">
+          <label style="display:block;font-size: 1.2rem;font-weight:600;color:var(--oc-text-muted);margin-bottom:5px;">Industry</label>
+          <select name="industry" class="oc-select" data-combo>
             {% for value, label in industry_choices %}
               <option value="{{ value }}" {% if post.industry == value %}selected{% endif %}>{{ label }}</option>
             {% endfor %}
@@ -50,26 +50,26 @@
 
       <!-- Content -->
       <div>
-        <label style="display:block;font-size:.85rem;font-weight:600;color:var(--oc-text-muted);margin-bottom:5px;">Content *</label>
+        <label style="display:block;font-size: 1.2rem;font-weight:600;color:var(--oc-text-muted);margin-bottom:5px;">Content *</label>
         <textarea name="content" rows="8" required
                   class="oc-input" style="width:100%;box-sizing:border-box;resize:vertical;min-height:160px;">{{ post.content }}</textarea>
       </div>
 
       <!-- Website link -->
       <div>
-        <label style="display:block;font-size:.85rem;font-weight:600;color:var(--oc-text-muted);margin-bottom:5px;">Website Link <span style="font-weight:400;">(optional)</span></label>
+        <label style="display:block;font-size: 1.2rem;font-weight:600;color:var(--oc-text-muted);margin-bottom:5px;">Website Link <span style="font-weight:400;">(optional)</span></label>
         <input type="url" name="website_link" value="{{ post.website_link|default:'' }}"
                placeholder="https://…" class="oc-input" style="width:100%;box-sizing:border-box;">
       </div>
 
       <!-- Cover image -->
       <div>
-        <label style="display:block;font-size:.85rem;font-weight:600;color:var(--oc-text-muted);margin-bottom:5px;">Cover Image <span style="font-weight:400;">(optional — replaces existing)</span></label>
+        <label style="display:block;font-size: 1.2rem;font-weight:600;color:var(--oc-text-muted);margin-bottom:5px;">Cover Image <span style="font-weight:400;">(optional — replaces existing)</span></label>
         {% if post.image %}
         <div style="margin-bottom:10px;">
           <img src="{{ post.image.url }}" alt="Current cover"
                style="max-width:200px;max-height:120px;object-fit:cover;border-radius:8px;border:1px solid var(--oc-border);">
-          <div style="font-size:.75rem;color:var(--oc-text-muted);margin-top:4px;">Current image</div>
+          <div style="font-size: 1.2rem;color:var(--oc-text-muted);margin-top:4px;">Current image</div>
         </div>
         {% endif %}
         <input type="file" name="image" accept="image/*" class="oc-input" style="width:100%;box-sizing:border-box;padding:8px;">

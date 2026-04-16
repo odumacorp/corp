@@ -18,12 +18,12 @@
   flex-wrap: wrap; gap: 12px; margin-bottom: 28px;
 }
 .ep-topbar h1 {
-  font-family: var(--ff); font-size: 1.45rem; font-weight: 800;
+  font-family: var(--ff); font-size: 2.0rem; font-weight: 800;
   color: var(--ink); margin: 0;
 }
 .ep-back {
   display: inline-flex; align-items: center; gap: 6px;
-  font-size: .84rem; font-weight: 600; color: var(--muted);
+  font-size: 1.2rem; font-weight: 600; color: var(--muted);
   text-decoration: none; transition: color .15s;
 }
 .ep-back:hover { color: var(--ink); }
@@ -33,7 +33,7 @@
   display: flex; align-items: center; gap: 10px;
   background: #f0fdf4; border: 1px solid #bbf7d0;
   color: #15803d; padding: 13px 16px; border-radius: 10px;
-  font-size: .875rem; font-weight: 600; margin-bottom: 22px;
+  font-size: 1.2rem; font-weight: 600; margin-bottom: 22px;
 }
 
 /* ── Layout ── */
@@ -68,7 +68,7 @@
   width: 84px; height: 84px; border-radius: 50%;
   background: #1B5EC7; border: 3px solid #b8d0f0;
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--ff); font-size: 1.7rem; font-weight: 800; color: #fff;
+  font-family: var(--ff); font-size: 2.3rem; font-weight: 800; color: #fff;
 }
 .ep-avatar-overlay {
   position: absolute; inset: 0; border-radius: 50%;
@@ -78,16 +78,16 @@
 .ep-avatar-overlay svg { color: #fff; }
 #ep-pic-input { display: none; }
 .ep-sidebar-name {
-  font-family: var(--ff); font-size: .95rem; font-weight: 800;
+  font-family: var(--ff); font-size: 1.2rem; font-weight: 800;
   color: #0A1628; margin: 0 0 3px;
 }
 .ep-sidebar-role {
-  font-size: .75rem; color: #6b7280; margin: 0 0 14px;
+  font-size: 1.2rem; color: #6b7280; margin: 0 0 14px;
 }
 .ep-change-photo-btn {
   display: inline-flex; align-items: center; gap: 6px;
   background: rgba(27,94,199,.08); border: 1px solid #b8d0f0;
-  color: #1B5EC7; font-family: var(--ff); font-size: .75rem; font-weight: 700;
+  color: #1B5EC7; font-family: var(--ff); font-size: 1.2rem; font-weight: 700;
   padding: 6px 14px; border-radius: 8px; cursor: pointer;
   transition: background .18s;
 }
@@ -96,7 +96,7 @@
 /* Completion */
 .ep-completion { padding: 16px 18px; border-top: 1px solid #d0dff0; }
 .ep-comp-label {
-  font-size: .68rem; font-weight: 800; text-transform: uppercase;
+  font-size: 1.2rem; font-weight: 800; text-transform: uppercase;
   letter-spacing: .06em; color: #6b7280; margin-bottom: 8px;
 }
 .ep-comp-bar-bg {
@@ -111,14 +111,14 @@
 .ep-comp-foot {
   display: flex; justify-content: space-between; align-items: center;
 }
-.ep-comp-pct { font-family: var(--ff); font-size: .72rem; font-weight: 700; color: #374151; }
-.ep-comp-tip { font-size: .68rem; color: #9ca3af; }
+.ep-comp-pct { font-family: var(--ff); font-size: 1.2rem; font-weight: 700; color: #374151; }
+.ep-comp-tip { font-size: 1.2rem; color: #9ca3af; }
 
 /* Sidebar links */
 .ep-sidebar-links { padding: 12px 0; }
 .ep-sidebar-link {
   display: flex; align-items: center; gap: 10px; padding: 9px 18px;
-  font-size: .82rem; color: var(--muted); text-decoration: none;
+  font-size: 1.2rem; color: var(--muted); text-decoration: none;
   transition: background .15s, color .15s; cursor: pointer;
 }
 .ep-sidebar-link:hover { background: var(--blue-lt); color: var(--blue); }
@@ -146,10 +146,10 @@
 .ep-section-icon--purple { background: #ede9fe; }
 .ep-section-icon--amber  { background: #fef3c7; }
 .ep-section-title {
-  font-family: var(--ff); font-size: .92rem; font-weight: 700;
+  font-family: var(--ff); font-size: 2.0rem; font-weight: 700;
   color: var(--ink); margin: 0;
 }
-.ep-section-sub { font-size: .73rem; color: var(--muted); margin: 0; }
+.ep-section-sub { font-size: 1.2rem; color: var(--muted); margin: 0; }
 .ep-section-body { padding: 20px 22px; }
 
 .ep-grid {
@@ -161,7 +161,7 @@
 
 .ep-field { display: flex; flex-direction: column; gap: 5px; }
 .ep-field label {
-  font-family: var(--ff); font-size: .76rem; font-weight: 700;
+  font-family: var(--ff); font-size: 1.2rem; font-weight: 700;
   color: #374151; letter-spacing: .01em;
 }
 .ep-field label .req { color: #dc2626; margin-left: 2px; }
@@ -170,7 +170,7 @@
 .ep-field textarea {
   width: 100%; padding: 10px 13px;
   border: 1.5px solid var(--border); border-radius: 9px;
-  font-size: .875rem; font-family: inherit; color: var(--ink);
+  font-size: 1.2rem; font-family: inherit; color: var(--ink);
   background: #fafbff; box-sizing: border-box;
   transition: border-color .18s, box-shadow .18s; outline: none;
 }
@@ -182,9 +182,9 @@
   background: #fff;
 }
 .ep-field textarea { resize: vertical; line-height: 1.65; }
-.ep-field .ep-hint { font-size: .71rem; color: #9ca3af; }
+.ep-field .ep-hint { font-size: 1.2rem; color: #9ca3af; }
 .ep-field-errors { margin-top: 4px; list-style: none; padding: 0; }
-.ep-field-errors li { font-size: .75rem; color: #dc2626; }
+.ep-field-errors li { font-size: 1.2rem; color: #dc2626; }
 .ep-field-foot { display: flex; justify-content: space-between; }
 
 /* ── Actions ── */
@@ -198,14 +198,14 @@
 .ep-btn-save {
   background: var(--blue); color: #fff; border: none;
   padding: 11px 30px; border-radius: 10px;
-  font-family: var(--ff); font-size: .9rem; font-weight: 700;
+  font-family: var(--ff); font-size: 1.2rem; font-weight: 700;
   cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
   transition: background .18s, transform .15s;
 }
 .ep-btn-save:hover { background: var(--blue-d); transform: translateY(-1px); }
 .ep-btn-cancel {
   color: var(--muted); text-decoration: none;
-  font-family: var(--ff); font-size: .875rem; font-weight: 600;
+  font-family: var(--ff); font-size: 1.2rem; font-weight: 600;
   padding: 11px 18px; border-radius: 10px;
   border: 1.5px solid var(--border);
   transition: background .15s, color .15s;
@@ -353,14 +353,14 @@
               <div class="ep-field">
                 <label for="{{ form.phone_number.id_for_label }}">Phone number</label>
                 <input type="tel" name="phone_number" id="{{ form.phone_number.id_for_label }}"
-                       value="{{ form.phone_number.value|default:'' }}" placeholder="+254 700 000 000">
+                       value="{{ form.phone_number.value|default:'' }}" placeholder="" data-example="+254 700 000 000">
                 {% if form.phone_number.errors %}<ul class="ep-field-errors">{% for e in form.phone_number.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
               </div>
               <div class="ep-field">
                 <label for="id_location">Location</label>
                 <input type="text" name="location" id="id_location"
                        value="{{ up.location|default:'' }}"
-                       placeholder="e.g. Nairobi, Kenya">
+                       placeholder="" data-example="e.g. Nairobi, Kenya">
                 <span class="ep-hint">City and country where you are based</span>
               </div>
             </div>
@@ -381,14 +381,14 @@
               <div class="ep-field">
                 <label for="{{ form.company.id_for_label }}">Company / Organisation</label>
                 <input type="text" name="company" id="{{ form.company.id_for_label }}"
-                       value="{{ form.company.value|default:'' }}" placeholder="e.g. Oduma Ventures">
+                       value="{{ form.company.value|default:'' }}" placeholder="" data-example="e.g. Oduma Ventures">
                 {% if form.company.errors %}<ul class="ep-field-errors">{% for e in form.company.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
               </div>
               <div class="ep-field">
                 <label for="{{ form.industry.id_for_label }}">Industry</label>
-                <select name="industry" id="{{ form.industry.id_for_label }}">
+                <select name="industry" id="{{ form.industry.id_for_label }}" data-combo data-placeholder="Search or select industry…">
                   <option value="">— Select industry —</option>
-                  {% for val, label in form.fields.industry.choices %}
+                  {% for val, label in industry_choices %}
                     {% if val %}
                     <option value="{{ val }}" {% if form.industry.value == val %}selected{% endif %}>{{ label }}</option>
                     {% endif %}
@@ -414,7 +414,7 @@
               <label for="{{ form.bio.id_for_label }}">About you</label>
               <textarea name="bio" id="{{ form.bio.id_for_label }}" rows="5"
                         maxlength="600"
-                        placeholder="What's your background? What are you building or investing in?&#10;Be specific — vague bios get ignored."
+                        placeholder="" data-example="What's your background? What are you building or investing in? Be specific."
                         oninput="epCountBio(this)">{{ form.bio.value|default:'' }}</textarea>
               <div class="ep-field-foot">
                 <span class="ep-hint">A strong bio helps the right people find you.</span>
@@ -441,13 +441,13 @@
                 <label>Min ticket size (USD)</label>
                 <input type="number" name="ticket_size_min"
                        value="{{ up.ticket_size_min|default:'' }}"
-                       placeholder="e.g. 10000" min="0">
+                       placeholder="" data-example="e.g. 10000" min="0">
               </div>
               <div class="ep-field">
                 <label>Max ticket size (USD)</label>
                 <input type="number" name="ticket_size_max"
                        value="{{ up.ticket_size_max|default:'' }}"
-                       placeholder="e.g. 500000" min="0">
+                       placeholder="" data-example="e.g. 500000" min="0">
               </div>
             </div>
             <div class="ep-grid ep-grid-1" style="margin-top:14px;">
@@ -455,19 +455,19 @@
                 <label>Preferred sectors</label>
                 <input type="text" name="preferred_sectors"
                        value="{{ up.preferred_sectors|default:'' }}"
-                       placeholder="e.g. tech, health, agriculture">
+                       placeholder="" data-example="e.g. tech, health, agriculture">
                 <span class="ep-hint">Comma-separated. Used for intelligent project matching.</span>
               </div>
               <div class="ep-field" style="margin-top:14px;">
                 <label>Geography focus</label>
                 <input type="text" name="geography_focus"
                        value="{{ up.geography_focus|default:'' }}"
-                       placeholder="e.g. Kenya, East Africa, Pan-African, global">
+                       placeholder="" data-example="e.g. Kenya, East Africa, Pan-African, global">
               </div>
               <div class="ep-field" style="margin-top:14px;">
                 <label>Investment thesis</label>
                 <textarea name="investment_thesis" rows="3"
-                  placeholder="Briefly describe what you look for in a deal…">{{ up.investment_thesis|default:'' }}</textarea>
+                  placeholder="" data-example="Briefly describe what you look for in a deal…">{{ up.investment_thesis|default:'' }}</textarea>
               </div>
             </div>
           </div>
