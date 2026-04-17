@@ -135,7 +135,8 @@ DEBUG = config('DEBUG', default=False, cast=bool)  # safe default: off in prod
 
 ALLOWED_HOSTS = [
     "corp-jmny.onrender.com",
-    ".odumacorp.com",
+    "www.odumacorp.com",
+    "odumacorp.com",
     "localhost",
     "127.0.0.1",
 ]
