@@ -2,36 +2,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <!-- Google Analytics www.odumacorp.com-->
-   <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-11WRZ5D231"></script>
-   <script>
-     window.dataLayer = window.dataLayer || [];
-     function gtag(){dataLayer.push(arguments);}
-     gtag('js', new Date());
-     gtag('config', 'G-11WRZ5D231');
-   </script> -->
- 
-
-
-   <!-- Google tag (gtag.js) www-->
-<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-HSYKW9TPFT"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-HSYKW9TPFT');
-</script> -->
-
-
-
-   <!-- Google tag (gtag.js) odumacorp.com -->
+   <!-- Google Analytics — odumacorp.com (G-11WRZ5D231) -->
    <script async src="https://www.googletagmanager.com/gtag/js?id=G-11WRZ5D231"></script>
    <script>
      window.dataLayer = window.dataLayer || [];
      function gtag(){dataLayer.push(arguments);}
      gtag('js', new Date());
- 
      gtag('config', 'G-11WRZ5D231');
    </script>
    
@@ -43,7 +19,7 @@
   <meta name="keywords" content="{% block meta_keywords %}innovation, investment, Africa, startups, projects, oduma connect{% endblock %}">
   <meta property="og:title" content="{% block og_title %}Oduma Corp{% endblock %}">
   <meta property="og:description" content="{% block og_description %}Connecting Africa's boldest innovators with investors.{% endblock %}">
-  <meta property="og:image" content="{% block og_image %}{% endblock %}">
+  <meta property="og:image" content="{% block og_image %} link rel='icon' type='image/x-icon' href='/favicon.ico' {% endblock %}">
   <meta property="og:type" content="website">
   {% endblock %}
 
@@ -74,14 +50,6 @@
 
   {% block extra_head %}{% endblock %}
 
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HSYKW9TPFT"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-HSYKW9TPFT');
-  </script>
 </head>
 <body{% if hide_navbar %} class="no-navbar"{% endif %}>
 
@@ -122,17 +90,57 @@
     })();
   </script>
 
-  <!-- Mobile menu toggle -->
+  <!-- Mobile menu toggle + one-panel-at-a-time enforcement -->
   <script>
-    var hamburger = document.getElementById('oc-hamburger');
+    var hamburger  = document.getElementById('oc-hamburger');
     var mobileMenu = document.getElementById('oc-mobile-menu');
     var backdrop   = document.getElementById('oc-mobile-backdrop');
 
-    function openMenu()  { mobileMenu && mobileMenu.classList.add('is-open'); }
-    function closeMenu() { mobileMenu && mobileMenu.classList.remove('is-open'); }
+    /* ── close helpers (safe to call even if element missing) ── */
+    function closeDrawer()  { mobileMenu && mobileMenu.classList.remove('is-open'); }
+    function closeExplorePanel() {
+      var dd = document.getElementById('oc-explore-dropdown');
+      if (!dd) return;
+      var menu = dd.querySelector('.oc-navbar__dropdown-menu');
+      if (menu) menu.style.setProperty('display', 'none', 'important');
+      dd.classList.remove('open');
+      var btn = document.getElementById('oc-explore-toggle');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+    function closeProfilePanel() {
+      var dd = document.getElementById('oc-profile-dropdown');
+      if (!dd) return;
+      dd.classList.remove('open');
+      var btn = document.getElementById('oc-profile-toggle');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+    function closeSearchPanel() {
+      var form = document.getElementById('oc-search-form');
+      if (form) form.classList.remove('oc-search--open');
+    }
 
-    if (hamburger)  hamburger.addEventListener('click', openMenu);
-    if (backdrop)   backdrop.addEventListener('click', closeMenu);
+    /* ── global closer: shuts everything ── */
+    window.closeAllNavPanels = function() {
+      closeDrawer();
+      closeExplorePanel();
+      closeProfilePanel();
+      closeSearchPanel();
+    };
+
+    /* ── open helpers (close others first) ── */
+    function openDrawer() {
+      closeExplorePanel();
+      closeProfilePanel();
+      closeSearchPanel();
+      mobileMenu && mobileMenu.classList.add('is-open');
+    }
+
+    if (hamburger) hamburger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var isOpen = mobileMenu && mobileMenu.classList.contains('is-open');
+      if (isOpen) { closeDrawer(); } else { openDrawer(); }
+    });
+    if (backdrop) backdrop.addEventListener('click', closeDrawer);
   </script>
 
   <!-- Searchable + creatable industry combobox -->

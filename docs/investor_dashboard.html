@@ -128,37 +128,89 @@
   .id-stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 800; color: var(--id-blue); line-height: 1; margin-bottom: 4px; }
   .id-stat-label { font-size: 1.2rem; color: var(--id-muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
 
-  /* ── Deal Flow filter bar ── */
+  /* ── Deal Flow filter bar — uses pm- design tokens from app.html ── */
   .id-filter-bar {
-    background: var(--id-card); border: 1px solid var(--id-border);
-    border-radius: 14px; padding: 16px 20px;
-    display: flex; align-items: center; gap: 10px;
-    flex-wrap: wrap; margin-bottom: 20px;
-    box-shadow: 0 1px 6px rgba(0,0,0,.04);
+    background: #fff; border: 1px solid var(--id-border);
+    border-radius: 16px; padding: 20px 22px;
+    margin-bottom: 22px; box-shadow: 0 1px 6px rgba(10,22,40,.05);
   }
-  .id-filter-bar form { display: contents; }
-  .id-filter-select, .id-filter-input {
-    border: 1px solid var(--id-border); border-radius: 8px;
-    padding: 8px 12px; font-size: 1.2rem; color: var(--id-ink);
-    background: #f9fafb; min-width: 120px; flex: 1;
-    font-family: inherit; height: 36px;
+  .id-filter-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;
+    margin-bottom: 12px;
   }
-  .id-filter-select:focus, .id-filter-input:focus {
-    outline: none; border-color: var(--id-blue);
-    background: #fff; box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+  @media (max-width: 700px) { .id-filter-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 480px) { .id-filter-grid { grid-template-columns: 1fr; } }
+  @keyframes pmDdIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+  .id-filter-search {
+    width: 100%; box-sizing: border-box;
+    border: 1.5px solid #e0e6f0; border-radius: 10px;
+    padding: 10px 14px; font-size: 1.15rem; font-family: inherit;
+    color: #0A1628; background: #fafbff; outline: none;
+    transition: border-color .18s, box-shadow .18s;
+    margin-bottom: 12px;
   }
-  .id-filter-range-group {
-    display: flex; align-items: center; gap: 4px; flex: 1; min-width: 200px;
+  .id-filter-search:focus {
+    border-color: #1B5EC7; background: #fff;
+    box-shadow: 0 0 0 3px rgba(27,94,199,.1);
   }
-  .id-filter-range-group .id-filter-input { min-width: 80px; }
-  .id-filter-range-sep { font-size: 1.2rem; color: var(--id-muted); white-space: nowrap; flex-shrink: 0; }
+  .id-filter-search::placeholder { color: #9ca3af; }
+  /* re-use pm- dropdown styles */
+  .id-filter-bar .pm-label {
+    display: block; font-size: 1.1rem; font-weight: 700;
+    color: #374151; margin-bottom: 6px;
+  }
+  .id-filter-bar .pm-dd { position: relative; }
+  .id-filter-bar .pm-dd-trigger {
+    width: 100%; box-sizing: border-box;
+    border: 1.5px solid #e0e6f0; border-radius: 10px;
+    padding: 10px 14px; font-size: 1.15rem; font-family: inherit;
+    color: #0A1628; background: #fafbff; cursor: pointer;
+    text-align: left; display: flex; align-items: center;
+    justify-content: space-between;
+    transition: border-color .18s, box-shadow .18s; user-select: none;
+  }
+  .id-filter-bar .pm-dd-trigger:hover { border-color: #c3d4ec; }
+  .id-filter-bar .pm-dd-trigger.open {
+    border-color: #1B5EC7; background: #fff;
+    box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+  }
+  .id-filter-bar .pm-dd-val { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .id-filter-bar .pm-dd-chevron {
+    width:16px; height:16px; flex-shrink:0; color:#9ca3af;
+    transition:transform .18s; pointer-events:none;
+  }
+  .id-filter-bar .pm-dd-trigger.open .pm-dd-chevron { transform:rotate(180deg); color:#1B5EC7; }
+  .id-filter-bar .pm-dd-list {
+    display:none; position:absolute; top:calc(100% + 6px); left:0; right:0;
+    background:#fff; border:1.5px solid #e0e6f0; border-radius:10px;
+    box-shadow:0 8px 28px rgba(10,22,40,.12); z-index:200;
+    max-height:210px; overflow-y:auto; padding:4px;
+  }
+  .id-filter-bar .pm-dd-list.open { display:block; animation:pmDdIn .15s ease; }
+  .id-filter-bar .pm-dd-option {
+    padding:9px 12px; border-radius:7px; font-size:1.1rem; font-family:inherit;
+    color:#374151; cursor:pointer; transition:background .1s,color .1s;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .id-filter-bar .pm-dd-option:hover { background:#f0f5ff; color:#1B5EC7; }
+  .id-filter-bar .pm-dd-option.selected { background:#eef4ff; color:#1B5EC7; font-weight:700; }
+  .id-filter-bar .pm-dd-option .pm-dd-check { display:none; }
+  .id-filter-bar .pm-dd-option.selected .pm-dd-check { display:block; color:#1B5EC7; }
+  .id-filter-bar .pm-select-hidden { display:none; }
+  .id-filter-footer {
+    display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+    margin-top: 4px;
+  }
   .id-filter-btn {
     background: var(--id-blue); color: #fff; border: none;
-    border-radius: 8px; padding: 8px 20px; font-size: 1.2rem;
-    font-weight: 700; cursor: pointer; white-space: nowrap; font-family: inherit; height: 36px;
+    border-radius: 10px; padding: 10px 24px; font-size: 1.15rem;
+    font-weight: 700; cursor: pointer; font-family: inherit;
+    transition: background .15s;
   }
   .id-filter-btn:hover { background: #144FA8; }
-  .id-filter-clear { font-size: 1.2rem; color: var(--id-muted); text-decoration: none; white-space: nowrap; }
+  .id-filter-clear {
+    font-size: 1.15rem; color: var(--id-muted); text-decoration: none;
+  }
   .id-filter-clear:hover { color: var(--id-blue); }
 
   /* ── Recommended strip ── */
@@ -713,30 +765,82 @@
       {% endif %}
 
       <!-- ── Filter bar ── -->
-      <form method="get" action="" class="id-filter-bar">
-        <input type="text" name="q" class="id-filter-input" placeholder="Search keyword…" value="{{ f_search }}" style="min-width:140px;max-width:160px;">
-        <select name="industry" class="id-filter-select" data-combo-filter data-auto-submit data-placeholder="All Industries">
-          <option value="">All Industries</option>
-          {% for val, label in industry_choices %}
-          <option value="{{ val }}" {% if f_industry == val %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-        <select name="stage" class="id-filter-select">
-          <option value="">All Stages</option>
-          {% for val, label in pipeline_stage_choices %}
-          <option value="{{ val }}" {% if f_stage == val %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-        <select name="funding_stage" class="id-filter-select">
-          <option value="">Any Round</option>
-          {% for val, label in funding_stage_choices %}
-          <option value="{{ val }}" {% if f_funding == val %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-        <button type="submit" class="id-filter-btn">Apply</button>
-        {% if f_industry or f_stage or f_funding or f_search %}
-        <a href="{% url 'investor_dashboard' %}" class="id-filter-clear">✕ Clear</a>
-        {% endif %}
+      <form method="get" action="" class="id-filter-bar" id="idf-form">
+        <!-- Search row -->
+        <input type="text" name="q" class="id-filter-search" placeholder="Search projects by keyword…" value="{{ f_search }}">
+        <!-- Dropdown grid -->
+        <div class="id-filter-grid">
+          <!-- Industry -->
+          <div>
+            <span class="pm-label">Industry</span>
+            <div class="pm-dd" id="idf-industry">
+              <button type="button" class="pm-dd-trigger" onclick="idfDdToggle('idf-industry')" aria-haspopup="listbox">
+                <span class="pm-dd-val">{% if f_industry %}{% for val, label in industry_choices %}{% if val == f_industry %}{{ label }}{% endif %}{% endfor %}{% else %}All Industries{% endif %}</span>
+                <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <input type="hidden" name="industry" value="{{ f_industry }}">
+              <div class="pm-dd-list" role="listbox">
+                <div class="pm-dd-option{% if not f_industry %} selected{% endif %}" data-val="" onclick="idfDdSelect('idf-industry','','All Industries')" role="option">
+                  All Industries<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                {% for val, label in industry_choices %}
+                <div class="pm-dd-option{% if f_industry == val %} selected{% endif %}" data-val="{{ val }}" onclick="idfDdSelect('idf-industry','{{ val }}','{{ label }}')" role="option">
+                  {{ label }}<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <!-- Pipeline Stage -->
+          <div>
+            <span class="pm-label">Pipeline Stage</span>
+            <div class="pm-dd" id="idf-stage">
+              <button type="button" class="pm-dd-trigger" onclick="idfDdToggle('idf-stage')" aria-haspopup="listbox">
+                <span class="pm-dd-val">{% if f_stage %}{% for val, label in pipeline_stage_choices %}{% if val == f_stage %}{{ label }}{% endif %}{% endfor %}{% else %}All Stages{% endif %}</span>
+                <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <input type="hidden" name="stage" value="{{ f_stage }}">
+              <div class="pm-dd-list" role="listbox">
+                <div class="pm-dd-option{% if not f_stage %} selected{% endif %}" data-val="" onclick="idfDdSelect('idf-stage','','All Stages')" role="option">
+                  All Stages<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                {% for val, label in pipeline_stage_choices %}
+                <div class="pm-dd-option{% if f_stage == val %} selected{% endif %}" data-val="{{ val }}" onclick="idfDdSelect('idf-stage','{{ val }}','{{ label }}')" role="option">
+                  {{ label }}<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <!-- Funding Round -->
+          <div>
+            <span class="pm-label">Funding Round</span>
+            <div class="pm-dd" id="idf-funding">
+              <button type="button" class="pm-dd-trigger" onclick="idfDdToggle('idf-funding')" aria-haspopup="listbox">
+                <span class="pm-dd-val">{% if f_funding %}{% for val, label in funding_stage_choices %}{% if val == f_funding %}{{ label }}{% endif %}{% endfor %}{% else %}Any Round{% endif %}</span>
+                <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <input type="hidden" name="funding_stage" value="{{ f_funding }}">
+              <div class="pm-dd-list" role="listbox">
+                <div class="pm-dd-option{% if not f_funding %} selected{% endif %}" data-val="" onclick="idfDdSelect('idf-funding','','Any Round')" role="option">
+                  Any Round<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                {% for val, label in funding_stage_choices %}
+                <div class="pm-dd-option{% if f_funding == val %} selected{% endif %}" data-val="{{ val }}" onclick="idfDdSelect('idf-funding','{{ val }}','{{ label }}')" role="option">
+                  {{ label }}<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Footer row -->
+        <div class="id-filter-footer">
+          {% if f_industry or f_stage or f_funding or f_search %}
+          <a href="{% url 'investor_dashboard' %}" class="id-filter-clear">Clear filters</a>
+          {% endif %}
+          <button type="submit" class="id-filter-btn">Apply</button>
+        </div>
       </form>
 
       <!-- ── All deals grid ── -->
@@ -1376,6 +1480,32 @@ document.querySelectorAll('.id-modal-overlay').forEach(overlay => {
       this.classList.remove('open');
     }
   });
+});
+
+/* Filter bar custom dropdowns */
+function idfDdCloseAll() {
+  document.querySelectorAll('#idf-form .pm-dd-list.open').forEach(l => l.classList.remove('open'));
+  document.querySelectorAll('#idf-form .pm-dd-trigger.open').forEach(t => t.classList.remove('open'));
+}
+function idfDdToggle(id) {
+  const dd = document.getElementById(id);
+  const trig = dd.querySelector('.pm-dd-trigger');
+  const list = dd.querySelector('.pm-dd-list');
+  const wasOpen = list.classList.contains('open');
+  idfDdCloseAll();
+  if (!wasOpen) { trig.classList.add('open'); list.classList.add('open'); }
+}
+function idfDdSelect(id, val, label) {
+  const dd = document.getElementById(id);
+  dd.querySelector('.pm-dd-val').textContent = label;
+  dd.querySelector('input[type=hidden]').value = val;
+  dd.querySelectorAll('.pm-dd-option').forEach(o => {
+    o.classList.toggle('selected', o.dataset.val === val);
+  });
+  idfDdCloseAll();
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.pm-dd')) idfDdCloseAll();
 });
 </script>
 

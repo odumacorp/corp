@@ -114,115 +114,145 @@
   @keyframes mtModalIn { from { opacity:0; transform:translateY(18px) scale(.97); } to { opacity:1; transform:none; } }
 
   .mt-modal-head {
-    background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 100%);
-    padding: 24px 24px 20px;
+    background: #f0f6ff;
+    border-bottom: 1px solid #dce8f8;
+    padding: 20px 22px 18px;
     display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
   }
   .mt-modal-head-icon {
-    width: 44px; height: 44px; border-radius: 12px;
-    background: rgba(255,255,255,.15); display: flex; align-items: center;
-    justify-content: center; font-size: 1.8rem; flex-shrink: 0;
+    width: 40px; height: 40px; border-radius: 10px;
+    background: #dbeafe; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0;
   }
   .mt-modal-head-text { flex: 1; }
   .mt-modal-title {
     font-family: 'Space Grotesk', var(--ff-serif), sans-serif;
-    font-size: 1.2rem; font-weight: 800; color: #fff; margin: 0 0 3px;
+    font-size: 1.15rem; font-weight: 700; color: #1e3a5f; margin: 0 0 2px;
   }
-  .mt-modal-subtitle { font-size: 1.2rem; color: rgba(255,255,255,.65); margin: 0; }
+  .mt-modal-subtitle { font-size: 1.1rem; color: #6b8cba; margin: 0; }
   .mt-modal-close {
-    background: rgba(255,255,255,.12); border: none; cursor: pointer;
-    width: 30px; height: 30px; border-radius: 8px; color: #fff;
+    background: #e4eef9; border: none; cursor: pointer;
+    width: 28px; height: 28px; border-radius: 7px; color: #4a6fa5;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.2rem; flex-shrink: 0; transition: background .15s;
+    font-size: 1rem; flex-shrink: 0; transition: background .15s;
   }
-  .mt-modal-close:hover { background: rgba(255,255,255,.22); }
+  .mt-modal-close:hover { background: #cdddf5; }
 
-  .mt-modal-body { padding: 22px 24px 24px; }
+  .mt-modal-body { padding: 20px 22px 22px; }
   .mt-modal-body label {
-    font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700;
-    color: #6b7280; display: block; margin-bottom: 5px; margin-top: 16px;
+    font-family: var(--ff-sans); font-size: 1.05rem; font-weight: 600;
+    color: #7a8fa8; display: block; margin-bottom: 5px; margin-top: 15px;
     text-transform: uppercase; letter-spacing: .04em;
   }
   .mt-modal-body label:first-child { margin-top: 0; }
   .mt-modal-body input, .mt-modal-body select {
-    width: 100%; padding: 11px 14px; border: 1.5px solid #e4eaf2;
-    border-radius: 10px; font-family: var(--ff-sans); font-size: 1.2rem;
-    color: #0A1628; background: #f8faff; outline: none; box-sizing: border-box;
+    width: 100%; padding: 10px 13px; border: 1.5px solid #dce8f8;
+    border-radius: 9px; font-family: var(--ff-sans); font-size: 1.15rem;
+    color: #1e3a5f; background: #f7faff; outline: none; box-sizing: border-box;
     transition: border-color .18s, background .18s, box-shadow .18s;
   }
-  .mt-modal-body input:focus, .mt-modal-body select:focus {
-    border-color: #1B5EC7; background: #fff;
-    box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+  .mt-modal-body input:focus, .mt-modal-body select:focus, .mt-modal-body textarea:focus {
+    border-color: #4d8ef0; background: #fff;
+    box-shadow: 0 0 0 3px rgba(77,142,240,.12);
   }
-  .mt-modal-body input::placeholder { color: #9ca3af; }
+  .mt-modal-body input::placeholder { color: #b0bec5; }
 
   /* Duration chips */
   .mt-duration-row { display: flex; gap: 6px; flex-wrap: wrap; }
   .mt-dur-chip {
-    padding: 6px 14px; border-radius: 20px; border: 1.5px solid #e4eaf2;
-    background: #f8faff; font-family: var(--ff-sans); font-size: 1.1rem;
-    font-weight: 700; color: #6b7280; cursor: pointer; transition: all .15s;
+    padding: 6px 13px; border-radius: 20px; border: 1.5px solid #dce8f8;
+    background: #f7faff; font-family: var(--ff-sans); font-size: 1.05rem;
+    font-weight: 600; color: #7a8fa8; cursor: pointer; transition: all .15s;
   }
-  .mt-dur-chip.active, .mt-dur-chip:hover { border-color: #1B5EC7; background: #eff6ff; color: #1B5EC7; }
+  .mt-dur-chip.active, .mt-dur-chip:hover { border-color: #4d8ef0; background: #ebf4ff; color: #2563eb; }
 
   /* Invitee tags */
   .mt-invite-box {
-    border: 1.5px solid #e4eaf2; border-radius: 10px; background: #f8faff;
+    border: 1.5px solid #dce8f8; border-radius: 9px; background: #f7faff;
     padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
-    min-height: 44px; cursor: text; transition: border-color .18s, box-shadow .18s;
+    min-height: 42px; cursor: text; transition: border-color .18s, box-shadow .18s;
   }
-  .mt-invite-box:focus-within { border-color: #1B5EC7; background: #fff; box-shadow: 0 0 0 3px rgba(27,94,199,.1); }
+  .mt-invite-box:focus-within { border-color: #4d8ef0; background: #fff; box-shadow: 0 0 0 3px rgba(77,142,240,.12); }
   .mt-invite-tag {
     display: inline-flex; align-items: center; gap: 5px;
-    background: #dbeafe; color: #1e40af; border-radius: 20px;
-    padding: 3px 10px; font-size: 1.1rem; font-weight: 700;
+    background: #ebf4ff; color: #2563eb; border-radius: 20px;
+    padding: 3px 10px; font-size: 1.05rem; font-weight: 600;
     font-family: var(--ff-sans);
   }
-  .mt-invite-tag button { background: none; border: none; cursor: pointer; color: #1e40af; font-size: 1rem; line-height: 1; padding: 0 0 0 2px; }
-  .mt-invite-search { border: none; outline: none; background: transparent; font-family: var(--ff-sans); font-size: 1.1rem; color: #0A1628; min-width: 120px; flex: 1; padding: 2px 4px; }
+  .mt-invite-tag button { background: none; border: none; cursor: pointer; color: #5b8de8; font-size: 1rem; line-height: 1; padding: 0 0 0 2px; }
+  .mt-invite-search { border: none; outline: none; background: transparent; font-family: var(--ff-sans); font-size: 1.1rem; color: #1e3a5f; min-width: 120px; flex: 1; padding: 2px 4px; }
   .mt-invite-dropdown {
     position: absolute; left: 0; right: 0; top: calc(100% + 4px);
-    background: #fff; border: 1.5px solid #e4eaf2; border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(10,22,40,.1); z-index: 10;
+    background: #fff; border: 1.5px solid #dce8f8; border-radius: 9px;
+    box-shadow: 0 8px 24px rgba(30,58,95,.1); z-index: 10;
     max-height: 180px; overflow-y: auto;
   }
   .mt-invite-opt {
     display: flex; align-items: center; gap: 10px;
     padding: 9px 12px; cursor: pointer; transition: background .12s;
-    font-family: var(--ff-sans); font-size: 1.1rem; color: #0A1628;
+    font-family: var(--ff-sans); font-size: 1.1rem; color: #1e3a5f;
   }
-  .mt-invite-opt:hover { background: #f0f6ff; }
+  .mt-invite-opt:hover { background: #f0f7ff; }
   .mt-invite-opt-avatar {
     width: 28px; height: 28px; border-radius: 50%; object-fit: cover;
-    background: linear-gradient(135deg,#1B5EC7,#0A1628);
+    background: linear-gradient(135deg,#4d8ef0,#1e3a5f);
     display: flex; align-items: center; justify-content: center;
-    font-size: .75rem; font-weight: 800; color: #fff; flex-shrink: 0;
+    font-size: .75rem; font-weight: 700; color: #fff; flex-shrink: 0;
   }
   .mt-invite-wrap { position: relative; }
 
-  .mt-modal-footer { display: flex; gap: 10px; margin-top: 22px; }
-  .mt-modal-submit {
-    flex: 1; padding: 12px; border-radius: 11px; border: none;
-    background: linear-gradient(135deg, #1B5EC7, #1451aa);
-    color: #fff; font-family: 'Space Grotesk', var(--ff-sans), sans-serif;
-    font-size: 1.2rem; font-weight: 800; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 7px;
-    transition: opacity .15s, transform .12s;
-    box-shadow: 0 4px 14px rgba(27,94,199,.3);
+  /* Share link box */
+  .mt-share-box {
+    margin-top: 16px; background: #f0f7ff; border: 1.5px solid #c7ddf8;
+    border-radius: 10px; padding: 12px 14px; display: none;
   }
-  .mt-modal-submit:hover { opacity: .92; transform: translateY(-1px); }
+  .mt-share-box.visible { display: block; }
+  .mt-share-label {
+    font-family: var(--ff-sans); font-size: 1rem; font-weight: 600;
+    color: #4a6fa5; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .mt-share-row { display: flex; gap: 8px; align-items: center; }
+  .mt-share-input {
+    flex: 1; padding: 8px 11px; border: 1.5px solid #c7ddf8 !important;
+    border-radius: 8px !important; background: #fff !important;
+    font-size: 1.05rem !important; color: #2563eb !important;
+    font-family: var(--ff-sans); outline: none; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+  }
+  .mt-copy-btn {
+    padding: 8px 14px; border-radius: 8px; border: 1.5px solid #c7ddf8;
+    background: #ebf4ff; color: #2563eb; font-family: var(--ff-sans);
+    font-size: 1.05rem; font-weight: 600; cursor: pointer;
+    transition: background .15s, color .15s; white-space: nowrap;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .mt-copy-btn:hover { background: #dbeafe; }
+  .mt-copy-btn.copied { background: #d1fae5; border-color: #6ee7b7; color: #065f46; }
+
+  .mt-modal-footer { display: flex; gap: 10px; margin-top: 20px; }
+  .mt-modal-submit {
+    flex: 1; padding: 11px; border-radius: 10px; border: none;
+    background: #2563eb;
+    color: #fff; font-family: 'Space Grotesk', var(--ff-sans), sans-serif;
+    font-size: 1.15rem; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: background .15s, transform .12s;
+    box-shadow: 0 2px 8px rgba(37,99,235,.2);
+  }
+  .mt-modal-submit:hover { background: #1d55d4; transform: translateY(-1px); }
   .mt-modal-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
   .mt-modal-cancel {
-    padding: 12px 20px; border-radius: 11px;
-    background: #f3f4f6; border: 1.5px solid #e5e7eb;
-    font-family: var(--ff-sans); font-size: 1.2rem; color: #374151;
+    padding: 11px 18px; border-radius: 10px;
+    background: #f0f4f8; border: 1.5px solid #dce8f8;
+    font-family: var(--ff-sans); font-size: 1.15rem; color: #4a6fa5;
     cursor: pointer; transition: background .15s;
   }
-  .mt-modal-cancel:hover { background: #e9ebef; }
+  .mt-modal-cancel:hover { background: #e4eef9; }
   .mt-form-error {
-    font-family: var(--ff-sans); font-size: 1.2rem; color: #dc2626;
+    font-family: var(--ff-sans); font-size: 1.1rem; color: #c0392b;
     margin-top: 10px; display: none; padding: 8px 12px;
-    background: #fff1f1; border-radius: 8px; border: 1px solid #fecaca;
+    background: #fff5f5; border-radius: 8px; border: 1px solid #fecaca;
   }
 
   /* ── Empty state ── */
@@ -371,7 +401,9 @@
 
     <!-- Gradient header -->
     <div class="mt-modal-head">
-      <div class="mt-modal-head-icon">📹</div>
+      <div class="mt-modal-head-icon">
+        <svg width="22" height="22" fill="none" stroke="#2563eb" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.277A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+      </div>
       <div class="mt-modal-head-text">
         <p class="mt-modal-title">New Meeting</p>
         <p class="mt-modal-subtitle">Schedule or start an instant video call</p>
@@ -380,31 +412,74 @@
     </div>
 
     <!-- Body -->
-    <div class="mt-modal-body">
+    <div class="mt-modal-body" style="max-height:70vh;overflow-y:auto;">
       <form id="mt-schedule-form">
         {% csrf_token %}
 
         <label>Meeting title <span style="color:#dc2626;">*</span></label>
-        <input type="text" name="title" id="mt-title-input" placeholder="" data-example="e.g. Investment Discussion" required autocomplete="off">
+        <input type="text" name="title" id="mt-title-input" placeholder="e.g. Investment Discussion" required autocomplete="off">
 
-        <label>Invite a connection</label>
-        <select name="other_user_id" id="mt-other-select">
-          <option value="">— Start instantly without inviting —</option>
-          {% for conn in connections %}
-          <option value="{{ conn.id }}">{{ conn.get_full_name|default:conn.username }}</option>
-          {% endfor %}
-        </select>
+        <label>Invite connections</label>
+        <div class="mt-invite-wrap">
+          <div class="mt-invite-box" id="mt-invite-box" onclick="document.getElementById('mt-invite-search').focus()">
+            <input type="text" id="mt-invite-search" class="mt-invite-search" placeholder="Search by name…" autocomplete="off">
+          </div>
+          <div class="mt-invite-dropdown" id="mt-invite-dropdown" style="display:none;">
+            {% for conn in connections %}
+            <div class="mt-invite-opt" data-id="{{ conn.id }}" data-name="{{ conn.get_full_name|default:conn.username }}">
+              {% if conn.userprofile.profile_pics %}
+                <img src="{{ conn.userprofile.profile_pics.url }}" class="mt-invite-opt-avatar" alt="">
+              {% else %}
+                <div class="mt-invite-opt-avatar">{{ conn.first_name|first|upper }}{{ conn.last_name|first|upper }}</div>
+              {% endif %}
+              {{ conn.get_full_name|default:conn.username }}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div id="mt-invitees-hidden"></div>
+
+        <label>Duration</label>
+        <div class="mt-duration-row" id="mt-duration-row">
+          <button type="button" class="mt-dur-chip" data-min="15">15 min</button>
+          <button type="button" class="mt-dur-chip" data-min="30">30 min</button>
+          <button type="button" class="mt-dur-chip active" data-min="60">1 hour</button>
+          <button type="button" class="mt-dur-chip" data-min="90">1.5 hr</button>
+          <button type="button" class="mt-dur-chip" data-min="120">2 hr</button>
+        </div>
+        <input type="hidden" name="duration" id="mt-duration-val" value="60">
 
         <label>Schedule for (optional)</label>
         <input type="datetime-local" name="scheduled_at" id="mt-scheduled-input">
 
+        <label>Agenda / notes (optional)</label>
+        <textarea name="agenda" id="mt-agenda-input" rows="2"
+          style="width:100%;padding:11px 14px;border:1.5px solid #e4eaf2;border-radius:10px;font-family:var(--ff-sans);font-size:1.2rem;color:#0A1628;background:#f8faff;outline:none;box-sizing:border-box;resize:vertical;transition:border-color .18s,box-shadow .18s;"
+          placeholder="What will this meeting cover?"></textarea>
+
         <div class="mt-modal-footer">
           <button type="submit" class="mt-modal-submit" id="mt-submit-btn">
-            📹 Start Meeting
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.277A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+            Start Meeting
           </button>
           <button type="button" class="mt-modal-cancel" onclick="closeScheduleModal()">Cancel</button>
         </div>
         <div class="mt-form-error" id="mt-form-error"></div>
+
+        <!-- Share link — shown after meeting is created -->
+        <div class="mt-share-box" id="mt-share-box">
+          <div class="mt-share-label">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+            Meeting link ready — share it
+          </div>
+          <div class="mt-share-row">
+            <input type="text" class="mt-share-input" id="mt-share-input" readonly>
+            <button type="button" class="mt-copy-btn" id="mt-copy-btn">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+        </div>
       </form>
     </div>
 
@@ -415,22 +490,108 @@
 var CREATE_URL = '{% url "create_meeting" %}';
 var CSRF = '{{ csrf_token }}';
 
-
+/* ── modal open/close ── */
 function openScheduleModal() {
   document.getElementById('mt-schedule-overlay').classList.add('open');
   setTimeout(function() { document.getElementById('mt-title-input').focus(); }, 80);
 }
-
-// Auto-open modal if redirected from /meetings/create/
-if (new URLSearchParams(window.location.search).get('new') === '1') {
-  openScheduleModal();
-  // Clean URL without reloading
-  history.replaceState(null, '', window.location.pathname);
-}
 function closeScheduleModal() {
   document.getElementById('mt-schedule-overlay').classList.remove('open');
 }
+if (new URLSearchParams(window.location.search).get('new') === '1') {
+  openScheduleModal();
+  history.replaceState(null, '', window.location.pathname);
+}
 
+/* ── duration chips ── */
+document.getElementById('mt-duration-row').addEventListener('click', function(e) {
+  var chip = e.target.closest('.mt-dur-chip');
+  if (!chip) return;
+  this.querySelectorAll('.mt-dur-chip').forEach(function(c){ c.classList.remove('active'); });
+  chip.classList.add('active');
+  document.getElementById('mt-duration-val').value = chip.dataset.min;
+});
+
+/* ── invitee multi-select ── */
+var inviteeIds = [];
+var searchInput = document.getElementById('mt-invite-search');
+var dropdown = document.getElementById('mt-invite-dropdown');
+var inviteBox = document.getElementById('mt-invite-box');
+var hiddenCont = document.getElementById('mt-invitees-hidden');
+var allOpts = Array.from(dropdown.querySelectorAll('.mt-invite-opt'));
+
+function renderInviteeTags() {
+  inviteBox.querySelectorAll('.mt-invite-tag').forEach(function(t){ t.remove(); });
+  hiddenCont.innerHTML = '';
+  inviteeIds.forEach(function(id) {
+    var opt = allOpts.find(function(o){ return o.dataset.id === id; });
+    if (!opt) return;
+    var tag = document.createElement('span');
+    tag.className = 'mt-invite-tag';
+    tag.innerHTML = opt.dataset.name + '<button type="button" aria-label="Remove">&times;</button>';
+    tag.querySelector('button').addEventListener('click', function(){
+      inviteeIds = inviteeIds.filter(function(x){ return x !== id; });
+      renderInviteeTags();
+    });
+    inviteBox.insertBefore(tag, searchInput);
+    var inp = document.createElement('input');
+    inp.type = 'hidden'; inp.name = 'invitee_ids'; inp.value = id;
+    hiddenCont.appendChild(inp);
+  });
+}
+
+function filterDropdown(q) {
+  q = q.toLowerCase();
+  var any = false;
+  allOpts.forEach(function(o) {
+    var match = o.dataset.name.toLowerCase().includes(q) && !inviteeIds.includes(o.dataset.id);
+    o.style.display = match ? '' : 'none';
+    if (match) any = true;
+  });
+  dropdown.style.display = (any && document.activeElement === searchInput) ? '' : 'none';
+}
+
+searchInput.addEventListener('input', function(){ filterDropdown(this.value); });
+searchInput.addEventListener('focus', function(){ filterDropdown(this.value); });
+searchInput.addEventListener('blur', function(){ setTimeout(function(){ dropdown.style.display='none'; }, 150); });
+
+dropdown.addEventListener('mousedown', function(e) {
+  var opt = e.target.closest('.mt-invite-opt');
+  if (!opt) return;
+  e.preventDefault();
+  var id = opt.dataset.id;
+  if (!inviteeIds.includes(id)) { inviteeIds.push(id); renderInviteeTags(); }
+  searchInput.value = '';
+  filterDropdown('');
+});
+
+/* ── copy link ── */
+document.getElementById('mt-copy-btn').addEventListener('click', function() {
+  var inp = document.getElementById('mt-share-input');
+  navigator.clipboard.writeText(inp.value).catch(function() {
+    inp.select(); document.execCommand('copy');
+  });
+  var btn = this;
+  btn.classList.add('copied');
+  btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Copied!';
+  setTimeout(function() {
+    btn.classList.remove('copied');
+    btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+  }, 2200);
+});
+
+/* ── reset share box when modal closes ── */
+var origClose = window.closeScheduleModal;
+window.closeScheduleModal = function() {
+  origClose();
+  document.getElementById('mt-share-box').classList.remove('visible');
+  var sb = document.getElementById('mt-submit-btn');
+  sb.disabled = false; sb.style.background = '';
+  sb.onclick = null;
+  sb.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.277A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg> Start Meeting';
+};
+
+/* ── form submit ── */
 document.getElementById('mt-schedule-form').addEventListener('submit', function(e) {
   e.preventDefault();
   var title = document.getElementById('mt-title-input').value.trim();
@@ -443,10 +604,8 @@ document.getElementById('mt-schedule-form').addEventListener('submit', function(
     document.getElementById('mt-title-input').focus();
     return;
   }
-
   btn.disabled = true;
-  btn.textContent = '⏳ Creating…';
-
+  btn.innerHTML = '⏳ Creating…';
   var fd = new FormData(this);
   fetch(CREATE_URL, {
     method: 'POST',
@@ -454,19 +613,26 @@ document.getElementById('mt-schedule-form').addEventListener('submit', function(
     body: fd,
   })
   .then(function(r) {
-    if (!r.ok) return r.text().then(function(t) { throw new Error('Server error ' + r.status); });
+    if (!r.ok) throw new Error('Server error ' + r.status);
     return r.json();
   })
   .then(function(d) {
     if (d.ok) {
-      btn.textContent = '✓ Done — redirecting…';
-      window.location.href = d.url;
+      btn.innerHTML = '✓ Created — join or share below';
+      btn.disabled = false;
+      btn.style.background = '#16a34a';
+      btn.onclick = function(){ window.location.href = d.url; };
+      /* show share box */
+      var fullUrl = window.location.origin + d.url;
+      document.getElementById('mt-share-input').value = fullUrl;
+      document.getElementById('mt-share-box').classList.add('visible');
+      document.getElementById('mt-share-input').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else {
       throw new Error(d.error || 'Failed to create meeting.');
     }
   }).catch(function(err) {
     btn.disabled = false;
-    btn.textContent = '📹 Start Meeting';
+    btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.277A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg> Start Meeting';
     errEl.textContent = err.message || 'Something went wrong. Please try again.';
     errEl.style.display = '';
   });

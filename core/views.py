@@ -3108,10 +3108,24 @@ def create_meeting(request):
                 scheduled_at = parse_datetime(scheduled_at_str)
             except Exception:
                 pass
-        # Create in Zoom
+        # Resolve Odu's email for Zoom alternative-host slot
+        from .models import CustomUser as _CU
+        odu_email = (
+            _CU.objects.filter(username__iexact='odu')
+            .values_list('email', flat=True)
+            .first()
+        ) or 'odu@odumacorp.com'
+
+        # Create in Zoom — creator is host, Odu is always co-host/alternative host
         zoom_data = {}
         try:
-            zoom_data = zoom_create(title, scheduled_at=scheduled_at, duration_minutes=duration)
+            zoom_data = zoom_create(
+                title,
+                scheduled_at=scheduled_at,
+                duration_minutes=duration,
+                host_email=request.user.email,
+                alternative_host_emails=[odu_email],
+            )
         except Exception:
             pass  # Zoom not configured; meeting created locally only
         # Generate unique room_id to satisfy the unique constraint
@@ -3133,8 +3147,36 @@ def create_meeting(request):
                 meeting.participants.add(CustomUser.objects.get(pk=uid))
             except CustomUser.DoesNotExist:
                 pass
+
         from django.urls import reverse
         url = reverse('join_meeting', args=[meeting.id])
+        join_link = url
+
+        # Notify admins + Odu so they can join if they want
+        creator_name = request.user.get_full_name() or request.user.username
+        scheduled_str = (
+            f" scheduled for {scheduled_at.strftime('%b %d, %H:%M')}" if scheduled_at else ''
+        )
+        notif_msg = (
+            f"{creator_name} started a meeting: \"{title}\"{scheduled_str}. "
+            "You can join if you'd like."
+        )
+        observers = set(
+            CustomUser.objects.filter(user_type='admin').exclude(pk=request.user.pk)
+        ) | set(
+            CustomUser.objects.filter(username__iexact='odu')
+        )
+        from .models import Notification
+        for observer in observers:
+            # Add as participant so they can join via the meeting page
+            meeting.participants.add(observer)
+            Notification.objects.create(
+                user=observer,
+                message=notif_msg,
+                notification_type='other',
+                link=join_link,
+            )
+
         return JsonResponse({'ok': True, 'url': url})
     except Exception as e:
         return JsonResponse({'ok': False, 'error': str(e)}, status=500)

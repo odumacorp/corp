@@ -721,6 +721,11 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
     right: 12px;
     width: auto !important;
     z-index: 200;
+    animation: searchExpand 0.22s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes searchExpand {
+    from { opacity: 0; transform: scaleX(0.7) translateY(-4px); }
+    to   { opacity: 1; transform: scaleX(1)   translateY(0); }
   }
   .oc-navbar__search.oc-search--open input {
     position: static;
@@ -741,6 +746,18 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
   .oc-navbar__search.oc-search--open .oc-search__close {
     display: block;
   }
+}
+
+@media (max-width: 640px) {
+  .oc-navbar__search { display: none !important; }
+  .oc-navbar__inner { padding-inline: 8px; gap: 6px; }
+  .oc-navbar__right { gap: 2px; }
+  .oc-navbar__auth { gap: 2px; }
+  .oc-navbar__link--icon { padding: 5px 4px !important; }
+  .oc-profile-dropdown__toggle { padding: 4px 6px 4px 4px; gap: 4px; }
+  .oc-profile-dropdown__name { display: none; }
+  .oc-profile-dropdown__caret { display: none; }
+  .oc-navbar__hamburger { flex-shrink: 0; }
 }
 
 /* Auth buttons */
@@ -801,12 +818,11 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
 
 /* Mobile drawer */
 .oc-mobile-menu {
-  display: none;
   position: fixed;
   inset: 0;
   z-index: 999;
+  /* always in the DOM — panel slides off-screen when closed */
 }
-.oc-mobile-menu.is-open { display: block; }
 
 .oc-mobile-menu__backdrop {
   position: absolute;
@@ -814,6 +830,13 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
   background: rgba(0,0,0,0.45);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+}
+.oc-mobile-menu.is-open .oc-mobile-menu__backdrop {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .oc-mobile-menu__panel {
@@ -822,17 +845,26 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
   left: 0;
   width: 272px;
   height: calc(100% - var(--oc-navbar-h));
-  background: rgba(8,18,42,0.55);
-  backdrop-filter: blur(32px) saturate(200%) brightness(1.1);
-  -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.1);
-  border-right: 1px solid rgba(255,255,255,0.15);
-  border-top: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 4px 0 40px rgba(0,0,0,0.3);
+  background: rgba(8,18,42,0.75);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-right: 1px solid rgba(255,255,255,0.12);
+  border-top: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 6px 0 48px rgba(0,0,0,0.35);
   padding: var(--oc-space-4) var(--oc-space-4);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 1px;
+  /* off-screen by default */
+  transform: translateX(-100%);
+  transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 1s ease;
+  will-change: transform;
+}
+.oc-mobile-menu.is-open .oc-mobile-menu__panel {
+  transform: translateX(0);
+  box-shadow: 8px 0 56px rgba(0,0,0,0.45);
 }
 
 .oc-mobile-menu__brand {

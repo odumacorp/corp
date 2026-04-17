@@ -25,7 +25,24 @@ from .views import investors_view
 from .views import innovators_view
 
 
-urlpatterns = [
+from django.views.generic.base import RedirectView
+
+# Redirect raw .html static-file URLs → canonical Django URLs (permanent 301)
+# These get served by whitenoise as unprocessed files and show as "not tagged" in GA.
+_html_redirects = [
+    path('about.html',         RedirectView.as_view(url='/about/',         permanent=True)),
+    path('app.html',           RedirectView.as_view(url='/app/',           permanent=True)),
+    path('dashboard.html',     RedirectView.as_view(url='/dashboard/',     permanent=True)),
+    path('events.html',        RedirectView.as_view(url='/events/',        permanent=True)),
+    path('jobs.html',          RedirectView.as_view(url='/jobs/',          permanent=True)),
+    path('networks.html',      RedirectView.as_view(url='/networks/',      permanent=True)),
+    path('notifications.html', RedirectView.as_view(url='/notifications/', permanent=True)),
+    path('services.html',      RedirectView.as_view(url='/services/',      permanent=True)),
+    # messages.html is handled by the inbox view
+    path('messages.html',      RedirectView.as_view(url='/inbox/',         permanent=True)),
+]
+
+urlpatterns = _html_redirects + [
     path('edit-profile/', views.edit_profile, name='edit_profile'),
     path('admin/contact-submissions/', views.contact_submissions, name='contact_submissions'),
     path('admin/contact-submissions/<int:sub_id>/reply/', views.reply_contact_submission, name='reply_contact_submission'),

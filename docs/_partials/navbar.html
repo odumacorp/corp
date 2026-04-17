@@ -44,7 +44,6 @@
 .oc-profile-dropdown.open .oc-profile-dropdown__caret { transform: rotate(180deg); }
 
 .oc-profile-dropdown__menu {
-  display: none;
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
@@ -55,8 +54,16 @@
   min-width: 210px;
   z-index: 9999;
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.97);
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
 }
-.oc-profile-dropdown.open .oc-profile-dropdown__menu { display: block; }
+.oc-profile-dropdown.open .oc-profile-dropdown__menu {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
 
 .oc-profile-dropdown__header {
   display: flex;
@@ -130,11 +137,10 @@
 .oc-navbar__dropdown.open .oc-dropdown-caret { transform: rotate(180deg); }
 
 .oc-navbar__dropdown-menu {
-  display: none;
   position: absolute;
   top: calc(100% + 10px);
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(-6px) scale(0.97);
   background: #fff;
   border: 1px solid rgba(0,0,0,0.08);
   border-radius: 8px;
@@ -142,9 +148,16 @@
   min-width: 175px;
   z-index: 9999;
   overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
 }
 .oc-navbar__dropdown:hover .oc-navbar__dropdown-menu,
-.oc-navbar__dropdown.open .oc-navbar__dropdown-menu { display: block; }
+.oc-navbar__dropdown.open .oc-navbar__dropdown-menu {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
+  pointer-events: auto;
+}
 .oc-navbar__dropdown-menu a {
   display: flex;
   align-items: center;
@@ -432,9 +445,12 @@
     {% if user.is_authenticated %}
       {% with url_name=request.resolver_match.url_name %}
 
-      <a href="{% url 'app' %}" class="oc-mobile-menu__link">Home</a>
+      <!-- Main -->
+      <a href="{% url 'app' %}"          class="oc-mobile-menu__link">Home</a>
+      <a href="{% url 'dashboard' %}"    class="oc-mobile-menu__link">Dashboard</a>
       <a href="{% url 'project_list' %}" class="oc-mobile-menu__link">Projects</a>
 
+      <!-- Explore accordion -->
       <button type="button" class="oc-mobile-menu__link oc-mobile-accordion-toggle {% if url_name == 'innovators' or url_name == 'investors' or url_name == 'investors_by_industry' or url_name == 'companies_list' %}open{% endif %}"
               id="oc-mobile-explore-toggle"
               style="background:none;border:none;width:100%;text-align:left;cursor:pointer;color:inherit;">
@@ -446,23 +462,40 @@
       </button>
       <div class="oc-mobile-menu__accordion {% if url_name == 'innovators' or url_name == 'investors' or url_name == 'investors_by_industry' or url_name == 'companies_list' %}open{% endif %}"
            id="oc-mobile-explore-panel">
-        <a href="{% url 'innovators' %}"      class="oc-mobile-menu__link">Innovators</a>
-        <a href="{% url 'investors' %}"        class="oc-mobile-menu__link">Investors</a>
-        <a href="{% url 'companies_list' %}"   class="oc-mobile-menu__link">Businesses</a>
+        <a href="{% url 'innovators' %}"    class="oc-mobile-menu__link">Innovators</a>
+        <a href="{% url 'investors' %}"     class="oc-mobile-menu__link">Investors</a>
+        <a href="{% url 'companies_list' %}" class="oc-mobile-menu__link">Businesses</a>
       </div>
 
       {% if admin_view_mode != 'admin' or user.user_type != 'admin' %}
+        <div class="oc-mobile-menu__divider"></div>
+        <!-- Social -->
         <a href="{% url 'inbox' %}" class="oc-mobile-menu__link">
-          Inbox
-          {% if unread_count %}<span style="background:#DC2626;color:#fff;font-size:1.2rem;padding:1px 6px;border-radius:99px;margin-left:4px;">{{ unread_count }}</span>{% endif %}
+          Inbox{% if unread_count %}<span style="background:#DC2626;color:#fff;font-size:1.2rem;padding:1px 6px;border-radius:99px;margin-left:4px;">{{ unread_count }}</span>{% endif %}
+        </a>
+        <a href="{% url 'notifications' %}" class="oc-mobile-menu__link">
+          Notifications{% if unread_notification_count %}<span style="background:#DC2626;color:#fff;font-size:1.2rem;padding:1px 6px;border-radius:99px;margin-left:4px;">{{ unread_notification_count }}</span>{% endif %}
         </a>
         <a href="{% url 'networks' %}"    class="oc-mobile-menu__link">Network</a>
         <a href="{% url 'groups_list' %}" class="oc-mobile-menu__link">Community</a>
         <a href="{% url 'profile_view' id=user.id %}" class="oc-mobile-menu__link">Profile</a>
         <div class="oc-mobile-menu__divider"></div>
+        <!-- Discover -->
         <a href="{% url 'events' %}"         class="oc-mobile-menu__link">Events</a>
         <a href="{% url 'jobs' %}"           class="oc-mobile-menu__link">Jobs</a>
         <a href="{% url 'proposals_list' %}" class="oc-mobile-menu__link">Proposals</a>
+        <a href="{% url 'meetings_list' %}"   class="oc-mobile-menu__link">Meetings</a>
+        <a href="{% url 'training_hub' %}"   class="oc-mobile-menu__link">Training</a>
+        <a href="{% url 'mentorship_hub' %}" class="oc-mobile-menu__link">Mentorship</a>
+        <div class="oc-mobile-menu__divider"></div>
+        <!-- Info -->
+        <a href="{% url 'services' %}"           class="oc-mobile-menu__link">Services</a>
+        <a href="{% url 'about' %}"              class="oc-mobile-menu__link">About</a>
+        <a href="{% url 'faq' %}"                class="oc-mobile-menu__link">FAQ</a>
+        <a href="{% url 'subscription_plans' %}" class="oc-mobile-menu__link">Pricing</a>
+        <div class="oc-mobile-menu__divider"></div>
+        <!-- Account -->
+        <a href="{% url 'edit_profile' %}" class="oc-mobile-menu__link">Settings</a>
       {% endif %}
 
       {% if user.user_type == 'admin' %}
@@ -476,32 +509,28 @@
       {% endif %}
 
       <div class="oc-mobile-menu__divider"></div>
-      <a href="{% url 'profile_view' id=user.id %}" class="oc-mobile-menu__link">Profile</a>
-      <a href="{% url 'notifications' %}" class="oc-mobile-menu__link">
-        Notifications
-        {% if unread_notification_count %}<span style="background:#DC2626;color:#fff;font-size: 1.2rem;padding:1px 6px;border-radius:99px;margin-left:4px;">{{ unread_notification_count }}</span>{% endif %}
-      </a>
-      <a href="{% url 'faq' %}"  class="oc-mobile-menu__link">FAQ</a>
-      <a href="{% url 'subscription_plans' %}" class="oc-mobile-menu__link">Pricing</a>
       <a href="{% url 'logout' %}" class="oc-mobile-menu__link" style="color:#F87171;">Log out</a>
 
       {% endwith %}
     {% else %}
+      <!-- Guest menu -->
       <button type="button" class="oc-mobile-menu__link oc-mobile-accordion-toggle"
               id="oc-mobile-explore-toggle-guest"
               style="background:none;border:none;width:100%;text-align:left;cursor:pointer;color:inherit;">
         Explore <span class="oc-dropdown-caret">▼</span>
       </button>
       <div class="oc-mobile-menu__accordion" id="oc-mobile-explore-panel-guest">
-        <a href="{% url 'innovators' %}"    class="oc-mobile-menu__link">Innovators</a>
-        <a href="{% url 'investors' %}"     class="oc-mobile-menu__link">Investors</a>
+        <a href="{% url 'innovators' %}"     class="oc-mobile-menu__link">Innovators</a>
+        <a href="{% url 'investors' %}"      class="oc-mobile-menu__link">Investors</a>
         <a href="{% url 'companies_list' %}" class="oc-mobile-menu__link">Businesses</a>
       </div>
-      <a href="{% url 'about' %}"       class="oc-mobile-menu__link">About</a>
-      <a href="{% url 'services' %}"    class="oc-mobile-menu__link">Services</a>
-      <a href="{% url 'events' %}"      class="oc-mobile-menu__link">Events</a>
-      <a href="{% url 'jobs' %}"        class="oc-mobile-menu__link">Jobs</a>
-      <a href="{% url 'faq' %}"         class="oc-mobile-menu__link">FAQ</a>
+      <a href="{% url 'about' %}"              class="oc-mobile-menu__link">About</a>
+      <a href="{% url 'services' %}"           class="oc-mobile-menu__link">Services</a>
+      <a href="{% url 'training_hub' %}"       class="oc-mobile-menu__link">Training</a>
+      <a href="{% url 'events' %}"             class="oc-mobile-menu__link">Events</a>
+      <a href="{% url 'jobs' %}"               class="oc-mobile-menu__link">Jobs</a>
+      <a href="{% url 'faq' %}"                class="oc-mobile-menu__link">FAQ</a>
+      <a href="{% url 'subscription_plans' %}" class="oc-mobile-menu__link">Pricing</a>
       <div class="oc-mobile-menu__divider"></div>
       <a href="{% url 'login' %}"    class="oc-mobile-menu__link">Log in</a>
       <a href="{% url 'register' %}" class="oc-mobile-menu__link" style="color:#3B7FFF;font-weight:600;">Get started →</a>
@@ -620,15 +649,11 @@
 
 <script>
 (function () {
-  /* Use inline style.display so Bootstrap/other CSS cannot override it */
-  function showMenu(menu) { menu.style.setProperty('display', 'block', 'important'); }
-  function hideMenu(menu) { menu.style.setProperty('display', 'none',  'important'); }
+  /* CSS handles visibility via opacity + pointer-events — JS only toggles classes */
 
   function closeExplore() {
     var dd = document.getElementById('oc-explore-dropdown');
     if (!dd) return;
-    var menu = dd.querySelector('.oc-navbar__dropdown-menu');
-    if (menu) hideMenu(menu);
     dd.classList.remove('open');
     var btn = document.getElementById('oc-explore-toggle');
     if (btn) btn.setAttribute('aria-expanded', 'false');
@@ -642,7 +667,18 @@
     if (btn) btn.setAttribute('aria-expanded', 'false');
   }
 
-  function closeAll() { closeExplore(); closeProfile(); }
+  function closeDrawerAndSearch() {
+    var drawer = document.getElementById('oc-mobile-menu');
+    if (drawer) drawer.classList.remove('is-open');
+    var sf = document.getElementById('oc-search-form');
+    if (sf) sf.classList.remove('oc-search--open');
+  }
+
+  function closeAll() {
+    closeExplore();
+    closeProfile();
+    closeDrawerAndSearch();
+  }
 
   /* ── Explore dropdown ── */
   var exploreDD  = document.getElementById('oc-explore-dropdown');
@@ -652,31 +688,24 @@
   function openExploreMenu() {
     clearTimeout(exploreHideTimer);
     if (!exploreDD) return;
-    var menu = exploreDD.querySelector('.oc-navbar__dropdown-menu');
-    if (menu) showMenu(menu);
+    closeProfile();
+    closeDrawerAndSearch();
     exploreDD.classList.add('open');
     if (exploreBtn) exploreBtn.setAttribute('aria-expanded', 'true');
   }
 
   function scheduleCloseExplore() {
-    exploreHideTimer = setTimeout(function () { closeExplore(); }, 150);
+    exploreHideTimer = setTimeout(closeExplore, 150);
   }
 
   if (exploreDD) {
     var exploreMenu = exploreDD.querySelector('.oc-navbar__dropdown-menu');
     if (exploreMenu) {
-      hideMenu(exploreMenu);
-
-      /* Keep open while mouse is over the menu itself */
       exploreMenu.addEventListener('mouseenter', function () { clearTimeout(exploreHideTimer); });
       exploreMenu.addEventListener('mouseleave', scheduleCloseExplore);
     }
-
-    /* hover on the toggle/container */
     exploreDD.addEventListener('mouseenter', openExploreMenu);
     exploreDD.addEventListener('mouseleave', scheduleCloseExplore);
-
-    /* click toggle */
     if (exploreBtn) {
       exploreBtn.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -863,7 +892,7 @@
     _mo.observe(document.body, { childList: true, subtree: true });
   })();
 
-  /* ── Mobile accordions ── */
+  /* ── Mobile accordions — open only; reset on drawer close ── */
   [['oc-mobile-explore-toggle', 'oc-mobile-explore-panel'],
    ['oc-mobile-explore-toggle-guest', 'oc-mobile-explore-panel-guest']
   ].forEach(function(pair) {
@@ -871,8 +900,8 @@
     var panel  = document.getElementById(pair[1]);
     if (toggle && panel) {
       toggle.addEventListener('click', function () {
-        var isOpen = panel.classList.toggle('open');
-        toggle.classList.toggle('open', isOpen);
+        panel.classList.add('open');
+        toggle.classList.add('open');
       });
     }
   });
@@ -888,10 +917,16 @@
   var BP = 1280;
   function isSmall() { return window.innerWidth < BP; }
 
-  /* Tap the collapsed icon → open */
+  /* Tap the collapsed icon → open (close all other panels first) */
   form.addEventListener('click', function (e) {
     if (!isSmall() || form.classList.contains('oc-search--open')) return;
     e.preventDefault();
+    var profileDD = document.getElementById('oc-profile-dropdown');
+    if (profileDD) profileDD.classList.remove('open');
+    var exploreDD = document.getElementById('oc-explore-dropdown');
+    if (exploreDD) exploreDD.classList.remove('open');
+    var drawer = document.getElementById('oc-mobile-menu');
+    if (drawer) drawer.classList.remove('is-open');
     form.classList.add('oc-search--open');
     setTimeout(function () { input.focus(); }, 20);
   });

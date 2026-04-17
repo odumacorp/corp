@@ -65,39 +65,49 @@ class ZoomAPIError(Exception):
 
 # ── Meeting creation ──────────────────────────────────────────────────────
 
-def create_meeting(title, scheduled_at=None, duration_minutes=60, host_email=None):
+def create_meeting(title, scheduled_at=None, duration_minutes=60,
+                   host_email=None, alternative_host_emails=None):
     """
-    Create a Zoom meeting.
+    Create a Zoom meeting under `host_email` (defaults to the account's /me user).
 
-    Returns the full Zoom API response dict, which includes:
-      id          — numeric Zoom meeting ID
-      join_url    — URL for participants
-      start_url   — URL for the host (contains auth token, expires in ~90 days)
-      password    — meeting password
-      topic       — meeting title
+    `alternative_host_emails` — list of emails for users who get co-host / alternative-host
+    privileges and can start or manage the meeting. Requires each email to be a licensed
+    Zoom user on the same account; silently ignored by Zoom if the email is not found.
+
+    Returns the full Zoom API response dict:
+      id, join_url, start_url, password, topic
     """
+    settings = {
+        'host_video': True,
+        'participant_video': True,
+        'join_before_host': True,
+        'mute_upon_entry': False,
+        'auto_recording': 'cloud',
+        'waiting_room': False,
+        'approval_type': 2,          # no registration required
+        'audio': 'both',
+        'allow_multiple_devices': True,
+        'co_host': True,             # allow co-hosts to be assigned
+    }
+
+    if alternative_host_emails:
+        # Zoom expects a comma-separated string of emails
+        settings['alternative_hosts'] = ','.join(
+            e.strip() for e in alternative_host_emails if e and e.strip()
+        )
+        settings['alternative_hosts_email_notification'] = False
+
     payload = {
         'topic': title or 'Oduma Corp Meeting',
-        'type': 2 if scheduled_at else 1,   # 1 = instant, 2 = scheduled
+        'type': 2 if scheduled_at else 1,
         'duration': duration_minutes,
-        'settings': {
-            'host_video': True,
-            'participant_video': True,
-            'join_before_host': True,
-            'mute_upon_entry': False,
-            'auto_recording': 'cloud',          # cloud recording enabled
-            'waiting_room': False,
-            'approval_type': 2,                 # no registration required
-            'audio': 'both',
-            'allow_multiple_devices': True,
-        },
+        'settings': settings,
     }
 
     if scheduled_at:
         payload['start_time'] = scheduled_at.strftime('%Y-%m-%dT%H:%M:%S')
         payload['timezone'] = 'UTC'
 
-    # Use /users/me to create under the authenticated account's default user
     user_path = f'/users/{host_email}/meetings' if host_email else '/users/me/meetings'
     resp = requests.post(
         ZOOM_API + user_path,
