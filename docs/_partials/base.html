@@ -126,15 +126,36 @@
       border-radius: 20px; padding: 7px 14px;
       font-family: "Jaldi", sans-serif; font-size:1.2rem; font-weight: 700;
       cursor: pointer; box-shadow: 0 2px 12px rgba(0,74,173,0.15);
-      opacity: 1; transform: none;
-      transition: background 0.2s, color 0.2s;
+      opacity: 1; transform: translateX(0);
+      transition: background 0.2s, color 0.2s, transform 0.35s ease, opacity 0.35s ease;
       pointer-events: auto;
       margin-bottom: 10px;
     }
     .oc-feedback-btn:hover { background: var(--oc-primary, #004AAD); color: #fff; }
+    .oc-feedback-btn.oc-docked { transform: translateX(calc(100% + 24px)); opacity: 0; pointer-events: none; }
+    /* ── Dock toggle tab ── */
+    .oc-dock-tab {
+      position: fixed; right: -29px; bottom: 108px; z-index: 1600;
+      width: 2px; height: 46px;
+      background: linear-gradient(160deg, #2563eb, #1B5EC7); color: #fff;
+      /* font-size: 3rem; */
+      border: none; border-radius: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: start;
+      box-shadow: -2px 2px 8px rgba(27,94,199,0.35);
+      transition: right 0.2s ease, box-shadow 0.2s ease, transform 0.35s ease, opacity 0.35s ease;
+      padding: 15px;
+      opacity: 0.8;
+    }
+    .oc-dock-tab:hover { right: -20px; box-shadow: -3px 3px 14px rgba(27,94,199,0.5); opacity: 1; }
+    .oc-dock-tab.oc-tab-hidden { transform: translateX(120%); opacity: 0; pointer-events: none; }
+    .oc-dock-tab svg { transition: transform 0.35s ease; flex-shrink: 0; opacity: 1; size: 3px;}
+    @media (max-width: 900px) { .oc-dock-tab { bottom: calc(58px + 72px); } }
   </style>
   <button class="oc-feedback-btn" id="oc-feedback-btn" onclick="document.getElementById('oc-feedback-modal').classList.add('open')">
     Feedback
+  </button>
+  <button class="oc-dock-tab" id="oc-dock-tab" title="Toggle widgets" aria-label="Toggle widgets">
+    <svg id="oc-dock-arrow" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
   </button>
   <style>
   /* ── Feedback modal ─────────────────────────────── */
@@ -168,13 +189,13 @@
   }
   .oc-fb-sub { font-size: 1rem; color: #6b7280; margin: 1px 0 0; }
   .oc-fb-close {
-    width: 32px; height: 32px; border-radius: 50%; border: none;
-    background: #f3f4f6; color: #6b7280; cursor: pointer; flex-shrink: 0;
+    width: 32px; height: 32px; border-radius: 16px; border: none;
+    background: transparent; color: #6b7280; cursor: pointer; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
     transition: background .15s, color .15s;
     -webkit-appearance: none; appearance: none;
   }
-  .oc-fb-close:hover { background: #e5e7eb; color: #111; }
+  .oc-fb-close:hover { background: #e5e7eb; color: #111;  box-shadow: unset;}
   /* Body */
   .oc-fb-body { padding: 20px 22px 22px; }
   .oc-fb-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
@@ -268,7 +289,7 @@
   }
   </style>
 
-  <div id="oc-feedback-modal" class="oc-fb-modal-overlay">
+  <div id="oc-feedback-modal" class="oc-fb-modal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
     <div class="oc-fb-card">
 
       <!-- Header -->
@@ -480,6 +501,39 @@
         }, 2500);
       });
     }
+  })();
+  </script>
+  <script>
+  // Dock toggle: buttons visible → tab hidden; buttons hidden → tab peeks
+  (function() {
+    var tab   = document.getElementById('oc-dock-tab');
+    var arrow = document.getElementById('oc-dock-arrow');
+    if (!tab) return;
+    var hidden = false;
+    var timer  = null;
+
+    function apply(h) {
+      var fb  = document.getElementById('oc-feedback-btn');
+      var fab = document.getElementById('odu-fab');
+      if (fb)  fb.classList.toggle('oc-docked', h);
+      if (fab) fab.classList.toggle('oc-docked', h);
+      // Tab is opposite: visible when buttons are hidden, hidden when buttons show
+      tab.classList.toggle('oc-tab-hidden', !h);
+      if (arrow) arrow.style.transform = h ? 'rotate(180deg)' : '';
+      hidden = h;
+    }
+
+    function showAndScheduleHide() {
+      if (timer) clearTimeout(timer);
+      apply(false); // show buttons, hide tab
+      timer = setTimeout(function() { apply(true); }, 5000); // auto-hide after 5s
+    }
+
+    showAndScheduleHide(); // on page load
+
+    tab.addEventListener('click', function() {
+      showAndScheduleHide(); // click tab → show buttons for 5s, hide tab
+    });
   })();
   </script>
   <script>
@@ -940,6 +994,7 @@
       box-shadow 0.2s;
     }
     .odu-fab:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(0,74,173,0.45); }
+    .odu-fab.oc-docked { transform: translateX(calc(100% + 28px)); pointer-events: none; }
     .odu-panel {
       position: fixed; bottom: 88px; right: 24px; z-index: 1499;
       width: 340px; max-width: calc(100vw - 32px);
@@ -1047,13 +1102,24 @@
     var CHAT_URL = '{% url "odu_chat" %}';
     var CSRF     = '{{ csrf_token }}';
 
-    fab.addEventListener('click', function() {
-      panel.classList.toggle('open');
-      if (panel.classList.contains('open')) {
-        setTimeout(function() { input.focus(); }, 80);
+    function oduOpen() {
+      panel.classList.add('open');
+      setTimeout(function() { input.focus(); }, 80);
+    }
+    function oduClose() { panel.classList.remove('open'); }
+    window.oduOpen = oduOpen;
+    window.oduClose = oduClose;
+
+    fab.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (panel.classList.contains('open')) { oduClose(); } else { oduOpen(); }
+    });
+    close.addEventListener('click', function() { oduClose(); });
+    document.addEventListener('click', function(e) {
+      if (panel.classList.contains('open') && !panel.contains(e.target) && e.target !== fab && !fab.contains(e.target)) {
+        oduClose();
       }
     });
-    close.addEventListener('click', function() { panel.classList.remove('open'); });
 
     function fmtOdu(text) {
       // Convert simple markdown to safe HTML
@@ -1590,6 +1656,40 @@
     new MutationObserver(function (muts) {
       muts.forEach(function (m) { if (m.addedNodes.length) scanGhosts(); });
     }).observe(document.body, { childList: true, subtree: true });
+  }());
+  </script>
+
+  <script>
+  /* Global click-outside-to-close for all modal overlays */
+  document.addEventListener('click', function(e) {
+    var t = e.target;
+    if (t.nodeType !== 1) return;
+    var cs = window.getComputedStyle(t);
+    if (cs.position !== 'fixed') return;
+    var r = t.getBoundingClientRect();
+    var isFullscreen = r.width >= window.innerWidth - 4 && r.height >= window.innerHeight - 4;
+    if (!isFullscreen) return;
+    if (t.classList.contains('open')) {
+      t.classList.remove('open');
+    } else if (cs.display !== 'none') {
+      t.style.display = 'none';
+    }
+  });
+  </script>
+
+  <script>
+  /* Reset iOS viewport zoom after input blur */
+  (function() {
+    var mv = document.querySelector('meta[name="viewport"]');
+    if (!mv) return;
+    var orig = mv.getAttribute('content');
+    document.addEventListener('focusout', function(e) {
+      var tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+        mv.setAttribute('content', orig + ',maximum-scale=1.0');
+        setTimeout(function() { mv.setAttribute('content', orig); }, 150);
+      }
+    });
   }());
   </script>
 </body>

@@ -65,28 +65,36 @@
 
 /* ── Tabs ── */
 .nw-tabs {
-  display: flex; gap: 4px; background: var(--nw-card);
+  display: flex; gap: 2px; background: var(--nw-card);
   border: 1px solid var(--nw-border); border-radius: 12px;
-  padding: 4px; margin-bottom: 24px; overflow-x: auto;
+  padding: 4px; margin-bottom: 24px;
+  overflow-x: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
   box-shadow: 0 1px 6px rgba(0,0,0,.04);
 }
+.nw-tabs::-webkit-scrollbar { display: none; }
 .nw-tab {
-  display: flex; align-items: center; gap: 6px;
-  padding: 9px 18px; border-radius: 8px;
-  font-family: var(--ff-head); font-size: 1.2rem; font-weight: 700;
+  display: flex; align-items: center; gap: 5px;
+  padding: 8px 14px; border-radius: 8px;
+  font-family: var(--ff-head); font-size: 1.1rem; font-weight: 700;
   color: var(--nw-muted); border: none; background: none;
-  cursor: pointer; white-space: nowrap; transition: background .15s, color .15s;
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  transition: background .15s, color .15s;
 }
 .nw-tab:hover { background: var(--nw-bg); color: var(--nw-ink); }
 .nw-tab.active { background: var(--nw-blue); color: #fff; }
 .nw-tab-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px;
   background: rgba(255,255,255,.25); color: #fff;
-  font-size: 1.2rem; font-weight: 900;
-  padding: 1px 6px; border-radius: 10px;
+  font-size: 0.85rem; font-weight: 900; line-height: 1;
+  padding: 0 5px; border-radius: 9px;
   font-family: var(--ff-head);
 }
 .nw-tab:not(.active) .nw-tab-badge { background: #e0e8ff; color: var(--nw-blue); }
-.nw-tab.alert .nw-tab-badge { background: #dc2626; color: #fff; }
+.nw-tab.alert .nw-tab-badge { background: #dc2626; color: #fff;}
+.nw-tab.alert{ margin-bottom: 0;}
+
 
 /* ── Panel ── */
 .nw-panel { display: none; }

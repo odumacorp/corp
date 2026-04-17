@@ -35,6 +35,8 @@ if hasattr(sys.stderr, "reconfigure"):
 ##
 CSRF_TRUSTED_ORIGINS = [
     "https://corp-jmny.onrender.com",
+    "https://odumacorp.com",
+    "https://www.odumacorp.com",
     "http://127.0.0.1:8000",
     "http://localhost:8000",
     "http://127.0.0.1",

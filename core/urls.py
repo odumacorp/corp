@@ -149,6 +149,8 @@ urlpatterns = [
     path('hashtags/<slug:tag>/', views.hashtag_feed, name='hashtag_feed'),
 
     path('faq/', TemplateView.as_view(template_name='faq.html'), name='faq'),
+    path('test-404/', TemplateView.as_view(template_name='404.html'), name='test_404'),
+    path('test-500/', TemplateView.as_view(template_name='500.html'), name='test_500'),
     path('privacy/', TemplateView.as_view(template_name='privacy_policy.html'), name='privacy_policy'),
     path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     path('service-worker.js', views.service_worker, name='service_worker'),

@@ -277,6 +277,7 @@
         <a href="{% url 'services' %}"   class="oc-navbar__link">Services</a>
         <a href="{% url 'training_hub' %}"   class="oc-navbar__link">Training</a>
         <a href="{% url 'events_hub' %}"     class="oc-navbar__link">Events</a>
+        <a href="{% url 'subscription_plans' %}" class="oc-navbar__link">Pricing</a>
       {% endif %}
 
     </div>
@@ -481,6 +482,7 @@
         {% if unread_notification_count %}<span style="background:#DC2626;color:#fff;font-size: 1.2rem;padding:1px 6px;border-radius:99px;margin-left:4px;">{{ unread_notification_count }}</span>{% endif %}
       </a>
       <a href="{% url 'faq' %}"  class="oc-mobile-menu__link">FAQ</a>
+      <a href="{% url 'subscription_plans' %}" class="oc-mobile-menu__link">Pricing</a>
       <a href="{% url 'logout' %}" class="oc-mobile-menu__link" style="color:#F87171;">Log out</a>
 
       {% endwith %}

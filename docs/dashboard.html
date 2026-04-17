@@ -291,18 +291,23 @@
   .db-completion-bar {
     background: var(--card-bg); border-radius: 16px; padding: 20px 24px;
     box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 28px;
-    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    grid-template-rows: auto auto;
+    gap: 4px 20px;
+    align-items: center;
   }
   .db-completion-ring {
-    width: 64px; height: 64px; flex-shrink: 0; position: relative;
+    width: 64px; height: 64px; position: relative;
     display: flex; align-items: center; justify-content: center;
+    grid-row: 1 / 3;
   }
   .db-completion-ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
   .db-completion-pct { font-family: var(--ff-ui); font-size: 1.2rem; font-weight: 800; color: var(--ink); line-height: 1; }
-  .db-completion-info { flex: 1; min-width: 0; }
+  .db-completion-info { grid-column: 2; grid-row: 1; min-width: 0; }
   .db-completion-title { font-family: var(--ff-ui); font-size: 1.2rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
   .db-completion-sub { font-family: var(--ff-body); font-size: 1.2rem; color: var(--muted); }
-  .db-completion-track { flex: 2; min-width: 200px; }
+  .db-completion-track { grid-column: 2; grid-row: 2; min-width: 0; }
   .db-completion-bg { height: 8px; background: #e5e7eb; border-radius: 100px; overflow: hidden; }
   .db-completion-fill { height: 100%; border-radius: 100px; transition: width .6s cubic-bezier(.4,0,.2,1); }
   .db-completion-fill--low  { background: #ef4444; }
@@ -315,13 +320,10 @@
     background: var(--card-bg); border-radius: 14px; padding: 16px 18px;
     display: flex; align-items: flex-start; gap: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,.05);
-    border-left: 4px solid transparent;
+    border: 1px solid var(--border);
     text-decoration: none; transition: transform .18s, box-shadow .18s;
   }
   .db-action-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.1); text-decoration: none; }
-  .db-action-card--high   { border-left-color: var(--blue); }
-  .db-action-card--medium { border-left-color: #6366f1; }
-  .db-action-card--low    { border-left-color: #10b981; }
   .db-action-icon {
     width: 42px; height: 42px; border-radius: 11px;
     background: rgba(0,74,173,0.09); color: var(--blue);

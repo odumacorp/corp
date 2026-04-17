@@ -156,6 +156,50 @@
   }
   .mt-modal-body input::placeholder { color: #9ca3af; }
 
+  /* Duration chips */
+  .mt-duration-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mt-dur-chip {
+    padding: 6px 14px; border-radius: 20px; border: 1.5px solid #e4eaf2;
+    background: #f8faff; font-family: var(--ff-sans); font-size: 1.1rem;
+    font-weight: 700; color: #6b7280; cursor: pointer; transition: all .15s;
+  }
+  .mt-dur-chip.active, .mt-dur-chip:hover { border-color: #1B5EC7; background: #eff6ff; color: #1B5EC7; }
+
+  /* Invitee tags */
+  .mt-invite-box {
+    border: 1.5px solid #e4eaf2; border-radius: 10px; background: #f8faff;
+    padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+    min-height: 44px; cursor: text; transition: border-color .18s, box-shadow .18s;
+  }
+  .mt-invite-box:focus-within { border-color: #1B5EC7; background: #fff; box-shadow: 0 0 0 3px rgba(27,94,199,.1); }
+  .mt-invite-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #dbeafe; color: #1e40af; border-radius: 20px;
+    padding: 3px 10px; font-size: 1.1rem; font-weight: 700;
+    font-family: var(--ff-sans);
+  }
+  .mt-invite-tag button { background: none; border: none; cursor: pointer; color: #1e40af; font-size: 1rem; line-height: 1; padding: 0 0 0 2px; }
+  .mt-invite-search { border: none; outline: none; background: transparent; font-family: var(--ff-sans); font-size: 1.1rem; color: #0A1628; min-width: 120px; flex: 1; padding: 2px 4px; }
+  .mt-invite-dropdown {
+    position: absolute; left: 0; right: 0; top: calc(100% + 4px);
+    background: #fff; border: 1.5px solid #e4eaf2; border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(10,22,40,.1); z-index: 10;
+    max-height: 180px; overflow-y: auto;
+  }
+  .mt-invite-opt {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; cursor: pointer; transition: background .12s;
+    font-family: var(--ff-sans); font-size: 1.1rem; color: #0A1628;
+  }
+  .mt-invite-opt:hover { background: #f0f6ff; }
+  .mt-invite-opt-avatar {
+    width: 28px; height: 28px; border-radius: 50%; object-fit: cover;
+    background: linear-gradient(135deg,#1B5EC7,#0A1628);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 800; color: #fff; flex-shrink: 0;
+  }
+  .mt-invite-wrap { position: relative; }
+
   .mt-modal-footer { display: flex; gap: 10px; margin-top: 22px; }
   .mt-modal-submit {
     flex: 1; padding: 12px; border-radius: 11px; border: none;

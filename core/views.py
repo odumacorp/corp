@@ -3097,7 +3097,9 @@ def create_meeting(request):
     import secrets
     try:
         title        = request.POST.get('title', '').strip() or 'Oduma Corp Meeting'
-        other_id     = request.POST.get('other_user_id', '')
+        invitee_ids  = request.POST.getlist('invitee_ids')
+        duration     = int(request.POST.get('duration', 60) or 60)
+        agenda       = request.POST.get('agenda', '').strip()
         scheduled_at_str = request.POST.get('scheduled_at', '').strip()
         scheduled_at = None
         if scheduled_at_str:
@@ -3109,7 +3111,7 @@ def create_meeting(request):
         # Create in Zoom
         zoom_data = {}
         try:
-            zoom_data = zoom_create(title, scheduled_at=scheduled_at, duration_minutes=60)
+            zoom_data = zoom_create(title, scheduled_at=scheduled_at, duration_minutes=duration)
         except Exception:
             pass  # Zoom not configured; meeting created locally only
         # Generate unique room_id to satisfy the unique constraint
@@ -3126,10 +3128,9 @@ def create_meeting(request):
             zoom_password   = zoom_data.get('password', ''),
         )
         meeting.participants.add(request.user)
-        if other_id:
+        for uid in invitee_ids:
             try:
-                other = CustomUser.objects.get(pk=other_id)
-                meeting.participants.add(other)
+                meeting.participants.add(CustomUser.objects.get(pk=uid))
             except CustomUser.DoesNotExist:
                 pass
         from django.urls import reverse

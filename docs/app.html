@@ -485,11 +485,12 @@
   background: #fff;
   border: 1px solid #e4eaf2;
   border-radius: 14px;
+  position: relative;
   overflow: hidden;
   position: relative;
   box-shadow: 0 1px 4px rgba(10,22,40,.04);
   transition: box-shadow .2s, transform .2s;
-  margin-bottom: 10px;
+  margin-bottom: 24px;
 }
 .ap-feed-card:hover {
   box-shadow: 0 6px 24px rgba(27,94,199,.1);
@@ -745,15 +746,20 @@
 
 /* Options menu */
 .ap-options-trigger {
-  background: #f3f4f6; border: none; cursor: pointer;
-  font-size: 1.2rem; color: #9ca3af; padding: 5px 10px;
+  background: transparent; 
+  border: none; cursor: pointer;
+  font-size: 2rem; color: #9ca3af; padding: 5px 10px;
   border-radius: 7px; line-height: 1; transition: background .15s;
 }
-.ap-options-trigger:hover { background: #e5e7eb; color: #374151; }
+.ap-options-trigger:hover { 
+  /* background: #e5e7eb;  */
+  color: #374151;
+  box-shadow: unset;
+}
 .ap-options-menu {
   display: none;
   position: absolute;
-  right: 14px; top: 46px;
+  right: 0; top: calc(100% + 4px);
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
@@ -1305,23 +1311,6 @@
     {% for post in posts %}
     <article class="ap-feed-card">
 
-      <!-- Options menu (owner only) -->
-      {% if user == post.user %}
-      <div style="position:absolute;top:14px;right:14px;z-index:10;">
-        <button class="ap-options-trigger"
-                onclick="event.stopPropagation();var m=this.nextElementSibling;m.style.display=m.style.display==='block'?'none':'block'">⋯</button>
-        <div class="ap-options-menu">
-          <a href="{% url 'edit_post' post.pk %}">Edit Post</a>
-          <a href="{% url 'post_media' post.pk %}">Edit Photos</a>
-          <a href="{% url 'post_detail' post.pk %}">View Full</a>
-          <form method="POST" action="{% url 'delete_post' post.pk %}" onsubmit="return confirm('Delete this post?')">
-            {% csrf_token %}
-            <button type="submit" class="ap-options-danger">Delete Post</button>
-          </form>
-        </div>
-      </div>
-      {% endif %}
-
       <!-- Author row -->
       <div class="ap-card-author-row">
         <div class="ap-card-author">
@@ -1355,6 +1344,21 @@
             <span style="background:#f3f4f6;color:#374151;font-size: 1.2rem;font-weight:800;padding:3px 10px;border-radius:100px;">Article</span>
           {% endif %}
           {% if post.industry %}<span style="background:#e0e8f4;color:#1B5EC7;font-size: 1.2rem;font-weight:700;padding:3px 10px;border-radius:100px;">{{ post.industry }}</span>{% endif %}
+          {% if user == post.user %}
+          <div style="position:relative;flex-shrink:0;">
+            <button class="ap-options-trigger"
+                    onclick="event.stopPropagation();var m=this.nextElementSibling;m.style.display=m.style.display==='block'?'none':'block'">⋯</button>
+            <div class="ap-options-menu">
+              <a href="{% url 'edit_post' post.pk %}">Edit Post</a>
+              <a href="{% url 'post_media' post.pk %}">Edit Photos</a>
+              <a href="{% url 'post_detail' post.pk %}">View Full</a>
+              <form method="POST" action="{% url 'delete_post' post.pk %}" onsubmit="return confirm('Delete this post?')">
+                {% csrf_token %}
+                <button type="submit" class="ap-options-danger">Delete Post</button>
+              </form>
+            </div>
+          </div>
+          {% endif %}
         </div>
       </div>
 

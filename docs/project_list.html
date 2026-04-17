@@ -109,41 +109,51 @@
 
 /* ── Filter bar ───────────────────────────────────────────────── */
 .pl-filter-bar {
-  display: flex; flex-wrap: wrap; gap: 10px;
+  display: flex; flex-wrap: wrap; gap: 8px;
   align-items: center;
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 16px;
+  border-radius: 14px;
+  padding: 10px 14px;
   margin-bottom: 22px;
-  box-shadow: 0 1px 4px rgba(10,22,40,.04);
+  box-shadow: 0 1px 6px rgba(10,22,40,.05);
 }
 .pl-filter-group {
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center; gap: 7px;
+  background: #f6f8ff;
+  border: 1px solid rgba(0,74,173,.1);
+  border-radius: 20px;
+  padding: 5px 6px 5px 12px;
 }
 .pl-filter-label {
-  font-size: 1.2rem; font-weight: 700;
-  color: #6b7280; text-transform: uppercase; letter-spacing: .04em;
-  white-space: nowrap;
+  font-size: 1.1rem; font-weight: 700;
+  color: #6b7280; text-transform: uppercase; letter-spacing: .05em;
+  white-space: nowrap; flex-shrink: 0;
 }
 .pl-filter-select {
-  padding: 6px 10px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  font-size: 1.2rem; font-family: inherit; color: var(--ink);
-  background: #fafbff; outline: none; cursor: pointer;
-  transition: border-color .15s;
+  padding: 4px 28px 4px 8px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.15rem; font-family: inherit; color: var(--ink);
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 8px center;
+  -webkit-appearance: none; appearance: none;
+  outline: none; cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,.07);
+  transition: box-shadow .15s;
 }
-.pl-filter-select:focus { border-color: var(--blue); }
+.pl-filter-select:focus { box-shadow: 0 0 0 2px rgba(0,74,173,.15); }
 .pl-filter-sep {
-  width: 1px; height: 22px;
-  background: var(--border);
+  width: 1px; height: 20px;
+  background: rgba(0,0,0,.07);
   flex-shrink: 0;
 }
 .pl-result-count {
   margin-left: auto;
-  font-size: 1.2rem; color: #6b7280; font-weight: 600;
+  font-size: 1.1rem; color: #6b7280; font-weight: 600;
   white-space: nowrap;
+  background: #f3f4f6; border-radius: 20px;
+  padding: 4px 12px;
 }
 .pl-add-btn {
   padding: 8px 18px;
@@ -273,6 +283,20 @@
 .pl-empty-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--ink); margin: 0 0 6px; }
 .pl-empty-sub { font-size: 1.2rem; color: #6b7280; }
 
+/* ── Filter bar custom dropdowns ─────────────────────────────── */
+.pl-filter-group .oc-fb-dd-trigger {
+  width: auto; min-width: 90px;
+  padding: 4px 26px 4px 8px;
+  border: none; border-radius: 10px;
+  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  font-size: 1.15rem; font-weight: 600; color: var(--ink);
+  font-family: inherit;
+}
+.pl-filter-group .oc-fb-dd-trigger:hover { border-color: transparent; }
+.pl-filter-group .oc-fb-dd-trigger.open { box-shadow: 0 0 0 2px rgba(0,74,173,.18); }
+.pl-filter-group .oc-fb-dd-list { min-width: 140px; z-index: 200; }
+.pl-filter-group .oc-fb-dd-ic { display: none; }
+
 /* ── Pagination ───────────────────────────────────────────────── */
 .pl-pagination {
   display: flex; justify-content: center; align-items: center;
@@ -296,7 +320,8 @@
 
 @media (max-width: 640px) {
   .pl-grid { grid-template-columns: 1fr; }
-  .pl-filter-bar { flex-direction: column; align-items: flex-start; }
+  .pl-filter-bar { gap: 6px; }
+  .pl-filter-sep { display: none; }
   .pl-result-count { margin-left: 0; }
 }
 </style>
@@ -412,39 +437,63 @@
     {% if current_industry %}<input type="hidden" name="industry" value="{{ current_industry }}">{% endif %}
     <div class="pl-filter-bar">
 
+      <!-- Status -->
       <div class="pl-filter-group">
         <span class="pl-filter-label">Status</span>
-        <select name="status" class="pl-filter-select" onchange="document.getElementById('filter-form').submit()">
-          <option value="">All</option>
-          <option value="draft"       {% if current_status == 'draft'       %}selected{% endif %}>Draft</option>
-          <option value="in_progress" {% if current_status == 'in_progress' %}selected{% endif %}>In Progress</option>
-          <option value="completed"   {% if current_status == 'completed'   %}selected{% endif %}>Completed</option>
-        </select>
+        <div class="oc-fb-dd" id="plf-status">
+          <button type="button" class="oc-fb-dd-trigger" onclick="fbDdToggle('plf-status')">
+            <span class="oc-fb-dd-val" id="plf-status-val">{% if current_status == 'draft' %}Draft{% elif current_status == 'in_progress' %}In Progress{% elif current_status == 'completed' %}Completed{% else %}All{% endif %}</span>
+            <svg class="oc-fb-dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="oc-fb-dd-list" id="plf-status-list">
+            <div class="oc-fb-dd-opt {% if not current_status %}sel{% endif %}" onclick="plFilterPick('plf-status','','All',this)">All<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="oc-fb-dd-opt {% if current_status == 'draft' %}sel{% endif %}" onclick="plFilterPick('plf-status','draft','Draft',this)">Draft<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="oc-fb-dd-opt {% if current_status == 'in_progress' %}sel{% endif %}" onclick="plFilterPick('plf-status','in_progress','In Progress',this)">In Progress<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="oc-fb-dd-opt {% if current_status == 'completed' %}sel{% endif %}" onclick="plFilterPick('plf-status','completed','Completed',this)">Completed<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <input type="hidden" name="status" id="plf-status-hidden" value="{{ current_status }}">
+        </div>
       </div>
 
       <div class="pl-filter-sep"></div>
 
+      <!-- Stage -->
       <div class="pl-filter-group">
         <span class="pl-filter-label">Stage</span>
-        <select name="stage" class="pl-filter-select" onchange="document.getElementById('filter-form').submit()">
-          <option value="">All</option>
-          <option value="idea"       {% if current_stage == 'idea'       %}selected{% endif %}>Idea</option>
-          <option value="validation" {% if current_stage == 'validation' %}selected{% endif %}>Validation</option>
-          <option value="investment" {% if current_stage == 'investment' %}selected{% endif %}>Investment</option>
-          <option value="growth"     {% if current_stage == 'growth'     %}selected{% endif %}>Growth</option>
-        </select>
+        <div class="oc-fb-dd" id="plf-stage">
+          <button type="button" class="oc-fb-dd-trigger" onclick="fbDdToggle('plf-stage')">
+            <span class="oc-fb-dd-val" id="plf-stage-val">{% if current_stage == 'idea' %}Idea{% elif current_stage == 'validation' %}Validation{% elif current_stage == 'investment' %}Investment{% elif current_stage == 'growth' %}Growth{% else %}All{% endif %}</span>
+            <svg class="oc-fb-dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="oc-fb-dd-list" id="plf-stage-list">
+            <div class="oc-fb-dd-opt {% if not current_stage %}sel{% endif %}" onclick="plFilterPick('plf-stage','','All',this)">All<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="oc-fb-dd-opt {% if current_stage == 'idea' %}sel{% endif %}" onclick="plFilterPick('plf-stage','idea','Idea',this)">Idea<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="oc-fb-dd-opt {% if current_stage == 'validation' %}sel{% endif %}" onclick="plFilterPick('plf-stage','validation','Validation',this)">Validation<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="oc-fb-dd-opt {% if current_stage == 'investment' %}sel{% endif %}" onclick="plFilterPick('plf-stage','investment','Investment',this)">Investment<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="oc-fb-dd-opt {% if current_stage == 'growth' %}sel{% endif %}" onclick="plFilterPick('plf-stage','growth','Growth',this)">Growth<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <input type="hidden" name="stage" id="plf-stage-hidden" value="{{ current_stage }}">
+        </div>
       </div>
 
       <div class="pl-filter-sep"></div>
 
+      <!-- Sort -->
       <div class="pl-filter-group">
         <span class="pl-filter-label">Sort</span>
-        <select name="sort" class="pl-filter-select" onchange="document.getElementById('filter-form').submit()">
-          <option value="-created_at" {% if current_sort == '-created_at' %}selected{% endif %}>Newest</option>
-          <option value="created_at"  {% if current_sort == 'created_at'  %}selected{% endif %}>Oldest</option>
-          <option value="-rating"     {% if current_sort == '-rating'     %}selected{% endif %}>Top Rated</option>
-          <option value="-likes"      {% if current_sort == '-likes'      %}selected{% endif %}>Most Liked</option>
-        </select>
+        <div class="oc-fb-dd" id="plf-sort">
+          <button type="button" class="oc-fb-dd-trigger" onclick="fbDdToggle('plf-sort')">
+            <span class="oc-fb-dd-val" id="plf-sort-val">{% if current_sort == 'created_at' %}Oldest{% elif current_sort == '-rating' %}Top Rated{% elif current_sort == '-likes' %}Most Liked{% else %}Newest{% endif %}</span>
+            <svg class="oc-fb-dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="oc-fb-dd-list" id="plf-sort-list">
+            <div class="oc-fb-dd-opt {% if not current_sort or current_sort == '-created_at' %}sel{% endif %}" onclick="plFilterPick('plf-sort','-created_at','Newest',this)">Newest<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="oc-fb-dd-opt {% if current_sort == 'created_at' %}sel{% endif %}" onclick="plFilterPick('plf-sort','created_at','Oldest',this)">Oldest<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="oc-fb-dd-opt {% if current_sort == '-rating' %}sel{% endif %}" onclick="plFilterPick('plf-sort','-rating','Top Rated',this)">Top Rated<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="oc-fb-dd-opt {% if current_sort == '-likes' %}sel{% endif %}" onclick="plFilterPick('plf-sort','-likes','Most Liked',this)">Most Liked<svg class="oc-fb-chk" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <input type="hidden" name="sort" id="plf-sort-hidden" value="{{ current_sort|default:'-created_at' }}">
+        </div>
       </div>
 
       <span class="pl-result-count">{{ total_count }} project{{ total_count|pluralize }}</span>
@@ -549,4 +598,10 @@
 
 </div><!-- /pl-wrap -->
 </div><!-- /bg wrapper -->
+<script>
+function plFilterPick(ddId, val, label, el) {
+  if (typeof fbDdPick === 'function') fbDdPick(ddId, val, label, el);
+  document.getElementById('filter-form').submit();
+}
+</script>
 {% endblock %}

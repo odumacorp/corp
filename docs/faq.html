@@ -600,8 +600,8 @@
     <h3>Still have questions?</h3>
     <p>Our AI assistant Odu can answer platform questions instantly. Or reach out to the team directly.</p>
     <div class="faq-help-btns">
-      <button class="faq-help-btn faq-help-btn-primary" onclick="if(window.OcTour)OcTour.start()">
-        <i class="fi fi-rr-map fi-sm"></i> Take the Tour
+      <button class="faq-help-btn faq-help-btn-primary" onclick="event.stopPropagation();if(window.oduOpen)oduOpen()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Ask Odu
       </button>
       <a href="{% url 'index' %}#contact" class="faq-help-btn faq-help-btn-ghost">
         <i class="fi fi-rr-envelope fi-sm"></i> Contact Us

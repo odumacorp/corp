@@ -41,8 +41,9 @@
 .nf-badge[data-count="0"]{display:none;}
 
 /* Tabs */
-.nf-tabs{display:flex;gap:4px;background:#f0f4f8;border-radius:11px;padding:4px;margin-bottom:24px;}
-.nf-tab{flex:1;text-align:center;padding:8px 10px;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:700;color:#6b7280;cursor:pointer;border:none;background:transparent;transition:all .18s;position:relative;}
+.nf-tabs{display:flex;gap:4px;background:#f0f4f8;border-radius:11px;padding:4px;margin-bottom:24px;overflow-x:auto;scrollbar-width:none;}
+.nf-tabs::-webkit-scrollbar{display:none;}
+.nf-tab{flex:0 0 auto;white-space:nowrap;text-align:center;padding:8px 14px;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:700;color:#6b7280;cursor:pointer;border:none;background:transparent;transition:all .18s;position:relative;}
 .nf-tab.active{background:#fff;color:var(--navy);box-shadow:0 1px 6px rgba(10,22,40,0.1);}
 .nf-tab-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:#e0e8f4;color:#1B5EC7;border-radius:9px;font-size: 1.2rem;font-weight:800;margin-left:5px;vertical-align:middle;}
 .nf-tab.active .nf-tab-count{background:#1B5EC7;color:#fff;}
@@ -83,7 +84,7 @@
 
 @media(max-width:560px){
   .nf-page{padding:24px 16px 60px;}
-  .nf-tabs{flex-wrap:wrap;}
+
   .nf-item{padding:14px 14px;}
   .nf-icon{width:36px;height:36px;font-size: 1.2rem;}
 }

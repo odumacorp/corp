@@ -41,7 +41,10 @@
   display: grid; grid-template-columns: 220px 1fr;
   gap: 22px; align-items: start;
 }
-@media (max-width: 680px) { .ep-layout { grid-template-columns: 1fr; } }
+@media (max-width: 680px) {
+  .ep-layout { grid-template-columns: 1fr; }
+  .ep-sidebar { position: static !important; }
+}
 
 /* ── Sidebar card ── */
 .ep-sidebar {
@@ -278,6 +281,15 @@
               Choose avatar
             </button>
           </div>
+          {% if up.profile_pics %}
+          <form method="post" action="{% url 'remove_profile_photo' %}" style="padding:0 16px;margin-top:8px;" onsubmit="return confirm('Delete your profile photo?');">
+            {% csrf_token %}
+            <button type="submit" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:9px;border:1px solid #fecaca;background:#fff5f5;color:#ef4444;font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:background .15s;" onmouseenter="this.style.background='#fee2e2'" onmouseleave="this.style.background='#fff5f5'">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              Delete photo
+            </button>
+          </form>
+          {% endif %}
           <div id="ep-pic-picker" class="oc-picker-panel" style="display:none;margin-top:10px;"></div>
         </div>
 

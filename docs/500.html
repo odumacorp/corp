@@ -1,0 +1,166 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Error — Oduma Corp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Jaldi:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Jaldi', sans-serif;
+      background: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      color: #0A1628;
+      text-align: center;
+    }
+
+    .err-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 56px;
+    }
+    .err-brand-logo {
+      width: 28px; height: 28px;
+      background: #fef2f2;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .err-brand-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem; font-weight: 800; color: #6b7280;
+      letter-spacing: .02em;
+    }
+
+    .err-graphic {
+      position: relative;
+      width: 140px; height: 140px;
+      margin: 0 auto 40px;
+    }
+    .err-orbit {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      border: 1.5px dashed #fecaca;
+      animation: errSpin 16s linear infinite;
+    }
+    .err-orbit-dot {
+      position: absolute; top: -4px; left: 50%;
+      transform: translateX(-50%);
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #fca5a5;
+    }
+    .err-center {
+      position: absolute; inset: 18px;
+      background: #fff5f5;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .err-code {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.6rem; font-weight: 800;
+      color: #fca5a5; line-height: 1;
+    }
+
+    @keyframes errSpin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .err-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.6rem; font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 10px; line-height: 1.25;
+    }
+    .err-sub {
+      font-size: 1.1rem; color: #94a3b8;
+      line-height: 1.7; margin-bottom: 40px;
+      max-width: 360px; margin-left: auto; margin-right: auto;
+    }
+
+    .err-actions {
+      display: flex; gap: 10px;
+      justify-content: center; flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+    .err-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 22px; border-radius: 9px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .95rem; font-weight: 700;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: transform .18s, opacity .18s;
+    }
+    .err-btn:hover { transform: translateY(-2px); opacity: .85; }
+    .err-btn--primary { background: #fff5f5; color: #f87171; }
+    .err-btn--ghost   { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+
+    .err-links {
+      display: flex; gap: 24px;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .err-links a {
+      font-size: .95rem; color: #cbd5e1;
+      font-weight: 600; text-decoration: none;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: color .15s;
+    }
+    .err-links a:hover { color: #f87171; }
+
+    @media (max-width: 480px) {
+      .err-actions { flex-direction: column; align-items: center; }
+      .err-btn { width: 200px; justify-content: center; }
+      .err-title { font-size: 1.35rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="err-brand">
+    <div class="err-brand-logo">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    </div>
+    <span class="err-brand-name">Oduma Corp</span>
+  </div>
+
+  <div class="err-graphic">
+    <div class="err-orbit"><div class="err-orbit-dot"></div></div>
+    <div class="err-center"><span class="err-code">500</span></div>
+  </div>
+
+  <h1 class="err-title">Something went wrong</h1>
+  <p class="err-sub">Our servers hit an unexpected error.<br>The team has been notified — please try again shortly.</p>
+
+  <div class="err-actions">
+    <button onclick="location.reload()" class="err-btn err-btn--primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Try Again
+    </button>
+    <a href="/" class="err-btn err-btn--ghost">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Go Home
+    </a>
+  </div>
+
+  <div class="err-links">
+    <a href="/app/">Feed</a>
+    <a href="/networks/">Network</a>
+    <a href="/projects/">Projects</a>
+    <a href="/faq/">Help</a>
+  </div>
+
+</body>
+</html>

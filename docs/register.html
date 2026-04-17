@@ -160,7 +160,7 @@
 
 {% if already_logged_in %}
 <!-- Already-logged-in modal -->
-<div id="alm-overlay" style="
+<div id="alm-overlay" onclick="if(event.target===this)history.back()" style="
   position:fixed;inset:0;z-index:9999;
   background:rgba(10,22,40,.55);backdrop-filter:blur(4px);
   display:flex;align-items:center;justify-content:center;padding:20px;">
