@@ -208,6 +208,9 @@ urlpatterns = _html_redirects + [
     path('messages/<int:message_id>/', views.message_detail, name='message_detail'),
     path('messages/<int:message_id>/delete/', views.delete_message, name='delete_message'),
     path('messages/<int:message_id>/react/', views.toggle_message_reaction, name='toggle_message_reaction'),
+    path('chat/message/<int:message_id>/delete/', views.chat_delete_message, name='chat_delete_message'),
+    path('chat/message/<int:message_id>/edit/',   views.chat_edit_message,   name='chat_edit_message'),
+    path('chat/share-to-feed/',                   views.chat_share_to_feed,  name='chat_share_to_feed'),
 
     # Contact submissions (also registered above admin/ to take priority)
 
@@ -339,6 +342,7 @@ urlpatterns = _html_redirects + [
     path('posts/<int:post_id>/media/', views.post_media, name='post_media'),
     path('posts/<int:post_id>/interest/', views.toggle_post_interest, name='toggle_post_interest'),
     path('posts/<int:post_id>/like/', views.toggle_post_like, name='toggle_post_like'),
+    path('posts/<int:post_id>/react/', views.toggle_post_reaction, name='toggle_post_reaction'),
     path('posts/<int:post_id>/repost/', views.toggle_post_repost, name='toggle_post_repost'),
     path('posts/<int:post_id>/conversation/', views.start_post_conversation, name='start_post_conversation'),
     path('posts/<int:post_id>/comment/', views.add_comment, name='add_comment'),

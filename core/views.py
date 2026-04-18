@@ -612,6 +612,7 @@ def view_message_attachment(request, attachment_id):
     return render(request, 'attachment_viewer.html', {
         'att': att,
         'conversation': conversation,
+        'hide_navbar': True,
     })
 
 
@@ -1987,6 +1988,14 @@ def app_view(request):
         Pin.objects.filter(user=user, pin_type='project').values_list('project_id', flat=True)
     )
 
+    # User's reactions on feed posts (post_id → reaction type)
+    from .models import PostReaction
+    post_ids = [p.id for p in posts]
+    user_post_reactions = {
+        r.post_id: r.reaction
+        for r in PostReaction.objects.filter(post_id__in=post_ids, user=user)
+    }
+
     context = {
         'page_name': 'Home',
         'posts': posts,
@@ -2013,8 +2022,9 @@ def app_view(request):
         'featured_companies': featured_companies,
         'trending_discussions': trending_discussions,
         'trending_hashtags': _get_trending_hashtags(limit=10),
-        'pinned_post_ids':    pinned_post_ids,
-        'pinned_project_ids': pinned_project_ids,
+        'pinned_post_ids':      pinned_post_ids,
+        'pinned_project_ids':   pinned_project_ids,
+        'user_post_reactions':  user_post_reactions,
     }
     return render(request, 'app.html', context)
 
@@ -3502,6 +3512,65 @@ def edit_comment(request, comment_id):
         comment.save()
         messages.success(request, 'Comment updated.')
     return redirect(request.META.get('HTTP_REFERER', 'app'))
+
+# --- chat message edit / delete (AJAX, soft operations) ---
+@login_required
+def chat_share_to_feed(request):
+    """Share a chat message text as a new feed post."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    import json as _json
+    body = _json.loads(request.body)
+    content = body.get('content', '').strip()
+    post_type = body.get('post_type', 'update')
+    if not content:
+        return JsonResponse({'error': 'Content required'}, status=400)
+    from .models import Post
+    title = content.split('\n')[0][:120] or 'Shared'
+    post = Post.objects.create(
+        user=request.user,
+        title=title,
+        content=content,
+        post_type=post_type,
+        industry=getattr(getattr(request.user, 'userprofile', None), 'industry', None) or 'tech',
+    )
+    return JsonResponse({'ok': True, 'post_id': post.id})
+
+
+@login_required
+def chat_delete_message(request, message_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    msg = get_object_or_404(Message, pk=message_id)
+    if msg.sender != request.user:
+        return JsonResponse({'error': 'Not allowed'}, status=403)
+    msg.is_deleted = True
+    msg.content = ''
+    msg.save(update_fields=['is_deleted', 'content'])
+    return JsonResponse({'ok': True, 'message_id': msg.id})
+
+
+@login_required
+def chat_edit_message(request, message_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    msg = get_object_or_404(Message, pk=message_id)
+    if msg.sender != request.user:
+        return JsonResponse({'error': 'Not allowed'}, status=403)
+    if msg.is_deleted:
+        return JsonResponse({'error': 'Cannot edit deleted message'}, status=400)
+    import json as _json
+    body = _json.loads(request.body)
+    new_content = body.get('content', '').strip()
+    if not new_content:
+        return JsonResponse({'error': 'Content required'}, status=400)
+    from django.utils import timezone
+    msg.content = new_content
+    msg.is_edited = True
+    msg.edited_at = timezone.now()
+    msg.save(update_fields=['content', 'is_edited', 'edited_at'])
+    return JsonResponse({'ok': True, 'message_id': msg.id, 'content': msg.content})
+
 
 # --- messages ---
 @login_required
@@ -5261,6 +5330,50 @@ def toggle_post_like(request, post_id):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'liked': liked, 'count': post.likes.count()})
     return redirect(request.META.get('HTTP_REFERER', 'app'))
+
+
+@login_required
+def toggle_post_reaction(request, post_id):
+    import json
+    from django.http import JsonResponse
+    from .models import PostReaction, Notification
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    post = get_object_or_404(Post, pk=post_id)
+    try:
+        data = json.loads(request.body)
+        reaction_type = data.get('reaction', 'like').strip()
+    except Exception:
+        reaction_type = request.POST.get('reaction', 'like').strip()
+    valid = {c[0] for c in PostReaction.REACTION_CHOICES}
+    if reaction_type not in valid:
+        reaction_type = 'like'
+    existing = PostReaction.objects.filter(post=post, user=request.user).first()
+    if existing:
+        if existing.reaction == reaction_type:
+            existing.delete()
+            reacted = False
+            my_reaction = None
+        else:
+            existing.reaction = reaction_type
+            existing.save(update_fields=['reaction'])
+            reacted = True
+            my_reaction = reaction_type
+    else:
+        PostReaction.objects.create(post=post, user=request.user, reaction=reaction_type)
+        reacted = True
+        my_reaction = reaction_type
+        if request.user != post.user:
+            actor = request.user.get_full_name() or request.user.username
+            Notification.objects.create(
+                user=post.user,
+                notification_type='other',
+                message=f"{actor} reacted to your post \"{post.title[:60]}\"",
+                link=f"/posts/{post.pk}/",
+            )
+    total = post.reactions.count()
+    top = list(post.reactions.values_list('reaction', flat=True).order_by('reaction').distinct()[:3])
+    return JsonResponse({'reacted': reacted, 'my_reaction': my_reaction, 'total': total, 'top': top})
 
 @login_required
 def toggle_post_repost(request, post_id):

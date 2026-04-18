@@ -5,8 +5,9 @@
 
 {% block content %}
 <style>
+  body { padding-top: 0 !important; }
   .av-page {
-    min-height: calc(100vh - var(--nav-h, 130px));
+    min-height: 100vh;
     background: #0d0f14;
     display: flex;
     flex-direction: column;
@@ -16,254 +17,276 @@
   .av-bar {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
+    gap: 10px;
+    padding: 10px 16px;
     background: rgba(255,255,255,0.04);
     border-bottom: 1px solid rgba(255,255,255,0.08);
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
     position: sticky;
     top: 0;
     z-index: 10;
+    flex-shrink: 0;
   }
-  .av-bar-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.08);
-    color: #e2e8f0;
-    font-family: var(--ff-sans, sans-serif);
-    font-size: 1.15rem;
-    font-weight: 600;
+  .av-back {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #d1d5db;
     text-decoration: none;
-    border: none;
-    cursor: pointer;
-    transition: background .15s;
+    flex-shrink: 0;
+    transition: background .15s, color .15s;
   }
-  .av-bar-back:hover { background: rgba(255,255,255,0.14); color: #fff; }
+  .av-back:hover { background: rgba(255,255,255,0.14); color: #fff; }
 
   .av-bar-name {
     flex: 1;
-    font-family: var(--ff-sans, sans-serif);
-    font-size: 1.15rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.3rem;
     font-weight: 600;
     color: #e2e8f0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
+  }
+  .av-bar-sub {
+    font-size: 1.1rem;
+    color: #6b7280;
+    font-weight: 400;
   }
 
   .av-bar-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
-  }
-  .av-btn {
-    display: inline-flex;
-    align-items: center;
     gap: 6px;
-    padding: 7px 14px;
-    border-radius: 8px;
-    font-family: var(--ff-sans, sans-serif);
-    font-size: 1.15rem;
-    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .av-icon-btn {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #d1d5db;
     cursor: pointer;
-    border: none;
-    text-decoration: none;
     transition: background .15s, color .15s;
+    flex-shrink: 0;
   }
-  .av-btn--ghost {
-    background: rgba(255,255,255,0.08);
-    color: #e2e8f0;
-  }
-  .av-btn--ghost:hover { background: rgba(255,255,255,0.14); color: #fff; }
-  .av-btn--primary {
-    background: #004AAD;
+  .av-icon-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+  .av-dl-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 16px;
+    border-radius: 9px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    background: #1B5EC7;
     color: #fff;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background .15s;
+    flex-shrink: 0;
   }
-  .av-btn--primary:hover { background: #003490; }
+  .av-dl-btn:hover { background: #1451aa; }
 
-  /* ── Main content ── */
+  /* ── Main viewer area ── */
   .av-main {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 32px 20px;
-    position: relative;
+    padding: 28px 20px 36px;
   }
 
-  /* Image viewer */
+  /* Image */
+  .av-img-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    max-width: 100%;
+  }
   .av-img-wrap {
     position: relative;
-    max-width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 24px 72px rgba(0,0,0,0.7);
+    max-width: 90vw;
     max-height: calc(100vh - 200px);
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(255,255,255,0.03);
   }
   .av-img {
     max-width: 100%;
     max-height: calc(100vh - 200px);
-    border-radius: 10px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
     display: block;
-    transition: transform .2s;
+    transition: transform .2s ease;
     cursor: zoom-in;
+    transform-origin: center center;
   }
-  .av-img.zoomed {
-    cursor: zoom-out;
-    transform: scale(1.6);
-  }
+  .av-img.zoomed { cursor: zoom-out; }
 
   /* Zoom controls */
   .av-zoom-bar {
     display: flex;
     align-items: center;
-    gap: 8px;
-    position: absolute;
-    bottom: -44px;
-    left: 50%;
-    transform: translateX(-50%);
+    gap: 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50px;
+    padding: 4px 6px;
   }
   .av-zoom-btn {
-    width: 34px;
-    height: 34px;
+    width: 30px; height: 30px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: #e2e8f0;
-    font-size: 1.3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: #d1d5db;
+    display: flex; align-items: center; justify-content: center;
     cursor: pointer;
     transition: background .15s;
   }
-  .av-zoom-btn:hover { background: rgba(255,255,255,0.2); }
+  .av-zoom-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
   .av-zoom-label {
-    font-family: var(--ff-sans, sans-serif);
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 1.1rem;
     color: #9ca3af;
-    min-width: 44px;
+    min-width: 40px;
     text-align: center;
   }
+  .av-zoom-reset {
+    padding: 0 10px;
+    height: 30px;
+    border-radius: 50px;
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: color .15s;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .av-zoom-reset:hover { color: #d1d5db; }
 
   /* Video */
-  .av-video-wrap {
+  .av-video-stage {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 14px;
     width: 100%;
-    max-width: 900px;
+    max-width: 960px;
   }
   .av-video {
     width: 100%;
-    max-height: calc(100vh - 260px);
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    max-height: calc(100vh - 220px);
+    border-radius: 14px;
+    box-shadow: 0 24px 72px rgba(0,0,0,0.7);
     background: #000;
     display: block;
   }
-  .av-video-meta {
+  .av-vid-controls {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
     flex-wrap: wrap;
     justify-content: center;
   }
-  .av-video-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+  .av-vid-badge {
+    display: inline-flex; align-items: center; gap: 5px;
     padding: 5px 12px;
     border-radius: 20px;
-    background: rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.1);
-    font-family: var(--ff-sans, sans-serif);
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 1.1rem;
     color: #9ca3af;
   }
-  .av-video-badge svg { opacity: .7; }
+  .av-vid-ctl-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .av-vid-ctl-btn:hover { background: rgba(255,255,255,0.12); color: #e2e8f0; }
 
   /* Document */
   .av-doc-card {
-    background: rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    padding: 48px 40px;
+    border-radius: 20px;
+    padding: 52px 44px;
     text-align: center;
-    max-width: 400px;
+    max-width: 420px;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
   }
-  .av-doc-icon { font-size: 4rem; margin-bottom: 16px; }
+  .av-doc-icon-wrap {
+    width: 72px; height: 72px;
+    border-radius: 18px;
+    background: rgba(27,94,199,0.15);
+    border: 1px solid rgba(27,94,199,0.25);
+    display: flex; align-items: center; justify-content: center;
+    color: #4d8ef0;
+    margin-bottom: 20px;
+  }
   .av-doc-name {
-    font-family: var(--ff-sans, sans-serif);
-    font-size: 1.4rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
     font-weight: 700;
     color: #e2e8f0;
     word-break: break-all;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   .av-doc-meta {
-    font-family: var(--ff-sans, sans-serif);
     font-size: 1.1rem;
     color: #6b7280;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
   }
 
-  /* ── Footer info bar ── */
-  .av-info {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    padding: 12px 20px;
-    background: rgba(255,255,255,0.03);
-    border-top: 1px solid rgba(255,255,255,0.06);
-    flex-wrap: wrap;
-  }
-  .av-info-item {
-    font-family: var(--ff-sans, sans-serif);
-    font-size: 1.1rem;
-    color: #6b7280;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .av-info-item span { color: #9ca3af; }
 </style>
 
 <div class="av-page">
 
   <!-- Top bar -->
   <div class="av-bar">
-    <a href="{% url 'chat_page' conversation.pk %}" class="av-bar-back">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-      Back to chat
+    <a href="{% url 'chat_page' conversation.pk %}" class="av-back" title="Back to chat">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
     </a>
 
-    <div class="av-bar-name">{{ att.filename|default:att.file.name }}</div>
+    <div>
+      <div class="av-bar-name">{{ att.filename|default:att.file.name }}</div>
+      {% if att.file_size %}<div class="av-bar-sub">{{ att.file_size|filesizeformat }}</div>{% endif %}
+    </div>
 
     <div class="av-bar-actions">
       {% if att.attachment_type == 'image' %}
-      <button class="av-btn av-btn--ghost" onclick="avZoomReset()" title="Reset zoom">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/></svg>
-        Fit
-      </button>
-      <button class="av-btn av-btn--ghost" onclick="avFullscreen()" title="Fullscreen">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
-        Fullscreen
-      </button>
+        <button class="av-icon-btn" onclick="avZoomReset()" title="Reset zoom">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/></svg>
+        </button>
+        <button class="av-icon-btn" onclick="avFullscreen()" title="Fullscreen">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+        </button>
       {% elif att.attachment_type == 'video' %}
-      <button class="av-btn av-btn--ghost" onclick="avVidFullscreen()" title="Fullscreen">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
-        Fullscreen
-      </button>
+        <button class="av-icon-btn" onclick="avVidFullscreen()" title="Fullscreen">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+        </button>
       {% endif %}
-      <a href="{% url 'download_message_attachment' att.pk %}" class="av-btn av-btn--primary">
+      <a href="{% url 'download_message_attachment' att.pk %}" class="av-dl-btn">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
         Download
       </a>
@@ -274,62 +297,50 @@
   <div class="av-main">
 
     {% if att.attachment_type == 'image' %}
-      <div style="display:flex;flex-direction:column;align-items:center;gap:52px;">
+      <div class="av-img-stage">
         <div class="av-img-wrap" id="av-img-wrap">
           <img src="{{ att.file_url }}" alt="{{ att.filename }}" class="av-img" id="av-img"
                onclick="avToggleZoom()">
-          <div class="av-zoom-bar">
-            <button class="av-zoom-btn" onclick="avZoomOut()" title="Zoom out">−</button>
-            <span class="av-zoom-label" id="av-zoom-label">100%</span>
-            <button class="av-zoom-btn" onclick="avZoomIn()" title="Zoom in">+</button>
-          </div>
         </div>
-        <a href="{% url 'download_message_attachment' att.pk %}" class="av-btn av-btn--primary" style="font-size:1.2rem;padding:10px 28px;border-radius:10px;">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-          Download image
-        </a>
+        <div class="av-zoom-bar">
+          <button class="av-zoom-btn" onclick="avZoomOut()" title="Zoom out">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <span class="av-zoom-label" id="av-zoom-label">100%</span>
+          <button class="av-zoom-btn" onclick="avZoomIn()" title="Zoom in">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <button class="av-zoom-reset" onclick="avZoomReset()">Reset</button>
+        </div>
       </div>
 
     {% elif att.attachment_type == 'video' %}
-      <div class="av-video-wrap">
-        <video src="{{ att.file_url }}" class="av-video" controls autoplay id="av-video"
-               onplay="avVideoPlay()" onpause="avVideoPause()"></video>
-
-        <!-- Playback controls row -->
-        <div class="av-video-meta">
-          <div class="av-video-badge">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            Video
-          </div>
-          <div class="av-video-badge" id="av-vid-time">0:00 / 0:00</div>
-          <button class="av-video-badge" style="cursor:pointer;border:none;background:rgba(255,255,255,0.07);" onclick="avVidMute()" id="av-mute-btn" title="Toggle mute">
+      <div class="av-video-stage">
+        <video src="{{ att.file_url }}" class="av-video" controls autoplay id="av-video"></video>
+        <div class="av-vid-controls">
+          <div class="av-vid-badge" id="av-vid-time">0:00 / 0:00</div>
+          <button class="av-vid-ctl-btn" onclick="avVidMute()" id="av-mute-btn">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" id="av-mute-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
             Mute
           </button>
-          <button class="av-video-badge" style="cursor:pointer;border:none;background:rgba(255,255,255,0.07);" onclick="avVidFullscreen()" title="Fullscreen">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
-            Fullscreen
-          </button>
-          <a href="{% url 'download_message_attachment' att.pk %}" class="av-video-badge" style="text-decoration:none;color:#9ca3af;">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-            Download
-          </a>
         </div>
       </div>
 
     {% else %}
       {% with fname=att.filename|default:att.file.name %}
       <div class="av-doc-card">
-        <div class="av-doc-icon">
-          {% if fname|lower|slice:"-3:" == "pdf" %}📕
-          {% elif fname|lower|slice:"-3:" == "zip" or fname|lower|slice:"-3:" == "rar" %}🗜️
-          {% elif fname|lower|slice:"-3:" == "xls" or fname|lower|slice:"-4:" == "xlsx" %}📗
-          {% elif fname|lower|slice:"-3:" == "doc" or fname|lower|slice:"-4:" == "docx" %}📘
-          {% else %}📄{% endif %}
+        <div class="av-doc-icon-wrap">
+          {% if fname|lower|slice:"-3:" == "pdf" %}
+            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>
+          {% elif fname|lower|slice:"-3:" == "zip" or fname|lower|slice:"-3:" == "rar" %}
+            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+          {% else %}
+            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          {% endif %}
         </div>
         <div class="av-doc-name">{{ fname }}</div>
         <div class="av-doc-meta">This file cannot be previewed in the browser.</div>
-        <a href="{% url 'download_message_attachment' att.pk %}" class="av-btn av-btn--primary" style="display:inline-flex;margin:0 auto;">
+        <a href="{% url 'download_message_attachment' att.pk %}" class="av-dl-btn">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
           Download file
         </a>
@@ -339,82 +350,43 @@
 
   </div>
 
-  <!-- Bottom nav buttons -->
-  <div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:16px 20px;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);">
-    <a href="{% url 'chat_page' conversation.pk %}" class="av-btn av-btn--ghost" style="font-size:1.2rem;padding:10px 22px;">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-      Back to chat
-    </a>
-    <a href="{% url 'download_message_attachment' att.pk %}" class="av-btn av-btn--primary" style="font-size:1.2rem;padding:10px 22px;">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-      Download
-    </a>
-    <button onclick="history.back()" class="av-btn av-btn--ghost" style="font-size:1.2rem;padding:10px 22px;">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 14l-4-4 4-4M5 10h14"/></svg>
-      Go back
-    </button>
-  </div>
-
-  <!-- Footer info -->
-  <div class="av-info">
-    <div class="av-info-item">
-      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      <span>Sent by {{ att.message.sender.get_full_name|default:att.message.sender.username }}</span>
-    </div>
-    <div class="av-info-item">
-      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      <span>{{ att.message.timestamp|date:"M j, Y · g:i a" }}</span>
-    </div>
-    {% if att.file_size %}
-    <div class="av-info-item">
-      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      <span>{{ att.file_size|filesizeformat }}</span>
-    </div>
-    {% endif %}
-  </div>
 
 </div>
 
 <script>
 (function () {
   var scale = 1;
-  var img = document.getElementById('av-img');
+  var img   = document.getElementById('av-img');
   var label = document.getElementById('av-zoom-label');
 
   function setScale(s) {
     scale = Math.max(0.25, Math.min(4, s));
     if (img) {
       img.style.transform = 'scale(' + scale + ')';
-      img.style.transformOrigin = 'center center';
+      img.style.cursor = scale > 1 ? 'zoom-out' : 'zoom-in';
       label.textContent = Math.round(scale * 100) + '%';
     }
   }
 
-  window.avZoomIn  = function () { setScale(scale + 0.25); };
-  window.avZoomOut = function () { setScale(scale - 0.25); };
+  window.avZoomIn    = function () { setScale(scale + 0.25); };
+  window.avZoomOut   = function () { setScale(scale - 0.25); };
   window.avZoomReset = function () { setScale(1); };
-  window.avToggleZoom = function () { setScale(scale === 1 ? 2 : 1); };
+  window.avToggleZoom = function () { setScale(scale > 1 ? 1 : 2); };
 
-  /* Mouse-wheel zoom on image */
   if (img) {
     img.addEventListener('wheel', function (e) {
       e.preventDefault();
-      setScale(scale + (e.deltaY < 0 ? 0.1 : -0.1));
+      setScale(scale + (e.deltaY < 0 ? 0.12 : -0.12));
     }, { passive: false });
   }
 
-  /* Fullscreen */
   window.avFullscreen = function () {
-    var el = document.getElementById('av-img-wrap') || document.getElementById('av-img');
+    var el = document.getElementById('av-img-wrap');
     if (!el) return;
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    } else {
-      el.requestFullscreen && el.requestFullscreen();
-    }
+    document.fullscreenElement ? document.exitFullscreen() : el.requestFullscreen && el.requestFullscreen();
   };
 
-  /* ── Video helpers ── */
+  /* Video */
   var vid = document.getElementById('av-video');
   if (vid) {
     function fmtTime(s) {
@@ -430,40 +402,32 @@
     vid.addEventListener('loadedmetadata', updateTime);
   }
 
-  window.avVideoPlay  = function () {};
-  window.avVideoPause = function () {};
-
   window.avVidMute = function () {
     if (!vid) return;
     vid.muted = !vid.muted;
     var btn = document.getElementById('av-mute-btn');
-    if (btn) btn.childNodes[0] && (btn.childNodes[0].textContent = '');  // svg untouched
+    if (btn) btn.lastChild.textContent = vid.muted ? ' Unmute' : ' Mute';
     var icon = document.getElementById('av-mute-icon');
     if (icon) icon.style.opacity = vid.muted ? '0.35' : '1';
   };
 
   window.avVidFullscreen = function () {
     if (!vid) return;
-    if (document.fullscreenElement) document.exitFullscreen();
-    else vid.requestFullscreen && vid.requestFullscreen();
+    document.fullscreenElement ? document.exitFullscreen() : vid.requestFullscreen && vid.requestFullscreen();
   };
 
   /* Keyboard shortcuts */
   document.addEventListener('keydown', function (e) {
-    if (e.key === '+' || e.key === '=') { if (window.avZoomIn) avZoomIn(); }
-    if (e.key === '-') { if (window.avZoomOut) avZoomOut(); }
-    if (e.key === '0') { if (window.avZoomReset) avZoomReset(); }
-    if (e.key === 'f' || e.key === 'F') {
-      if (vid) avVidFullscreen(); else if (window.avFullscreen) avFullscreen();
-    }
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === '+' || e.key === '=') avZoomIn && avZoomIn();
+    if (e.key === '-') avZoomOut && avZoomOut();
+    if (e.key === '0') avZoomReset && avZoomReset();
+    if (e.key === 'f' || e.key === 'F') vid ? avVidFullscreen() : avFullscreen && avFullscreen();
     if (e.key === ' ' && vid) { e.preventDefault(); vid.paused ? vid.play() : vid.pause(); }
     if (e.key === 'ArrowRight' && vid) vid.currentTime = Math.min(vid.duration, vid.currentTime + 5);
     if (e.key === 'ArrowLeft'  && vid) vid.currentTime = Math.max(0, vid.currentTime - 5);
-    if (e.key === 'm' || e.key === 'M') { if (vid) avVidMute(); }
-    if (e.key === 'Escape') {
-      if (document.fullscreenElement) document.exitFullscreen();
-      else history.back();
-    }
+    if (e.key === 'm' || e.key === 'M') avVidMute && avVidMute();
+    if (e.key === 'Escape') document.fullscreenElement ? document.exitFullscreen() : history.back();
   });
 }());
 </script>

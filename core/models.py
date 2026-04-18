@@ -417,6 +417,27 @@ class Post(models.Model):
         return f"Post by {self.user.username} - {self.industry}"
 
 
+class PostReaction(models.Model):
+    REACTION_CHOICES = [
+        ('like',        'Like'),
+        ('celebrate',   'Celebrate'),
+        ('support',     'Support'),
+        ('love',        'Love'),
+        ('insightful',  'Insightful'),
+        ('funny',       'Funny'),
+    ]
+    post      = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='reactions')
+    user      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='post_reactions')
+    reaction  = models.CharField(max_length=20, choices=REACTION_CHOICES, default='like')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('post', 'user')
+
+    def __str__(self):
+        return f"{self.user.username} → {self.reaction} on post {self.post_id}"
+
+
 ##Notifications
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
@@ -628,6 +649,9 @@ class Message(models.Model):
     flag_reason    = models.TextField(blank=True, null=True)
     flagged_by     = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='admin_flagged_messages')
     is_hidden      = models.BooleanField(default=False)
+    is_deleted     = models.BooleanField(default=False)
+    is_edited      = models.BooleanField(default=False)
+    edited_at      = models.DateTimeField(null=True, blank=True)
     conversation   = models.ForeignKey(Conversation, null=True, blank=True, on_delete=models.CASCADE, related_name='messages')
 
     class Meta:

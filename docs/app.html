@@ -40,7 +40,7 @@
   background: #fff;
   border: 1px solid #e4eaf2;
   border-radius: 14px;
-  overflow: hidden;
+  overflow: visible;   /* allows reaction picker to escape card bounds */
   box-shadow: 0 1px 4px rgba(10,22,40,.04);
   margin-bottom: 20px;
 }
@@ -615,6 +615,85 @@
   display: inline-flex; align-items: center; gap: 4px;
   padding: 6px 10px; font-size: 1.2rem; color: #9ca3af; font-weight: 600;
 }
+/* ── Reaction picker ─────────────────────────────────────────── */
+.ap-rxn-wrap { position: relative; display: inline-flex; }
+.ap-rxn-picker {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 150%; transform: translateX(-50%) scale(0.8);
+  display: flex; gap: 5px; align-items: center;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #e4eaf2;
+  border-radius: 60px;
+  box-shadow: 0 10px 36px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.08);
+  z-index: 500;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s ease, transform .2s cubic-bezier(.34,1.56,.64,1);
+}
+.ap-rxn-picker.visible {
+  opacity: 1; pointer-events: auto;
+  transform: translateX(-50%) scale(1);
+}
+/* Each reaction button — perfect colored circle */
+.ap-rxn-pick-btn {
+  position: relative;
+  width: 38px; height: 38px;          /* equal → circle */
+  min-width: 38px;                     /* prevent emoji from stretching */
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer; padding: 0;
+  font-size: 1.55rem; line-height: 1;
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .15s;
+  flex-shrink: 0;
+}
+.ap-rxn-pick-btn:hover {
+  transform: scale(1.28) translateY(-5px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+}
+.ap-rxn-pick-btn.active {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgba(27,94,199,.4);
+}
+/* Hover label — CSS tooltip via ::after */
+.ap-rxn-pick-btn::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: #0A1628; color: #fff;
+  font-family: 'Space Grotesk', sans-serif; font-size: 1.0rem; font-weight: 700;
+  padding: 3px 8px; border-radius: 6px;
+  white-space: nowrap; pointer-events: none;
+  opacity: 0; transition: opacity .12s;
+  z-index: 1;
+}
+.ap-rxn-pick-btn:hover::after { opacity: 1; }
+/* Colored backgrounds — flaticon-inspired solid circles */
+.ap-rxn-pick-btn[data-rxn="like"]       { background: linear-gradient(145deg,#1a6fff,#5c9fff); }
+.ap-rxn-pick-btn[data-rxn="celebrate"]  { background: linear-gradient(145deg,#44b37b,#72d4a0); }
+.ap-rxn-pick-btn[data-rxn="support"]    { background: linear-gradient(145deg,#7b5cf0,#b39af8); }
+.ap-rxn-pick-btn[data-rxn="love"]       { background: linear-gradient(145deg,#e8405a,#f87b8a); }
+.ap-rxn-pick-btn[data-rxn="insightful"] { background: linear-gradient(145deg,#e0900a,#f5c33b); }
+.ap-rxn-pick-btn[data-rxn="funny"]      { background: linear-gradient(145deg,#1baac8,#48d0e8); }
+/* Active states on the main reaction bar button */
+.ap-rxn--like       { color: #1a6fff !important; background: #eef4ff !important; }
+.ap-rxn--celebrate  { color: #44b37b !important; background: #edfaf3 !important; }
+.ap-rxn--support    { color: #7b5cf0 !important; background: #f3f0ff !important; }
+.ap-rxn--love       { color: #e8405a !important; background: #fff0f2 !important; }
+.ap-rxn--insightful { color: #e0900a !important; background: #fff8ec !important; }
+.ap-rxn--funny      { color: #1baac8 !important; background: #ebfbff !important; }
+/* Responsive: shrink on small screens */
+@media (max-width: 480px) {
+  .ap-rxn-picker { gap: 4px; padding: 7px 10px; }
+  .ap-rxn-pick-btn { width: 32px; height: 32px; min-width: 32px; font-size: 1.3rem; }
+}
+/* Pop animation on react */
+@keyframes rxnPop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+.ap-rxn-pop { animation: rxnPop .32s cubic-bezier(.34,1.56,.64,1); }
+
 /* Inline star picker */
 .ap-inline-rate { position: relative; display: inline-flex; align-items: center; }
 .ap-star-picker {
@@ -1182,7 +1261,7 @@
     </div>
 
     <!-- Quick links -->
-    <div class="ap-card" style="overflow:hidden;">
+    <div class="ap-card">
       <a href="{% url 'networks' %}"  class="ap-quick-link"><span>My Network</span></a>
       <a href="{% url 'innovator_dashboard' %}" class="ap-quick-link"><span>Dashboard</span></a>
       <a href="{% url 'inbox' %}" class="ap-quick-link">
@@ -1200,7 +1279,7 @@
 
     <!-- Pending connection requests -->
     {% if pending_connections %}
-    <div class="ap-card" style="overflow:hidden;">
+    <div class="ap-card">
       <div class="ap-card-header">
         <span class="ap-card-title">Connection Requests</span>
         <span style="background:#dc2626;color:#fff;font-size: 1.2rem;font-weight:800;padding:2px 8px;border-radius:20px;">{{ pending_connections|length }}</span>
@@ -1377,37 +1456,47 @@
       {% endif %}
 
       <!-- Reaction bar -->
+      {% with my_rxn=user_post_reactions|get_item:post.id %}
       <div class="ap-reactions">
         {% if user.is_authenticated %}
-        <button class="ap-rxn-btn{% if user in post.likes.all %} ap-rxn-btn--on{% endif %}"
-                onclick="ocLikePost({{ post.id }}, this)">
-          👍 <span class="ap-rxn-lbl">{% if user in post.likes.all %}Liked{% else %}Like{% endif %}</span><span class="ap-rxn-cnt">{{ post.likes.count }}</span>
-        </button>
+        <div class="ap-rxn-wrap" id="rxn-wrap-{{ post.id }}"
+             onmouseenter="ocRxnShow({{ post.id }})" onmouseleave="ocRxnHide({{ post.id }})">
+          <div class="ap-rxn-picker" id="rxn-picker-{{ post.id }}">
+            <button class="ap-rxn-pick-btn{% if my_rxn == 'like' %} active{% endif %}" data-rxn="like" data-label="Like" onclick="ocReact({{ post.id }},'like',this)">👍</button>
+            <button class="ap-rxn-pick-btn{% if my_rxn == 'celebrate' %} active{% endif %}" data-rxn="celebrate" data-label="Celebrate" onclick="ocReact({{ post.id }},'celebrate',this)">👏</button>
+            <button class="ap-rxn-pick-btn{% if my_rxn == 'support' %} active{% endif %}" data-rxn="support" data-label="Support" onclick="ocReact({{ post.id }},'support',this)">🤝</button>
+            <button class="ap-rxn-pick-btn{% if my_rxn == 'love' %} active{% endif %}" data-rxn="love" data-label="Love" onclick="ocReact({{ post.id }},'love',this)">❤️</button>
+            <button class="ap-rxn-pick-btn{% if my_rxn == 'insightful' %} active{% endif %}" data-rxn="insightful" data-label="Insightful" onclick="ocReact({{ post.id }},'insightful',this)">💡</button>
+            <button class="ap-rxn-pick-btn{% if my_rxn == 'funny' %} active{% endif %}" data-rxn="funny" data-label="Funny" onclick="ocReact({{ post.id }},'funny',this)">😄</button>
+          </div>
+          <button class="ap-rxn-btn ap-rxn-main{% if my_rxn %} ap-rxn-btn--on ap-rxn--{{ my_rxn }}{% endif %}"
+                  id="rxn-btn-{{ post.id }}"
+                  data-post="{{ post.id }}"
+                  data-active="{{ my_rxn|default:'' }}"
+                  onclick="ocRxnClick({{ post.id }}, this)">
+            <span class="ap-rxn-ico" id="rxn-ico-{{ post.id }}">{% if my_rxn == 'like' %}👍{% elif my_rxn == 'celebrate' %}👏{% elif my_rxn == 'support' %}🤝{% elif my_rxn == 'love' %}❤️{% elif my_rxn == 'insightful' %}💡{% elif my_rxn == 'funny' %}😄{% else %}👍{% endif %}</span>
+            <span class="ap-rxn-lbl" id="rxn-lbl-{{ post.id }}">{% if my_rxn %}{{ my_rxn|capfirst }}{% else %}Like{% endif %}</span>
+            <span class="ap-rxn-cnt" id="rxn-cnt-{{ post.id }}">{{ post.reactions.count }}</span>
+          </button>
+        </div>
         {% else %}
-        <span class="ap-rxn-stat">👍 {{ post.likes.count }}</span>
+        <span class="ap-rxn-stat">👍 {{ post.reactions.count }}</span>
         {% endif %}
         <a href="{% url 'post_detail' post.id %}#comments" class="ap-rxn-btn">
-          💬 <span class="ap-rxn-lbl">Comment</span><span class="ap-rxn-cnt">{{ post.comments.count }}</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span class="ap-rxn-lbl">Comment</span><span class="ap-rxn-cnt">{{ post.comments.count }}</span>
         </a>
-        <span class="ap-rxn-stat">🔁 {{ post.reposts.count }}</span>
-        {% if user.is_authenticated %}
-        <button class="ap-rxn-btn" onclick="ocToggleReadLater('post', {{ post.id }}, this)">
-          🔖 <span class="ap-rxn-lbl">Save</span>
-        </button>
-        <button class="ap-rxn-btn {% if post.id in pinned_post_ids %}ap-rxn-btn--pinned{% endif %}"
-                title="{% if post.id in pinned_post_ids %}Unpin{% else %}Pin post{% endif %}"
-                onclick="ocTogglePin('post',{{ post.id }},this)">
-          📌 <span class="ap-rxn-lbl">{% if post.id in pinned_post_ids %}Pinned{% else %}Pin{% endif %}</span>
-        </button>
-        <button class="ap-rxn-btn" onclick="ocShare('{{ post.title|escapejs }}', window.location.origin+'/posts/{{ post.id }}/', 'post', {{ post.id }}, this)">
-          ↑ <span class="ap-rxn-lbl">Share</span>
+        <button class="ap-rxn-btn{% if user in post.reposts.all %} ap-rxn-btn--on{% endif %}"
+                onclick="ocRepost({{ post.id }}, this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          <span class="ap-rxn-lbl">Repost</span><span class="ap-rxn-cnt">{{ post.reposts.count }}</span>
         </button>
         <button class="ap-rxn-btn ap-rxn-btn--send" onclick="stcOpen('post', {{ post.id }}, '{{ post.title|default:post.content|truncatewords:6|escapejs }}')">
-          ↗ <span class="ap-rxn-lbl">Send</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <span class="ap-rxn-lbl">Send</span>
         </button>
-        {% endif %}
-        <a href="{% url 'post_detail' post.id %}" class="ap-rxn-btn ap-rxn-btn--view">Read More →</a>
       </div>
+      {% endwith %}
 
       <!-- Comments preview -->
       {% if post.comments.all %}
@@ -1818,7 +1907,7 @@
 
     <!-- Innovator: Proposals -->
     {% if user.user_type != 'investor' %}
-    <div class="ap-card" style="overflow:hidden;">
+    <div class="ap-card">
       <div class="ap-card-header">
         <span class="ap-card-title">Proposals</span>
         {% if proposals %}<span style="background:#dc2626;color:#fff;font-size: 1.2rem;font-weight:800;padding:2px 8px;border-radius:20px;">{{ proposals|length }}</span>{% endif %}
@@ -1853,7 +1942,7 @@
 
     <!-- Investor: Saved Projects -->
     {% if user.user_type == 'investor' %}
-    <div class="ap-card" style="overflow:hidden;">
+    <div class="ap-card">
       <div class="ap-card-header">
         <span class="ap-card-title">Saved Projects</span>
       </div>
@@ -1887,7 +1976,7 @@
     {% endif %}
 
     <!-- Activity stats -->
-    <div class="ap-card" style="overflow:hidden;">
+    <div class="ap-card">
       <div class="ap-card-header">
         <span class="ap-card-title">Your Activity</span>
       </div>
@@ -1898,7 +1987,7 @@
     </div>
 
     <!-- Oduma Corp Services quick links -->
-    <div class="ap-card" style="overflow:hidden;">
+    <div class="ap-card">
       <div class="ap-card-header">
         <span class="ap-card-title">Oduma Corp Services</span>
       </div>
@@ -2634,6 +2723,89 @@ document.addEventListener('click', function(e) {
       if (cnt && d.count !== undefined) cnt.textContent = d.count;
     })
     .catch(function(){});
+  };
+
+  // ── Reaction picker ───────────────────────────────────────────
+  var RXN_META = {
+    like:       { emoji: '👍', label: 'Like',       cls: 'ap-rxn--like' },
+    celebrate:  { emoji: '👏', label: 'Celebrate',  cls: 'ap-rxn--celebrate' },
+    support:    { emoji: '🤝', label: 'Support',    cls: 'ap-rxn--support' },
+    love:       { emoji: '❤️', label: 'Love',       cls: 'ap-rxn--love' },
+    insightful: { emoji: '💡', label: 'Insightful', cls: 'ap-rxn--insightful' },
+    funny:      { emoji: '😄', label: 'Funny',      cls: 'ap-rxn--funny' },
+  };
+  var _rxnTimers = {};
+
+  window.ocRxnShow = function(postId) {
+    clearTimeout(_rxnTimers[postId]);
+    var p = document.getElementById('rxn-picker-' + postId);
+    if (p) p.classList.add('visible');
+  };
+  window.ocRxnHide = function(postId) {
+    _rxnTimers[postId] = setTimeout(function() {
+      var p = document.getElementById('rxn-picker-' + postId);
+      if (p) p.classList.remove('visible');
+    }, 280);
+  };
+  window.ocRxnClick = function(postId, btn) {
+    var active = btn.dataset.active;
+    ocReact(postId, active || 'like', null);
+  };
+  window.ocReact = function(postId, rxnType, pickBtn) {
+    var btn  = document.getElementById('rxn-btn-' + postId);
+    var ico  = document.getElementById('rxn-ico-' + postId);
+    var lbl  = document.getElementById('rxn-lbl-' + postId);
+    var cnt  = document.getElementById('rxn-cnt-' + postId);
+    // Close picker
+    var picker = document.getElementById('rxn-picker-' + postId);
+    if (picker) picker.classList.remove('visible');
+    fetch('/posts/' + postId + '/react/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrf(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reaction: rxnType })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      // Update pick button active state
+      if (picker) {
+        picker.querySelectorAll('.ap-rxn-pick-btn').forEach(function(pb) {
+          pb.classList.toggle('active', pb.dataset.rxn === d.my_reaction);
+        });
+      }
+      // Remove all rxn colour classes
+      Object.values(RXN_META).forEach(function(m) { if (btn) btn.classList.remove(m.cls); });
+      if (d.reacted && d.my_reaction) {
+        var meta = RXN_META[d.my_reaction] || RXN_META.like;
+        if (btn) { btn.classList.add('ap-rxn-btn--on', meta.cls); btn.dataset.active = d.my_reaction; }
+        if (ico)  ico.textContent = meta.emoji;
+        if (lbl)  lbl.textContent = meta.label;
+        // Pop animation
+        if (ico) { ico.classList.remove('ap-rxn-pop'); void ico.offsetWidth; ico.classList.add('ap-rxn-pop'); }
+      } else {
+        if (btn) { btn.classList.remove('ap-rxn-btn--on'); btn.dataset.active = ''; }
+        if (ico)  ico.textContent = '👍';
+        if (lbl)  lbl.textContent = 'Like';
+      }
+      if (cnt)  cnt.textContent = d.total;
+    })
+    .catch(function() {});
+  };
+
+  // Repost (AJAX)
+  window.ocRepost = function(postId, btn) {
+    fetch('/posts/' + postId + '/repost/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrf(), 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      btn.classList.toggle('ap-rxn-btn--on', d.reposted);
+      var lbl = btn.querySelector('.ap-rxn-lbl');
+      if (lbl) lbl.textContent = d.reposted ? 'Reposted' : 'Repost';
+      var cnt = btn.querySelector('.ap-rxn-cnt');
+      if (cnt && d.count !== undefined) cnt.textContent = d.count;
+    })
+    .catch(function() {});
   };
 
   // Like a project (AJAX)

@@ -64,6 +64,14 @@ def create_user_profile(sender, instance, created, **kwargs):
                         "  3. Save projects and track your pipeline on your dashboard\n"
                         "  4. Request pitch meetings and review active collaborations"
                     )
+                elif role == 'admin':
+                    role_tips = (
+                        "As an Admin, here is what you have access to:\n"
+                        "  1. Manage users, projects, posts, and platform content\n"
+                        "  2. Review flagged messages and reported content\n"
+                        "  3. Monitor analytics and platform activity\n"
+                        "  4. Access the admin panel at /admin-panel/"
+                    )
                 else:
                     role_tips = (
                         "You can explore the platform, connect with innovators and investors,\n"
@@ -88,6 +96,32 @@ def create_user_profile(sender, instance, created, **kwargs):
                         f"──────────────────────\n"
                         f"{role_tips}\n\n"
                         f"Type /help at any time to see everything I can assist you with.\n"
+                        f"— Odu, Platform Assistant"
+                    ),
+                )
+
+                first_name = instance.first_name or full_name.split()[0] if full_name else 'there'
+                Message.objects.create(
+                    sender=odu,
+                    recipient=instance,
+                    conversation=conv,
+                    content=(
+                        f"One more thing, {first_name}.\n\n"
+                        f"You've taken the first step by joining Oduma Corp.\n"
+                        f"Now take the second — bring in someone you trust.\n\n"
+                        f"Someone who:\n"
+                        f"  • Challenges your thinking\n"
+                        f"  • Adds real value\n"
+                        f"  • Sees opportunities where others don't\n\n"
+                        f"Ideas grow faster in the right environment.\n"
+                        f"And the right environment starts with the right people.\n\n"
+                        f"──────────────────────\n"
+                        f"Share Oduma Corp\n"
+                        f"──────────────────────\n"
+                        f"  → Visit odumacorp.com\n"
+                        f"  → Build together on odumacorp.com\n"
+                        f"  → Grow your reach through odumacorp.com\n\n"
+                        f"Forward this to one person today. That's all it takes.\n"
                         f"— Odu, Platform Assistant"
                     ),
                 )
