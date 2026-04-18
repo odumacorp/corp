@@ -177,3 +177,42 @@ The app is configured as a Progressive Web App:
 ### Deployment
 
 Deployed on **Render** (`connect-ihni.onrender.com`). Production uses PostgreSQL via `DATABASE_URL`; local dev defaults to SQLite.
+
+## UI / Design System
+
+### Brand tokens (defined in `core/static/css/design-system.css`)
+- Primary blue: `#1B5EC7` (CSS var `--oc-blue`)
+- Ink/dark: `#0A1628`
+- Light blue bg: `#e0e8f4` (`--oc-blue-lt`)
+- Border: `#e4eaf2`
+- Font: `Space Grotesk` (headings/UI), system sans-serif (body)
+- Navbar height token: `--oc-navbar-h: 62px` — controls both the navbar height and `body padding-top`. Must be updated if navbar height changes.
+
+### Navbar (`docs/_partials/navbar.html`)
+- Fixed position, `z-index: 100`
+- Search bar collapses to icon at `<1280px`; hidden entirely at `<640px`
+- Profile name/caret hidden at `<640px`
+- Hamburger always visible; uses `e.stopPropagation()` to prevent document listener closing it
+- Document click listener: only skips `.oc-mobile-menu` — do NOT add `.oc-navbar` to the guard
+- Bottom nav (frosted glass, 6 icons) replaces footer on all screen sizes
+
+### Mobile drawer (authenticated)
+- Explore sub-links (Innovators, Investors, Businesses) are **always visible** — not behind an accordion
+- Guest users have an accordion for the explore section
+
+### Custom dropdowns
+- Replace all native `<select>` in filter bars with `pm-dd` (dashboards) or `cl-dd` (companies) components
+- Each option uses `data-val=""` attribute; match with `o.dataset.val === val` (never `includes()`)
+
+### File inputs
+- Native `<input type="file">` wrapped in `.pf-file-wrap` pattern: hidden real input + styled visible overlay
+- JS updates the filename label on change
+
+### Spacing conventions
+- Page wrapper: `padding: 16px 20px 44px`
+- Hero sections: `padding: 22px`
+- Empty states: `padding: 28px 22px`
+- Stats/card cells: `padding: 10–12px`
+
+### After editing `core/static/css/design-system.css`
+Always run `python manage.py collectstatic` — whitenoise serves from `staticfiles/` not the source directory.
