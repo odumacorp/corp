@@ -4,228 +4,393 @@
 
 {% block content %}
 <style>
-  .auth-wrap {
-    min-height: calc(100vh - var(--oc-navbar-h));
-    display: flex; align-items: center; justify-content: center;
-    padding: 40px 16px; background: #F4F6FA;
-  }
-  .auth-card {
-    background: #fff;
-    border: 1px solid rgba(0,0,0,0.07);
-    border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
-    padding: 36px 32px; width: 100%; max-width: 460px;
-  }
-  .auth-card h2 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.9rem; font-weight: 800; color: #0A0C12; margin-bottom: 4px;
-    letter-spacing: -0.025em;
-  }
-  .auth-card .subtitle { font-size: 1.2rem; color: #7084A0; margin-bottom: 24px; }
-  .auth-field { margin-bottom: 14px; }
-  .auth-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .auth-field label {
-    display: block; font-size: 1.2rem; font-weight: 600; color: #3D4A5C;
-    margin-bottom: 6px; letter-spacing: 0.01em;
-  }
-  .auth-field input, .auth-field select {
-    width: 100%; padding: 10px 14px; border: 1.5px solid rgba(0,0,0,0.12);
-    border-radius: 6px; font-size: 1.2rem; font-family: inherit;
-    box-sizing: border-box; transition: border-color .18s, box-shadow .18s; outline: none; background: #fff;
-    color: #0A0C12;
-  }
-  .auth-field input:focus, .auth-field select:focus {
-    border-color: #0057FF;
-    box-shadow: 0 0 0 3px rgba(0,87,255,0.10);
-  }
-  .pw-wrap { position: relative; }
-  .pw-wrap input { padding-right: 52px; }
-  .pw-toggle {
-    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-    background: none; border: none; cursor: pointer; font-size: 1.2rem;
-    color: #7084A0; padding: 0; font-weight: 600;
-  }
-  /* field errors use global .oc-field-err from design-system */
-  .field-error { display: none; } /* legacy — replaced by oc-field-err */
-  .auth-submit {
-    width: 100%; padding: 11px; font-size: 1.2rem; font-weight: 700;
-    background: #0057FF; color: #fff; border: none;
-    border-radius: 6px; cursor: pointer; transition: background .18s, box-shadow .18s; margin-top: 8px;
-    letter-spacing: 0.01em;
-  }
-  .auth-submit:hover { background: #0041CC; box-shadow: 0 4px 16px rgba(0,87,255,0.3); }
-  .auth-error { font-size: 1.2rem; margin-bottom: 16px; } /* inherits oc-form-banner--error */
-  .auth-footer { text-align: center; margin-top: 24px; font-size: 1.2rem; color: var(--oc-text-muted); }
-  .auth-footer a { color: var(--oc-primary); font-weight: 600; text-decoration: none; }
-  .role-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-  .role-card {
-    border: 2px solid var(--oc-border); border-radius: 10px; padding: 14px 12px;
-    text-align: center; cursor: pointer; transition: border-color .15s, background .15s;
-    position: relative;
-  }
-  .role-card input[type=radio] { position: absolute; opacity: 0; }
-  .role-card .role-icon { margin-bottom: 6px; display:flex; align-items:center; justify-content:center; }
-  .role-card .role-name { font-size: 1.2rem; font-weight: 700; color: var(--oc-text-primary); }
-  .role-card .role-desc { font-size: 1.2rem; color: var(--oc-text-muted); margin-top: 2px; }
-  .role-card { border-radius: 8px !important; }
-  .role-card.selected { border-color: #0057FF; background: #EAF0FF; }
-  @media (max-width: 480px) { .auth-row { grid-template-columns: 1fr; } .role-picker { grid-template-columns: 1fr 1fr; } }
+.oc-bottom-nav { display: none !important; }
+.oc-footer { display: none !important; }
+
+/* ── Full-page shell ──────────────────────────────────────── */
+.auth-page {
+  min-height: calc(100vh - var(--oc-navbar-h, 62px));
+  background: linear-gradient(145deg, #020d1f 0%, #071a3e 50%, #0c2260 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 16px 44px;
+  position: relative;
+  overflow: hidden;
+}
+.auth-page::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(27,94,199,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,94,199,.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+.auth-page::after {
+  content: '';
+  position: absolute;
+  top: -200px; left: 50%; transform: translateX(-50%);
+  width: 700px; height: 700px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(27,94,199,.18) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+/* ── Brand ────────────────────────────────────────────────── */
+.auth-brand {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; margin-bottom: 22px;
+}
+.auth-brand img { width: 36px; height: 36px; border-radius: 9px; }
+.auth-brand span {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.4rem; font-weight: 700; color: #fff; letter-spacing: -.02em;
+}
+
+/* ── Card ─────────────────────────────────────────────────── */
+.auth-card {
+  position: relative; z-index: 2;
+  background: #fff;
+  border-radius: 22px;
+  width: 100%; max-width: 480px;
+  padding: 36px 36px 32px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.06);
+}
+
+.auth-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.0rem; font-weight: 800;
+  color: #0A1628; letter-spacing: -.03em;
+  margin: 0 0 4px;
+}
+.auth-card-sub { font-size: 1.2rem; color: #6b7280; margin: 0 0 24px; }
+
+.auth-error-banner {
+  background: #fef2f2; border: 1px solid #fecaca;
+  color: #dc2626; border-radius: 10px;
+  padding: 10px 14px; font-size: 1.15rem;
+  margin-bottom: 18px;
+}
+
+/* Fields */
+.af { margin-bottom: 14px; }
+.af-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.af label {
+  display: block; font-size: 1.15rem; font-weight: 600;
+  color: #374151; margin-bottom: 5px;
+}
+.af-wrap {
+  position: relative;
+}
+.af-wrap .af-ico {
+  position: absolute; left: 13px;
+  top: 0; margin-top: 15px;
+  height: 18px; width: 18px;
+  display: flex; align-items: center; justify-content: center;
+  color: #9ca3af; pointer-events: none; z-index: 1;
+}
+.af-wrap input {
+  display: block; width: 100%; box-sizing: border-box;
+  padding: 10px 42px 10px 40px;
+  border: 1.5px solid #e0e6f0; border-radius: 10px;
+  font-size: 1.2rem; font-family: inherit; line-height: 1.4;
+  color: #0A1628; background: #f9fafb;
+  outline: none; transition: border-color .18s, box-shadow .18s, background .18s;
+}
+.af-wrap input:focus {
+  border-color: #1B5EC7; background: #fff;
+  box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+}
+.af-eye {
+  position: absolute; right: 10px;
+  top: 0; margin-top: 10px;
+  height: 28px; width: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; cursor: pointer; padding: 0;
+  color: #9ca3af; transition: color .15s; z-index: 1;
+}
+.af-eye:hover { color: #1B5EC7; }
+
+/* Role picker */
+.role-section-label {
+  font-size: 1.15rem; font-weight: 600; color: #374151; margin-bottom: 8px;
+}
+.role-picker {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin-bottom: 18px;
+}
+.role-card {
+  border: 2px solid #e0e6f0; border-radius: 12px;
+  padding: 14px 12px; text-align: center;
+  cursor: pointer; transition: border-color .15s, background .15s, box-shadow .15s;
+  position: relative;
+}
+.role-card input[type=radio] { position: absolute; opacity: 0; width: 0; height: 0; }
+.role-card-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: #f0f4fd; color: #1B5EC7;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+  transition: background .15s;
+}
+.role-card-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.15rem; font-weight: 800; color: #0A1628;
+}
+.role-card-desc { font-size: 1.05rem; color: #6b7280; margin-top: 2px; }
+.role-card.selected {
+  border-color: #1B5EC7; background: #f0f5ff;
+  box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+}
+.role-card.selected .role-card-icon { background: #1B5EC7; color: #fff; }
+.role-card.selected .role-card-name { color: #1B5EC7; }
+
+/* Submit */
+.auth-btn {
+  width: 100%; padding: 13px; border: none; border-radius: 10px;
+  background: #1B5EC7; color: #fff;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.2rem; font-weight: 700; letter-spacing: -.01em;
+  cursor: pointer; margin-top: 4px;
+  transition: background .18s, box-shadow .18s, transform .12s;
+}
+.auth-btn:hover {
+  background: #1448a3;
+  box-shadow: 0 6px 22px rgba(27,94,199,.38);
+  transform: translateY(-1px);
+}
+.auth-btn:active { transform: none; }
+
+.auth-terms {
+  font-size: 1.05rem; color: #9ca3af; text-align: center;
+  margin-top: 12px; line-height: 1.5;
+}
+.auth-terms a { color: #1B5EC7; text-decoration: none; }
+
+.auth-foot {
+  text-align: center; margin-top: 18px;
+  font-size: 1.2rem; color: #6b7280;
+}
+.auth-foot a { color: #1B5EC7; font-weight: 700; text-decoration: none; }
+.auth-foot a:hover { color: #1448a3; }
+
+/* ── Trust strip ──────────────────────────────────────────── */
+.auth-trust {
+  position: relative; z-index: 2;
+  display: flex; gap: 32px; margin-top: 24px;
+  flex-wrap: wrap; justify-content: center;
+}
+.auth-trust-item {
+  display: flex; flex-direction: column; align-items: center;
+}
+.auth-trust-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.6rem; font-weight: 800; color: #fff;
+  letter-spacing: -.04em; line-height: 1;
+}
+.auth-trust-label {
+  font-size: 1.0rem; font-weight: 600;
+  color: rgba(255,255,255,.35); text-transform: uppercase;
+  letter-spacing: .1em; margin-top: 2px;
+}
+.auth-trust-sep {
+  width: 1px; background: rgba(255,255,255,.1); align-self: stretch; margin: 4px 0;
+}
+
+@media (max-width: 520px) {
+  .auth-card { padding: 28px 18px 24px; }
+  .af-row { grid-template-columns: 1fr; gap: 0; }
+  .auth-trust { gap: 20px; }
+}
 </style>
 
-<div class="auth-wrap">
+<div class="auth-page">
+
+  <!-- Brand -->
+  <a href="/" class="auth-brand">
+    <img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="Oduma Corp">
+    <span>Oduma Corp</span>
+  </a>
+
+  <!-- Card -->
   <div class="auth-card">
-    <h2>Create your account</h2>
-    <p class="subtitle">Join Africa's boldest innovation platform — free to start.</p>
+    <h2 class="auth-card-title">Create your account</h2>
+    <p class="auth-card-sub">Join Africa's boldest innovation platform — free to start.</p>
 
     {% if form.non_field_errors %}
-      <div class="oc-form-banner oc-form-banner--error auth-error">{{ form.non_field_errors }}</div>
+      <div class="auth-error-banner">{{ form.non_field_errors }}</div>
     {% endif %}
 
-    <form method="POST" id="reg-form">
+    <form method="POST" id="reg-form" novalidate>
       {% csrf_token %}
 
-      <div class="auth-row">
-        <div class="auth-field">
+      <!-- Name row -->
+      <div class="af-row">
+        <div class="af">
           <label>First Name</label>
-          {{ form.first_name }}
+          <div class="af-wrap">
+            <span class="af-ico"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            {{ form.first_name }}
+          </div>
           {% if form.first_name.errors %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ form.first_name.errors.as_text|cut:"* " }}</span></span>{% endif %}
         </div>
-        <div class="auth-field">
+        <div class="af">
           <label>Last Name</label>
-          {{ form.last_name }}
+          <div class="af-wrap">
+            <span class="af-ico"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            {{ form.last_name }}
+          </div>
           {% if form.last_name.errors %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ form.last_name.errors.as_text|cut:"* " }}</span></span>{% endif %}
         </div>
       </div>
 
-      <div class="auth-field">
+      <div class="af">
         <label>Email Address</label>
-        {{ form.email }}
+        <div class="af-wrap">
+          <span class="af-ico"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+          {{ form.email }}
+        </div>
         {% if form.email.errors %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ form.email.errors.as_text|cut:"* " }}</span></span>{% endif %}
       </div>
 
-      <div class="auth-field">
+      <div class="af">
         <label>Phone Number</label>
-        {{ form.phone_number }}
+        <div class="af-wrap">
+          <span class="af-ico"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.35 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+          {{ form.phone_number }}
+        </div>
         {% if form.phone_number.errors %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ form.phone_number.errors.as_text|cut:"* " }}</span></span>{% endif %}
       </div>
 
-      <div class="auth-field">
+      <div class="af">
         <label>Password</label>
-        <div class="pw-wrap">
+        <div class="af-wrap">
+          <span class="af-ico"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
           {{ form.password1 }}
-          <button type="button" class="pw-toggle" onclick="togglePw('id_password1', this)">Show</button>
+          <button type="button" class="af-eye" onclick="togglePw(this)">
+            <svg class="eye-show" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-hide" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
         </div>
         {% if form.password1.errors %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ form.password1.errors.as_text|cut:"* " }}</span></span>{% endif %}
       </div>
 
-      <div class="auth-field">
+      <div class="af">
         <label>Confirm Password</label>
-        <div class="pw-wrap">
+        <div class="af-wrap">
+          <span class="af-ico"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
           {{ form.password2 }}
-          <button type="button" class="pw-toggle" onclick="togglePw('id_password2', this)">Show</button>
+          <button type="button" class="af-eye" onclick="togglePw(this)">
+            <svg class="eye-show" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-hide" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
         </div>
         {% if form.password2.errors %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ form.password2.errors.as_text|cut:"* " }}</span></span>{% endif %}
       </div>
 
-      <!-- Account type as visual role picker -->
-      <div class="auth-field">
-        <label>I am joining as…</label>
-        <div class="role-picker" id="role-picker">
-          <label class="role-card {% if form.user_type.value == 'innovator' %}selected{% endif %}" id="role-innovator">
-            <input type="radio" name="user_type" value="innovator"
-              {% if form.user_type.value == 'innovator' or not form.user_type.value %}checked{% endif %}>
-            <div class="role-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg></div>
-            <div class="role-name">Innovator</div>
-            <div class="role-desc">I have ideas & projects</div>
-          </label>
-          <label class="role-card {% if form.user_type.value == 'investor' %}selected{% endif %}" id="role-investor">
-            <input type="radio" name="user_type" value="investor"
-              {% if form.user_type.value == 'investor' %}checked{% endif %}>
-            <div class="role-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-            <div class="role-name">Investor</div>
-            <div class="role-desc">I fund great ideas</div>
-          </label>
-        </div>
-        {% if form.user_type.errors %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ form.user_type.errors.as_text|cut:"* " }}</span></span>{% endif %}
+      <!-- Role picker -->
+      <div class="role-section-label">I am joining as…</div>
+      <div class="role-picker" id="role-picker">
+        <label class="role-card {% if form.user_type.value == 'innovator' or not form.user_type.value %}selected{% endif %}">
+          <input type="radio" name="user_type" value="innovator"
+            {% if form.user_type.value == 'innovator' or not form.user_type.value %}checked{% endif %}>
+          <div class="role-card-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+          </div>
+          <div class="role-card-name">Innovator</div>
+          <div class="role-card-desc">I have ideas &amp; projects</div>
+        </label>
+        <label class="role-card {% if form.user_type.value == 'investor' %}selected{% endif %}">
+          <input type="radio" name="user_type" value="investor"
+            {% if form.user_type.value == 'investor' %}checked{% endif %}>
+          <div class="role-card-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="role-card-name">Investor</div>
+          <div class="role-card-desc">I fund great ideas</div>
+        </label>
       </div>
+      {% if form.user_type.errors %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ form.user_type.errors.as_text|cut:"* " }}</span></span>{% endif %}
 
-      <button type="submit" class="auth-submit">Create Account</button>
+      <button type="submit" class="auth-btn">Create Free Account</button>
+
+      <p class="auth-terms">
+        By signing up you agree to our
+        <a href="/terms/">Terms of Service</a> and <a href="/privacy/">Privacy Policy</a>.
+      </p>
     </form>
 
-    <p class="auth-footer">
-      Already have an account? <a href="{% url 'login' %}">Log in →</a>
+    <p class="auth-foot">
+      Already have an account? <a href="{% url 'login' %}">Sign in →</a>
     </p>
   </div>
+
+  <!-- Trust strip -->
+  <div class="auth-trust">
+    <div class="auth-trust-item">
+      <span class="auth-trust-num">500+</span>
+      <span class="auth-trust-label">Innovators</span>
+    </div>
+    <div class="auth-trust-sep"></div>
+    <div class="auth-trust-item">
+      <span class="auth-trust-num">89</span>
+      <span class="auth-trust-label">Investors</span>
+    </div>
+    <div class="auth-trust-sep"></div>
+    <div class="auth-trust-item">
+      <span class="auth-trust-num">Free</span>
+      <span class="auth-trust-label">To join</span>
+    </div>
+    <div class="auth-trust-sep"></div>
+    <div class="auth-trust-item">
+      <span class="auth-trust-num">12+</span>
+      <span class="auth-trust-label">Markets</span>
+    </div>
+  </div>
+
 </div>
 
 {% if already_logged_in %}
-<!-- Already-logged-in modal -->
-<div id="alm-overlay" onclick="if(event.target===this)history.back()" style="
-  position:fixed;inset:0;z-index:9999;
-  background:rgba(10,22,40,.55);backdrop-filter:blur(4px);
-  display:flex;align-items:center;justify-content:center;padding:20px;">
-  <div style="
-    background:#fff;border-radius:20px;padding:40px 36px;
-    max-width:420px;width:100%;text-align:center;
-    box-shadow:0 24px 60px rgba(0,0,0,.18);
-    animation:almIn .28s cubic-bezier(.34,1.56,.64,1);">
-    <div style="
-      width:68px;height:68px;border-radius:18px;margin:0 auto 18px;
-      background:linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
-      display:flex;align-items:center;justify-content:center;
-      box-shadow:0 6px 20px rgba(27,94,199,.3);color:#fff;">
+<div id="alm-overlay" onclick="if(event.target===this)history.back()" style="position:fixed;inset:0;z-index:9999;background:rgba(10,22,40,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:20px;padding:40px 36px;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.18);animation:almIn .28s cubic-bezier(.34,1.56,.64,1);">
+    <div style="width:68px;height:68px;border-radius:18px;margin:0 auto 18px;background:linear-gradient(135deg,#EBF2FF,#dce8f8);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(27,94,199,.3);color:#1B5EC7;">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
-    <h2 style="font-family:'Space Grotesk',sans-serif;font-size: 1.8rem;font-weight:800;color:#0A1628;margin:0 0 8px;">
-      You're already a member!
-    </h2>
-    <p style="font-family:'Jaldi',sans-serif;font-size: 1.2rem;color:#6b7280;margin:0 0 24px;line-height:1.5;">
-      You're currently logged in as <strong style="color:#0A1628;">{{ request.user.get_full_name|default:request.user.username }}</strong>.
-      Head back to the app or log out if you want to switch accounts.
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:800;color:#0A1628;margin:0 0 8px;">You're already a member!</h2>
+    <p style="font-size:1.2rem;color:#6b7280;margin:0 0 24px;line-height:1.5;">
+      Logged in as <strong style="color:#0A1628;">{{ request.user.get_full_name|default:request.user.username }}</strong>. Head back to the app or log out to switch accounts.
     </p>
     <div style="display:flex;flex-direction:column;gap:10px;">
-      <a href="{% url 'app' %}"
-         style="display:block;background:linear-gradient(135deg,#1B5EC7,#0A1628);color:#fff;
-                padding:13px 24px;border-radius:12px;font-family:'Space Grotesk',sans-serif;
-                font-weight:700;font-size: 1.2rem;text-decoration:none;
-                transition:opacity .18s;">
-        Go to My Feed →
-      </a>
-      <a href="{% url 'dashboard' %}"
-         style="display:block;background:#f3f6fb;color:#0A1628;
-                padding:12px 24px;border-radius:12px;font-family:'Jaldi',sans-serif;
-                font-weight:700;font-size: 1.2rem;text-decoration:none;border:1.5px solid #e5e7eb;">
-        Open Dashboard
-      </a>
-      <a href="{% url 'logout' %}"
-         style="display:block;color:#dc2626;font-family:'Jaldi',sans-serif;
-                font-size: 1.2rem;font-weight:700;text-decoration:none;
-                padding:8px;margin-top:2px;">
-        Log out &amp; create new account
-      </a>
+      <a href="{% url 'app' %}" style="display:block;background:#1B5EC7;color:#fff;padding:13px 24px;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.2rem;text-decoration:none;">Go to My Feed →</a>
+      <a href="{% url 'dashboard' %}" style="display:block;background:#f3f6fb;color:#0A1628;padding:12px 24px;border-radius:12px;font-weight:700;font-size:1.2rem;text-decoration:none;border:1.5px solid #e5e7eb;">Open Dashboard</a>
+      <a href="{% url 'logout' %}" style="display:block;color:#dc2626;font-size:1.2rem;font-weight:700;text-decoration:none;padding:8px;margin-top:2px;">Log out &amp; create new account</a>
     </div>
   </div>
 </div>
 <style>
-@keyframes almIn {
-  from { opacity:0; transform:scale(.88) translateY(18px); }
-  to   { opacity:1; transform:scale(1)   translateY(0);     }
-}
+@keyframes almIn { from { opacity:0; transform:scale(.88) translateY(18px); } to { opacity:1; transform:scale(1) translateY(0); } }
 </style>
 {% endif %}
 
 <script>
-function togglePw(id, btn) {
-  var f = document.getElementById(id);
-  if (f) { f.type = f.type === 'password' ? 'text' : 'password'; btn.textContent = f.type === 'password' ? 'Show' : 'Hide'; }
+function togglePw(btn) {
+  var inp = btn.closest('.af-wrap').querySelector('input');
+  var show = btn.querySelector('.eye-show');
+  var hide = btn.querySelector('.eye-hide');
+  if (inp.type === 'password') {
+    inp.type = 'text'; show.style.display = 'none'; hide.style.display = '';
+  } else {
+    inp.type = 'password'; show.style.display = ''; hide.style.display = 'none';
+  }
 }
-// Style all inputs
-document.querySelectorAll('.auth-field input:not([type=radio]), .auth-field select').forEach(function(el) {
-  el.style.cssText = 'width:100%;padding:10px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:6px;font-size: 1.2rem;box-sizing:border-box;outline:none;font-family:inherit;background:#fff;color:#0A0C12;';
-  el.addEventListener('focus', function(){ this.style.borderColor='#0057FF'; this.style.boxShadow='0 0 0 3px rgba(0,87,255,0.10)'; });
-  el.addEventListener('blur',  function(){ this.style.borderColor='rgba(0,0,0,0.12)'; this.style.boxShadow='none'; });
+// Style Django-rendered inputs
+document.querySelectorAll('.af-wrap input:not([type=radio])').forEach(function(el) {
+  el.addEventListener('focus', function(){ this.style.borderColor='#1B5EC7'; this.style.background='#fff'; this.style.boxShadow='0 0 0 3px rgba(27,94,199,.10)'; });
+  el.addEventListener('blur',  function(){ this.style.borderColor='#e0e6f0'; this.style.background='#f9fafb'; this.style.boxShadow='none'; });
 });
-// Role picker visual toggle
+// Role picker
 document.querySelectorAll('#role-picker input[type=radio]').forEach(function(radio) {
   radio.addEventListener('change', function() {
     document.querySelectorAll('#role-picker .role-card').forEach(function(c){ c.classList.remove('selected'); });
