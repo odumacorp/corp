@@ -204,6 +204,21 @@
   .af-row { grid-template-columns: 1fr; gap: 0; }
   .auth-trust { gap: 20px; }
 }
+
+.auth-mini-footer {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; flex-wrap: wrap; justify-content: center;
+  gap: 6px 10px; margin-top: 20px;
+}
+.auth-mini-footer a {
+  font-size: 1.15rem; color: rgba(255,255,255,.45);
+  text-decoration: none; transition: color .15s;
+}
+.auth-mini-footer a:hover { color: rgba(255,255,255,.75); }
+.auth-mini-footer__dot {
+  width: 3px; height: 3px; border-radius: 50%;
+  background: rgba(255,255,255,.25); flex-shrink: 0;
+}
 </style>
 
 <div class="auth-page">
@@ -349,6 +364,18 @@
       <span class="auth-trust-label">Markets</span>
     </div>
   </div>
+
+  <nav class="auth-mini-footer">
+    <a href="/about/">About</a>
+    <span class="auth-mini-footer__dot"></span>
+    <a href="/privacy/">Privacy</a>
+    <span class="auth-mini-footer__dot"></span>
+    <a href="/terms/">Terms</a>
+    <span class="auth-mini-footer__dot"></span>
+    <a href="/contact/">Contact</a>
+    <span class="auth-mini-footer__dot"></span>
+    <a href="/faq/">FAQ</a>
+  </nav>
 
 </div>
 
