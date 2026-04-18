@@ -19,9 +19,15 @@
   <meta name="keywords" content="{% block meta_keywords %}innovation, investment, Africa, startups, projects, oduma connect{% endblock %}">
   <meta property="og:title" content="{% block og_title %}Oduma Corp{% endblock %}">
   <meta property="og:description" content="{% block og_description %}Connecting Africa's boldest innovators with investors.{% endblock %}">
-  <meta property="og:image" content="{% block og_image %} link rel='icon' type='image/x-icon' href='/favicon.ico' {% endblock %}">
+  <meta property="og:image" content="{% block og_image %}{% static 'images/OdumaCorp-icon.png' %}{% endblock %}">
   <meta property="og:type" content="website">
   {% endblock %}
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/OdumaCorp-icon-small.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/OdumaCorp-icon-small.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'images/OdumaCorp-icon.png' %}">
+  <link rel="shortcut icon" href="{% static 'images/OdumaCorp-icon-small.png' %}">
 
  
 
@@ -97,7 +103,15 @@
     var backdrop   = document.getElementById('oc-mobile-backdrop');
 
     /* ── close helpers (safe to call even if element missing) ── */
-    function closeDrawer()  { mobileMenu && mobileMenu.classList.remove('is-open'); }
+    function closeDrawer() {
+      if (!mobileMenu) return;
+      mobileMenu.classList.remove('is-open');
+      /* reset guest-only accordion; authenticated explore stays permanently open */
+      var guestToggle = document.getElementById('oc-mobile-explore-toggle-guest');
+      var guestPanel  = document.getElementById('oc-mobile-explore-panel-guest');
+      if (guestToggle) guestToggle.classList.remove('open');
+      if (guestPanel)  guestPanel.classList.remove('open');
+    }
     function closeExplorePanel() {
       var dd = document.getElementById('oc-explore-dropdown');
       if (!dd) return;

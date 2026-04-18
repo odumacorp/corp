@@ -20,7 +20,7 @@
 }
 
 /* ── Layout ── */
-.nw-shell { max-width: 1100px; margin: 0 auto; padding: 0 16px 80px; }
+.nw-shell { max-width: 1100px; margin: 0 auto; padding: 0 16px 44px; }
 
 /* ── Hero ── */
 .nw-hero {
@@ -293,8 +293,15 @@
 @media (max-width: 720px) { .nw-two { grid-template-columns: 1fr; } }
 
 @media (max-width: 600px) {
-  .nw-hero { flex-wrap: wrap; padding: 20px; }
-  .nw-hero-actions { width: 100%; }
+  .nw-hero { flex-wrap: wrap; padding: 14px 16px; gap: 12px; margin-bottom: 14px; }
+  .nw-hero-av, .nw-hero-av-init { width: 52px; height: 52px; font-size: 1.6rem; }
+  .nw-hero-name { font-size: 1.5rem; }
+  .nw-hero-sub { margin: 0 0 8px; }
+  .nw-stats { gap: 12px; }
+  .nw-stat-num { font-size: 1.5rem; }
+  .nw-stat-label { font-size: 1.0rem; }
+  .nw-hero-actions { width: 100%; gap: 6px; }
+  .nw-hero-btn { font-size: 1.1rem; padding: 6px 12px; }
   .nw-conn-bio { display: none; }
   .nw-sugg-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
 }

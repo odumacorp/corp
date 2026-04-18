@@ -17,12 +17,13 @@
 </button>
 <div style="max-width:1100px;margin:40px auto;padding:0 24px;">
 
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
-    <div>
-      <h1 style="font-family:'Space Grotesk',sans-serif;font-size: 2.2rem;font-weight:800;color:#0a1628;margin:0 0 4px;">Verification Queue</h1>
-      <p style="color:#6b7280;font-size: 1.2rem;margin:0;">Review user identity and credibility verification requests.</p>
-    </div>
-    <a href="{% url 'admin_panel' %}" style="font-size: 1.2rem;color:#1B5EC7;text-decoration:none;">← Back to Admin Panel</a>
+  <div style="margin-bottom:28px;">
+    <a href="{% url 'admin_panel' %}" style="display:inline-flex;align-items:center;gap:5px;font-size:1.15rem;color:#1B5EC7;text-decoration:none;font-weight:600;margin-bottom:10px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Admin Panel
+    </a>
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:2.2rem;font-weight:800;color:#0a1628;margin:0 0 4px;">Verification Queue</h1>
+    <p style="color:#6b7280;font-size:1.2rem;margin:0;">Review user identity and credibility verification requests.</p>
   </div>
 
   <!-- Pending -->

@@ -24,14 +24,14 @@
   --radius: 14px;
 }
 
-.iv-wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 80px; }
+.iv-wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 48px; }
 
 /* ── Hero ───────────────────────────────────────────────────────── */
 .iv-hero {
   background: linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
-  border-radius: 0 0 20px 20px;
-  padding: 36px 32px 32px;
-  margin-bottom: 28px;
+  border-radius: 0 0 16px 16px;
+  padding: 22px 22px 20px;
+  margin-bottom: 18px;
   position: relative;
   overflow: hidden;
 }
@@ -47,7 +47,7 @@
   font-size: clamp(1.4rem, 3vw, 2rem);
   font-weight: 800; color: #0A1628; margin: 0 0 6px;
 }
-.iv-hero-sub { font-size: 1.2rem; color: #6b7280; margin: 0 0 22px; }
+.iv-hero-sub { font-size: 1.2rem; color: #6b7280; margin: 0 0 14px; }
 
 /* Search */
 .iv-search-row { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -264,7 +264,7 @@
 
 /* Empty state */
 .iv-empty {
-  text-align: center; padding: 80px 20px;
+  text-align: center; padding: 40px 20px;
   color: #9ca3af;
 }
 .iv-empty-icon { font-size: 4.1rem; margin-bottom: 12px; }
@@ -295,9 +295,9 @@
 }
 .iv-cat-card {
   display: flex; flex-direction: column; align-items: flex-start;
-  gap: 6px;
+  gap: 4px;
   background: #fff; border: 1.5px solid var(--border);
-  border-radius: 14px; padding: 16px 14px;
+  border-radius: 12px; padding: 12px 12px;
   text-decoration: none; cursor: pointer;
   transition: border-color .18s, box-shadow .18s, background .18s;
 }
@@ -309,14 +309,14 @@
   background: var(--blue); border-color: var(--blue);
   box-shadow: 0 4px 18px rgba(27,94,199,.28);
 }
-.iv-cat-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: #4b6cb7; }
+.iv-cat-icon { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: #4b6cb7; }
 .iv-cat-card--active .iv-cat-icon { color: rgba(255,255,255,.85); }
 .iv-cat-name {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.2rem; font-weight: 800; color: var(--ink); line-height: 1.2;
+  font-size: 1.15rem; font-weight: 800; color: var(--ink); line-height: 1.2;
 }
 .iv-cat-card--active .iv-cat-name { color: #fff; }
-.iv-cat-count { font-size: 1.2rem; color: #6b7280; font-weight: 600; }
+.iv-cat-count { font-size: 1.1rem; color: #6b7280; font-weight: 600; }
 .iv-cat-card--active .iv-cat-count { color: rgba(255,255,255,.75); }
 </style>
 

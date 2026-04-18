@@ -172,7 +172,7 @@
 .oc-navbar__dropdown-menu a:hover { background: #F4F6FA; color: #0A0C12; }
 .oc-navbar__dropdown-menu a .oc-dd-icon { display:inline-flex; align-items:center; justify-content:center; width:18px; flex-shrink:0; color:#6b7280; }
 
-/* mobile accordion */
+/* mobile accordion (guest only) */
 .oc-mobile-menu__accordion {
   overflow: hidden;
   max-height: 0;
@@ -184,6 +184,13 @@
   font-size: 1.2rem !important;
   opacity: .85;
 }
+/* Explore section label */
+.oc-mobile-menu__section-label {
+  font-size: 1.0rem; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: rgba(255,255,255,.4);
+  padding: 10px 14px 4px;
+}
+.oc-mobile-menu__link--sub { padding-left: 24px !important; }
 .oc-mobile-accordion-toggle {
   display: flex;
   align-items: center;
@@ -450,22 +457,11 @@
       <a href="{% url 'dashboard' %}"    class="oc-mobile-menu__link">Dashboard</a>
       <a href="{% url 'project_list' %}" class="oc-mobile-menu__link">Projects</a>
 
-      <!-- Explore accordion -->
-      <button type="button" class="oc-mobile-menu__link oc-mobile-accordion-toggle {% if url_name == 'innovators' or url_name == 'investors' or url_name == 'investors_by_industry' or url_name == 'companies_list' %}open{% endif %}"
-              id="oc-mobile-explore-toggle"
-              style="background:none;border:none;width:100%;text-align:left;cursor:pointer;color:inherit;">
-        {% if url_name == 'innovators' %}Innovators
-        {% elif url_name == 'investors' or url_name == 'investors_by_industry' %}Investors
-        {% elif url_name == 'companies_list' %}Businesses
-        {% else %}Explore{% endif %}
-        <span class="oc-dropdown-caret">▼</span>
-      </button>
-      <div class="oc-mobile-menu__accordion {% if url_name == 'innovators' or url_name == 'investors' or url_name == 'investors_by_industry' or url_name == 'companies_list' %}open{% endif %}"
-           id="oc-mobile-explore-panel">
-        <a href="{% url 'innovators' %}"    class="oc-mobile-menu__link">Innovators</a>
-        <a href="{% url 'investors' %}"     class="oc-mobile-menu__link">Investors</a>
-        <a href="{% url 'companies_list' %}" class="oc-mobile-menu__link">Businesses</a>
-      </div>
+      <!-- Explore section — always visible -->
+      <div class="oc-mobile-menu__section-label">Explore</div>
+      <a href="{% url 'innovators' %}"     class="oc-mobile-menu__link oc-mobile-menu__link--sub {% if url_name == 'innovators' %}active{% endif %}">Innovators</a>
+      <a href="{% url 'investors' %}"      class="oc-mobile-menu__link oc-mobile-menu__link--sub {% if url_name == 'investors' or url_name == 'investors_by_industry' %}active{% endif %}">Investors</a>
+      <a href="{% url 'companies_list' %}" class="oc-mobile-menu__link oc-mobile-menu__link--sub {% if url_name == 'companies_list' %}active{% endif %}">Businesses</a>
 
       {% if admin_view_mode != 'admin' or user.user_type != 'admin' %}
         <div class="oc-mobile-menu__divider"></div>
@@ -731,7 +727,10 @@
     });
   }
 
-  document.addEventListener('click', closeAll);
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.oc-mobile-menu')) return;
+    closeAll();
+  });
 
   /* ── Live badge polling (every 30 s) ── */
   {% if user.is_authenticated %}
@@ -892,19 +891,17 @@
     _mo.observe(document.body, { childList: true, subtree: true });
   })();
 
-  /* ── Mobile accordions — open only; reset on drawer close ── */
-  [['oc-mobile-explore-toggle', 'oc-mobile-explore-panel'],
-   ['oc-mobile-explore-toggle-guest', 'oc-mobile-explore-panel-guest']
-  ].forEach(function(pair) {
-    var toggle = document.getElementById(pair[0]);
-    var panel  = document.getElementById(pair[1]);
+  /* ── Mobile accordion — guest Explore only ── */
+  (function() {
+    var toggle = document.getElementById('oc-mobile-explore-toggle-guest');
+    var panel  = document.getElementById('oc-mobile-explore-panel-guest');
     if (toggle && panel) {
       toggle.addEventListener('click', function () {
         panel.classList.add('open');
         toggle.classList.add('open');
       });
     }
-  });
+  })();
 })();
 
 /* ── Search bar: icon-only expand/collapse (CSS handles initial state) ── */

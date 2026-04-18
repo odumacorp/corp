@@ -14,7 +14,7 @@
   --radius: 14px;
 }
 
-.pf-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0 20px 80px; box-sizing: border-box; }
+.pf-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0 20px 48px; box-sizing: border-box; }
 
 /* ── Back button ─────────────────────────────────────────────── */
 .pf-back-bar {
@@ -127,11 +127,11 @@
 .pf-stats {
   display: flex; gap: 0;
   border-top: 1px solid #f0f4fa;
-  margin-top: 20px; flex-wrap: wrap;
+  margin-top: 14px; flex-wrap: wrap;
 }
 .pf-stat {
-  flex: 1; min-width: 90px; text-align: center;
-  padding: 14px 10px 12px;
+  flex: 1; min-width: 80px; text-align: center;
+  padding: 10px 8px 9px;
   border-right: 1px solid #f0f4fa;
   transition: background .15s; cursor: default;
 }
@@ -139,9 +139,9 @@
 .pf-stat:hover { background: #f9fafb; }
 .pf-stat-val {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.8rem; font-weight: 800; color: var(--ink); line-height: 1; margin-bottom: 4px;
+  font-size: 1.6rem; font-weight: 800; color: var(--ink); line-height: 1; margin-bottom: 3px;
 }
-.pf-stat-label { font-size: 1.2rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.pf-stat-label { font-size: 1.05rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
 
 /* ── Tabs ────────────────────────────────────────────────────── */
 .pf-tabs-bar {
@@ -180,11 +180,19 @@
 .pf-grid { display: grid; grid-template-columns: 1fr 290px; gap: 20px; align-items: start; }
 @media (max-width: 860px) { .pf-grid { grid-template-columns: 1fr; } }
 @media (max-width: 600px) {
-  .pf-hero { padding: 0 16px 18px; }
-  .pf-hero-top { flex-direction: column; gap: 14px; }
+  .pf-hero { padding: 0 14px 14px; }
+  .pf-hero-top { flex-direction: column; gap: 8px; padding-top: 6px; }
   .pf-hero-left { min-width: 0; width: 100%; }
-  .pf-hero-actions { width: 100%; flex-wrap: wrap; }
+  .pf-hero-actions { width: 100%; flex-wrap: wrap; gap: 7px; }
+  .pf-btn { padding: 7px 16px; font-size: 1.1rem; }
   .pf-name { font-size: 1.6rem; }
+  .pf-role-line { font-size: 1.3rem; margin-bottom: 2px; }
+  .pf-avatar, .pf-avatar-init { width: 76px; height: 76px; margin-top: -36px; margin-bottom: 6px; }
+  .pf-avatar-init { font-size: 2.2rem; }
+  .pf-stats { margin-top: 10px; }
+  .pf-stat { padding: 8px 4px 7px; }
+  .pf-stat-val { font-size: 1.4rem; }
+  .pf-stat-label { font-size: 0.95rem; }
 }
 
 /* ── Cards ───────────────────────────────────────────────────── */
@@ -311,7 +319,7 @@
 
 /* ── Empty state ─────────────────────────────────────────────── */
 .pf-empty {
-  text-align: center; padding: 48px 22px; color: #6b7280;
+  text-align: center; padding: 28px 22px; color: #6b7280;
 }
 .pf-empty-icon { margin-bottom: 10px; opacity: .4; color: #6b7280; display: flex; justify-content: center; }
 .pf-empty-text { font-size: 1.2rem; font-weight: 600; color: #6b7280; }
@@ -331,17 +339,34 @@
   display: block; font-size: 1.2rem; font-weight: 700;
   color: #374151; margin-bottom: 5px;
 }
-.pf-verif-form-field input,
+.pf-verif-form-field input:not([type=file]),
 .pf-verif-form-field textarea {
   width: 100%; border: 1.5px solid #e0e6f0; border-radius: 8px;
   padding: 9px 12px; font-size: 1.2rem; font-family: inherit;
   color: var(--ink); box-sizing: border-box; transition: border-color .18s; resize: vertical;
 }
-.pf-verif-form-field input:focus,
+.pf-verif-form-field input:not([type=file]):focus,
 .pf-verif-form-field textarea:focus {
   outline: none; border-color: var(--blue);
   box-shadow: 0 0 0 3px rgba(27,94,199,.08);
 }
+.pf-file-wrap { position: relative; }
+.pf-file-wrap input[type=file] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
+.pf-file-btn {
+  display: flex; align-items: center; gap: 10px;
+  border: 1.5px dashed #b8c8e8; border-radius: 8px;
+  padding: 10px 14px; background: #f8faff; cursor: pointer;
+  transition: border-color .18s, background .18s;
+}
+.pf-file-btn:hover { border-color: var(--blue); background: #eef3fd; }
+.pf-file-icon {
+  width: 32px; height: 32px; border-radius: 7px;
+  background: var(--blue-lt); color: var(--blue);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.pf-file-text { min-width: 0; }
+.pf-file-name { font-size: 1.2rem; font-weight: 700; color: var(--ink); }
+.pf-file-hint { font-size: 1.1rem; color: #6b7280; margin-top: 1px; }
 
 /* ── Proposal item ───────────────────────────────────────────── */
 .pf-proposal-item {
@@ -590,7 +615,18 @@
               </div>
               <div class="pf-verif-form-field">
                 <label>ID Document (optional — PDF, JPG, PNG)</label>
-                <input type="file" name="id_document" accept=".pdf,.jpg,.jpeg,.png">
+                <div class="pf-file-wrap">
+                  <input type="file" name="id_document" accept=".pdf,.jpg,.jpeg,.png" id="pf-id-doc-input">
+                  <div class="pf-file-btn" id="pf-id-doc-btn">
+                    <div class="pf-file-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    </div>
+                    <div class="pf-file-text">
+                      <div class="pf-file-name" id="pf-id-doc-label">Click to upload file</div>
+                      <div class="pf-file-hint">PDF, JPG, or PNG accepted</div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <button type="submit" class="pf-btn pf-btn--primary" style="margin-top:4px;">Submit Verification Request</button>
             </form>
@@ -987,6 +1023,15 @@
   // Restore tab from URL hash
   var hash = location.hash.replace('#','');
   if (hash) activateTab(hash);
+
+  // File input label update
+  var fileInput = document.getElementById('pf-id-doc-input');
+  if (fileInput) {
+    fileInput.addEventListener('change', function() {
+      var label = document.getElementById('pf-id-doc-label');
+      if (label) label.textContent = this.files[0] ? this.files[0].name : 'Click to upload file';
+    });
+  }
 })();
 </script>
 {% endblock %}

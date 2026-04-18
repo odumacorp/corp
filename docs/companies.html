@@ -30,7 +30,7 @@
   .cl-page {
     max-width: 1060px;
     margin: 0 auto;
-    padding: 32px 16px 64px;
+    padding: 16px 16px 44px;
   }
   .cl-page-title {
     font-family: var(--ff-serif);
@@ -42,7 +42,7 @@
     font-family: var(--ff-sans);
     font-size: 1.2rem;
     color: var(--muted);
-    margin: 0 0 28px;
+    margin: 0 0 16px;
   }
 
   /* CTA Banner */
@@ -324,6 +324,42 @@
   }
   .cl-filter-select:focus { outline: none; border-color: var(--blue); }
   .cl-filter-select.active { border-color: var(--blue); color: var(--blue); font-weight: 700; background-color: #eaf0ff; }
+
+  /* ── Custom pm-dd dropdowns for filter bars ── */
+  .cl-dd { position: relative; display: inline-block; }
+  .cl-dd-trigger {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1.5px solid rgba(0,0,0,0.10); border-radius: 50px;
+    padding: 8px 14px 8px 16px;
+    font-family: var(--ff-sans); font-size: 1.2rem; color: var(--text);
+    background: #fff; cursor: pointer; white-space: nowrap;
+    transition: border-color .18s, box-shadow .18s; user-select: none;
+  }
+  .cl-dd-trigger:hover { border-color: #c3d4ec; }
+  .cl-dd-trigger.open { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,74,173,.1); }
+  .cl-dd-trigger.active { border-color: var(--blue); color: var(--blue); font-weight: 700; background: #eaf0ff; }
+  .cl-dd-val { flex: 1; }
+  .cl-dd-chevron { width: 14px; height: 14px; flex-shrink: 0; color: #9ca3af; transition: transform .18s; pointer-events: none; }
+  .cl-dd-trigger.open .cl-dd-chevron { transform: rotate(180deg); color: var(--blue); }
+  .cl-dd-list {
+    display: none; position: absolute; top: calc(100% + 6px); left: 0;
+    min-width: 100%; background: #fff; border: 1.5px solid #e0e6f0;
+    border-radius: 12px; box-shadow: 0 8px 28px rgba(10,22,40,.12);
+    z-index: 300; max-height: 220px; overflow-y: auto; padding: 4px;
+    white-space: nowrap;
+  }
+  .cl-dd-list.open { display: block; animation: clDdIn .15s ease; }
+  @keyframes clDdIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:none; } }
+  .cl-dd-option {
+    padding: 9px 14px; border-radius: 8px; font-family: var(--ff-sans);
+    font-size: 1.2rem; color: #374151; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    transition: background .1s, color .1s;
+  }
+  .cl-dd-option:hover { background: #f0f5ff; color: var(--blue); }
+  .cl-dd-option.selected { background: #eaf0ff; color: var(--blue); font-weight: 700; }
+  .cl-dd-option .cl-dd-check { display: none; color: var(--blue); flex-shrink: 0; }
+  .cl-dd-option.selected .cl-dd-check { display: block; }
   .cl-filter-clear {
     font-family: var(--ff-sans);
     font-size: 1.2rem;
@@ -370,16 +406,38 @@
     <!-- Header row: filters + New Company button -->
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
       <input type="text" id="mine-search" placeholder="Search my companies…" class="cl-search-input" style="flex:1;min-width:180px;" oninput="applyMineFilters()">
-      <select id="mine-industry" class="cl-filter-select" onchange="applyMineFilters()">
-        <option value="">All Industries</option>
-        {% for val, label in industry_choices %}
-        <option value="{{ val }}">{{ label }}</option>
-        {% endfor %}
-      </select>
-      <select id="mine-date" class="cl-filter-select" onchange="applyMineFilters()">
-        <option value="newest">Newest first</option>
-        <option value="oldest">Oldest first</option>
-      </select>
+      <div class="cl-dd" id="cld-mine-industry">
+        <button type="button" class="cl-dd-trigger" onclick="clDdToggle('cld-mine-industry')">
+          <span class="cl-dd-val">All Industries</span>
+          <svg class="cl-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <input type="hidden" id="mine-industry" value="">
+        <div class="cl-dd-list">
+          <div class="cl-dd-option selected" data-val="" onclick="clDdSelect('cld-mine-industry','','All Industries');applyMineFilters()">
+            All Industries<svg class="cl-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          {% for val, label in industry_choices %}
+          <div class="cl-dd-option" data-val="{{ val }}" onclick="clDdSelect('cld-mine-industry','{{ val }}','{{ label }}');applyMineFilters()">
+            {{ label }}<svg class="cl-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="cl-dd" id="cld-mine-date">
+        <button type="button" class="cl-dd-trigger" onclick="clDdToggle('cld-mine-date')">
+          <span class="cl-dd-val">Newest first</span>
+          <svg class="cl-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <input type="hidden" id="mine-date" value="newest">
+        <div class="cl-dd-list">
+          <div class="cl-dd-option selected" data-val="newest" onclick="clDdSelect('cld-mine-date','newest','Newest first');applyMineFilters()">
+            Newest first<svg class="cl-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="cl-dd-option" data-val="oldest" onclick="clDdSelect('cld-mine-date','oldest','Oldest first');applyMineFilters()">
+            Oldest first<svg class="cl-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+      </div>
       <a href="{% url 'create_company' %}" class="cl-cta-btn" style="background:var(--blue);color:#fff;border-radius:50px;padding:10px 20px;font-size:1.2rem;font-weight:700;display:inline-flex;align-items:center;gap:7px;text-decoration:none;white-space:nowrap;">
         <i class="fi fi-rr-plus"></i> New Company
       </a>
@@ -442,10 +500,21 @@
     <!-- Filter row -->
     <div class="cl-filter-bar">
       <!-- Date -->
-      <select name="date_sort" class="cl-filter-select {% if date_sort == 'oldest' %}active{% endif %}" onchange="this.form.submit()">
-        <option value="newest" {% if date_sort != 'oldest' %}selected{% endif %}>Newest first</option>
-        <option value="oldest" {% if date_sort == 'oldest' %}selected{% endif %}>Oldest first</option>
-      </select>
+      <div class="cl-dd" id="cld-date-sort">
+        <button type="button" class="cl-dd-trigger {% if date_sort == 'oldest' %}active{% endif %}" onclick="clDdToggle('cld-date-sort')">
+          <span class="cl-dd-val">{% if date_sort == 'oldest' %}Oldest first{% else %}Newest first{% endif %}</span>
+          <svg class="cl-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <input type="hidden" name="date_sort" value="{% if date_sort == 'oldest' %}oldest{% else %}newest{% endif %}">
+        <div class="cl-dd-list">
+          <div class="cl-dd-option{% if date_sort != 'oldest' %} selected{% endif %}" data-val="newest" onclick="clDdSelect('cld-date-sort','newest','Newest first');this.closest('form').submit()">
+            Newest first<svg class="cl-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="cl-dd-option{% if date_sort == 'oldest' %} selected{% endif %}" data-val="oldest" onclick="clDdSelect('cld-date-sort','oldest','Oldest first');this.closest('form').submit()">
+            Oldest first<svg class="cl-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+      </div>
       <!-- Industry -->
       <select name="industry" class="cl-filter-select {% if selected_industry %}active{% endif %}" data-combo-filter data-auto-submit data-placeholder="All Industries">
         <option value="">All Industries</option>
@@ -455,14 +524,23 @@
       </select>
       <!-- Owner -->
       {% if company_owners %}
-      <select name="owner_id" class="cl-filter-select {% if owner_filter %}active{% endif %}" onchange="this.form.submit()">
-        <option value="">All Owners</option>
-        {% for owner in company_owners %}
-        <option value="{{ owner.pk }}" {% if owner_filter == owner.pk|stringformat:'s' %}selected{% endif %}>
-          {{ owner.first_name }} {{ owner.last_name }}{% if not owner.first_name and not owner.last_name %} {{ owner.username }}{% endif %}
-        </option>
-        {% endfor %}
-      </select>
+      <div class="cl-dd" id="cld-owner">
+        <button type="button" class="cl-dd-trigger {% if owner_filter %}active{% endif %}" onclick="clDdToggle('cld-owner')">
+          <span class="cl-dd-val">{% if owner_filter %}{% for owner in company_owners %}{% if owner_filter == owner.pk|stringformat:'s' %}{{ owner.first_name }} {{ owner.last_name }}{% endif %}{% endfor %}{% else %}All Owners{% endif %}</span>
+          <svg class="cl-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <input type="hidden" name="owner_id" value="{{ owner_filter }}">
+        <div class="cl-dd-list">
+          <div class="cl-dd-option{% if not owner_filter %} selected{% endif %}" data-val="" onclick="clDdSelect('cld-owner','','All Owners');this.closest('form').submit()">
+            All Owners<svg class="cl-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          {% for owner in company_owners %}
+          <div class="cl-dd-option{% if owner_filter == owner.pk|stringformat:'s' %} selected{% endif %}" data-val="{{ owner.pk }}" onclick="clDdSelect('cld-owner','{{ owner.pk }}','{{ owner.first_name }} {{ owner.last_name }}');this.closest('form').submit()">
+            {{ owner.first_name }} {{ owner.last_name }}{% if not owner.first_name and not owner.last_name %}{{ owner.username }}{% endif %}<svg class="cl-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
       {% endif %}
       <!-- Clear all -->
       {% if q or selected_industry or owner_filter or date_sort == 'oldest' %}
@@ -590,7 +668,7 @@
 function applyMineFilters() {
   var q        = (document.getElementById('mine-search').value || '').toLowerCase().trim();
   var industry = document.getElementById('mine-industry').value;
-  var dateSort = document.getElementById('mine-date').value;
+  var dateSort = document.getElementById('mine-date').value || 'newest';
   var grid     = document.getElementById('mine-grid');
   if (!grid) return;
 
@@ -697,6 +775,34 @@ function clSwitchTab(tab) {
     });
   };
 })();
+
+/* ── Custom dropdown helpers ── */
+function clDdCloseAll() {
+  document.querySelectorAll('.cl-dd-list.open').forEach(function(l){ l.classList.remove('open'); });
+  document.querySelectorAll('.cl-dd-trigger.open').forEach(function(t){ t.classList.remove('open'); });
+}
+function clDdToggle(id) {
+  var dd = document.getElementById(id);
+  var trig = dd.querySelector('.cl-dd-trigger');
+  var list = dd.querySelector('.cl-dd-list');
+  var wasOpen = list.classList.contains('open');
+  clDdCloseAll();
+  if (!wasOpen) { trig.classList.add('open'); list.classList.add('open'); }
+}
+function clDdSelect(id, val, label) {
+  var dd = document.getElementById(id);
+  dd.querySelector('.cl-dd-val').textContent = label;
+  dd.querySelector('input[type=hidden]').value = val;
+  dd.querySelectorAll('.cl-dd-option').forEach(function(o){
+    o.classList.toggle('selected', o.dataset.val === val);
+  });
+  var trig = dd.querySelector('.cl-dd-trigger');
+  trig.classList.toggle('active', val !== '');
+  clDdCloseAll();
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.cl-dd')) clDdCloseAll();
+});
 </script>
 
 
