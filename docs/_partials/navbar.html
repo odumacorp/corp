@@ -510,16 +510,10 @@
       {% endwith %}
     {% else %}
       <!-- Guest menu -->
-      <button type="button" class="oc-mobile-menu__link oc-mobile-accordion-toggle"
-              id="oc-mobile-explore-toggle-guest"
-              style="background:none;border:none;width:100%;text-align:left;cursor:pointer;color:inherit;">
-        Explore <span class="oc-dropdown-caret">▼</span>
-      </button>
-      <div class="oc-mobile-menu__accordion" id="oc-mobile-explore-panel-guest">
-        <a href="{% url 'innovators' %}"     class="oc-mobile-menu__link">Innovators</a>
-        <a href="{% url 'investors' %}"      class="oc-mobile-menu__link">Investors</a>
-        <a href="{% url 'companies_list' %}" class="oc-mobile-menu__link">Businesses</a>
-      </div>
+      <div class="oc-mobile-menu__section-label">Explore</div>
+      <a href="{% url 'innovators' %}"     class="oc-mobile-menu__link oc-mobile-menu__link--sub">Innovators</a>
+      <a href="{% url 'investors' %}"      class="oc-mobile-menu__link oc-mobile-menu__link--sub">Investors</a>
+      <a href="{% url 'companies_list' %}" class="oc-mobile-menu__link oc-mobile-menu__link--sub">Businesses</a>
       <a href="{% url 'about' %}"              class="oc-mobile-menu__link">About</a>
       <a href="{% url 'services' %}"           class="oc-mobile-menu__link">Services</a>
       <a href="{% url 'training_hub' %}"       class="oc-mobile-menu__link">Training</a>
