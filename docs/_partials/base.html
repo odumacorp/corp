@@ -1170,16 +1170,13 @@
     });
 
     function fmtOdu(text) {
-      // Convert simple markdown to safe HTML
       var s = text
         .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        // **bold**
         .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-        // `code`
         .replace(/`([^`]+)`/g,'<code style="background:#f0f4f8;padding:1px 5px;border-radius:4px;font-size:.85em;">$1</code>')
-        // bullet lines starting with • or - followed by space
+        // [label](url) → button link
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="display:inline-flex;align-items:center;gap:4px;background:#1B5EC7;color:#fff;padding:4px 12px;border-radius:6px;font-size:.88em;font-weight:700;text-decoration:none;margin:2px 0;" target="_self">$1 →</a>')
         .replace(/^[•\-]\s+/gm,'<span style="margin-right:4px;">•</span>')
-        // newlines → br
         .replace(/\n/g,'<br>');
       return s;
     }

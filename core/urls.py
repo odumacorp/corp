@@ -346,6 +346,7 @@ urlpatterns = _html_redirects + [
     path('posts/<int:post_id>/repost/', views.toggle_post_repost, name='toggle_post_repost'),
     path('posts/<int:post_id>/conversation/', views.start_post_conversation, name='start_post_conversation'),
     path('posts/<int:post_id>/comment/', views.add_comment, name='add_comment'),
+    path('polls/<int:poll_id>/vote/', views.poll_vote, name='poll_vote'),
 
     # Project actions
     path('projects/<int:project_id>/collaborate/', views.project_collaborate, name='project_collaborate'),

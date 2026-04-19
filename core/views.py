@@ -1610,16 +1610,65 @@ def chat_page(request, conversation_id):
                 reply_to=reply_to_msg,
             )
 
-        # Auto-reply: send once when a non-admin user first messages an admin
-        if is_admin_chat and not i_am_admin and not conversation.auto_replied and (content or sticker or files):
-            auto_text = _admin_auto_reply(content or (sticker and 'Hi, I need help.') or files[0].name)
-            Message.objects.create(
-                sender=participant, recipient=request.user,
-                conversation=conversation,
-                content=auto_text,
+        # Notify admin when user sends a message
+        if is_admin_chat and not i_am_admin and (content or sticker or files):
+            from .models import Notification
+            preview = (content or 'Sent an attachment')[:80]
+            Notification.objects.create(
+                user=participant,
+                notification_type='message_sent',
+                message=f"Support request from {request.user.get_full_name() or request.user.username}: {preview}",
+                link=f"/chat/{conversation.id}/",
             )
-            conversation.auto_replied = True
-            conversation.save(update_fields=['auto_replied'])
+
+        # Auto-reply: always reply to keyword-matched topics; generic fallback only once
+        if is_admin_chat and not i_am_admin and (content or sticker or files):
+            from django.utils import timezone
+            msg_text = content or (sticker and 'Hi, I need help.') or (files[0].name if files else '')
+            auto_text, auto_resolvable, needs_admin = _admin_auto_reply(msg_text)
+            is_generic = needs_admin and auto_text.startswith("Thanks for reaching out")
+            if not is_generic or not conversation.auto_replied:
+                Message.objects.create(
+                    sender=participant, recipient=request.user,
+                    conversation=conversation,
+                    content=auto_text,
+                )
+                if not conversation.auto_replied:
+                    conversation.auto_replied = True
+                    conversation.save(update_fields=['auto_replied'])
+
+            # Auto-resolve self-service issues
+            if auto_resolvable and not conversation.is_resolved:
+                conversation.is_resolved = True
+                conversation.resolved_at = timezone.now()
+                conversation.save(update_fields=['is_resolved', 'resolved_at'])
+                Message.objects.create(
+                    sender=participant, recipient=request.user,
+                    conversation=conversation,
+                    is_system=True,
+                    content=(
+                        "This request has been automatically resolved — "
+                        "the information above should have everything you need. "
+                        "If your issue is still ongoing, just reply here and we will pick it up."
+                    ),
+                )
+                from .models import Notification
+                Notification.objects.create(
+                    user=request.user,
+                    notification_type='other',
+                    message="Your support request has been automatically resolved.",
+                    link=f"/chat/{conversation.id}/",
+                )
+
+            # Notify admin urgently for issues only they can resolve
+            if needs_admin and participant:
+                user_label = request.user.get_full_name() or request.user.username
+                Notification.objects.create(
+                    user=participant,
+                    notification_type='message_sent',
+                    message=f"[Needs attention] {user_label}: {msg_text[:80]}",
+                    link=f"/chat/{conversation.id}/",
+                )
 
         return redirect('chat_page', conversation_id=conversation.id)
 
@@ -1659,7 +1708,7 @@ def chat_page(request, conversation_id):
     # Attach reaction summary directly to each message object
     from collections import defaultdict
     messages_list = list(chat_messages)
-    RESOLVED_PREFIX = "✅ Your support request has been marked"
+    RESOLVED_PREFIX = "Your support request has been marked"
     for msg in messages_list:
         groups = defaultdict(list)
         for r in msg.reactions.all():
@@ -1694,57 +1743,148 @@ def chat_page(request, conversation_id):
 
 
 def _admin_auto_reply(content):
-    """Return a contextual auto-reply text based on the user's message keywords."""
+    """Return (reply_text, auto_resolvable, needs_admin).
+
+    auto_resolvable=True  → Odu fully handled it, safe to auto-close.
+    needs_admin=True      → requires human follow-up; notify admin urgently.
+    """
     t = content.lower()
+
+    # ── Self-service: Odu resolves, no admin needed ──────────────────────────
+
     if any(w in t for w in ['password', 'reset', 'forgot']):
         return (
-            "Thanks for reaching out about your password. We've received your request "
-            "and our team will process it shortly. For security, password resets are handled "
-            "manually — we'll send you instructions via email within a few hours."
+            "You can reset your password directly from the platform — no need to wait!\n\n"
+            "[Reset my password](/update_password/)\n\n"
+            "If you've forgotten your password and can't log in, use the forgot-password link on the login page. "
+            "Still having trouble? Reply here and we'll help.",
+            True, False   # auto_resolvable, needs_admin
         )
-    if any(w in t for w in ['locked', 'lock', "can't log", "cant log", 'cannot log', 'login', 'sign in', 'access', 'locked out']):
+
+    if any(w in t for w in ['profile', 'update profile', 'edit profile', 'change my name', 'change my photo', 'bio', 'picture']):
         return (
-            "We've received your account access request. Our team will investigate and "
-            "get your account restored as soon as possible. Please check your email for any "
-            "security alerts in the meantime."
+            "You can update your profile yourself at any time:\n\n"
+            "[Edit my profile](/update_profile/)\n\n"
+            "You can change your name, photo, bio, industry, company, and social links from there.",
+            True, False
         )
+
+    if any(w in t for w in ['project', 'create project', 'post project', 'add project']):
+        return (
+            "To post a project, head over to the create page:\n\n"
+            "[Create a project](/projects/create/)\n\n"
+            "Fill in your title, description, funding requirements, and attach images or a pitch deck. "
+            "A detailed project gets more investor attention!",
+            True, False
+        )
+
+    if any(w in t for w in ['connect', 'network', 'find investor', 'find innovator']):
+        return (
+            "You can connect with innovators and investors through the network section:\n\n"
+            "[Browse Investors](/investors/)  [Browse Innovators](/innovators/)\n\n"
+            "Visit any profile and click Connect to send a request. Once accepted, you can message and schedule meetings.",
+            True, False
+        )
+
+    if any(w in t for w in ['meeting', 'zoom', 'schedule', 'video call']):
+        return (
+            "You can schedule a Zoom meeting directly on the platform:\n\n"
+            "[Schedule a meeting](/meetings/create/)\n\n"
+            "The platform generates a Zoom link automatically and notifies your invitees.",
+            True, False
+        )
+
+    if any(w in t for w in ['company', 'business', 'list my business', 'add company']):
+        return (
+            "You can list your business on Oduma Corp right now:\n\n"
+            "[Create a company profile](/companies/create/)\n\n"
+            "Add your company logo, description, industry, and contact details to get discovered by innovators and investors.",
+            True, False
+        )
+
+    if any(w in t for w in ['group', 'join group', 'create group', 'community']):
+        return (
+            "Groups are a great way to connect with people in your industry:\n\n"
+            "[Browse groups](/groups/)  [Create a group](/groups/create/)\n\n"
+            "Join discussions, share updates, and collaborate with your community.",
+            True, False
+        )
+
+    if any(w in t for w in ['course', 'training', 'learn', 'education']):
+        return (
+            "The training hub has courses on entrepreneurship, fundraising, and innovation:\n\n"
+            "[Go to Training](/training/)\n\n"
+            "Enroll in a course and track your progress through each module.",
+            True, False
+        )
+
+    if any(w in t for w in ['mentor', 'mentorship', 'coach', 'guidance']):
+        return (
+            "You can find a mentor or submit a mentorship request here:\n\n"
+            "[Find a Mentor](/mentor/)\n\n"
+            "Browse mentor profiles, see their areas of expertise, and submit a request to get matched.",
+            True, False
+        )
+
+    if any(w in t for w in ['upgrade', 'premium', 'plan', 'subscription', 'pricing', 'tier']):
+        return (
+            "You can view all available plans here:\n\n"
+            "[View subscription plans](/subscription/)\n\n"
+            "If you need a custom arrangement, reply here and our team will follow up.",
+            True, False
+        )
+
+    # ── Admin-required: Odu acknowledges, admin must follow up ───────────────
+
+    if any(w in t for w in ['locked', 'lock', "can't log", "cant log", 'cannot log', 'locked out']):
+        return (
+            "Sorry to hear you're locked out. Try resetting your password first:\n\n"
+            "[Reset password via email](/accounts/password/reset/)\n\n"
+            "If that doesn't work, our team has been notified and will investigate your account access shortly.",
+            False, True
+        )
+
     if any(w in t for w in ['verify', 'verification', 'verified', 'badge']):
         return (
-            "Thank you for reaching out about account verification. We'll review your "
-            "profile and documents shortly. Verification typically takes 1–3 business days."
+            "Thanks for requesting verification. Our team reviews all submissions manually.\n\n"
+            "Make sure your profile is complete to speed up the process:\n\n"
+            "[Complete your profile](/update_profile/)\n\n"
+            "Verification typically takes 1–3 business days. We'll notify you once it's done.",
+            False, True
         )
+
     if any(w in t for w in ['bug', 'technical', 'error', 'broken', 'not working', "doesn't work", 'crash', 'glitch']):
         return (
-            "Thanks for reporting this technical issue. Our engineering team has been "
-            "notified and will investigate. If you can share any screenshots or steps to "
-            "reproduce the problem, that would be very helpful!"
+            "Thanks for flagging this. Our engineering team has been notified.\n\n"
+            "To help us resolve it faster, please share:\n"
+            "• What page were you on?\n"
+            "• What steps led to the issue?\n"
+            "• Any error message you saw?\n\n"
+            "We'll follow up as soon as possible.",
+            False, True
         )
+
     if any(w in t for w in ['delete', 'close account', 'remove account', 'deactivate']):
         return (
-            "We've received your account deletion/deactivation request. Please note this "
-            "action is irreversible. A member of our team will contact you to confirm before "
-            "proceeding — usually within 24 hours."
+            "We've received your account deletion request. This action is irreversible.\n\n"
+            "A member of our team will contact you to confirm before proceeding — usually within 24 hours. "
+            "If this was a mistake, just reply here.",
+            False, True
         )
-    if any(w in t for w in ['upgrade', 'premium', 'plan', 'subscription', 'tier']):
-        return (
-            "Thanks for your interest in upgrading your account! Our team will reach out "
-            "with available options and pricing details. We'll be in touch shortly."
-        )
+
     if any(w in t for w in ['report', 'inappropriate', 'spam', 'abuse', 'harassment', 'scam']):
         return (
-            "We take reports of inappropriate content very seriously. Your report has been "
-            "logged and will be reviewed within 24 hours. Thank you for helping keep "
-            "Oduma Corp safe."
+            "We take this seriously. Your report has been logged and our team has been notified.\n\n"
+            "We'll review it within 24 hours. Thank you for helping keep Oduma Corp safe.",
+            False, True
         )
-    if any(w in t for w in ['profile', 'company', 'update info', 'edit my', 'change my']):
-        return (
-            "We've received your request to update your profile or company information. "
-            "Please describe exactly what you'd like changed and our team will assist you."
-        )
+
+    # ── Generic fallback: no match, admin must handle ────────────────────────
     return (
-        "Thanks for reaching out to Oduma Corp Support! We've received your message "
-        "and a member of our team will respond as soon as possible. "
-        "Support hours are Monday–Friday, 9am–6pm WAT."
+        "Thanks for reaching out. We've received your message and a member of our team will respond shortly.\n\n"
+        "Support hours: Monday–Friday, 9am–6pm EAT.\n\n"
+        "[Go to Dashboard](/dashboard/)  [Browse Projects](/projects/)",
+        False, True
     )
 
 
@@ -1781,17 +1921,17 @@ def resolve_conversation(request, conversation_id):
                 sender=request.user,
                 recipient=user,
                 conversation=conversation,
+                is_system=True,
                 content=(
-                    "✅ Your support request has been marked as resolved by our team. "
-                    "If your issue is still ongoing, please reply to this message and we will "
-                    "reopen the case for you."
+                    "This support request has been marked as resolved by our team. "
+                    "If your issue is still ongoing, please reply here and we will reopen the case right away."
                 ),
             )
             # In-app notification
             Notification.objects.create(
                 user=user,
                 notification_type='other',
-                message="Your support request has been resolved by Oduma Corp Admin.",
+                message="Your support request has been resolved by Oduma Corp.",
                 link=f"/chat/{conversation.id}/",
             )
 
@@ -1853,22 +1993,30 @@ def app_view(request):
 
     # Handle new post submission
     if request.method == 'POST' and 'post_content' in request.POST:
-        title    = request.POST.get('post_title', '').strip()
-        content  = request.POST.get('post_content', '').strip()
+        from .models import Poll, PollOption
+        from django.utils import timezone as _tz
+        title     = request.POST.get('post_title', '').strip()
+        content   = request.POST.get('post_content', '').strip()
         post_type = request.POST.get('post_type', 'idea')
         industry  = request.POST.get('post_industry', '')
         image     = request.FILES.get('post_image')
         if content:
             post = Post.objects.create(
-                user=user,
-                title=title,
-                content=content,
-                post_type=post_type,
-                industry=industry,
+                user=user, title=title, content=content,
+                post_type=post_type, industry=industry,
             )
             if image:
                 post.image = image
                 post.save()
+            if post_type == 'poll':
+                poll_q    = request.POST.get('poll_question', '').strip() or title
+                options   = [v.strip() for v in request.POST.getlist('poll_options[]') if v.strip()]
+                closes_in = request.POST.get('poll_closes', '3')
+                if options:
+                    closes_at = _tz.now() + __import__('datetime').timedelta(days=int(closes_in)) if closes_in != '0' else None
+                    poll = Poll.objects.create(post=post, question=poll_q, closes_at=closes_at)
+                    for i, opt in enumerate(options[:6]):
+                        PollOption.objects.create(poll=poll, text=opt, order=i)
         return redirect('app')
 
     # Accepted connection IDs
@@ -1988,6 +2136,22 @@ def app_view(request):
         Pin.objects.filter(user=user, pin_type='project').values_list('project_id', flat=True)
     )
 
+    # Always surface Odu's posts so the feed is never empty
+    from .models import CustomUser as _CU
+    odu_user = _CU.objects.filter(username__iexact='odu').first()
+    if odu_user:
+        odu_posts = list(
+            Post.objects.filter(user=odu_user, is_hidden=False)
+            .select_related('user', 'user__userprofile')
+            .prefetch_related('comments')
+            .order_by('-created_at')[:10]
+        )
+        existing_ids = {p.id for p in posts}
+        for op in odu_posts:
+            if op.id not in existing_ids:
+                posts.append(op)
+        posts.sort(key=lambda p: p.created_at, reverse=True)
+
     # User's reactions on feed posts (post_id → reaction type)
     from .models import PostReaction
     post_ids = [p.id for p in posts]
@@ -1996,10 +2160,36 @@ def app_view(request):
         for r in PostReaction.objects.filter(post_id__in=post_ids, user=user)
     }
 
+    # Poll vote state for current user
+    from .models import PollVote as _PV
+    post_poll_map = {}
+    for p in posts:
+        try:
+            poll = p.poll
+            total = poll.total_votes()
+            opts = []
+            for opt in poll.options.all():
+                opts.append({
+                    'id': opt.id, 'text': opt.text,
+                    'count': opt.vote_count(),
+                    'pct': opt.vote_pct(total),
+                })
+            user_vote = _PV.objects.filter(poll=poll, user=user).values_list('option_id', flat=True).first()
+            post_poll_map[p.id] = {'poll_id': poll.id, 'question': poll.question, 'total': total,
+                                   'options': opts, 'user_vote': user_vote, 'is_open': poll.is_open()}
+        except Exception:
+            pass
+
+    user_project_count = Project.objects.filter(owner=user).count() if user.user_type != 'investor' else 0
+    from .models import Company as _Co
+    user_company_count = _Co.objects.filter(owner=user).count()
+
     context = {
         'page_name': 'Home',
         'posts': posts,
         'all_innovators_with_projects': all_innovators_with_projects,
+        'user_project_count': user_project_count,
+        'user_company_count': user_company_count,
         'connected_user_ids': connected_user_ids,
         'pending_connections': pending_connections,
         'proposals': incoming_proposals,
@@ -2025,6 +2215,7 @@ def app_view(request):
         'pinned_post_ids':      pinned_post_ids,
         'pinned_project_ids':   pinned_project_ids,
         'user_post_reactions':  user_post_reactions,
+        'post_poll_map':        post_poll_map,
     }
     return render(request, 'app.html', context)
 
@@ -2409,7 +2600,11 @@ def create_project(request):
                         visibility=request.POST.get(f'doc_visibility_{n}', 'connections'),
                     )
 
-            messages.success(request, "Project created successfully!")
+            is_first = Project.objects.filter(owner=request.user).count() == 1
+            if is_first:
+                messages.success(request, "Congratulations on posting your first project! Your innovation journey starts here.")
+            else:
+                messages.success(request, "Project created successfully!")
             return redirect('project_detail', pk=project.pk)
     else:
         form = ProjectForm()
@@ -2683,7 +2878,7 @@ def register(request):
                 user=user,
                 notification_type='other',
                 message=(
-                    f"Welcome to Oduma Corp, {first_name}! 🎉 "
+                    f"Welcome to Oduma Corp, {first_name}! "
                     "Your account is ready. Complete your profile to start connecting with innovators and investors across Africa."
                 ),
                 link='/app/',
@@ -2706,16 +2901,15 @@ def register(request):
                         recipient_id=user.pk,
             
                         content=(
-                            f"Hi {first_name}, welcome to Oduma Corp! 👋\n\n""<img />"
-                            "Here are your login details — keep them safe:\n\n<br>"
-                            f"📧 Email: {user.email}\n <br>"
-                            f"👤 Username: {user.username}\n\n <br>"
-                            "You can log in using either your email or username.\n\n"
-                            "Here's how to get started:\n"
-                            "1️⃣ Complete your profile — add a photo, bio, and your industry.\n"
-                            "2️⃣ Post your first project (innovators) or browse opportunities (investors).\n"
-                            "3️⃣ Connect with people in your industry and start collaborating.\n\n"
-                            "If you have any questions, just reply here. We're happy to help! 🚀"
+                            f"Hi {first_name}, welcome to Oduma Corp.\n\n"
+                            f"Your account is set up and ready to go. Here are your login details:\n\n"
+                            f"Email: {user.email}\n"
+                            f"Username: {user.username}\n\n"
+                            "A few things to get you started:\n\n"
+                            "Complete your profile so others know who you are and what you bring to the table. "
+                            "Then explore the feed, connect with people in your industry, and start building.\n\n"
+                            "This is a team building something meaningful — glad you're part of it. "
+                            "Reply here anytime if you need anything."
                         ),
                     )
 
@@ -3030,17 +3224,17 @@ def share_meeting(request, meeting_id):
 
     # Build a clean invite message
     page_url = request.build_absolute_uri(f'/meetings/{meeting.pk}/join/')
-    lines = [f"📹 You're invited to join a meeting!",
+    lines = [f"You're invited to join a meeting:",
              f"",
-             f"📌 {meeting.title}"]
+             f" {meeting.title}"]
     if meeting.scheduled_at:
-        lines.append(f"📅 {meeting.scheduled_at.strftime('%b %d, %Y at %H:%M UTC')}")
+        lines.append(f" {meeting.scheduled_at.strftime('%b %d, %Y at %H:%M UTC')}")
     if meeting.zoom_join_url:
-        lines.append(f"🔗 {meeting.zoom_join_url}")
+        lines.append(f" {meeting.zoom_join_url}")
     if meeting.zoom_meeting_id:
-        lines.append(f"🆔 Meeting ID: {meeting.zoom_meeting_id}")
+        lines.append(f" Meeting ID: {meeting.zoom_meeting_id}")
     if meeting.zoom_password:
-        lines.append(f"🔑 Passcode: {meeting.zoom_password}")
+        lines.append(f" Passcode: {meeting.zoom_password}")
     lines += [f"", f"Or open on Oduma Corp: {page_url}"]
     text = "\n".join(lines)
 
@@ -4699,7 +4893,11 @@ def create_company(request):
             messages.error(request, f'Could not create business page: {e}')
             return render(request, 'create_company.html', ctx)
 
-        messages.success(request, 'Business page created!')
+        is_first_co = Company.objects.filter(owner=request.user).count() == 1
+        if is_first_co:
+            messages.success(request, "Congratulations on listing your first business! Your company is now visible to innovators and investors across Africa.")
+        else:
+            messages.success(request, 'Business page created!')
         return redirect('company_profile', company_id=company.id)
 
     return render(request, 'create_company.html', ctx)
@@ -5250,8 +5448,8 @@ def add_comment(request, post_id):
 def edit_post(request, post_id):
     post = get_object_or_404(Post, pk=post_id, user=request.user)
     POST_TYPE_CHOICES = [
-        ('idea','💡 Idea'),('article','📝 Article'),('update','🚀 Update'),
-        ('announcement','📢 Announcement'),('question','❓ Question'),
+        ('idea','Idea'),('article','Article'),('update','Update'),
+        ('announcement','Announcement'),('question','Question'),
     ]
     if request.method == 'POST':
         post.title = request.POST.get('title', post.title).strip()
@@ -5330,6 +5528,30 @@ def toggle_post_like(request, post_id):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'liked': liked, 'count': post.likes.count()})
     return redirect(request.META.get('HTTP_REFERER', 'app'))
+
+
+@login_required
+def poll_vote(request, poll_id):
+    """AJAX POST {option_id} — cast or change a poll vote."""
+    from django.http import JsonResponse
+    from .models import Poll, PollOption, PollVote
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    poll = get_object_or_404(Poll, pk=poll_id)
+    if not poll.is_open():
+        return JsonResponse({'error': 'This poll has closed.'}, status=400)
+    try:
+        option_id = int(request.POST.get('option_id', 0))
+        option = poll.options.get(pk=option_id)
+    except (ValueError, PollOption.DoesNotExist):
+        return JsonResponse({'error': 'Invalid option.'}, status=400)
+    PollVote.objects.update_or_create(poll=poll, user=request.user, defaults={'option': option})
+    total = poll.total_votes()
+    options_data = [
+        {'id': o.id, 'text': o.text, 'count': o.vote_count(), 'pct': o.vote_pct(total)}
+        for o in poll.options.all()
+    ]
+    return JsonResponse({'ok': True, 'voted_option': option.id, 'total': total, 'options': options_data})
 
 
 @login_required
@@ -5729,7 +5951,7 @@ Output ONLY the description text, nothing else."""
 
         result = result.strip()
 
-        # 🔥 sanitize
+        # sanitize
         result = unicodedata.normalize('NFKD', result)
         result = result.replace('•', '-')
         result = result.encode('ascii', 'ignore').decode('ascii')
@@ -5761,7 +5983,7 @@ def _odu_local_reply(message, user):
     if re.match(r'^(hi|hello|hey|howdy|good\s*(morning|afternoon|evening)|sup|what\'?s up)\b', m):
         name = user.first_name or user.username
         return (
-            f"Hey {name}! 👋 I'm Odu, your Oduma Corp assistant. "
+            f"Hey {name}! I'm Odu, your Oduma Corp assistant. "
             "I can help you navigate the platform, post projects, find investors, "
             "connect with people, and much more. What would you like to do today?"
         )
@@ -5790,173 +6012,302 @@ def _odu_local_reply(message, user):
     # ── Navigation: Dashboard ──
     if re.search(r'\b(dashboard|my stats|my activity|overview)\b', m):
         return (
-            "Your **Dashboard** is at `/dashboard/` — it shows all your stats: "
-            "posts, projects, connections, profile views, project views, groups, and pages. "
-            "You can also create posts, projects, groups, pages, companies, and meetings from there. 📊"
+            "Your **Dashboard** has all your stats — posts, projects, connections, views, groups, and pages.\n\n"
+            "[Go to Dashboard](/dashboard/)"
         )
 
     # ── Navigation: Feed / App ──
-    if re.search(r'\b(feed|home|app|main page|posts|news feed)\b', m):
+    if re.search(r'\b(feed|home|app|main page|news feed)\b', m):
         return (
-            "The main **Feed** is at `/app/` — it has two tabs:\n"
-            "• **Posts** — updates and ideas from your network\n"
-            "• **Projects** — innovator projects you can explore, collaborate on, or invest in\n\n"
-            "You can write a post or create a new project right from there!"
+            "The main **Feed** has Posts and Projects tabs — see updates from your network and discover innovator projects.\n\n"
+            "[Go to Feed](/app/)"
         )
 
     # ── Navigation: Profile ──
-    if re.search(r'\b(my profile|view profile|edit profile|profile page)\b', m):
+    if re.search(r'\b(my profile|view profile|edit profile|update profile|profile page)\b', m):
         return (
-            f"Your profile is at `/profile/{user.id}/` — you can update your bio, "
-            "industry, photo, company, skills, and social links. "
-            "A complete profile gets more attention from investors! 👤"
+            f"You can view and edit your profile here:\n\n"
+            f"[View my profile](/profile/{user.id}/)  [Edit my profile](/update_profile/)\n\n"
+            "Add a photo, bio, industry, and company to attract more connections."
         )
 
     # ── How to create a project ──
     if re.search(r'\b(create|add|post|submit|upload)\b.*\bproject\b|\bproject\b.*\b(create|add|post|submit|upload)\b', m):
         return (
-            "To **create a project**, go to `/projects/create/` or click *New Project* on your dashboard. \n\n"
-            "You'll fill in:\n"
-            "• Title, industry, category, description\n"
-            "• Problem statement, solution, market opportunity\n"
-            "• Funding requirement and business model\n"
-            "• Images, video, and pitch deck sections\n\n"
+            "Ready to pitch your idea? Create a project now:\n\n"
+            "[Create a project](/projects/create/)\n\n"
+            "Fill in your title, industry, description, funding requirement, and attach images or a pitch deck. "
             "A detailed project attracts more investor proposals!"
         )
 
     # ── How to find investors ──
     if re.search(r'\b(find|browse|discover|connect with|meet)\b.*\binvestor\b|\binvestor\b.*\b(find|browse|discover)\b', m):
         return (
-            "You can find investors at `/investors/` — browse profiles filtered by industry and location. "
-            "Click **Connect** on any investor profile to send a connection request. "
-            "Once connected, you can send a direct message or invite them to a meeting! 💼"
+            "Browse investor profiles and connect with them:\n\n"
+            "[Find Investors](/investors/)\n\n"
+            "Click **Connect** on any profile to send a request. Once accepted, you can message them or schedule a meeting."
         )
 
     # ── How to find innovators ──
     if re.search(r'\b(find|browse|discover)\b.*\binnovator\b|\binnovator\b.*\b(find|browse|discover)\b', m):
         return (
-            "Browse innovators at `/innovators/` — you'll see profiles with their projects, "
-            "industry, bio, and ratings. Click **Connect** to send a request, "
-            "or **View Profile** to explore their work. 💡"
+            "Explore innovator profiles and their projects:\n\n"
+            "[Browse Innovators](/innovators/)\n\n"
+            "Click **Connect** to send a request or **View Profile** to explore their work."
         )
 
     # ── Messaging / Inbox ──
     if re.search(r'\b(message|inbox|chat|dm|direct message|send.*message|talk to)\b', m):
         return (
-            "Your **Inbox** is at `/inbox/` — you can view all conversations and send messages "
-            "to anyone you're connected with. "
-            "You can also start a chat directly from someone's profile page. 💬"
+            "Your Inbox holds all your conversations — you can message anyone you're connected with.\n\n"
+            "[Open Inbox](/inbox/)\n\n"
+            "You can also start a chat directly from someone's profile page."
         )
 
     # ── Meetings / Zoom ──
     if re.search(r'\b(meeting|zoom|schedule|video call|call)\b', m):
         return (
-            "You can schedule **Zoom meetings** at `/meetings/create/`. 📅\n\n"
-            "• Create a meeting with a title, time, and invite your connections\n"
-            "• The platform generates a Zoom link automatically\n"
-            "• You can view upcoming and past meetings at `/meetings/`"
+            "Schedule a Zoom video meeting with your connections:\n\n"
+            "[Schedule a meeting](/meetings/create/)  [View my meetings](/meetings/)\n\n"
+            "The platform generates a Zoom link automatically and notifies your invitees."
         )
 
     # ── Groups ──
     if re.search(r'\b(group|community|join group|create group)\b', m):
         return (
-            "**Groups** are at `/groups/` — communities of innovators and investors around shared interests. 👥\n\n"
-            "• Browse and join groups in your industry\n"
-            "• Start discussions, share updates, and collaborate\n"
-            "• Create your own group at `/groups/create/`"
+            "Groups are industry communities where you can discuss, share, and collaborate:\n\n"
+            "[Browse Groups](/groups/)  [Create a Group](/groups/create/)"
         )
 
     # ── Pages ──
     if re.search(r'\b(page|brand page|company page|create page)\b', m):
         return (
-            "**Pages** at `/pages/` are public brand profiles for businesses, startups, and organizations. 📄\n\n"
-            "• Create a page at `/pages/create/`\n"
-            "• Share updates and grow your following\n"
-            "• Followers see your posts in their feed"
+            "Pages are public brand profiles for businesses, startups, and organizations:\n\n"
+            "[Browse Pages](/pages/)  [Create a Page](/pages/create/)\n\n"
+            "Followers see your page posts in their feed."
         )
 
     # ── Companies ──
     if re.search(r'\b(compan|business|startup|firm)\b', m):
         return (
-            "You can list and discover **Companies** at `/companies/`. 🏢\n\n"
-            "• Browse companies by industry\n"
-            "• Follow companies to stay updated\n"
-            "• Add your own company at `/companies/create/`"
+            "Discover businesses or list your own company:\n\n"
+            "[Browse Companies](/companies/)  [List my Business](/companies/create/)"
         )
 
     # ── Jobs ──
     if re.search(r'\b(job|career|hiring|vacancy|work|employment)\b', m):
         return (
-            "Check out **Jobs** on the platform — innovators and companies post open positions. 💼\n\n"
-            "You can browse available roles and apply directly through Oduma Corp."
+            "Browse open positions posted by innovators and companies on the platform:\n\n"
+            "[View Jobs](/jobs/)"
         )
 
     # ── Courses / Training ──
     if re.search(r'\b(course|training|learn|education|module)\b', m):
         return (
-            "The **Training Hub** at `/training/` has courses to help you build skills in entrepreneurship, "
-            "fundraising, innovation, and more. 🎓\n\n"
-            "Enroll in a course and track your progress through the course modules."
+            "The Training Hub has courses on entrepreneurship, fundraising, and innovation:\n\n"
+            "[Go to Training](/training/)\n\n"
+            "Enroll in a course and track your progress through each module."
         )
 
     # ── Mentorship ──
     if re.search(r'\b(mentor|mentorship|coach|guidance)\b', m):
         return (
-            "The **Mentorship** section connects you with experienced mentors. 🌟\n\n"
-            "• Browse mentor profiles and their areas of expertise\n"
-            "• Submit a mentorship request\n"
-            "• Once matched, your mentor can guide your project and growth"
+            "Connect with an experienced mentor to guide your journey:\n\n"
+            "[Find a Mentor](/mentor/)\n\n"
+            "Browse mentor profiles, see their expertise, and submit a request to get matched."
         )
 
     # ── Notifications ──
     if re.search(r'\b(notification|alert|updates|unread)\b', m):
         return (
-            "Your **Notifications** are at `/notifications/` — you'll see alerts for "
-            "new connections, messages, project proposals, group invites, and platform updates. 🔔"
+            "See all your alerts — connections, messages, proposals, and platform updates:\n\n"
+            "[View Notifications](/notifications/)"
         )
 
     # ── Network / Connections ──
     if re.search(r'\b(network|connection|connect|disconnect)\b', m):
         return (
-            "Your **Network** is at `/networks/` — see all your connections and get suggestions for "
-            "people, companies, groups, and pages to follow. 🌐\n\n"
+            "Manage your connections and discover new people, companies, and groups:\n\n"
+            "[My Network](/networks/)\n\n"
             "To connect with someone, visit their profile and click **Connect**."
         )
 
     # ── How to get funding / investors ──
-    if re.search(r'\b(funding|raise|investment|pitch|investor.*interest|attract)\b', m):
+    if re.search(r'\b(funding|raise|investment|pitch|attract investor)\b', m):
         return (
-            "To attract investors on Oduma Corp: 💰\n\n"
-            "1. **Post a detailed project** with a full pitch deck (problem, solution, market, financials)\n"
+            "To attract investors on Oduma Corp:\n\n"
+            "1. **Post a detailed project** — problem, solution, market, financials\n"
             "2. **Complete your profile** — investors check the founder before the idea\n"
-            "3. **Browse investors** at `/investors/` and send connection requests\n"
-            "4. **Be active** — post updates, join groups, and engage with the community\n"
-            "5. **Schedule meetings** with interested investors via `/meetings/create/`"
+            "3. **Connect with investors** and send proposals\n"
+            "4. **Schedule meetings** to pitch directly\n\n"
+            "[Create a project](/projects/create/)  [Find Investors](/investors/)  [Schedule a meeting](/meetings/create/)"
         )
 
     # ── Password / account settings ──
-    if re.search(r'\b(password|change password|account settings|security)\b', m):
+    if re.search(r'\b(password|change password|forgot password|reset password|account settings|security)\b', m):
         return (
-            "You can change your password at `/update_password/`. 🔒\n\n"
-            "For other account settings and profile updates, visit your profile at `/profile/{}/`.".format(user.id)
+            "You can update your password directly here:\n\n"
+            "[Change my password](/update_password/)\n\n"
+            "For profile updates, visit:\n\n"
+            "[Edit my profile](/update_profile/)"
         )
 
     # ── Thank you ──
     if re.match(r'^(thanks|thank you|thx|ty|appreciate it|cheers)\b', m):
-        return "You're welcome! 😊 Feel free to ask if you need anything else. I'm always here!"
+        return "You're welcome!  Feel free to ask if you need anything else. I'm always here!"
 
     # ── Help ──
     if re.match(r'^(help|what can you do|commands|options)\b', m):
         return (
-            "Here's what I can help you with: 🤖\n\n"
-            "• **Navigation** — finding any page on the platform\n"
-            "• **Projects** — creating, editing, pitching\n"
-            "• **Connections** — finding investors, innovators, companies\n"
-            "• **Meetings** — scheduling Zoom calls\n"
-            "• **Groups & Pages** — joining communities, building a brand\n"
-            "• **Training & Mentorship** — courses and guidance\n"
-            "• **Jobs** — finding or posting opportunities\n\n"
-            "Just type your question naturally!"
+            "Here's what I can help you with:\n\n"
+            "• **Projects** — create, edit, pitch to investors\n"
+            "• **Connections** — find investors, innovators, companies\n"
+            "• **Meetings** — schedule Zoom calls with connections\n"
+            "• **Groups & Pages** — join communities, build a brand\n"
+            "• **Training & Mentorship** — courses and expert guidance\n"
+            "• **Jobs** — find or post opportunities\n"
+            "• **Content & Visibility** — images, videos, templates, reach tips\n"
+            "• **Account** — profile, password, verification\n\n"
+            "Quick links:\n\n"
+            "[Dashboard](/dashboard/)  [Projects](/projects/)  [Network](/networks/)  [Inbox](/inbox/)"
+        )
+
+    # ── Generate / AI images ──
+    if re.search(r'\b(generate image|ai image|create image|make image|design image|generate.*photo|ai.*art|dall.?e|midjourney|stable diffusion|image generator)\b', m):
+        return (
+            "Here are the best free tools to generate images for your projects and posts:\n\n"
+            "**For project banners & cover images:**\n"
+            "[Canva](https://www.canva.com) — drag-and-drop, startup templates, free tier\n"
+            "[Adobe Express](https://www.adobe.com/express/) — professional quality, free\n\n"
+            "**For AI-generated images:**\n"
+            "[Microsoft Designer](https://designer.microsoft.com) — free AI image generation\n"
+            "[Adobe Firefly](https://firefly.adobe.com) — commercial-safe AI art\n"
+            "[Ideogram](https://ideogram.ai) — great for text in images\n\n"
+            "**Best sizes for Oduma Corp:**\n"
+            "• Project main image: **1200 × 630px** (16:9)\n"
+            "• Profile / avatar: **400 × 400px** (square)\n"
+            "• Post image: **1080 × 1080px** (square) or **1200 × 628px** (landscape)\n\n"
+            "Once you have your image, attach it when creating or editing your project:\n\n"
+            "[Create a project](/projects/create/)"
+        )
+
+    # ── Images / photos / visuals for project or post ──
+    if re.search(r'\b(image|photo|picture|thumbnail|banner|cover|visual|graphic)\b', m):
+        return (
+            "The right visuals can triple your project views. Here's what works best:\n\n"
+            "**For projects:**\n"
+            "• A clean **product mockup or prototype photo** as the main image\n"
+            "• A **team photo** — investors fund people, not just ideas\n"
+            "• A **problem-solution graphic** (e.g. before/after)\n"
+            "• An **infographic** showing your market size or traction\n\n"
+            "**For posts:**\n"
+            "• **Real photos** outperform stock images — use your workspace, product, or team\n"
+            "• **Quote cards** with a bold insight from your industry\n"
+            "• **Charts or data visuals** if you're sharing numbers\n\n"
+            "**Free tools to create visuals:**\n"
+            "[Canva](https://www.canva.com)  [Adobe Express](https://www.adobe.com/express/)  [Pexels (free photos)](https://www.pexels.com)\n\n"
+            "**AI image generation:**\n"
+            "[Microsoft Designer](https://designer.microsoft.com)  [Ideogram](https://ideogram.ai)\n\n"
+            "Upload your images when creating a project:\n\n"
+            "[Create a project](/projects/create/)"
+        )
+
+    # ── Video content ──
+    if re.search(r'\b(video|reel|demo|explainer|pitch video|record|screen record|vlog)\b', m):
+        return (
+            "Video content drives the highest engagement — here's how to use it on Oduma Corp:\n\n"
+            "**What to record:**\n"
+            "• A **60-second pitch video** — problem, solution, ask. Investors watch short ones.\n"
+            "• A **product demo** — show it working, don't just describe it\n"
+            "• A **founder story** — why you built this and why now\n"
+            "• **Customer testimonials** — real voices are powerful\n\n"
+            "**Free tools to create videos:**\n"
+            "[Loom](https://www.loom.com) — record screen + camera, instant link, free\n"
+            "[CapCut](https://www.capcut.com) — mobile video editing, templates, free\n"
+            "[Canva Video](https://www.canva.com/video-editor/) — animated slides + voiceover\n"
+            "[Descript](https://www.descript.com) — edit video by editing a transcript\n\n"
+            "**AI video generation:**\n"
+            "[Runway](https://runwayml.com) — text-to-video AI\n"
+            "[Synthesia](https://www.synthesia.io) — AI presenter videos from a script\n\n"
+            "Attach your video as a file on your project page:\n\n"
+            "[Create a project](/projects/create/)"
+        )
+
+    # ── Documents / pitch deck / templates ──
+    if re.search(r'\b(document|pitch deck|presentation|template|slide|pdf|deck|report|business plan|executive summary)\b', m):
+        return (
+            "A strong pitch deck can be the difference between a proposal and a pass. Here's how to build one:\n\n"
+            "**Pitch deck structure (10 slides):**\n"
+            "1. Problem  2. Solution  3. Market size  4. Product  5. Traction\n"
+            "6. Business model  7. Team  8. Competition  9. Financials  10. Ask\n\n"
+            "**Free templates:**\n"
+            "[Canva Pitch Deck Templates](https://www.canva.com/presentations/templates/pitch-deck/) — startup-ready, free\n"
+            "[Google Slides](https://slides.google.com) — simple, shareable, free\n"
+            "[Beautiful.ai](https://www.beautiful.ai) — AI-assisted slide design\n\n"
+            "**AI document generation:**\n"
+            "[Gamma.app](https://gamma.app) — turn a prompt into a full deck in seconds\n"
+            "[Tome](https://tome.app) — AI storytelling for pitch decks\n\n"
+            "**Once your deck is ready:**\n"
+            "Upload it as an attachment on your project page — investors can download it directly.\n\n"
+            "[Create a project](/projects/create/)  [Edit my projects](/projects/)"
+        )
+
+    # ── Visibility / reach / engagement / get noticed ──
+    if re.search(r'\b(visibility|reach|views|engagement|get noticed|promote|grow|audience|exposure|impressions|algorithm|trending)\b', m):
+        return (
+            "Here's how to maximize your visibility on Oduma Corp:\n\n"
+            "**Project visibility:**\n"
+            "• Use a **high-quality cover image** (1200×630px) — projects with images get 3× more views\n"
+            "• Write a clear, keyword-rich **description** (investors search by industry + problem)\n"
+            "• Attach a **pitch deck or document** — it signals seriousness\n"
+            "• Set your **funding stage and amount** — investors filter by this\n\n"
+            "**Post reach:**\n"
+            "• Post **3–5 times per week** — consistency beats frequency\n"
+            "• Use **Idea, Update, or Article** post types for different audiences\n"
+            "• End posts with a **question** — it drives comments and broader reach\n"
+            "• Share **real progress**: traction, pivots, wins, and lessons\n\n"
+            "**Network effect:**\n"
+            "• Connect with **10+ people per week** in your industry\n"
+            "• Join **relevant groups** and post discussions there\n"
+            "• Follow **company pages** in your sector\n\n"
+            "[Create a project](/projects/create/)  [Write a post](/app/?compose=1)  [Browse Groups](/groups/)"
+        )
+
+    # ── Content strategy / what to post ──
+    if re.search(r'\b(what (should i|to) post|content (strategy|plan|idea|type)|type of (content|post)|post idea|what (kind|type) of)\b', m):
+        return (
+            "Here's a content strategy that works for innovators and investors on Oduma Corp:\n\n"
+            "**5 high-performing post types:**\n\n"
+            "**1. Progress updates** — \"We just hit 100 users\" or \"Month 3 update\"\n"
+            "   Best format: short text + 1 photo or chart\n\n"
+            "**2. Insight articles** — share what you've learned about your industry\n"
+            "   Best format: Article post type, 300–500 words\n\n"
+            "**3. Problem posts** — describe a real problem your users face\n"
+            "   Best format: Question post type — sparks comments\n\n"
+            "**4. Behind the scenes** — your team, workspace, process\n"
+            "   Best format: 2–3 photos, casual tone\n\n"
+            "**5. Announcements** — new feature, partnership, launch\n"
+            "   Best format: Announcement type, clear headline image\n\n"
+            "**Content tools:**\n"
+            "[Canva](https://www.canva.com)  [Gamma.app](https://gamma.app)  [CapCut](https://www.capcut.com)\n\n"
+            "[Start writing a post](/app/?compose=1)"
+        )
+
+    # ── Templates / design resources ──
+    if re.search(r'\b(template|design resource|brand kit|logo|color|font|style guide|brand)\b', m):
+        return (
+            "Strong branding makes your projects and posts stand out. Here are the best free resources:\n\n"
+            "**Templates:**\n"
+            "[Canva](https://www.canva.com) — 1,000+ startup templates (pitch decks, posts, banners)\n"
+            "[Figma Community](https://www.figma.com/community) — free UI & presentation templates\n"
+            "[Slidesgo](https://slidesgo.com) — free Google Slides / PowerPoint templates\n\n"
+            "**Logo & brand identity:**\n"
+            "[Looka](https://looka.com) — AI logo generator\n"
+            "[Hatchful by Shopify](https://www.shopify.com/tools/logo-maker) — free logo maker\n\n"
+            "**Stock photos & icons:**\n"
+            "[Pexels](https://www.pexels.com)  [Unsplash](https://unsplash.com)  [Flaticon](https://www.flaticon.com)\n\n"
+            "Once your visuals are ready, add them to your project or post:\n\n"
+            "[Create a project](/projects/create/)  [Write a post](/app/?compose=1)"
         )
 
     return None  # No local match — fall through to AI
@@ -5984,7 +6335,7 @@ def odu_chat(request):
     api_key = getattr(settings, 'ANTHROPIC_API_KEY', '')
     if not api_key:
         return JsonResponse({'reply': (
-            "I'm Odu! 👋 I can help you navigate Oduma Corp. "
+            "I'm Odu!  I can help you navigate Oduma Corp. "
             "Try asking me about projects, connections, meetings, groups, or any platform feature!"
         )})
 
@@ -6024,10 +6375,8 @@ Tone: warm, concise, helpful. Use bullet points and markdown for clarity. Keep r
         reply = resp.content[0].text if resp.content else "I'm not sure how to help with that. Try asking about a specific feature!"
     except Exception:
         reply = (
-            "Sorry, I'm having a moment! 😅 In the meantime, you can:\n"
-            "• Browse projects at `/projects/`\n"
-            "• Find investors at `/investors/`\n"
-            "• Check your dashboard at `/dashboard/`"
+            "Sorry, I'm having trouble right now. In the meantime:\n\n"
+            "[Dashboard](/dashboard/)  [Browse Projects](/projects/)  [Find Investors](/investors/)"
         )
 
     return JsonResponse({'reply': reply})

@@ -480,6 +480,57 @@
 }
 .ap-composer-btn--primary:hover { background: #1448a3; }
 
+/* Post type badge */
+.ap-type-badge {
+  font-size: 1.1rem; font-weight: 800; padding: 3px 10px;
+  border-radius: 100px; white-space: nowrap;
+}
+
+/* Poll card */
+.ap-poll {
+  margin: 12px 0 4px;
+  border: 1.5px solid #e4eaf2;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.ap-poll-q {
+  padding: 12px 14px 8px;
+  font-weight: 700; font-size: 1.25rem; color: #0A1628;
+}
+.ap-poll-options { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+.ap-poll-opt {
+  position: relative; border-radius: 10px; overflow: hidden;
+  border: 1.5px solid #e4eaf2; cursor: pointer;
+  background: #fff; transition: border-color .15s;
+  display: flex; align-items: center; min-height: 40px;
+}
+.ap-poll-opt:hover { border-color: #1B5EC7; }
+.ap-poll-opt--voted { border-color: #1B5EC7; }
+.ap-poll-opt--winner { border-color: #10b981; }
+.ap-poll-bar {
+  position: absolute; left: 0; top: 0; height: 100%;
+  background: #e0e8f4; transition: width .4s ease; z-index: 0;
+  border-radius: 8px;
+}
+.ap-poll-opt--winner .ap-poll-bar { background: #d1fae5; }
+.ap-poll-opt--voted .ap-poll-bar  { background: #dbeafe; }
+.ap-poll-label {
+  position: relative; z-index: 1; flex: 1;
+  padding: 9px 12px; font-size: 1.2rem; color: #0A1628; font-weight: 500;
+}
+.ap-poll-pct {
+  position: relative; z-index: 1; padding: 9px 12px;
+  font-size: 1.15rem; font-weight: 700; color: #1B5EC7; white-space: nowrap;
+}
+.ap-poll-meta {
+  padding: 6px 14px 10px;
+  font-size: 1.1rem; color: #6b7280; display: flex; gap: 10px; align-items: center;
+}
+.ap-poll-closed-badge {
+  font-size: 1.0rem; font-weight: 700; color: #dc2626;
+  background: #fee2e2; border-radius: 100px; padding: 2px 8px;
+}
+
 /* ── Post / project feed card ───────────────────────────────────── */
 .ap-feed-card {
   background: #fff;
@@ -1412,15 +1463,25 @@
         </div>
         <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
           {% if post.post_type == 'idea' %}
-            <span style="background:#fef3c7;color:#92400e;font-size: 1.2rem;font-weight:800;padding:3px 10px;border-radius:100px;">Idea</span>
+            <span class="ap-type-badge" style="background:#fef3c7;color:#92400e;">Idea</span>
           {% elif post.post_type == 'update' %}
-            <span style="background:#d1fae5;color:#065f46;font-size: 1.2rem;font-weight:800;padding:3px 10px;border-radius:100px;">Traction</span>
+            <span class="ap-type-badge" style="background:#d1fae5;color:#065f46;">Update</span>
           {% elif post.post_type == 'announcement' %}
-            <span style="background:#dbeafe;color:#1e40af;font-size: 1.2rem;font-weight:800;padding:3px 10px;border-radius:100px;">Fundraising</span>
+            <span class="ap-type-badge" style="background:#dbeafe;color:#1e40af;">Announcement</span>
           {% elif post.post_type == 'question' %}
-            <span style="background:#ede9fe;color:#5b21b6;font-size: 1.2rem;font-weight:800;padding:3px 10px;border-radius:100px;">Question</span>
+            <span class="ap-type-badge" style="background:#ede9fe;color:#5b21b6;">Question</span>
+          {% elif post.post_type == 'poll' %}
+            <span class="ap-type-badge" style="background:#ecfdf5;color:#065f46;">Poll</span>
+          {% elif post.post_type == 'tip' %}
+            <span class="ap-type-badge" style="background:#fff7ed;color:#c2410c;">Tip</span>
+          {% elif post.post_type == 'resource' %}
+            <span class="ap-type-badge" style="background:#f0fdf4;color:#15803d;">Resource</span>
+          {% elif post.post_type == 'milestone' %}
+            <span class="ap-type-badge" style="background:#fdf4ff;color:#7e22ce;">Milestone</span>
+          {% elif post.post_type == 'opinion' %}
+            <span class="ap-type-badge" style="background:#fff1f2;color:#be123c;">Opinion</span>
           {% else %}
-            <span style="background:#f3f4f6;color:#374151;font-size: 1.2rem;font-weight:800;padding:3px 10px;border-radius:100px;">Article</span>
+            <span class="ap-type-badge" style="background:#f3f4f6;color:#374151;">Article</span>
           {% endif %}
           {% if post.industry %}<span style="background:#e0e8f4;color:#1B5EC7;font-size: 1.2rem;font-weight:700;padding:3px 10px;border-radius:100px;">{{ post.industry }}</span>{% endif %}
           {% if user == post.user %}
@@ -1447,6 +1508,34 @@
         <a href="{% url 'post_detail' post.id %}" class="ap-card-title-link">{{ post.title }}</a>
         {% endif %}
         <p class="ap-card-text">{{ post.content|truncatewords:50|linkify_hashtags }}</p>
+
+        <!-- Poll widget -->
+        {% with poll_data=post_poll_map|get_item:post.id %}
+        {% if poll_data %}
+        <div class="ap-poll" id="poll-{{ poll_data.poll_id }}">
+          {% if poll_data.question %}<div class="ap-poll-q">{{ poll_data.question }}</div>{% endif %}
+          <div class="ap-poll-options">
+            {% for opt in poll_data.options %}
+            <button type="button"
+                    class="ap-poll-opt{% if poll_data.user_vote == opt.id %} ap-poll-opt--voted{% endif %}"
+                    onclick="ocPollVote({{ poll_data.poll_id }}, {{ opt.id }}, this)"
+                    {% if poll_data.user_vote or not poll_data.is_open %}disabled style="cursor:default;"{% endif %}>
+              <div class="ap-poll-bar" style="width:{% if poll_data.user_vote or not poll_data.is_open %}{{ opt.pct }}{% else %}0{% endif %}%;"></div>
+              <span class="ap-poll-label">{{ opt.text }}</span>
+              {% if poll_data.user_vote or not poll_data.is_open %}
+              <span class="ap-poll-pct">{{ opt.pct }}%</span>
+              {% endif %}
+            </button>
+            {% endfor %}
+          </div>
+          <div class="ap-poll-meta">
+            <span>{{ poll_data.total }} vote{{ poll_data.total|pluralize }}</span>
+            {% if not poll_data.is_open %}<span class="ap-poll-closed-badge">Closed</span>{% endif %}
+          </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
       </div>
 
       {% if post.image %}
@@ -1462,25 +1551,25 @@
         <div class="ap-rxn-wrap" id="rxn-wrap-{{ post.id }}"
              onmouseenter="ocRxnShow({{ post.id }})" onmouseleave="ocRxnHide({{ post.id }})">
           <div class="ap-rxn-picker" id="rxn-picker-{{ post.id }}">
-            <button class="ap-rxn-pick-btn{% if my_rxn == 'like' %} active{% endif %}" data-rxn="like" data-label="Like" onclick="ocReact({{ post.id }},'like',this)">👍</button>
-            <button class="ap-rxn-pick-btn{% if my_rxn == 'celebrate' %} active{% endif %}" data-rxn="celebrate" data-label="Celebrate" onclick="ocReact({{ post.id }},'celebrate',this)">👏</button>
-            <button class="ap-rxn-pick-btn{% if my_rxn == 'support' %} active{% endif %}" data-rxn="support" data-label="Support" onclick="ocReact({{ post.id }},'support',this)">🤝</button>
-            <button class="ap-rxn-pick-btn{% if my_rxn == 'love' %} active{% endif %}" data-rxn="love" data-label="Love" onclick="ocReact({{ post.id }},'love',this)">❤️</button>
-            <button class="ap-rxn-pick-btn{% if my_rxn == 'insightful' %} active{% endif %}" data-rxn="insightful" data-label="Insightful" onclick="ocReact({{ post.id }},'insightful',this)">💡</button>
-            <button class="ap-rxn-pick-btn{% if my_rxn == 'funny' %} active{% endif %}" data-rxn="funny" data-label="Funny" onclick="ocReact({{ post.id }},'funny',this)">😄</button>
+            <button class="ap-rxn-pick-btn{% if my_rxn == 'like' %} active{% endif %}" data-rxn="like" data-label="Like" onclick="ocReact({{ post.id }},'like',this)" title="Like"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></button>
+            <button class="ap-rxn-pick-btn{% if my_rxn == 'celebrate' %} active{% endif %}" data-rxn="celebrate" data-label="Celebrate" onclick="ocReact({{ post.id }},'celebrate',this)" title="Celebrate"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></button>
+            <button class="ap-rxn-pick-btn{% if my_rxn == 'support' %} active{% endif %}" data-rxn="support" data-label="Support" onclick="ocReact({{ post.id }},'support',this)" title="Support"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
+            <button class="ap-rxn-pick-btn{% if my_rxn == 'love' %} active{% endif %}" data-rxn="love" data-label="Love" onclick="ocReact({{ post.id }},'love',this)" title="Love"><svg width="15" height="15" fill="currentColor" stroke="none" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="ap-rxn-pick-btn{% if my_rxn == 'insightful' %} active{% endif %}" data-rxn="insightful" data-label="Insightful" onclick="ocReact({{ post.id }},'insightful',this)" title="Insightful"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg></button>
+            <button class="ap-rxn-pick-btn{% if my_rxn == 'funny' %} active{% endif %}" data-rxn="funny" data-label="Funny" onclick="ocReact({{ post.id }},'funny',this)" title="Funny"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
           </div>
           <button class="ap-rxn-btn ap-rxn-main{% if my_rxn %} ap-rxn-btn--on ap-rxn--{{ my_rxn }}{% endif %}"
                   id="rxn-btn-{{ post.id }}"
                   data-post="{{ post.id }}"
                   data-active="{{ my_rxn|default:'' }}"
                   onclick="ocRxnClick({{ post.id }}, this)">
-            <span class="ap-rxn-ico" id="rxn-ico-{{ post.id }}">{% if my_rxn == 'like' %}👍{% elif my_rxn == 'celebrate' %}👏{% elif my_rxn == 'support' %}🤝{% elif my_rxn == 'love' %}❤️{% elif my_rxn == 'insightful' %}💡{% elif my_rxn == 'funny' %}😄{% else %}👍{% endif %}</span>
+            <span class="ap-rxn-ico" id="rxn-ico-{{ post.id }}"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></span>
             <span class="ap-rxn-lbl" id="rxn-lbl-{{ post.id }}">{% if my_rxn %}{{ my_rxn|capfirst }}{% else %}Like{% endif %}</span>
             <span class="ap-rxn-cnt" id="rxn-cnt-{{ post.id }}">{{ post.reactions.count }}</span>
           </button>
         </div>
         {% else %}
-        <span class="ap-rxn-stat">👍 {{ post.reactions.count }}</span>
+        <span class="ap-rxn-stat"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> {{ post.reactions.count }}</span>
         {% endif %}
         <a href="{% url 'post_detail' post.id %}#comments" class="ap-rxn-btn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -1539,17 +1628,35 @@
     <!-- ══ PROJECTS TAB ══ -->
     <div id="ap-tab-projects" style="display:none;">
 
+    <!-- ── Create project CTA (non-investor) ── -->
+    {% if user.user_type != 'investor' %}
+      {% if user_project_count == 0 %}
+      <div style="background:#fff;border:1px solid #e4eaf2;border-radius:14px;text-align:center;padding:40px 24px 36px;margin-bottom:18px;">
+        <div style="width:52px;height:52px;background:#e0e8f4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B5EC7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+        <p style="font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;color:#0A1628;margin:0 0 6px;">Ready to share your idea with the world?</p>
+        <p style="font-size:1rem;color:#6b7280;margin:0 0 20px;">Post your project and connect with investors across Africa.</p>
+        <a href="{% url 'create_project' %}" style="display:inline-flex;align-items:center;gap:7px;background:#1B5EC7;color:#fff;padding:11px 26px;border-radius:10px;font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          Start your first project now
+        </a>
+      </div>
+      {% else %}
+      <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+        <a href="{% url 'create_project' %}" style="background:#1B5EC7;color:#fff;padding:8px 18px;border-radius:8px;font-size:1rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          Create Project
+        </a>
+      </div>
+      {% endif %}
+    {% endif %}
+
     <!-- ── Featured Projects section ── -->
     {% if all_innovators_with_projects %}
     <div class="ap-section-divider">
       <span class="ap-section-divider-label">Featured Projects</span>
     </div>
-
-    {% if user.user_type != 'investor' %}
-    <div style="display:flex;justify-content:flex-end;">
-      <a href="{% url 'create_project' %}" style="background:#1B5EC7;color:#fff;padding:8px 18px;border-radius:8px;font-size: 1.2rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">+ Create Project</a>
-    </div>
-    {% endif %}
     {% endif %}
 
     {% for entry in all_innovators_with_projects %}
@@ -1634,10 +1741,10 @@
 
       <!-- Stats row -->
       <div class="ap-card-stats">
-        <span>👁 {{ project.view_count|default:"0" }}</span>
-        <span>👍 {{ project.liked_by.count }}</span>
-        <span>🤝 {{ project.collab_count|default:"0" }}</span>
-        <span>📄 {{ project.proposal_count|default:"0" }}</span>
+        <span><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> {{ project.view_count|default:"0" }}</span>
+        <span><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> {{ project.liked_by.count }}</span>
+        <span><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> {{ project.collab_count|default:"0" }}</span>
+        <span><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> {{ project.proposal_count|default:"0" }}</span>
       </div>
 
       <!-- Reaction bar -->
@@ -1645,11 +1752,11 @@
         {% if user.is_authenticated %}
         <button class="ap-rxn-btn{% if user in project.liked_by.all %} ap-rxn-btn--on{% endif %}"
                 onclick="ocLikeProject({{ project.pk }}, this)">
-          👍 <span class="ap-rxn-lbl">{% if user in project.liked_by.all %}Liked{% else %}Like{% endif %}</span><span class="ap-rxn-cnt">{{ project.liked_by.count }}</span>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> <span class="ap-rxn-lbl">{% if user in project.liked_by.all %}Liked{% else %}Like{% endif %}</span><span class="ap-rxn-cnt">{{ project.liked_by.count }}</span>
         </button>
         <div class="ap-inline-rate" id="apr-{{ project.pk }}">
           <button class="ap-rxn-btn" onclick="aprToggle({{ project.pk }})">
-            ⭐ <span class="ap-rxn-lbl">Rate</span>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> <span class="ap-rxn-lbl">Rate</span>
           </button>
           <div class="ap-star-picker" id="apr-stars-{{ project.pk }}">
             <button class="ap-star" data-val="1" onclick="ocRateProject({{ project.pk }},1,this)">★</button>
@@ -1662,28 +1769,28 @@
         {% if user != entry.innovator %}
         <button class="ap-rxn-btn"
                 onclick="qmOpen('collaborate','{{ project.title|escapejs }}',{{ project.pk }},'{% url "project_collaborate" project.pk %}')">
-          🤝 <span class="ap-rxn-lbl">Collaborate</span>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <span class="ap-rxn-lbl">Collaborate</span>
         </button>
         {% if user.user_type == 'investor' %}
         <button class="ap-rxn-btn"
                 onclick="qmOpen('proposal','{{ project.title|escapejs }}',{{ project.pk }},'{% url "project_send_proposal" project.pk %}')">
-          📄 <span class="ap-rxn-lbl">Propose</span>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> <span class="ap-rxn-lbl">Propose</span>
         </button>
         {% endif %}
         {% endif %}
         <button class="ap-rxn-btn" onclick="ocToggleReadLater('project', {{ project.pk }}, this)">
-          🔖 <span class="ap-rxn-lbl">Save</span>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> <span class="ap-rxn-lbl">Save</span>
         </button>
         <button class="ap-rxn-btn {% if project.pk in pinned_project_ids %}ap-rxn-btn--pinned{% endif %}"
                 title="{% if project.pk in pinned_project_ids %}Unpin{% else %}Pin project{% endif %}"
                 onclick="ocTogglePin('project',{{ project.pk }},this)">
-          📌 <span class="ap-rxn-lbl">{% if project.pk in pinned_project_ids %}Pinned{% else %}Pin{% endif %}</span>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17z"/></svg> <span class="ap-rxn-lbl">{% if project.pk in pinned_project_ids %}Pinned{% else %}Pin{% endif %}</span>
         </button>
         <button class="ap-rxn-btn ap-rxn-btn--send" onclick="stcOpen('project', {{ project.pk }}, '{{ project.title|escapejs }}')">
           ↗ <span class="ap-rxn-lbl">Send</span>
         </button>
         {% else %}
-        <button class="ap-rxn-btn" onclick="ocToggleReadLater('project', {{ project.pk }}, this)">🔖 <span class="ap-rxn-lbl">Save</span></button>
+        <button class="ap-rxn-btn" onclick="ocToggleReadLater('project', {{ project.pk }}, this)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> <span class="ap-rxn-lbl">Save</span></button>
         <button class="ap-rxn-btn" onclick="ocShare('{{ project.title|escapejs }}', window.location.origin+'/projects/{{ project.pk }}/', 'project', {{ project.pk }}, this)">↑ <span class="ap-rxn-lbl">Share</span></button>
         <button class="ap-rxn-btn ap-rxn-btn--send" onclick="stcOpen('project', {{ project.pk }}, '{{ project.title|escapejs }}')">↗ <span class="ap-rxn-lbl">Send</span></button>
         {% endif %}
@@ -1768,12 +1875,26 @@
         {% endfor %}
       </div>
       {% else %}
+      {% if user_company_count == 0 %}
+      <div style="background:#fff;border:1px solid #e4eaf2;border-radius:14px;text-align:center;padding:40px 24px 36px;">
+        <div style="width:52px;height:52px;background:#e0e8f4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="24" height="24" fill="none" stroke="#1B5EC7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <p style="font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;color:#0A1628;margin:0 0 6px;">List your business on Oduma</p>
+        <p style="font-size:1rem;color:#6b7280;margin:0 0 20px;">Create a company profile and reach innovators &amp; investors across Africa.</p>
+        <a href="{% url 'create_company' %}" style="display:inline-flex;align-items:center;gap:7px;background:#1B5EC7;color:#fff;padding:11px 26px;border-radius:10px;font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          List your first business now
+        </a>
+      </div>
+      {% else %}
       <div style="text-align:center;padding:48px 20px;background:#fafbfd;border:1px dashed #dde6f4;border-radius:14px;">
         <svg width="36" height="36" fill="none" stroke="#c3d4ec" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:12px;display:block;margin-inline:auto;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         <p style="font-size: 1.2rem;font-weight:700;color:#374151;margin:0 0 5px;">No businesses listed yet</p>
         <p style="font-size: 1.2rem;color:#9ca3af;margin:0 0 16px;">Be the first to add your company to the platform.</p>
-        <a href="{% url 'companies_list' %}" style="display:inline-block;background:#0057FF;color:#fff;padding:8px 22px;border-radius:8px;font-weight:700;font-size: 1.2rem;text-decoration:none;">Browse Companies</a>
+        <a href="{% url 'companies_list' %}" style="display:inline-block;background:#1B5EC7;color:#fff;padding:8px 22px;border-radius:8px;font-weight:700;font-size: 1.2rem;text-decoration:none;">Browse Companies</a>
       </div>
+      {% endif %}
       {% endif %}
 
       <!-- CTA banner — light -->
@@ -2307,11 +2428,16 @@ function ocCloseWelcome() {
                 <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
               <div class="pm-dd-list" role="listbox">
-                <div class="pm-dd-option selected" onclick="pmDdSelect('dd-type','idea','Idea')" role="option">Idea<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','article','Article')" role="option">Article<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','update','Update')" role="option">Update<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','announcement','Announcement')" role="option">Announcement<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','question','Question')" role="option">Question<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option selected" onclick="pmDdSelect('dd-type','idea','Idea');pmPollToggle()" role="option">Idea<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','article','Article');pmPollToggle()" role="option">Article<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','update','Update');pmPollToggle()" role="option">Update<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','announcement','Announcement');pmPollToggle()" role="option">Announcement<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','question','Question');pmPollToggle()" role="option">Question<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','poll','Poll');pmPollToggle()" role="option">Poll<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','tip','Tip');pmPollToggle()" role="option">Tip<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','resource','Resource');pmPollToggle()" role="option">Resource<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','milestone','Milestone');pmPollToggle()" role="option">Milestone<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option" onclick="pmDdSelect('dd-type','opinion','Opinion');pmPollToggle()" role="option">Opinion<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
               </div>
               <input type="hidden" name="post_type" id="dd-type-val" value="idea" class="pm-select-hidden">
             </div>
@@ -2356,6 +2482,26 @@ function ocCloseWelcome() {
           </label>
           <input id="pm-image" class="pm-file-input" type="file" name="post_image" accept="image/*"
                  onchange="document.getElementById('pm-image-name').textContent=this.files[0]?this.files[0].name:'Choose an image…'">
+        </div>
+
+        <!-- Poll builder (shown only when type = poll) -->
+        <div id="pm-poll-wrap" style="display:none;margin-top:16px;border:1.5px dashed #c7d8f5;border-radius:12px;padding:14px 16px;background:#f5f8ff;">
+          <div class="pm-label" style="margin-bottom:8px;">Poll options</div>
+          <div id="pm-poll-options">
+            <input class="pm-input" type="text" name="poll_options[]" placeholder="Option 1" style="margin-bottom:8px;">
+            <input class="pm-input" type="text" name="poll_options[]" placeholder="Option 2" style="margin-bottom:8px;">
+          </div>
+          <button type="button" onclick="pmAddPollOption()" style="background:none;border:none;color:#1B5EC7;font-size:1.2rem;font-weight:600;cursor:pointer;padding:0;margin-bottom:12px;">+ Add option</button>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <label class="pm-label" style="margin:0;white-space:nowrap;">Closes in</label>
+            <select name="poll_closes" style="border:1.5px solid #d1d5db;border-radius:8px;padding:5px 10px;font-size:1.2rem;background:#fff;color:#0A1628;">
+              <option value="1">1 day</option>
+              <option value="3" selected>3 days</option>
+              <option value="7">7 days</option>
+              <option value="14">14 days</option>
+              <option value="0">No end date</option>
+            </select>
+          </div>
         </div>
 
       </div>
@@ -2431,6 +2577,55 @@ function pmDdSelect(id, val, label) {
 document.addEventListener('click', function(e) {
   if (!e.target.closest('.pm-dd')) pmDdCloseAll();
 });
+
+/* ── Poll composer ─────────────────────────────────────────────── */
+function pmPollToggle() {
+  var val  = document.getElementById('dd-type-val').value;
+  var wrap = document.getElementById('pm-poll-wrap');
+  if (wrap) wrap.style.display = (val === 'poll') ? 'block' : 'none';
+}
+function pmAddPollOption() {
+  var cnt = document.getElementById('pm-poll-options').querySelectorAll('input').length;
+  if (cnt >= 6) return;
+  var inp = document.createElement('input');
+  inp.className = 'pm-input'; inp.type = 'text'; inp.name = 'poll_options[]';
+  inp.placeholder = 'Option ' + (cnt + 1); inp.style.marginBottom = '8px';
+  document.getElementById('pm-poll-options').appendChild(inp);
+}
+
+/* ── Poll voting ───────────────────────────────────────────────── */
+function ocPollVote(pollId, optionId, btn) {
+  if (btn.disabled) return;
+  var pollEl = document.getElementById('poll-' + pollId);
+  if (!pollEl) return;
+  pollEl.querySelectorAll('.ap-poll-opt').forEach(function(b){ b.disabled = true; b.style.cursor = 'default'; });
+  var fd = new FormData();
+  fd.append('option_id', optionId);
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fetch('/polls/' + pollId + '/vote/', { method: 'POST', body: fd })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (!d.ok) return;
+      var maxPct = Math.max.apply(null, d.options.map(function(o){ return o.pct; }));
+      d.options.forEach(function(o) {
+        var optBtn = pollEl.querySelector('.ap-poll-opt:nth-child(' + (d.options.indexOf(o)+1) + ')');
+        if (!optBtn) return;
+        optBtn.classList.toggle('ap-poll-opt--voted', o.id === d.voted_option);
+        optBtn.classList.toggle('ap-poll-opt--winner', o.pct === maxPct && d.total > 0);
+        var bar = optBtn.querySelector('.ap-poll-bar');
+        if (bar) bar.style.width = o.pct + '%';
+        var pctEl = optBtn.querySelector('.ap-poll-pct');
+        if (pctEl) { pctEl.textContent = o.pct + '%'; }
+        else {
+          var p = document.createElement('span'); p.className = 'ap-poll-pct'; p.textContent = o.pct + '%';
+          optBtn.appendChild(p);
+        }
+      });
+      var meta = pollEl.querySelector('.ap-poll-meta span');
+      if (meta) meta.textContent = d.total + ' vote' + (d.total !== 1 ? 's' : '');
+    })
+    .catch(function(){});
+}
 </script>
 
 
@@ -2726,13 +2921,21 @@ document.addEventListener('click', function(e) {
   };
 
   // ── Reaction picker ───────────────────────────────────────────
+  var RXN_SVG = {
+    like:       '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>',
+    celebrate:  '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+    support:    '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+    love:       '<svg width="15" height="15" fill="currentColor" stroke="none" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+    insightful: '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>',
+    funny:      '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+  };
   var RXN_META = {
-    like:       { emoji: '👍', label: 'Like',       cls: 'ap-rxn--like' },
-    celebrate:  { emoji: '👏', label: 'Celebrate',  cls: 'ap-rxn--celebrate' },
-    support:    { emoji: '🤝', label: 'Support',    cls: 'ap-rxn--support' },
-    love:       { emoji: '❤️', label: 'Love',       cls: 'ap-rxn--love' },
-    insightful: { emoji: '💡', label: 'Insightful', cls: 'ap-rxn--insightful' },
-    funny:      { emoji: '😄', label: 'Funny',      cls: 'ap-rxn--funny' },
+    like:       { svg: RXN_SVG.like,       label: 'Like',       cls: 'ap-rxn--like' },
+    celebrate:  { svg: RXN_SVG.celebrate,  label: 'Celebrate',  cls: 'ap-rxn--celebrate' },
+    support:    { svg: RXN_SVG.support,    label: 'Support',    cls: 'ap-rxn--support' },
+    love:       { svg: RXN_SVG.love,       label: 'Love',       cls: 'ap-rxn--love' },
+    insightful: { svg: RXN_SVG.insightful, label: 'Insightful', cls: 'ap-rxn--insightful' },
+    funny:      { svg: RXN_SVG.funny,      label: 'Funny',      cls: 'ap-rxn--funny' },
   };
   var _rxnTimers = {};
 
@@ -2777,13 +2980,13 @@ document.addEventListener('click', function(e) {
       if (d.reacted && d.my_reaction) {
         var meta = RXN_META[d.my_reaction] || RXN_META.like;
         if (btn) { btn.classList.add('ap-rxn-btn--on', meta.cls); btn.dataset.active = d.my_reaction; }
-        if (ico)  ico.textContent = meta.emoji;
+        if (ico)  ico.innerHTML = meta.svg;
         if (lbl)  lbl.textContent = meta.label;
         // Pop animation
         if (ico) { ico.classList.remove('ap-rxn-pop'); void ico.offsetWidth; ico.classList.add('ap-rxn-pop'); }
       } else {
         if (btn) { btn.classList.remove('ap-rxn-btn--on'); btn.dataset.active = ''; }
-        if (ico)  ico.textContent = '👍';
+        if (ico)  ico.innerHTML = RXN_SVG.like;
         if (lbl)  lbl.textContent = 'Like';
       }
       if (cnt)  cnt.textContent = d.total;

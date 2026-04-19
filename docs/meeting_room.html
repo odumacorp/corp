@@ -370,7 +370,7 @@
   <div class="mr-share-box">
     <div class="mr-share-head">
       <div class="mr-share-head-left">
-        <div class="mr-share-head-icon">🔗</div>
+        <div class="mr-share-head-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
         <div>
           <p class="mr-share-head-title">Share Meeting</p>
           <p class="mr-share-head-sub">Invite people to join</p>
@@ -387,15 +387,15 @@
       <!-- Channel buttons -->
       <div class="mr-share-channels">
         <button class="mr-share-ch" onclick="mrShareWhatsApp()">
-          <span class="mr-share-ch-icon">💬</span>
+          <span class="mr-share-ch-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
           <span class="mr-share-ch-label">WhatsApp</span>
         </button>
         <button class="mr-share-ch" onclick="mrShareEmail()">
-          <span class="mr-share-ch-icon">✉️</span>
+          <span class="mr-share-ch-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
           <span class="mr-share-ch-label">Email</span>
         </button>
         <button class="mr-share-ch" onclick="mrShareSMS()">
-          <span class="mr-share-ch-icon">📱</span>
+          <span class="mr-share-ch-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span>
           <span class="mr-share-ch-label">SMS</span>
         </button>
         <button class="mr-share-ch" onclick="mrShareNative()">
@@ -524,7 +524,7 @@
   var SHARE_URL  = '{% url "share_meeting" meeting.id %}';
   var SHARE_LINK = JOIN_URL || (window.location.origin + '/meetings/' + MEETING_ID + '/join/');
   var SHARE_TITLE = '{{ meeting.title|escapejs }}';
-  var SHARE_TEXT  = '📹 Join my meeting: ' + SHARE_TITLE + '\n' + SHARE_LINK;
+  var SHARE_TEXT  = 'Join my meeting: ' + SHARE_TITLE + '\n' + SHARE_LINK;
   {% if meeting.zoom_meeting_id %}
   SHARE_TEXT += '\nMeeting ID: {{ meeting.zoom_meeting_id|escapejs }}';
   {% endif %}

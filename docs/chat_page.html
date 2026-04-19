@@ -5,11 +5,9 @@
 {% block extra_head %}
 <style>
 /* ── Shell ── */
-.ch-shell{display:flex;flex-direction:column;height:calc(100vh - 250px);max-width:800px;margin:0 auto;background:#f4f7fb;
-  box-shadow: 10px 10px 20px  rgba(154, 152, 152, 0.837) !important;
+.ch-shell{display:flex;flex-direction:column;height:calc(100vh - var(--oc-navbar-h, 62px) - 24px);max-width:800px;margin:12px auto;background:#f4f7fb;
+  box-shadow: 10px 10px 20px rgba(154,152,152,0.837) !important;
   border-radius: 20px;
-  margin-bottom: 10px;
-
 }
 .ch-shell--project{}
 
@@ -1024,20 +1022,20 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
 .ch-resolved-banner{
   flex-shrink:0; display:flex; align-items:center; gap:12px;
   padding:10px 18px;
-  background:linear-gradient(90deg,#052e16,#064e3b);
-  border-bottom:1px solid rgba(16,185,129,.3);
+  background:#f0fdf4;
+  border-bottom:1px solid #bbf7d0;
 }
 .ch-resolved-icon{
   width:34px; height:34px; border-radius:50%; flex-shrink:0;
-  background:rgba(16,185,129,.2); border:1.5px solid rgba(16,185,129,.4);
+  background:#dcfce7; border:1.5px solid #86efac;
   display:flex; align-items:center; justify-content:center; font-size: 1.2rem;
 }
 .ch-resolved-text{ flex:1; min-width:0; }
 .ch-resolved-title{
-  font-family:'Space Grotesk',sans-serif; font-size: 1.2rem; font-weight:800;
-  color:#6ee7b7;
+  font-family:'Space Grotesk',sans-serif; font-size: 1.2rem; font-weight:700;
+  color:#166534;
 }
-.ch-resolved-sub{ font-size: 1.2rem; color:rgba(110,231,183,.6); margin-top:1px; }
+.ch-resolved-sub{ font-size: 1.2rem; color:#4b7c5a; margin-top:1px; }
 
 /* Admin resolve button (visible to admin only) */
 .ch-resolve-form{ margin-left:auto; flex-shrink:0; }
@@ -1093,6 +1091,30 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
   background:#ede9fe; border-color:#7c3aed; transform:translateY(-1px);
 }
 .ch-suggestion-chip svg{ flex-shrink:0; }
+
+/* ── Admin quick-reply panel ── */
+.ch-admin-replies{
+  flex-shrink:0; padding:10px 14px 6px;
+  background:#f0f5ff; border-top:1.5px solid #dbeafe;
+}
+.ch-admin-replies-label{
+  font-size:1.1rem; font-weight:800; text-transform:uppercase;
+  letter-spacing:.07em; color:#1B5EC7; margin-bottom:7px;
+  display:flex; align-items:center; gap:5px;
+}
+.ch-admin-replies-scroll{ display:flex; gap:7px; overflow-x:auto; padding-bottom:4px; }
+.ch-admin-replies-scroll::-webkit-scrollbar{ display:none; }
+.ch-admin-reply-chip{
+  display:inline-flex; align-items:center; gap:5px;
+  white-space:nowrap; flex-shrink:0;
+  padding:6px 13px; border-radius:20px;
+  background:#e0e8f4; color:#0A1628;
+  border:1.5px solid #93b4f0;
+  font-size:1.1rem; font-weight:600;
+  cursor:pointer;
+  transition:background .15s, border-color .15s, transform .1s;
+}
+.ch-admin-reply-chip:hover{ background:#1B5EC7; color:#fff; border-color:#1B5EC7; transform:translateY(-1px); }
 
 @media(max-width:600px){
   .ch-shell{height:calc(100vh - 56px);}
@@ -1226,10 +1248,6 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
 {% endblock %}
 
 {% block content %}
-<button onclick="history.back()" class="oc-back-btn">
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
-  Back
-</button>
 <div class="ch-shell{% if is_project_chat %} ch-shell--project{% endif %}{% if is_admin_chat %} ch-shell--admin{% endif %}">
 
   <!-- Header -->
@@ -1289,17 +1307,15 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
   <!-- Admin context banner -->
   {% if is_admin_chat or i_am_admin %}
   <div class="ch-admin-banner">
-    <div class="ch-admin-banner-icon">🛡️</div>
+    <div class="ch-admin-banner-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
     <div>
       <div class="ch-admin-banner-label">Official Support</div>
       <div class="ch-admin-banner-title">Oduma Corp Admin</div>
-      <div class="ch-admin-banner-sub">Responses are reviewed — typically within 24 hours</div>
     </div>
     {% if i_am_admin and not is_resolved %}
-    <form method="post" action="{% url 'resolve_conversation' conversation.id %}" class="ch-resolve-form"
-          onsubmit="return confirm('Mark this issue as resolved? The user will be notified.')">
+    <form method="post" action="{% url 'resolve_conversation' conversation.id %}" class="ch-resolve-form" id="ch-resolve-form">
       {% csrf_token %}
-      <button type="submit" class="ch-resolve-btn">
+      <button type="button" class="ch-resolve-btn" onclick="chOpenResolveModal()">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
         Mark Resolved
       </button>
@@ -1313,7 +1329,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
   <!-- Resolved banner (shown to both parties) -->
   {% if is_resolved %}
   <div class="ch-resolved-banner">
-    <div class="ch-resolved-icon">✅</div>
+    <div class="ch-resolved-icon"><svg width="16" height="16" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
     <div class="ch-resolved-text">
       <div class="ch-resolved-title">Issue Resolved</div>
       <div class="ch-resolved-sub">{% if resolved_at %}Resolved on {{ resolved_at|date:"M j, Y \a\t H:i" }}{% else %}This support request has been resolved{% endif %}</div>
@@ -1339,11 +1355,11 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
         {% elif msg.sender == request.user %}
         <!-- My message -->
         <div class="ch-row ch-row--mine" data-msg-id="{{ msg.id }}"
-             data-sender="{{ request.user.get_full_name|default:request.user.username|escapejs }}"
+             data-sender="{{ request.user.get_full_name|default:request.user.username }}"
              data-ts="{{ msg.timestamp|date:'N j, Y · H:i' }}"
              data-mine="1"
              data-deleted="{% if msg.is_deleted %}1{% else %}0{% endif %}"
-             data-content="{{ msg.content|escapejs }}">
+             data-content="{{ msg.content }}">
           <div class="ch-msg-wrap">
 
             <!-- Hover action bar -->
@@ -1353,15 +1369,15 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
                 </button>
                 <div class="ch-qrxn-strip">
-                  <button class="ch-qrxn-btn" data-emoji="👍"  data-label="Like"       onclick="reactTo({{ msg.id }},'👍',event)">👍</button>
-                  <button class="ch-qrxn-btn" data-emoji="👏"  data-label="Celebrate"  onclick="reactTo({{ msg.id }},'👏',event)">👏</button>
-                  <button class="ch-qrxn-btn" data-emoji="🤝"  data-label="Support"    onclick="reactTo({{ msg.id }},'🤝',event)">🤝</button>
-                  <button class="ch-qrxn-btn" data-emoji="❤️" data-label="Love"       onclick="reactTo({{ msg.id }},'❤️',event)">❤️</button>
-                  <button class="ch-qrxn-btn" data-emoji="💡"  data-label="Insightful" onclick="reactTo({{ msg.id }},'💡',event)">💡</button>
-                  <button class="ch-qrxn-btn" data-emoji="😄"  data-label="Funny"      onclick="reactTo({{ msg.id }},'😄',event)">😄</button>
+                  <button class="ch-qrxn-btn" data-emoji="👍"  data-label="Like"       onclick="reactTo({{ msg.id }},'👍',event)" title="Like"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></button>
+                  <button class="ch-qrxn-btn" data-emoji="👏"  data-label="Celebrate"  onclick="reactTo({{ msg.id }},'👏',event)" title="Celebrate"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+                  <button class="ch-qrxn-btn" data-emoji="🤝"  data-label="Support"    onclick="reactTo({{ msg.id }},'🤝',event)" title="Support"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
+                  <button class="ch-qrxn-btn" data-emoji="❤️" data-label="Love"       onclick="reactTo({{ msg.id }},'❤️',event)" title="Love"><svg width="14" height="14" fill="currentColor" stroke="none" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+                  <button class="ch-qrxn-btn" data-emoji="💡"  data-label="Insightful" onclick="reactTo({{ msg.id }},'💡',event)" title="Insightful"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg></button>
+                  <button class="ch-qrxn-btn" data-emoji="😄"  data-label="Funny"      onclick="reactTo({{ msg.id }},'😄',event)" title="Funny"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
                 </div>
               </div>
-              <button class="ch-act-btn" title="Copy" onclick="copyMsg('{{ msg.content|escapejs }}')">
+              <button class="ch-act-btn" title="Copy" onclick="copyMsg(this.closest('.ch-row').dataset.content)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               </button>
             </div>
@@ -1613,11 +1629,11 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
         {% else %}
         <!-- Their message -->
         <div class="ch-row ch-row--theirs" data-msg-id="{{ msg.id }}"
-             data-sender="{{ participant.get_full_name|default:participant.username|escapejs }}"
+             data-sender="{{ participant.get_full_name|default:participant.username }}"
              data-ts="{{ msg.timestamp|date:'N j, Y · H:i' }}"
              data-mine="0"
              data-deleted="{% if msg.is_deleted %}1{% else %}0{% endif %}"
-             data-content="{{ msg.content|escapejs }}">
+             data-content="{{ msg.content }}">
           {% if participant_profile and participant_profile.profile_pics %}
             <img src="{{ participant_profile.profile_pics.url }}" alt="" class="ch-msg-avatar">
           {% else %}
@@ -1633,15 +1649,15 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
                 </button>
                 <div class="ch-qrxn-strip">
-                  <button class="ch-qrxn-btn" data-emoji="👍"  data-label="Like"       onclick="reactTo({{ msg.id }},'👍',event)">👍</button>
-                  <button class="ch-qrxn-btn" data-emoji="👏"  data-label="Celebrate"  onclick="reactTo({{ msg.id }},'👏',event)">👏</button>
-                  <button class="ch-qrxn-btn" data-emoji="🤝"  data-label="Support"    onclick="reactTo({{ msg.id }},'🤝',event)">🤝</button>
-                  <button class="ch-qrxn-btn" data-emoji="❤️" data-label="Love"       onclick="reactTo({{ msg.id }},'❤️',event)">❤️</button>
-                  <button class="ch-qrxn-btn" data-emoji="💡"  data-label="Insightful" onclick="reactTo({{ msg.id }},'💡',event)">💡</button>
-                  <button class="ch-qrxn-btn" data-emoji="😄"  data-label="Funny"      onclick="reactTo({{ msg.id }},'😄',event)">😄</button>
+                  <button class="ch-qrxn-btn" data-emoji="👍"  data-label="Like"       onclick="reactTo({{ msg.id }},'👍',event)" title="Like"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></button>
+                  <button class="ch-qrxn-btn" data-emoji="👏"  data-label="Celebrate"  onclick="reactTo({{ msg.id }},'👏',event)" title="Celebrate"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+                  <button class="ch-qrxn-btn" data-emoji="🤝"  data-label="Support"    onclick="reactTo({{ msg.id }},'🤝',event)" title="Support"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
+                  <button class="ch-qrxn-btn" data-emoji="❤️" data-label="Love"       onclick="reactTo({{ msg.id }},'❤️',event)" title="Love"><svg width="14" height="14" fill="currentColor" stroke="none" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+                  <button class="ch-qrxn-btn" data-emoji="💡"  data-label="Insightful" onclick="reactTo({{ msg.id }},'💡',event)" title="Insightful"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg></button>
+                  <button class="ch-qrxn-btn" data-emoji="😄"  data-label="Funny"      onclick="reactTo({{ msg.id }},'😄',event)" title="Funny"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
                 </div>
               </div>
-              <button class="ch-act-btn" title="Copy" onclick="copyMsg('{{ msg.content|escapejs }}')">
+              <button class="ch-act-btn" title="Copy" onclick="copyMsg(this.closest('.ch-row').dataset.content)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               </button>
             </div>
@@ -1904,8 +1920,8 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
     <button class="ch-reply-bar__close" onclick="clearReply()">✕</button>
   </div>
 
-  <!-- Admin quick-reply suggestions -->
-  {% if is_admin_chat %}
+  <!-- User request chips (non-admin only) -->
+  {% if is_admin_chat and not i_am_admin %}
   <div class="ch-suggestions" id="ch-suggestions">
     <div class="ch-suggestions-label">
       <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
@@ -1951,6 +1967,50 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
       <button class="ch-suggestion-chip" onclick="fillSuggestion(this)">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Other — I need help with something else
+      </button>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Admin quick-reply templates (admin only) -->
+  {% if i_am_admin %}
+  <div class="ch-admin-replies" id="ch-admin-replies">
+    <div class="ch-admin-replies-label">
+      <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Quick replies — click to edit &amp; send
+    </div>
+    <div class="ch-admin-replies-scroll">
+      <button class="ch-admin-reply-chip" onclick="adminQuickReply('password')">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Password reset
+      </button>
+      <button class="ch-admin-reply-chip" onclick="adminQuickReply('locked')">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Account locked
+      </button>
+      <button class="ch-admin-reply-chip" onclick="adminQuickReply('verified')">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+        Account verified
+      </button>
+      <button class="ch-admin-reply-chip" onclick="adminQuickReply('bug')">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Bug acknowledged
+      </button>
+      <button class="ch-admin-reply-chip" onclick="adminQuickReply('upgrade')">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Upgrade / subscription
+      </button>
+      <button class="ch-admin-reply-chip" onclick="adminQuickReply('verification_pending')">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Verification in progress
+      </button>
+      <button class="ch-admin-reply-chip" onclick="adminQuickReply('delete')">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Account deletion
+      </button>
+      <button class="ch-admin-reply-chip" onclick="adminQuickReply('resolved')">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Issue resolved
       </button>
     </div>
   </div>
@@ -2018,6 +2078,23 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
     </form>
   </div>
 
+</div>
+
+<!-- Resolve confirm modal -->
+<div id="ch-resolve-modal" style="display:none;position:fixed;inset:0;z-index:5000;background:rgba(10,22,40,.45);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:18px;padding:28px 28px 22px;max-width:380px;width:90%;box-shadow:0 24px 60px rgba(10,22,40,.22);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <div style="width:36px;height:36px;border-radius:10px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="18" height="18" fill="none" stroke="#10b981" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:800;color:#0A1628;">Mark as resolved?</div>
+    </div>
+    <p style="font-size:1rem;color:#6b7280;margin:0 0 20px;line-height:1.55;">The user will be notified that their support request has been resolved. They can still reply to reopen the case.</p>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="chCloseResolveModal()" style="padding:9px 20px;border-radius:10px;border:1.5px solid #e4eaf2;background:#f8faff;font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:600;color:#374151;cursor:pointer;">Cancel</button>
+      <button onclick="document.getElementById('ch-resolve-form').submit()" style="padding:9px 22px;border-radius:10px;border:none;background:#10b981;font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:#fff;cursor:pointer;">Mark Resolved</button>
+    </div>
+  </div>
 </div>
 
 <!-- Share sheet -->
@@ -2870,7 +2947,7 @@ function chRenderPreview() {
 
     } else {
       var icon = document.createElement('span'); icon.className = 'ch-attach-doc-icon';
-      icon.textContent = att.file.name.endsWith('.pdf') ? '📕' : att.file.name.match(/\.zip|\.rar$/i) ? '🗜️' : att.file.name.match(/\.xls|\.xlsx$/i) ? '📗' : att.file.name.match(/\.doc|\.docx$/i) ? '📘' : '📄';
+      icon.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
       var info = document.createElement('div'); info.className = 'ch-attach-doc-info';
       var nm = document.createElement('div'); nm.className = 'ch-attach-doc-name'; nm.textContent = att.file.name;
       var sz = document.createElement('div'); sz.className = 'ch-attach-doc-size'; sz.textContent = chFmtSize(att.file.size);
@@ -2974,7 +3051,45 @@ function chSendSticker(emoji) {
   chDoSubmit();
 }
 
-// ── Admin quick-reply suggestions ──
+// ── Resolve modal ──
+window.chOpenResolveModal = function() {
+  var m = document.getElementById('ch-resolve-modal');
+  if (m) { m.style.display = 'flex'; }
+};
+window.chCloseResolveModal = function() {
+  var m = document.getElementById('ch-resolve-modal');
+  if (m) { m.style.display = 'none'; }
+};
+document.getElementById('ch-resolve-modal') && document.getElementById('ch-resolve-modal').addEventListener('click', function(e) {
+  if (e.target === this) chCloseResolveModal();
+});
+
+// ── Admin quick-reply templates ──
+var _adminReplies = {
+  password: "Hi, you can reset your password directly at odumacorp.com/update_password/ — no need to wait on us. If you've been locked out and can't log in at all, use the forgot-password link on the login page. Let me know if you run into any trouble.",
+  locked: "Hi, we've reviewed your account and restored your access. You should be able to log in now using your email or username. If the issue continues, please reply here and we'll investigate further.",
+  verified: "Great news — your account has been verified! You'll now see the verified badge on your profile. This helps build trust with investors and collaborators on the platform.",
+  bug: "Thanks for flagging this. We've logged the issue and passed it to our engineering team. We'll update you once it's been looked into. If you can share any additional details — like the page you were on or steps to reproduce — that would help us resolve it faster.",
+  upgrade: "Thanks for your interest in upgrading. You can view all available plans and what's included at odumacorp.com/subscription/. If you have questions about a specific plan or need something custom, just reply here and we'll sort it out.",
+  verification_pending: "Thanks for your patience. Your verification request is currently under review. This typically takes 1–3 business days. We'll notify you as soon as it's done. Make sure your profile is fully filled out — it helps speed up the process.",
+  delete: "We've received your account deletion request. Please note this is irreversible — all your projects, connections, and messages will be permanently removed. If you'd like to proceed, reply to confirm and we'll process it within 24 hours. If this was a mistake, just let us know.",
+  resolved: "Just following up to let you know your request has been resolved on our end. If you're still experiencing any issues, reply here and we'll reopen the case right away."
+};
+
+window.adminQuickReply = function(key) {
+  var text = _adminReplies[key] || '';
+  if (!text) return;
+  var input = document.getElementById('ch-input');
+  if (!input) return;
+  input.value = text;
+  input.focus();
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 160) + 'px';
+  input.setSelectionRange(0, 0);
+  input.scrollTop = 0;
+};
+
+// ── User suggestion chips ──
 function fillSuggestion(btn) {
   var text = btn.textContent.trim();
   var input = document.getElementById('ch-input');
@@ -3060,34 +3175,26 @@ function fillSuggestion(btn) {
     menu.classList.add('open');
   }
 
-  // Long-press (touch)
-  var _lpTimer = null;
-  document.addEventListener('touchstart', function (e) {
-    var row = e.target.closest('.ch-row[data-msg-id]');
-    if (!row) return;
-    var touch = e.touches[0];
-    _lpTimer = setTimeout(function () {
-      openMenu(row, touch.clientX, touch.clientY);
-    }, 480);
-  }, { passive: true });
-  document.addEventListener('touchend',  function () { clearTimeout(_lpTimer); });
-  document.addEventListener('touchmove', function () { clearTimeout(_lpTimer); });
-
-  // Right-click (desktop)
-  document.addEventListener('contextmenu', function (e) {
-    var row = e.target.closest('.ch-row[data-msg-id]');
-    if (!row) return;
-    e.preventDefault();
-    openMenu(row, e.clientX, e.clientY);
-  });
-
-  // Close on outside click / Esc
+  // Click on bubble to open menu (desktop + touch)
   document.addEventListener('click', function (e) {
-    if (!menu.contains(e.target)) closeMenu();
+    if (menu.contains(e.target)) return; // click inside menu — do nothing
+    var bubble = e.target.closest('.ch-bubble');
+    if (bubble) {
+      var row = bubble.closest('.ch-row[data-msg-id]');
+      if (row) {
+        // Toggle: if menu already open for this row, close it
+        if (menu.classList.contains('open') && _row === row) { closeMenu(); return; }
+        openMenu(row, e.clientX, e.clientY);
+        return;
+      }
+    }
+    closeMenu();
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') closeMenu();
   });
+
+  // Right-click restores browser default (no override)
 
   // ── Menu actions ──
   document.getElementById('ch-ctx-reply').onclick = function () {
@@ -3327,5 +3434,17 @@ function togglePanel() {
   if (panel && panel.classList.contains('open')) closePanel();
   else openPanel();
 }
+
+// Render [label](url) markdown links inside chat bubbles
+(function() {
+  function renderBubbleLinks(el) {
+    var html = el.innerHTML;
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(_, label, url) {
+      return '<a href="' + url + '" style="display:inline-flex;align-items:center;gap:4px;background:#1B5EC7;color:#fff;padding:4px 12px;border-radius:6px;font-size:.88em;font-weight:700;text-decoration:none;margin:2px 0;" target="_self">' + label + ' \u2192</a>';
+    });
+    el.innerHTML = html;
+  }
+  document.querySelectorAll('.ch-bubble').forEach(renderBubbleLinks);
+})();
 </script>
 {% endblock %}

@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: oduma-corp
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
+    startCommand: gunicorn core.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DJANGO_SETTINGS_MODULE
+        value: core.settings
+
+  - type: cron
+    name: odu-daily-posts
+    runtime: python
+    schedule: "0 8 * * *"   # 8 AM UTC daily (11 AM EAT)
+    buildCommand: pip install -r requirements.txt
+    startCommand: python manage.py post_odu_daily
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: core.settings

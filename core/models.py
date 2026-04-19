@@ -390,7 +390,18 @@ def get_default_user():
 
 
 class Post(models.Model):
-    POST_TYPE_CHOICES = [('idea','💡 Idea'),('article','📝 Article'),('update','🚀 Update'),('announcement','📢 Announcement'),('question','❓ Question')]
+    POST_TYPE_CHOICES = [
+        ('idea',        'Idea'),
+        ('article',     'Article'),
+        ('update',      'Update'),
+        ('announcement','Announcement'),
+        ('question',    'Question'),
+        ('poll',        'Poll'),
+        ('tip',         'Tip'),
+        ('resource',    'Resource'),
+        ('milestone',   'Milestone'),
+        ('opinion',     'Opinion'),
+    ]
     industry = models.CharField(max_length=100, choices=INDUSTRY_CHOICES, default='tech')
     user         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='posts')
     title        = models.CharField(max_length=255)
@@ -436,6 +447,46 @@ class PostReaction(models.Model):
 
     def __str__(self):
         return f"{self.user.username} → {self.reaction} on post {self.post_id}"
+
+
+class Poll(models.Model):
+    post      = models.OneToOneField('Post', on_delete=models.CASCADE, related_name='poll')
+    question  = models.CharField(max_length=300, blank=True, default='')
+    closes_at = models.DateTimeField(null=True, blank=True)
+
+    def total_votes(self):
+        return self.votes.count()
+
+    def is_open(self):
+        from django.utils import timezone
+        return self.closes_at is None or self.closes_at > timezone.now()
+
+
+class PollOption(models.Model):
+    poll  = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='options')
+    text  = models.CharField(max_length=150)
+    order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def vote_count(self):
+        return self.votes.count()
+
+    def vote_pct(self, total):
+        if not total:
+            return 0
+        return round(self.votes.count() / total * 100)
+
+
+class PollVote(models.Model):
+    poll     = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='votes')
+    option   = models.ForeignKey(PollOption, on_delete=models.CASCADE, related_name='votes')
+    user     = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='poll_votes')
+    voted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('poll', 'user')
 
 
 ##Notifications
@@ -652,6 +703,7 @@ class Message(models.Model):
     is_deleted     = models.BooleanField(default=False)
     is_edited      = models.BooleanField(default=False)
     edited_at      = models.DateTimeField(null=True, blank=True)
+    is_system      = models.BooleanField(default=False)
     conversation   = models.ForeignKey(Conversation, null=True, blank=True, on_delete=models.CASCADE, related_name='messages')
 
     class Meta:

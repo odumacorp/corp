@@ -50,31 +50,25 @@ def create_user_profile(sender, instance, created, **kwargs):
 
                 if role == 'innovator':
                     role_tips = (
-                        "As an Innovator, here is what you can do:\n"
-                        "  1. Post your projects and pitch them to investors\n"
-                        "  2. Apply for collaboration requests from other users\n"
-                        "  3. Track proposals and investor interest on your dashboard\n"
-                        "  4. Connect with mentors and enrol in courses via the Training Hub"
+                        "As an innovator, you can post your projects, pitch to investors, "
+                        "collaborate with other builders, and track every proposal through your dashboard. "
+                        "The Training Hub also has courses and mentorship to help you grow faster."
                     )
                 elif role == 'investor':
                     role_tips = (
-                        "As an Investor, here is what you can do:\n"
-                        "  1. Browse the Deal Flow and discover top-matched projects\n"
-                        "  2. Send investment proposals directly to innovators\n"
-                        "  3. Save projects and track your pipeline on your dashboard\n"
-                        "  4. Request pitch meetings and review active collaborations"
+                        "As an investor, you can browse the deal flow, discover projects matched to your interests, "
+                        "send proposals directly to innovators, and schedule pitch meetings — all in one place. "
+                        "Your dashboard keeps your pipeline organised."
                     )
                 elif role == 'admin':
                     role_tips = (
-                        "As an Admin, here is what you have access to:\n"
-                        "  1. Manage users, projects, posts, and platform content\n"
-                        "  2. Review flagged messages and reported content\n"
-                        "  3. Monitor analytics and platform activity\n"
-                        "  4. Access the admin panel at /admin-panel/"
+                        "You have full access to the admin panel at /admin-panel/ — "
+                        "manage users, review projects and content, monitor platform activity, "
+                        "and keep the community running smoothly."
                     )
                 else:
                     role_tips = (
-                        "You can explore the platform, connect with innovators and investors,\n"
+                        "You can explore the platform, connect with innovators and investors, "
                         "join groups, follow pages, and stay updated on upcoming events."
                     )
 
@@ -83,20 +77,12 @@ def create_user_profile(sender, instance, created, **kwargs):
                     recipient=instance,
                     conversation=conv,
                     content=(
-                        f"Welcome to Oduma Corp, {full_name}.\n\n"
-                        f"──────────────────────\n"
-                        f"Account Details\n"
-                        f"──────────────────────\n"
-                        f"Name     : {full_name}\n"
-                        f"Username : {instance.username}\n"
-                        f"Email    : {instance.email}\n"
-                        f"Role     : {role.title()}\n\n"
-                        f"──────────────────────\n"
-                        f"Getting Started\n"
-                        f"──────────────────────\n"
+                        f"Hey {full_name}, great to have you here.\n\n"
+                        f"Your account is live — here are your login details:\n\n"
+                        f"Email: {instance.email}\n"
+                        f"Username: {instance.username}\n\n"
                         f"{role_tips}\n\n"
-                        f"Type /help at any time to see everything I can assist you with.\n"
-                        f"— Odu, Platform Assistant"
+                        f"If you ever need help navigating the platform, just send me a message."
                     ),
                 )
 
@@ -106,23 +92,11 @@ def create_user_profile(sender, instance, created, **kwargs):
                     recipient=instance,
                     conversation=conv,
                     content=(
-                        f"One more thing, {first_name}.\n\n"
-                        f"You've taken the first step by joining Oduma Corp.\n"
-                        f"Now take the second — bring in someone you trust.\n\n"
-                        f"Someone who:\n"
-                        f"  • Challenges your thinking\n"
-                        f"  • Adds real value\n"
-                        f"  • Sees opportunities where others don't\n\n"
-                        f"Ideas grow faster in the right environment.\n"
-                        f"And the right environment starts with the right people.\n\n"
-                        f"──────────────────────\n"
-                        f"Share Oduma Corp\n"
-                        f"──────────────────────\n"
-                        f"  → Visit odumacorp.com\n"
-                        f"  → Build together on odumacorp.com\n"
-                        f"  → Grow your reach through odumacorp.com\n\n"
-                        f"Forward this to one person today. That's all it takes.\n"
-                        f"— Odu, Platform Assistant"
+                        f"One more thing, {first_name} — the best opportunities on Oduma Corp come through connections.\n\n"
+                        f"Think of one person who should be here. A fellow innovator, a potential investor, "
+                        f"or someone who would benefit from what this platform offers.\n\n"
+                        f"Share your referral link with them: odumacorp.com\n\n"
+                        f"The right people make all the difference."
                     ),
                 )
         except Exception:
