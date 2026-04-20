@@ -7116,6 +7116,14 @@ def remove_read_later(request, item_id):
     return redirect('read_later_list')
 
 
+@login_required
+def social_campaigns(request):
+    from django.http import HttpResponseForbidden
+    if not _is_admin(request.user):
+        return HttpResponseForbidden("Admin access only.")
+    return render(request, 'social_campaigns.html')
+
+
 def service_worker(request):
     """Serve service worker from root scope."""
     import os

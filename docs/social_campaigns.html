@@ -1,0 +1,490 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Social Media Campaigns — Oduma Corp{% endblock %}
+
+{% block content %}
+<style>
+:root {
+  --oc-blue: #1B5EC7;
+  --oc-ink: #0A1628;
+}
+.sc-page { max-width: 1100px; margin: 0 auto; padding: 24px 16px 80px; }
+.sc-hero { background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 100%); border-radius: 18px; padding: 36px 32px; margin-bottom: 32px; color: #fff; }
+.sc-hero h1 { font-size: 2.2rem; font-weight: 800; margin: 0 0 8px; font-family: 'Space Grotesk', sans-serif; }
+.sc-hero p  { font-size: 1.3rem; opacity: .8; margin: 0 0 20px; }
+.sc-hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.sc-btn-dl {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #fff; color: #0A1628; border: none; border-radius: 10px;
+  padding: 10px 22px; font-size: 1.2rem; font-weight: 700; cursor: pointer;
+  text-decoration: none; transition: opacity .15s;
+}
+.sc-btn-dl:hover { opacity: .88; color: #0A1628; }
+.sc-btn-dl.ghost { background: rgba(255,255,255,.15); color: #fff; border: 1.5px solid rgba(255,255,255,.4); }
+.sc-btn-dl.ghost:hover { background: rgba(255,255,255,.25); color: #fff; }
+
+/* Filter tabs */
+.sc-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.sc-tab {
+  padding: 7px 16px; border-radius: 20px; font-size: 1.2rem; font-weight: 600;
+  border: 1.5px solid #e0e8f4; background: #fff; color: #374151; cursor: pointer;
+  transition: all .15s;
+}
+.sc-tab.active, .sc-tab:hover { background: #1B5EC7; color: #fff; border-color: #1B5EC7; }
+
+/* Day card */
+.sc-day { margin-bottom: 36px; }
+.sc-day-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+}
+.sc-day-label {
+  font-size: 1.6rem; font-weight: 800; color: #0A1628;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.sc-day-theme {
+  font-size: 1.2rem; color: #6b7280; font-style: italic;
+}
+.sc-day-line { flex: 1; height: 1.5px; background: #e0e8f4; }
+
+/* Campaign card */
+.sc-campaign {
+  background: #fff; border: 1.5px solid #e0e8f4; border-radius: 14px;
+  margin-bottom: 16px; overflow: hidden;
+}
+.sc-campaign-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; background: #f8faff; border-bottom: 1px solid #e0e8f4;
+}
+.sc-campaign-num {
+  width: 28px; height: 28px; border-radius: 50%; background: #1B5EC7;
+  color: #fff; font-size: 1.1rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.sc-campaign-title { font-size: 1.3rem; font-weight: 700; color: #0A1628; }
+.sc-campaign-tag { font-size: 1.1rem; color: #fff; background: #1B5EC7; border-radius: 6px; padding: 2px 10px; font-weight: 600; }
+
+/* Platform rows */
+.sc-platforms { padding: 4px 0; }
+.sc-platform-row {
+  display: grid; grid-template-columns: 120px 1fr auto;
+  align-items: start; gap: 12px;
+  padding: 12px 18px; border-bottom: 1px solid #f3f4f6;
+}
+.sc-platform-row:last-child { border-bottom: none; }
+.sc-platform-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 8px; font-size: 1.1rem; font-weight: 700;
+  white-space: nowrap;
+}
+.plat-ig   { background: #fce7f3; color: #be185d; }
+.plat-fb   { background: #dbeafe; color: #1d4ed8; }
+.plat-tw   { background: #f0f9ff; color: #0369a1; }
+.plat-li   { background: #e0f2fe; color: #0c4a6e; }
+.plat-tt   { background: #fef3c7; color: #92400e; }
+.plat-wa   { background: #dcfce7; color: #166534; }
+.sc-copy { font-size: 1.2rem; color: #374151; line-height: 1.6; }
+.sc-copy-actions { display: flex; gap: 6px; flex-shrink: 0; padding-top: 2px; }
+.sc-copy-btn {
+  background: #f3f4f6; border: none; border-radius: 6px; padding: 4px 10px;
+  font-size: 1.1rem; cursor: pointer; color: #374151; transition: background .15s;
+  white-space: nowrap;
+}
+.sc-copy-btn:hover { background: #e0e8f4; }
+.sc-copy-btn.copied { background: #d1fae5; color: #065f46; }
+
+.sc-char-count { font-size: 1.0rem; color: #9ca3af; margin-top: 3px; }
+
+@media (max-width: 640px) {
+  .sc-platform-row { grid-template-columns: 1fr; gap: 8px; }
+  .sc-copy-actions { justify-content: flex-start; }
+  .sc-hero h1 { font-size: 1.6rem; }
+}
+</style>
+
+<div class="sc-page">
+
+  <!-- Hero -->
+  <div class="sc-hero">
+    <h1>📅 Weekly Social Media Campaigns</h1>
+    <p>Monday – Sunday · 2 campaigns/day · 6 platforms each · Ready to copy & post</p>
+    <div class="sc-hero-actions">
+      <button class="sc-btn-dl" onclick="downloadCSV()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Download CSV
+      </button>
+      <button class="sc-btn-dl ghost" onclick="window.print()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print / Save PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="sc-filter" id="filter-tabs">
+    <button class="sc-tab active" onclick="filterDay('all', this)">All Days</button>
+    <button class="sc-tab" onclick="filterDay('monday', this)">Monday</button>
+    <button class="sc-tab" onclick="filterDay('tuesday', this)">Tuesday</button>
+    <button class="sc-tab" onclick="filterDay('wednesday', this)">Wednesday</button>
+    <button class="sc-tab" onclick="filterDay('thursday', this)">Thursday</button>
+    <button class="sc-tab" onclick="filterDay('friday', this)">Friday</button>
+    <button class="sc-tab" onclick="filterDay('saturday', this)">Saturday</button>
+    <button class="sc-tab" onclick="filterDay('sunday', this)">Sunday</button>
+  </div>
+
+  <!-- CAMPAIGNS DATA -->
+  <div id="campaigns-root"></div>
+
+</div>
+
+<script>
+/* ─── Campaign Data ─────────────────────────────────────────── */
+var CAMPAIGNS = [
+
+  /* ════════════ MONDAY ════════════ */
+  {
+    day: 'monday', dayLabel: 'Monday', theme: 'Momentum & New Beginnings',
+    campaigns: [
+      {
+        title: 'Launch Your Vision',
+        tag: 'Innovators',
+        platforms: {
+          instagram: `💡 Monday reminder: the world's biggest companies started with one bold idea.\n\nAt Oduma Corp, we connect Africa's brightest innovators with investors who are ready to make it happen.\n\nPost your project. Find your investor. Build your legacy. 🌍\n\n👉 Link in bio · odumacorp.com\n\n#OdumaCorp #AfricanInnovation #StartupAfrica #Innovation #Entrepreneur #InvestInAfrica #MondayMotivation #AfricanStartup`,
+          facebook: `Happy Monday! 🚀\n\nEvery great company started as an idea someone was brave enough to share. This week, take that step.\n\nOduma Corp is Africa's platform for innovators and investors to meet, collaborate, and build something extraordinary together. Whether you have a startup at concept stage or a fully operational business seeking funding — we're here for you.\n\n✅ Post your project\n✅ Connect with verified investors\n✅ Access mentorship & training\n\nJoin thousands of innovators across Africa. Sign up free today 👉 odumacorp.com\n\n#AfricanInnovation #StartupAfrica #OdumaCorp #MondayMotivation`,
+          twitter: `💡 Your idea is worth more than you think.\n\nOduma Corp connects African innovators with investors ready to back the next big thing.\n\nStart your week with purpose 👉 odumacorp.com\n\n#AfricanStartup #Innovation #OdumaCorp`,
+          linkedin: `Monday is more than the start of a workweek — it's an opportunity to move your vision forward.\n\nAt Oduma Corp, we believe Africa's next generation of industry leaders are being built right now — in dorm rooms, co-working spaces, and living rooms across the continent.\n\nOur platform gives innovators the tools to:\n→ Present their projects to vetted investors\n→ Build credibility through ratings and collaboration\n→ Access mentorship from industry experts\n\nIf you're building something bold, we'd love to have you. Join Oduma Corp today.\n\n🔗 odumacorp.com\n\n#AfricanInnovation #Entrepreneurship #Startups #Investment #Africa`,
+          tiktok: `POV: It's Monday and you just uploaded your startup to Oduma Corp 🔥 Watch investors start reaching out 👀 #StartupAfrica #Innovation #OdumaCorp #AfricanEntrepreneur`,
+          whatsapp: `Good morning! 🌅 Starting the week strong? So are hundreds of African innovators on Oduma Corp. Post your project and connect with investors today 👉 odumacorp.com`,
+        }
+      },
+      {
+        title: 'Investor Spotlight',
+        tag: 'Investors',
+        platforms: {
+          instagram: `📈 Africa is home to the fastest-growing startup ecosystem in the world.\n\nAre you investing in it?\n\nOduma Corp gives investors direct access to vetted, innovative African projects across tech, agri, health, energy and more.\n\n🔍 Browse projects\n📊 Review detailed pitches\n🤝 Connect directly with founders\n\n👉 odumacorp.com · Link in bio\n\n#InvestInAfrica #AfricanStartups #OdumaCorp #ImpactInvesting #VentureCapital`,
+          facebook: `Africa's startup scene is booming — and the smartest investors are already paying attention. 📊\n\nOduma Corp is where serious investors discover high-potential African innovations before they go mainstream.\n\nFrom fintech to clean energy, agritech to health-tech — our platform surfaces vetted projects matched to your investment preferences.\n\n✅ Smart matching algorithm\n✅ Detailed project profiles\n✅ Direct founder communication\n\nStart exploring 👉 odumacorp.com\n\n#InvestInAfrica #VentureCapital #OdumaCorp #StartupInvestment`,
+          twitter: `Africa has 54 countries, 1.4B people, and the world's youngest population.\n\nThe investment opportunity is enormous.\n\nDiscover it on Oduma Corp 📊👉 odumacorp.com\n\n#InvestInAfrica #AfricanStartups #OdumaCorp`,
+          linkedin: `The numbers are compelling: Africa's startup ecosystem raised record funding last year, with sectors like fintech, health-tech, and clean energy leading the charge.\n\nOduma Corp helps institutional and individual investors navigate this landscape with confidence — giving you access to curated projects, founder profiles, and intelligent matching based on your sector and geography preferences.\n\nThe best time to invest in African innovation was yesterday. The second-best time is today.\n\n🔗 odumacorp.com\n\n#InvestInAfrica #AfricanInnovation #Investing #VentureCapital #ImpactInvesting`,
+          tiktok: `The smartest investors in Africa are already on Oduma Corp 🌍💰 Don't miss out on the next big startup #InvestInAfrica #OdumaCorp #Investor`,
+          whatsapp: `Investors — looking for the next big African startup? Oduma Corp connects you directly with innovators. Explore projects now 👉 odumacorp.com 📊`,
+        }
+      }
+    ]
+  },
+
+  /* ════════════ TUESDAY ════════════ */
+  {
+    day: 'tuesday', dayLabel: 'Tuesday', theme: 'Education & Value',
+    campaigns: [
+      {
+        title: 'Pitch Like a Pro',
+        tag: 'Tips',
+        platforms: {
+          instagram: `🎯 5 things every winning startup pitch needs:\n\n1️⃣ A clear problem statement\n2️⃣ A unique, scalable solution\n3️⃣ Market size evidence\n4️⃣ A revenue model\n5️⃣ A passionate team\n\nNail these and investors will come to YOU.\n\nPerfect your pitch on Oduma Corp 👉 odumacorp.com\n\n#StartupTips #PitchDeck #OdumaCorp #Entrepreneurship #AfricanStartup #Founder`,
+          facebook: `Want to know why investors say "no" most of the time? 🤔\n\nIt's rarely the idea. It's almost always the pitch.\n\nHere are 5 things the best founders get right:\n\n✅ They lead with the problem, not the product\n✅ They show market size with real data\n✅ They prove traction — even if it's small\n✅ They explain WHY they're the right team\n✅ They make it easy for investors to say yes\n\nOn Oduma Corp, your project profile helps you present all of this clearly to interested investors.\n\nCreate your project profile today 👉 odumacorp.com\n\n#StartupTips #Entrepreneurship #AfricanStartups #OdumaCorp`,
+          twitter: `Most startup pitches fail because they answer the wrong question first.\n\nInvestors want to know WHY you — not just what you're building.\n\nBuild a profile that shows both on Oduma Corp 👉 odumacorp.com\n\n#StartupTips #OdumaCorp`,
+          linkedin: `After reviewing hundreds of project pitches, here's what separates fundable startups from the rest:\n\n1. Clarity — Investors have 8 seconds before they move on. Lead with the problem.\n2. Evidence — One data point beats ten adjectives. Show traction.\n3. Team — The idea is 10%. The team is 90%. Make your team shine.\n4. Market — "Everyone is our customer" is a red flag. Niche down.\n5. Ask — Know exactly how much you need and what you'll do with it.\n\nOduma Corp's project profiles are structured to help you communicate all of this powerfully.\n\nCreate yours today 🔗 odumacorp.com\n\n#StartupAdvice #Entrepreneurship #Fundraising #Innovation #Africa`,
+          tiktok: `Investors say NO for 1 reason 99% of the time 👀 Watch this before your next pitch! #StartupTips #OdumaCorp #Entrepreneur #AfricanStartup`,
+          whatsapp: `💡 Startup tip: your pitch should answer "Why you?" before "What is it?" — Build your investor-ready profile on Oduma Corp 👉 odumacorp.com`,
+        }
+      },
+      {
+        title: 'Know Your Industry',
+        tag: 'Insights',
+        platforms: {
+          instagram: `🌍 Africa's fastest-growing startup sectors in 2025:\n\n🌾 AgriTech — feeding 1.4B people\n⚡ CleanEnergy — powering off-grid communities\n💊 HealthTech — democratising healthcare\n💸 FinTech — banking the unbanked\n🎓 EdTech — upskilling the next generation\n\nWhich sector are you building in?\n\nFind your investors on Oduma Corp 👉 odumacorp.com\n\n#AfricanStartups #Agritech #Fintech #Cleantech #OdumaCorp #Innovation`,
+          facebook: `Africa's innovation story is being written right now. Here's where the action is:\n\n📊 The sectors attracting the most investment on Oduma Corp:\n\n🔹 FinTech — mobile payments, lending, insurance\n🔹 AgriTech — smart farming, supply chain, exports\n🔹 HealthTech — telemedicine, diagnostics, logistics\n🔹 CleanEnergy — solar, biogas, off-grid solutions\n🔹 EdTech — e-learning, skills training, credentialing\n\nAre you building in one of these? Connect with sector-matched investors on Oduma Corp.\n\n👉 odumacorp.com\n\n#AfricanInnovation #OdumaCorp #Startup #Investment`,
+          twitter: `Africa's top 5 investment sectors in 2025:\n\n1. FinTech\n2. AgriTech\n3. HealthTech\n4. CleanEnergy\n5. EdTech\n\nBuilding in one of these? Investors are already on Oduma Corp looking for you 👉 odumacorp.com\n\n#AfricanStartups #Innovation`,
+          linkedin: `Where is smart money flowing in African innovation?\n\nBased on activity on the Oduma Corp platform, the sectors generating the most investor interest are:\n\n→ FinTech: solving financial inclusion at scale\n→ AgriTech: modernising Africa's largest employer\n→ HealthTech: reaching the last mile\n→ CleanEnergy: addressing a $40B opportunity\n→ EdTech: skilling the world's youngest workforce\n\nIf you're operating in any of these spaces, now is the time to connect with investors who understand your market.\n\n🔗 odumacorp.com\n\n#AfricanInnovation #Investment #StartupEcosystem #Africa`,
+          tiktok: `The hottest startup sector in Africa right now might surprise you 🌍🔥 #AfricanStartups #Innovation #OdumaCorp #Investment`,
+          whatsapp: `📊 Did you know FinTech, AgriTech & HealthTech are attracting the most investment in Africa? Build in these sectors on Oduma Corp 👉 odumacorp.com`,
+        }
+      }
+    ]
+  },
+
+  /* ════════════ WEDNESDAY ════════════ */
+  {
+    day: 'wednesday', dayLabel: 'Wednesday', theme: 'Platform Features & Community',
+    campaigns: [
+      {
+        title: 'Connect & Collaborate',
+        tag: 'Feature',
+        platforms: {
+          instagram: `🤝 Great things happen when the right people find each other.\n\nOduma Corp isn't just a directory — it's a living community of African innovators, investors, mentors, and collaborators.\n\n✨ Direct messaging\n✨ Collaboration proposals\n✨ Group discussions\n✨ Mentor matching\n\nYour next big partnership might just be one connection away.\n\n👉 odumacorp.com · Link in bio\n\n#Community #Collaboration #OdumaCorp #AfricanInnovation #Networking`,
+          facebook: `We built Oduma Corp because we knew that the biggest barrier for African startups wasn't ideas — it was access. Access to investors. Access to mentors. Access to each other.\n\nThat's why our platform goes beyond just posting projects:\n\n💬 Direct messaging with investors\n🤝 Send and receive collaboration proposals\n👥 Join industry groups and discussions\n🎓 Access mentors and consulting\n📅 Schedule video meetings\n\nBecause innovation is a team sport.\n\nJoin the community 👉 odumacorp.com\n\n#Community #OdumaCorp #AfricanInnovation #Collaboration #Startup`,
+          twitter: `Your next co-founder. Your biggest investor. Your best mentor.\n\nThey're all on Oduma Corp.\n\nCome find them 🤝 odumacorp.com\n\n#OdumaCorp #AfricanStartups #Community`,
+          linkedin: `Building a startup is lonely. It doesn't have to be.\n\nOduma Corp's community features are designed to put you in the room with the people who can move your venture forward — whether that's an investor, a mentor, a co-founder, or a strategic partner.\n\nThis week, I'd encourage you to:\n✓ Complete your profile\n✓ Join a relevant group\n✓ Send one connection request\n✓ Start one conversation\n\nSmall actions, big momentum.\n\n🔗 odumacorp.com\n\n#Networking #Innovation #Startup #Community #Africa`,
+          tiktok: `The investor who's going to change your life is literally on Oduma Corp RIGHT NOW 👀🤝 #OdumaCorp #Investor #Startup #AfricanEntrepreneur`,
+          whatsapp: `🤝 Oduma Corp isn't just for posting projects — join groups, find mentors, and message investors directly. Check it out 👉 odumacorp.com`,
+        }
+      },
+      {
+        title: 'Midweek Hustle',
+        tag: 'Motivation',
+        platforms: {
+          instagram: `Wednesday check-in ✅\n\nAre you closer to your goal than you were on Monday?\n\nEvery conversation you start. Every project you refine. Every connection you make. It all compounds.\n\nKeep building. Africa is watching. 🌍\n\n#WednesdayMotivation #OdumaCorp #Entrepreneur #BuildInAfrica #Hustle`,
+          facebook: `It's Wednesday — the week is half done and so is your excuse to wait. 😄\n\nIf you've been thinking about posting your project on Oduma Corp, connecting with that investor, or applying for mentorship — today is the day.\n\nMomentum doesn't wait for the perfect moment. The perfect moment is right now.\n\n👉 odumacorp.com\n\n#WednesdayMotivation #OdumaCorp #Startup #AfricanEntrepreneur`,
+          twitter: `It's Wednesday. Half the week gone.\n\nWhat have you done this week to get closer to funding your vision?\n\nOduma Corp is waiting 👉 odumacorp.com\n\n#WednesdayHustle #OdumaCorp`,
+          linkedin: `Midweek reality check:\n\nThe founders who succeed aren't necessarily the most talented. They're the most consistent.\n\nWhile others are waiting for the "right time" to pitch, the right connections, the right economy — the best builders are showing up every single day.\n\nShow up for your vision today.\n\n🔗 odumacorp.com\n\n#Leadership #Entrepreneurship #Consistency #Innovation #Africa`,
+          tiktok: `Wednesday mood: building something that will still be here in 10 years 💪🌍 #OdumaCorp #Entrepreneur #BuildInAfrica`,
+          whatsapp: `🌍 Mid-week reminder: your vision matters. Keep building. Oduma Corp is here to help you connect with the people who believe in it too 👉 odumacorp.com`,
+        }
+      }
+    ]
+  },
+
+  /* ════════════ THURSDAY ════════════ */
+  {
+    day: 'thursday', dayLabel: 'Thursday', theme: 'Success Stories & Social Proof',
+    campaigns: [
+      {
+        title: 'Built in Africa, For the World',
+        tag: 'Inspiration',
+        platforms: {
+          instagram: `🌟 Africa is not just a continent of problems to solve.\n\nIt's a continent of solutions being built by people like you.\n\nEvery day on Oduma Corp, innovators share their work. Investors discover something remarkable. Collaborations begin.\n\nYours could be next.\n\n👉 odumacorp.com · Link in bio\n\n#BuiltInAfrica #OdumaCorp #AfricanInnovation #Startup #Founder #Inspiration`,
+          facebook: `The narrative is changing. 📢\n\nAfrica is no longer just receiving solutions from the outside world — it's creating them.\n\nSolutions to energy access. Financial inclusion. Food security. Healthcare. Education.\n\nBuilt by Africans, for Africans — and increasingly for the world.\n\nOduma Corp exists to accelerate this story. By connecting the builders with the backers. The dreamers with the doers.\n\nBe part of this movement 👉 odumacorp.com\n\n#BuiltInAfrica #AfricanInnovation #OdumaCorp #Startup`,
+          twitter: `Africa doesn't just have problems.\n\nIt has entrepreneurs building solutions faster than anywhere on earth.\n\nOduma Corp is where they're connecting with investors who see it too 🌍\n\n👉 odumacorp.com #BuiltInAfrica #OdumaCorp`,
+          linkedin: `Something powerful is happening across Africa.\n\nA generation of entrepreneurs is tackling the continent's biggest challenges with technology, creativity, and relentless drive.\n\nAt Oduma Corp, we have the privilege of watching this unfold every day — through the projects posted by innovators, the investments made by forward-thinking backers, and the collaborations that emerge between people who would never have found each other otherwise.\n\nThis is why we exist. And this is just the beginning.\n\n🔗 odumacorp.com\n\n#AfricanInnovation #Entrepreneurship #Investment #Impact #Africa`,
+          tiktok: `African startups are changing the world and nobody's talking about it 🌍🔥 Join the movement on Oduma Corp #BuiltInAfrica #Innovation #OdumaCorp`,
+          whatsapp: `🌟 Africa's best startups are being built right now. Be part of the story on Oduma Corp 👉 odumacorp.com`,
+        }
+      },
+      {
+        title: 'Throwback to Why We Started',
+        tag: 'Brand Story',
+        platforms: {
+          instagram: `💙 Oduma Corp was built on one belief:\n\nThe gap between a great African idea and the investor who'll fund it should not exist.\n\nEvery feature we build. Every update we ship. Every connection we help create — it's all in service of closing that gap.\n\nThank you for being part of this journey. 🙏\n\n👉 odumacorp.com\n\n#OdumaCorp #AfricanInnovation #Purpose #StartupAfrica`,
+          facebook: `Why did we build Oduma Corp? 🤔\n\nBecause we kept meeting brilliant African innovators whose ideas never got in front of the right investors. Not because the ideas weren't good enough — but because the connection didn't exist.\n\nWe decided to build that connection.\n\nToday, Oduma Corp is home to innovators, investors, mentors, and collaborators from across Africa — all working toward one shared future.\n\nWe're just getting started. And we're grateful you're here.\n\n👉 odumacorp.com\n\n#OdumaCorp #WhyWeBuild #AfricanInnovation #Community`,
+          twitter: `We built Oduma Corp because Africa's best ideas deserve Africa's best investors.\n\nSimple mission. Big impact.\n\n🌍 odumacorp.com\n\n#OdumaCorp #AfricanInnovation`,
+          linkedin: `Behind every platform is a reason it was built.\n\nOduma Corp exists because the innovation ecosystem in Africa was fragmented — brilliant founders couldn't find the right investors, and investors couldn't discover the right projects.\n\nWe built a bridge.\n\nOne platform. Innovators, investors, mentors, collaborators — all in one place, all working toward Africa's most ambitious future.\n\nJoin us in building it.\n\n🔗 odumacorp.com\n\n#OdumaCorp #AfricanInnovation #Mission #StartupEcosystem`,
+          tiktok: `Why we built Oduma Corp 👇 (this will make sense in 30 seconds) #OdumaCorp #StartupStory #AfricanInnovation`,
+          whatsapp: `💙 We built Oduma Corp so great African ideas never go unfunded. Join us 👉 odumacorp.com`,
+        }
+      }
+    ]
+  },
+
+  /* ════════════ FRIDAY ════════════ */
+  {
+    day: 'friday', dayLabel: 'Friday', theme: 'Engagement & Community',
+    campaigns: [
+      {
+        title: 'Friday Founder Feature',
+        tag: 'Community',
+        platforms: {
+          instagram: `🙌 Friday energy — shoutout to every African founder grinding this week!\n\nYour work matters. Your vision matters. Every line of code, every sales call, every pitch deck matters.\n\nKeep going. 💪\n\nTag a founder who deserves recognition this week 👇\n\n#FounderFriday #OdumaCorp #StartupAfrica #AfricanFounder #Entrepreneur`,
+          facebook: `Happy Friday! 🎉\n\nThis week, we want to celebrate the founders, innovators, and change-makers across Africa who are showing up every day.\n\nThe ones building something from nothing. The ones pitching for the hundredth time. The ones believing in their vision when others haven't caught on yet.\n\nYou are exactly who Oduma Corp was built for.\n\nTag a founder below who deserves a shoutout this Friday 👇\n\n#FounderFriday #OdumaCorp #AfricanFounders #Startup`,
+          twitter: `Happy Friday! 🎉\n\nShoutout to every African founder who didn't give up this week.\n\nTag someone who deserves recognition 👇\n\n#FounderFriday #OdumaCorp #StartupAfrica`,
+          linkedin: `Founder Friday 🏆\n\nThis week, I want to celebrate the quiet work of African entrepreneurs who are changing their communities, their industries, and the continent — often without the recognition they deserve.\n\nIf you know a founder doing remarkable work, tag them below. Let's celebrate African innovation together.\n\n#FounderFriday #AfricanEntrepreneurs #Innovation #Leadership`,
+          tiktok: `Friday energy ✨ tag the founder who's been grinding all week — they deserve this shoutout! #FounderFriday #OdumaCorp #AfricanStartup`,
+          whatsapp: `🎉 Happy Friday! Shoutout to every African founder grinding this week. You're the reason Oduma Corp exists. Share your project 👉 odumacorp.com`,
+        }
+      },
+      {
+        title: 'Weekend Prep for Investors',
+        tag: 'Investors',
+        platforms: {
+          instagram: `📊 Heading into the weekend?\n\nUse a few minutes to explore what's new on Oduma Corp.\n\nNew projects in:\n🌾 AgriTech\n⚡ CleanEnergy\n💸 FinTech\n💊 HealthTech\n\nYour next portfolio company might be waiting.\n\n👉 odumacorp.com · Link in bio\n\n#InvestInAfrica #Investor #OdumaCorp #AfricanStartups #Portfolio`,
+          facebook: `The weekend is a great time to catch up on new opportunities. 📊\n\nThis week, new projects were added across AgriTech, FinTech, HealthTech, and CleanEnergy on Oduma Corp.\n\nTake 10 minutes to browse, rate, and reach out to founders who interest you. The best deals go to investors who move first.\n\n👉 odumacorp.com\n\n#InvestInAfrica #OdumaCorp #Investor #AfricanStartups`,
+          twitter: `Weekend homework for investors 📊\n\nNew projects posted on Oduma Corp this week. Go find your next deal.\n\n👉 odumacorp.com\n\n#InvestInAfrica #OdumaCorp #AfricanStartups`,
+          linkedin: `Friday is a great day to review your investment pipeline.\n\nHundreds of African founders updated or posted new projects on Oduma Corp this week. Each one represents a potential opportunity — at the ground level, before the crowd.\n\nSpend 15 minutes browsing this weekend. The best investment you ever make might start with a 15-minute scroll.\n\n🔗 odumacorp.com\n\n#Investing #AfricanStartups #VentureCapital #OdumaCorp #DealFlow`,
+          tiktok: `POV: Investor checking Oduma Corp for new projects on a Friday night 📊💰 #InvestInAfrica #OdumaCorp #Investor`,
+          whatsapp: `📊 Investors — new projects posted on Oduma Corp this week. Take a look this weekend 👉 odumacorp.com`,
+        }
+      }
+    ]
+  },
+
+  /* ════════════ SATURDAY ════════════ */
+  {
+    day: 'saturday', dayLabel: 'Saturday', theme: 'Lifestyle & Inspiration',
+    campaigns: [
+      {
+        title: 'The African Dream',
+        tag: 'Lifestyle',
+        platforms: {
+          instagram: `🌅 Saturday mornings were made for big dreams.\n\nImagine building something so impactful that it transforms your community. Creates jobs. Solves real problems. Attracts global investment.\n\nThat's what African innovation looks like — and it's happening right now on Oduma Corp.\n\nStart building your legacy. 🌍\n\n👉 odumacorp.com · Link in bio\n\n#SaturdayMotivation #AfricanDream #OdumaCorp #Legacy #Innovation`,
+          facebook: `Saturdays are for reflection and future planning. ☕\n\nWhere do you want to be in 5 years? Running your own company? Backed by investors? Solving a problem that matters?\n\nOduma Corp is home to thousands of innovators who are working toward exactly that — and the investors who believe in them.\n\nYour journey starts with one step: creating your profile.\n\n👉 odumacorp.com\n\n#SaturdayVibes #OdumaCorp #AfricanInnovation #Entrepreneurship #Dream`,
+          twitter: `Saturday thought 💭\n\nThe African startup scene is the most exciting place in the world right now.\n\nAre you in it?\n\n👉 odumacorp.com #AfricanStartups #OdumaCorp`,
+          linkedin: `The best CEOs I know spend their Saturdays reading, reflecting, and planning.\n\nIf you're in building mode — take a moment this weekend to ask yourself:\n\n→ Is my project clearly articulated?\n→ Do I have the right investors in my network?\n→ Am I making the most of the tools available to me?\n\nOduma Corp's platform can help with all three.\n\n🔗 odumacorp.com\n\n#WeekendReflection #Entrepreneurship #AfricanInnovation #Leadership`,
+          tiktok: `Saturday morning routine: coffee ☕ big ideas 💡 checking Oduma Corp for investors 📊 #OdumaCorp #StartupLife #AfricanEntrepreneur`,
+          whatsapp: `☕ Happy Saturday! Use the weekend to work on your startup profile on Oduma Corp. Investors are browsing too 👉 odumacorp.com`,
+        }
+      },
+      {
+        title: 'Project Spotlight',
+        tag: 'Community',
+        platforms: {
+          instagram: `💡 This week on Oduma Corp, innovators posted projects in:\n\n🌾 Smart irrigation for small-scale farmers\n☀️ Solar micro-grids for rural communities\n💊 Mobile health diagnostics\n🎓 Vocational training platforms\n\nAfrica's builders are building. Are you one of them?\n\n👉 odumacorp.com · Link in bio\n\n#ProjectSpotlight #OdumaCorp #AfricanInnovation #BuildInAfrica`,
+          facebook: `Every week, incredible projects go live on Oduma Corp. 🌍\n\nThis Saturday, we're celebrating the breadth of innovation happening across Africa — from smart farming solutions to off-grid energy, from digital health to workforce development.\n\nEvery project represents a real person with a real vision, looking for the right support.\n\nBrowse this week's projects 👉 odumacorp.com\n\nAnd if you have a project of your own — today is a great day to post it.\n\n#OdumaCorp #AfricanInnovation #ProjectSpotlight #Startup`,
+          twitter: `African founders are posting new projects on Oduma Corp every single day.\n\nAgriTech. HealthTech. FinTech. CleanEnergy.\n\nGo discover what's being built 🌍 odumacorp.com\n\n#AfricanInnovation #OdumaCorp #Startup`,
+          linkedin: `Innovation across Africa doesn't take weekends off.\n\nEvery day, new projects go live on Oduma Corp — reflecting the breadth and ambition of the continent's entrepreneurial community.\n\nThis Saturday, take five minutes to explore what's being built. You might discover your next investment, your next collaboration, or your next inspiration.\n\n🔗 odumacorp.com\n\n#AfricanInnovation #Investment #Entrepreneurship #OdumaCorp`,
+          tiktok: `The projects being built in Africa right now will blow your mind 🤯🌍 Check them out on Oduma Corp #AfricanInnovation #OdumaCorp #Startup`,
+          whatsapp: `🌍 Check out what African innovators are building this week on Oduma Corp 👉 odumacorp.com — you might find your next investment or collab!`,
+        }
+      }
+    ]
+  },
+
+  /* ════════════ SUNDAY ════════════ */
+  {
+    day: 'sunday', dayLabel: 'Sunday', theme: 'Reflection & Week Ahead',
+    campaigns: [
+      {
+        title: 'Set Your Intentions',
+        tag: 'Motivation',
+        platforms: {
+          instagram: `🌙 Sunday reset. Fresh week ahead.\n\nOne question: what will you do this week to move your innovation forward?\n\nWhether it's posting your first project, sending a connection request, or reaching out to an investor — one action changes everything.\n\nSee you on Oduma Corp this week. 💙\n\n👉 odumacorp.com\n\n#SundayReset #OdumaCorp #NewWeek #AfricanFounder #Intention`,
+          facebook: `Before the new week begins — a moment of intention. 🙏\n\nWhat's the ONE thing you want to accomplish this week for your startup?\n\nComment below and let's hold each other accountable. 💪\n\nAnd if you haven't joined Oduma Corp yet — make it your goal this week. It takes 5 minutes and could change your trajectory.\n\n👉 odumacorp.com\n\n#SundayMotivation #OdumaCorp #Accountability #AfricanStartup`,
+          twitter: `Sunday question 🤔\n\nWhat's the ONE startup goal you want to hit this week?\n\nComment below — let's hold each other accountable 💪\n\n#SundayReset #OdumaCorp #StartupAfrica`,
+          linkedin: `As the week comes to a close, I find it valuable to ask one question:\n\n"What did I learn this week, and how will I apply it next week?"\n\nFor entrepreneurs and investors alike, growth compounds — not just financially, but in knowledge, relationships, and strategy.\n\nIf Oduma Corp can be part of your growth journey, we're here every day of the week.\n\nHere's to a powerful week ahead.\n\n🔗 odumacorp.com\n\n#SundayReflection #Leadership #Growth #Entrepreneurship #Africa`,
+          tiktok: `Sunday reset checklist for African founders ✅ Check out this week's goals! #SundayReset #OdumaCorp #AfricanEntrepreneur`,
+          whatsapp: `🌙 New week starts tomorrow. What's your #1 startup goal? Set it, then make it happen on Oduma Corp 👉 odumacorp.com`,
+        }
+      },
+      {
+        title: 'Join the Movement',
+        tag: 'CTA',
+        platforms: {
+          instagram: `🚀 If you've been watching from the sidelines, this is your sign.\n\n✅ Join Oduma Corp\n✅ Post your project or investor profile\n✅ Connect with your community\n✅ Build something that matters\n\nAfrica's innovation story is being written. Be one of the authors. ✍️\n\n👉 odumacorp.com · Link in bio\n\n#JoinTheMovement #OdumaCorp #AfricanInnovation #StartupAfrica #NewWeek`,
+          facebook: `Sunday reminder: you don't have to figure this out alone. 💙\n\nOduma Corp is more than a platform — it's a community of people who believe in African innovation as deeply as you do.\n\nInnovators. Investors. Mentors. Collaborators. All in one place. All working toward the same future.\n\nJoin us this week. Your first step: create your free profile at odumacorp.com\n\n#JoinTheMovement #OdumaCorp #Community #AfricanInnovation`,
+          twitter: `Africa's best builders are on Oduma Corp.\n\nAre you?\n\nStart your week right 👉 odumacorp.com\n\n#OdumaCorp #AfricanInnovation #NewWeek`,
+          linkedin: `As we close out another week and look ahead to the next, I want to extend an invitation:\n\nIf you're an African innovator, investor, or ecosystem builder — Oduma Corp was built for you.\n\nJoin thousands of professionals across the continent who are using our platform to discover opportunities, make connections, and build businesses that matter.\n\nThe door is open. Come on in.\n\n🔗 odumacorp.com\n\n#OdumaCorp #AfricanInnovation #Community #Investment #Startup`,
+          tiktok: `If you're not on Oduma Corp yet, what are you waiting for? 👀 Africa's innovation hub is calling your name #OdumaCorp #AfricanStartup #JoinNow`,
+          whatsapp: `🚀 New week, new opportunities. Join Oduma Corp free today and connect with Africa's innovation community 👉 odumacorp.com`,
+        }
+      }
+    ]
+  }
+
+];
+
+/* ─── Platform Config ─────────────────────────────────── */
+var PLATFORMS = [
+  { key: 'instagram', label: 'Instagram',  cls: 'plat-ig', icon: '📸' },
+  { key: 'facebook',  label: 'Facebook',   cls: 'plat-fb', icon: '👍' },
+  { key: 'twitter',   label: 'Twitter / X',cls: 'plat-tw', icon: '🐦' },
+  { key: 'linkedin',  label: 'LinkedIn',   cls: 'plat-li', icon: '💼' },
+  { key: 'tiktok',    label: 'TikTok',     cls: 'plat-tt', icon: '🎵' },
+  { key: 'whatsapp',  label: 'WhatsApp',   cls: 'plat-wa', icon: '💬' },
+];
+
+/* ─── Render ──────────────────────────────────────────── */
+function render(filterDay) {
+  var root = document.getElementById('campaigns-root');
+  var html = '';
+
+  CAMPAIGNS.forEach(function(dayObj) {
+    if (filterDay !== 'all' && filterDay !== dayObj.day) return;
+
+    html += '<div class="sc-day" data-day="' + dayObj.day + '">';
+    html += '<div class="sc-day-header">';
+    html += '<div class="sc-day-label">' + dayObj.dayLabel + '</div>';
+    html += '<div class="sc-day-line"></div>';
+    html += '<div class="sc-day-theme">' + dayObj.theme + '</div>';
+    html += '</div>';
+
+    dayObj.campaigns.forEach(function(camp, ci) {
+      html += '<div class="sc-campaign">';
+      html += '<div class="sc-campaign-header">';
+      html += '<div class="sc-campaign-num">' + (ci + 1) + '</div>';
+      html += '<div class="sc-campaign-title">' + camp.title + '</div>';
+      html += '<span class="sc-campaign-tag">' + camp.tag + '</span>';
+      html += '</div>';
+      html += '<div class="sc-platforms">';
+
+      PLATFORMS.forEach(function(plat) {
+        var copy = camp.platforms[plat.key] || '';
+        var chars = copy.length;
+        var id = 'copy-' + dayObj.day + '-' + ci + '-' + plat.key;
+        html += '<div class="sc-platform-row">';
+        html += '<div><span class="sc-platform-badge ' + plat.cls + '">' + plat.icon + ' ' + plat.label + '</span></div>';
+        html += '<div><div class="sc-copy" id="' + id + '">' + escHtml(copy) + '</div>';
+        html += '<div class="sc-char-count">' + chars + ' chars</div></div>';
+        html += '<div class="sc-copy-actions">';
+        html += '<button class="sc-copy-btn" onclick="copyText(\'' + id + '\', this)">Copy</button>';
+        html += '</div>';
+        html += '</div>';
+      });
+
+      html += '</div></div>';
+    });
+
+    html += '</div>';
+  });
+
+  root.innerHTML = html;
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;').replace(/\n/g,'<br>');
+}
+
+function copyText(id, btn) {
+  var el = document.getElementById(id);
+  var text = el ? el.innerText : '';
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  }).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = 'Copied!'; btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function filterDay(day, btn) {
+  document.querySelectorAll('.sc-tab').forEach(function(t) { t.classList.remove('active'); });
+  btn.classList.add('active');
+  render(day);
+}
+
+/* ─── CSV Export ─────────────────────────────────────── */
+function downloadCSV() {
+  var rows = [['Day', 'Theme', 'Campaign #', 'Campaign Title', 'Tag', 'Platform', 'Copy', 'Char Count']];
+
+  CAMPAIGNS.forEach(function(dayObj) {
+    dayObj.campaigns.forEach(function(camp, ci) {
+      PLATFORMS.forEach(function(plat) {
+        var copy = camp.platforms[plat.key] || '';
+        rows.push([
+          dayObj.dayLabel,
+          dayObj.theme,
+          ci + 1,
+          camp.title,
+          camp.tag,
+          plat.label,
+          copy,
+          copy.length
+        ]);
+      });
+    });
+  });
+
+  var csv = rows.map(function(row) {
+    return row.map(function(cell) {
+      var s = String(cell).replace(/"/g, '""');
+      return '"' + s + '"';
+    }).join(',');
+  }).join('\n');
+
+  var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'OdumaCorp_Social_Campaigns_WeeklyPlan.csv';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+/* ─── Init ──────────────────────────────────────────── */
+render('all');
+</script>
+
+{% endblock %}
