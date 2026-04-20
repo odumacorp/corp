@@ -2969,6 +2969,7 @@ document.addEventListener('click', function(e) {
     funny:      { svg: RXN_SVG.funny,      label: 'Funny',      cls: 'ap-rxn--funny' },
   };
   var _rxnTimers = {};
+  var _rxnLongPress = {}; /* long-press timers for touch picker */
 
   /* true when device has no fine pointer (phones, tablets) */
   var _rxnTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
@@ -2985,31 +2986,61 @@ document.addEventListener('click', function(e) {
     }, 280);
   };
   window.ocRxnClick = function(postId, btn) {
-    if (_rxnTouchDevice) {
-      /* On touch: first tap opens picker; second tap (outside picker) sends reaction */
-      var picker = document.getElementById('rxn-picker-' + postId);
-      if (picker && !picker.classList.contains('visible')) {
-        /* Close any other open pickers */
-        document.querySelectorAll('.ap-rxn-picker.visible').forEach(function(p) {
-          if (p !== picker) p.classList.remove('visible');
-        });
-        ocRxnShow(postId);
-        return;
-      }
-      if (picker) picker.classList.remove('visible');
+    /* On touch devices this fires after touchend — only send reaction
+       if the long-press timer was NOT triggered (i.e. it was a quick tap) */
+    if (_rxnTouchDevice && _rxnLongPress[postId] === 'fired') {
+      _rxnLongPress[postId] = null;
+      return; /* picker already opened by long press — don't also send a reaction */
     }
+    var picker = document.getElementById('rxn-picker-' + postId);
+    if (picker) picker.classList.remove('visible');
     var active = btn.dataset.active;
     ocReact(postId, active || 'like', null);
   };
 
-  /* Close reaction pickers when tapping outside on touch devices */
+  /* Long-press on the main reaction button → open picker (touch devices only) */
   if (_rxnTouchDevice) {
     document.addEventListener('touchstart', function(e) {
+      var btn = e.target.closest('.ap-rxn-main');
+      if (btn) {
+        var postId = btn.dataset.post;
+        _rxnLongPress[postId] = 'pending';
+        _rxnLongPress[postId + '_t'] = setTimeout(function() {
+          _rxnLongPress[postId] = 'fired';
+          document.querySelectorAll('.ap-rxn-picker.visible').forEach(function(p) {
+            if (p.id !== 'rxn-picker-' + postId) p.classList.remove('visible');
+          });
+          ocRxnShow(postId);
+        }, 400);
+        return;
+      }
+      /* Tapping outside any rxn-wrap closes all open pickers */
       if (!e.target.closest('.ap-rxn-wrap')) {
         document.querySelectorAll('.ap-rxn-picker.visible').forEach(function(p) {
           p.classList.remove('visible');
         });
       }
+    }, { passive: true });
+
+    document.addEventListener('touchend', function(e) {
+      var btn = e.target.closest('.ap-rxn-main');
+      if (btn) {
+        var postId = btn.dataset.post;
+        clearTimeout(_rxnLongPress[postId + '_t']);
+        /* If timer hadn't fired yet it was a short tap — let onclick handle it */
+        if (_rxnLongPress[postId] === 'pending') _rxnLongPress[postId] = null;
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', function(e) {
+      /* Cancel long-press if user scrolls */
+      document.querySelectorAll('.ap-rxn-main').forEach(function(btn) {
+        var postId = btn.dataset.post;
+        if (_rxnLongPress[postId + '_t']) {
+          clearTimeout(_rxnLongPress[postId + '_t']);
+          _rxnLongPress[postId] = null;
+        }
+      });
     }, { passive: true });
   }
   window.ocReact = function(postId, rxnType, pickBtn) {
