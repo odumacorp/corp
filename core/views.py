@@ -2899,7 +2899,9 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import CustomUserCreationForm
 from .models import UserProfile
+from django.views.decorators.csrf import ensure_csrf_cookie
 
+@ensure_csrf_cookie
 def register(request):
     if request.user.is_authenticated:
         return render(request, 'register.html', {'already_logged_in': True})

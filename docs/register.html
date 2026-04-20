@@ -238,7 +238,7 @@
       <div class="auth-error-banner">{{ form.non_field_errors }}</div>
     {% endif %}
 
-    <form method="POST" id="reg-form" novalidate>
+    <form method="POST" action="{% url 'register' %}" id="reg-form" novalidate>
       {% csrf_token %}
 
       <!-- Name row -->
