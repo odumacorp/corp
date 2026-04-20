@@ -28,7 +28,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
 .ch-icon-btn.active{background:#1B5EC7;color:#fff;border-color:#1B5EC7;}
 
 /* ── Messages ── */
-.ch-messages{flex:1;overflow-y:auto;padding:20px 20px 12px;display:flex;flex-direction:column;gap:2px;}
+.ch-messages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 20px 12px;display:flex;flex-direction:column;gap:2px;}
 .ch-messages::-webkit-scrollbar{width:4px;}
 .ch-messages::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:4px;}
 
@@ -1116,12 +1116,19 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
 }
 .ch-admin-reply-chip:hover{ background:#1B5EC7; color:#fff; border-color:#1B5EC7; transform:translateY(-1px); }
 
+/* Hide bottom nav in chat so it never covers the inputbar */
+.oc-bottom-nav { display: none !important; }
+
 @media(max-width:600px){
   .ch-shell{height:calc(100vh - 56px);}
   .ch-messages{padding:14px 12px 6px;}
-  .ch-inputbar{padding:10px 12px;}
+  .ch-inputbar{padding:10px 12px;position:relative;z-index:10;}
   .ch-msg-wrap{max-width:82%;}
 }
+/* Ensure inputbar + send button always sit above everything */
+.ch-inputbar{z-index:10;position:relative;}
+.ch-send{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+.ch-attach-preview{z-index:9;}
 
 /* ── Profile context panel ── */
 .ch-panel-overlay{
@@ -1357,6 +1364,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
         <div class="ch-row ch-row--mine" data-msg-id="{{ msg.id }}"
              data-sender="{{ request.user.get_full_name|default:request.user.username }}"
              data-ts="{{ msg.timestamp|date:'N j, Y · H:i' }}"
+             data-timestamp="{{ msg.timestamp|date:'U' }}"
              data-mine="1"
              data-deleted="{% if msg.is_deleted %}1{% else %}0{% endif %}"
              data-content="{{ msg.content }}">
@@ -1576,7 +1584,16 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
               </div>
               {% endwith %}
               {% endif %}
-              {% if msg.content %}<div class="ch-bubble" style="margin-top:4px;">{{ msg.content|urlize }}</div>{% endif %}
+              {% if msg.content %}
+              <div class="ch-bubble" id="bubble-{{ msg.id }}" style="margin-top:4px;">{{ msg.content|urlize }}</div>
+              <div class="ch-edit-wrap" id="edit-{{ msg.id }}">
+                <textarea class="ch-edit-input" id="edit-input-{{ msg.id }}" rows="2">{{ msg.content }}</textarea>
+                <div class="ch-edit-actions">
+                  <button class="ch-edit-cancel" onclick="chCancelEdit({{ msg.id }})">Cancel</button>
+                  <button class="ch-edit-save" onclick="chSaveEdit({{ msg.id }})">Save</button>
+                </div>
+              </div>
+              {% endif %}
               {% endwith %}
 
             {% else %}
@@ -1856,7 +1873,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
               </div>
               {% endwith %}
               {% endif %}
-              {% if msg.content %}<div class="ch-bubble" style="margin-top:4px;">{{ msg.content|urlize }}</div>{% endif %}
+              {% if msg.content %}<div class="ch-bubble" id="bubble-{{ msg.id }}" style="margin-top:4px;">{{ msg.content|urlize }}</div>{% endif %}
               {% endwith %}
 
             {% else %}
@@ -3152,12 +3169,15 @@ function fillSuggestion(btn) {
     document.getElementById('ch-ctx-sender').textContent = row.dataset.sender || '';
     document.getElementById('ch-ctx-time').textContent   = row.dataset.ts    || '';
 
-    // Show/hide edit+delete only for own non-deleted messages
+    // Show/hide edit+delete only for own non-deleted messages within 1 hour
     var editBtn    = document.getElementById('ch-ctx-edit');
     var deleteBtn  = document.getElementById('ch-ctx-delete');
     var mineDivider= document.getElementById('ch-ctx-mine-divider');
-    editBtn.style.display   = (isMine && !isDeleted) ? '' : 'none';
-    deleteBtn.style.display = (isMine && !isDeleted) ? '' : 'none';
+    var msgTs      = parseInt(row.dataset.timestamp || '0', 10);
+    var ageSeconds = msgTs ? (Date.now() / 1000 - msgTs) : Infinity;
+    var canEdit    = isMine && !isDeleted && ageSeconds < 3600;
+    editBtn.style.display    = canEdit ? '' : 'none';
+    deleteBtn.style.display  = (isMine && !isDeleted) ? '' : 'none';
     mineDivider.style.display= (isMine && !isDeleted) ? '' : 'none';
 
     // Copy button — hide if deleted

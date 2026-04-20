@@ -20,6 +20,16 @@
   Back
 </button>
 
+  <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:12px;">
+    <a href="{% url 'project_list' %}"
+       style="display:inline-flex;align-items:center;gap:7px;padding:8px 18px;background:#fff;border:1.5px solid #e0e8f4;border-radius:9px;font-size:1.2rem;font-weight:700;color:#1B5EC7;text-decoration:none;transition:all .15s;"
+       onmouseover="this.style.background='#eef4ff';this.style.borderColor='#1B5EC7';"
+       onmouseout="this.style.background='#fff';this.style.borderColor='#e0e8f4';">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9" y1="14.5" x2="15" y2="14.5"/></svg>
+      Browse Projects
+    </a>
+  </div>
+
   <div class="cp-card">
     <h1 class="cp-title">Submit Your Project</h1>
     <p class="cp-sub">Share your innovation or invention with investors and collaborators.</p>
@@ -297,7 +307,86 @@
       <!-- ── Photos (up to 10) ── -->
       <fieldset class="cp-section">
         <legend class="cp-legend">Photos <span class="cp-hint-inline">up to 10</span></legend>
-        <p class="cp-hint" style="margin-bottom:12px;">The first photo will be your cover image. Add names for SEO.</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          <p class="cp-hint" style="margin:0;">The first photo will be your cover image. Add names for SEO.</p>
+          <button type="button" onclick="toggleImageAI()"
+                  style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:1.2rem;font-weight:600;cursor:pointer;white-space:nowrap;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/><path d="M20 4l-8 8"/></svg>
+            Get AI image ideas
+          </button>
+        </div>
+
+        <!-- AI Image Suggestion Panel -->
+        <div id="img-ai-panel" style="display:none;background:#f8faff;border:1.5px solid #c7d9ff;border-radius:14px;padding:20px;margin-bottom:16px;">
+
+          <!-- Step 1: seed prompt -->
+          <div id="img-step1">
+            <p style="font-size:1.2rem;font-weight:700;color:#0A1628;margin:0 0 4px;">AI Image Assistant</p>
+            <p style="font-size:1.2rem;color:#6b7280;margin:0 0 12px;line-height:1.5;">Describe what you'd like, or leave blank and AI will suggest image ideas from your project details.</p>
+            <textarea id="img-ai-prompt" rows="2"
+                      style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:1.2rem;resize:vertical;margin-bottom:10px;box-sizing:border-box;"
+                      placeholder="e.g. Solar panels in a rural village at sunrise…"></textarea>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <button type="button" id="img-ai-btn" onclick="generateImageIdeas()"
+                      style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:1.2rem;font-weight:700;cursor:pointer;">
+                Suggest image ideas
+              </button>
+              <span id="img-ai-spinner" style="display:none;font-size:1.2rem;color:#6b7280;">Thinking…</span>
+              <span id="img-ai-error" style="display:none;font-size:1.2rem;color:#dc2626;"></span>
+            </div>
+          </div>
+
+          <!-- Step 2: select a keyword prompt -->
+          <div id="img-step2" style="display:none;margin-top:18px;">
+            <div id="img-ai-tip" style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:1.2rem;color:#92400e;margin-bottom:14px;line-height:1.5;display:none;"></div>
+            <p style="font-size:1.2rem;font-weight:700;color:#0A1628;margin:0 0 4px;">Pick a theme or keyword to generate your image:</p>
+            <p style="font-size:1.15rem;color:#6b7280;margin:0 0 12px;">Click a theme to use its full description, or pick a keyword chip for a shorter search. You can edit the prompt before generating.</p>
+            <!-- Keyword sections rendered by JS -->
+            <div id="img-keyword-sections"></div>
+
+            <!-- Editable selected keyword -->
+            <div id="img-selected-wrap" style="display:none;margin-top:16px;padding-top:16px;border-top:1.5px solid #e0e8f4;">
+              <label style="display:block;font-size:1.2rem;font-weight:700;color:#374151;margin-bottom:5px;">
+                Your prompt — edit before generating:
+              </label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <input id="img-selected-kw" type="text"
+                       style="flex:1;min-width:180px;border:1.5px solid #1B5EC7;border-radius:8px;padding:9px 12px;font-size:1.2rem;box-sizing:border-box;"
+                       placeholder="Edit keyword…">
+                <button type="button" id="img-gen-btn" onclick="fetchImageForKeyword()"
+                        style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:1.2rem;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  Generate image
+                </button>
+                <span id="img-gen-spinner" style="display:none;font-size:1.2rem;color:#6b7280;">Fetching…</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: image preview + use -->
+          <div id="img-step3" style="display:none;margin-top:18px;">
+            <p style="font-size:1.2rem;font-weight:700;color:#374151;margin:0 0 10px;">
+              Generated image — add it to your project or try another keyword:
+            </p>
+            <div style="position:relative;border-radius:12px;overflow:hidden;border:1.5px solid #e0e8f4;display:inline-block;max-width:100%;">
+              <img id="img-preview" src="" alt="Generated image" style="width:100%;max-width:480px;max-height:260px;object-fit:cover;display:block;">
+              <div id="img-preview-loading" style="position:absolute;inset:0;background:rgba(248,250,255,.85);display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#6b7280;">Loading image…</div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+              <button type="button" id="img-use-btn" onclick="useGeneratedImage()"
+                      style="background:#10b981;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:1.2rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Use this image
+              </button>
+              <button type="button" onclick="backToKeywords()"
+                      style="background:#fff;color:#374151;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 18px;font-size:1.2rem;font-weight:600;cursor:pointer;">
+                Try another keyword
+              </button>
+            </div>
+            <p style="font-size:1.1rem;color:#9ca3af;margin:8px 0 0;">Photo sourced from Pexels. Free to use for your project.</p>
+          </div>
+
+        </div>
 
         <div class="cp-drop-zone" id="img-drop-zone" onclick="document.getElementById('id_images').click()">
           <div id="img-placeholder">
@@ -1063,6 +1152,285 @@ function keepOwnDescription() {
   document.getElementById('description-source-label').textContent = '✎ Using your own description';
   document.getElementById('description-source-label').style.color = '#6b7280';
   document.getElementById('id_description').focus();
+}
+
+/* ══════════════════════════════════════════
+   AI Image Assistant — 3-step flow
+   Step 1: seed prompt → AI suggests keyword chips
+   Step 2: select / edit a keyword → Generate image
+   Step 3: preview → Use this image
+   ══════════════════════════════════════════ */
+
+var _imgCurrentProxyUrl = '';
+
+function toggleImageAI() {
+  var panel = document.getElementById('img-ai-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  if (panel.style.display === 'block') {
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+/* ── Step 1: Ask AI for keyword suggestions ── */
+function generateImageIdeas() {
+  var btn     = document.getElementById('img-ai-btn');
+  var spinner = document.getElementById('img-ai-spinner');
+  var errEl   = document.getElementById('img-ai-error');
+
+  btn.disabled = true;
+  btn.textContent = 'Thinking…';
+  spinner.style.display = 'inline';
+  errEl.style.display = 'none';
+
+  fetch('{% url "ai_image_suggest" %}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    },
+    body: JSON.stringify({
+      title:       (document.getElementById('id_title') || {}).value || '',
+      description: (document.getElementById('id_description') || {}).value || '',
+      industry:    (document.getElementById('id_industry') || {}).value || '',
+      user_prompt: document.getElementById('img-ai-prompt').value.trim(),
+    }),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.disabled = false;
+    btn.textContent = 'Suggest image ideas';
+    spinner.style.display = 'none';
+
+    if (data.error) { errEl.textContent = data.error; errEl.style.display = 'inline'; return; }
+
+    // Visual tip
+    var tipEl = document.getElementById('img-ai-tip');
+    if (data.visual_tip) { tipEl.textContent = '💡 ' + data.visual_tip; tipEl.style.display = 'block'; }
+    else { tipEl.style.display = 'none'; }
+
+    // Build keyword sections
+    var sectionsEl = document.getElementById('img-keyword-sections');
+    sectionsEl.innerHTML = '';
+
+    var sections = data.sections || [];
+    sections.forEach(function(sec, si) {
+      var wrap = document.createElement('div');
+      wrap.className = 'img-sec-wrap';
+      wrap.style.cssText = 'margin-bottom:4px;border:1.5px solid transparent;border-radius:12px;padding:14px;transition:border-color .15s,background .15s;cursor:pointer;';
+
+      // Hover effect on the whole section
+      wrap.onmouseenter = function(){ if (!this.classList.contains('img-sec-active')) this.style.background='#f0f5ff'; };
+      wrap.onmouseleave = function(){ if (!this.classList.contains('img-sec-active')) this.style.background=''; };
+
+      // Section number + label
+      var label = document.createElement('p');
+      label.style.cssText = 'font-size:1.2rem;font-weight:700;color:#0A1628;margin:0 0 6px;pointer-events:none;';
+      label.textContent = (si + 1) + '. ' + (sec.label || 'Theme ' + (si + 1));
+      wrap.appendChild(label);
+
+      // Concept textarea — looks like text, becomes editable on focus
+      var ta = document.createElement('textarea');
+      ta.className = 'img-concept-ta';
+      ta.value = sec.concept || '';
+      ta.rows = 2;
+      ta.style.cssText = 'width:100%;border:1.5px solid transparent;border-radius:8px;padding:6px 8px;font-size:1.15rem;color:#4b5563;line-height:1.5;background:transparent;resize:none;box-sizing:border-box;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s,color .15s;margin-bottom:10px;';
+      ta.title = 'Click to select and edit this prompt';
+
+      // Clicking/focusing textarea selects the section
+      ta.addEventListener('focus', function() {
+        selectSection(wrap, ta);
+      });
+      ta.addEventListener('input', function() {
+        // Keep the editable keyword input in sync if this section is active
+        if (wrap.classList.contains('img-sec-active')) {
+          document.getElementById('img-selected-kw').value = ta.value.trim();
+        }
+      });
+
+      wrap.appendChild(ta);
+
+      // Chips row
+      var chipRow = document.createElement('div');
+      chipRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;';
+
+      (sec.keywords || []).forEach(function(kw) {
+        kw = kw.trim();
+        if (!kw) return;
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.textContent = kw;
+        chip.dataset.kw = kw;
+        chip.style.cssText = 'background:#fff;border:1.5px solid #c7d9ff;border-radius:20px;padding:6px 14px;font-size:1.2rem;color:#1B5EC7;cursor:pointer;font-weight:600;transition:all .15s;touch-action:manipulation;';
+        chip.onmouseenter = function(){ if (!this.classList.contains('img-chip-selected')){ this.style.background='#eef4ff'; this.style.borderColor='#1B5EC7'; } };
+        chip.onmouseleave = function(){ if (!this.classList.contains('img-chip-selected')){ this.style.background='#fff'; this.style.borderColor='#c7d9ff'; } };
+        chip.onclick = function(e) { e.stopPropagation(); selectKeyword(this, wrap, ta); };
+        chipRow.appendChild(chip);
+      });
+
+      wrap.appendChild(chipRow);
+
+      // Clicking the section wrap (not the textarea itself) selects it with concept text
+      wrap.addEventListener('click', function(e) {
+        if (e.target === ta || e.target.tagName === 'BUTTON') return;
+        selectSection(wrap, ta);
+        ta.focus();
+      });
+
+      sectionsEl.appendChild(wrap);
+
+      // Divider between sections
+      if (si < sections.length - 1) {
+        var hr = document.createElement('hr');
+        hr.style.cssText = 'border:none;border-top:1px solid #e0e8f4;margin:8px 0;';
+        sectionsEl.appendChild(hr);
+      }
+    });
+
+    // Show step 2, reset step 3
+    document.getElementById('img-step2').style.display = 'block';
+    document.getElementById('img-selected-wrap').style.display = 'none';
+    document.getElementById('img-step3').style.display = 'none';
+    document.getElementById('img-step2').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  })
+  .catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Suggest image ideas';
+    spinner.style.display = 'none';
+    errEl.textContent = 'Network error. Please try again.';
+    errEl.style.display = 'inline';
+  });
+}
+
+/* ── Step 2a: activate a whole section (concept prompt) ── */
+function selectSection(wrap, ta) {
+  // Deactivate all section wraps + chips
+  document.querySelectorAll('.img-sec-wrap').forEach(function(w) {
+    w.classList.remove('img-sec-active');
+    w.style.borderColor = 'transparent';
+    w.style.background = '';
+  });
+  document.querySelectorAll('.img-concept-ta').forEach(function(t) {
+    t.style.borderColor = 'transparent';
+    t.style.background = 'transparent';
+    t.style.color = '#4b5563';
+    t.style.cursor = 'pointer';
+  });
+  document.querySelectorAll('#img-keyword-sections button').forEach(function(c) {
+    c.classList.remove('img-chip-selected');
+    c.style.background = '#fff';
+    c.style.borderColor = '#c7d9ff';
+    c.style.color = '#1B5EC7';
+  });
+
+  // Activate this section
+  wrap.classList.add('img-sec-active');
+  wrap.style.borderColor = '#1B5EC7';
+  wrap.style.background = '#f0f5ff';
+  ta.style.borderColor = '#93bbfd';
+  ta.style.background = '#fff';
+  ta.style.color = '#0A1628';
+  ta.style.cursor = 'text';
+
+  // Populate the editable input with the concept text
+  document.getElementById('img-selected-kw').value = ta.value.trim();
+  document.getElementById('img-selected-wrap').style.display = 'block';
+  document.getElementById('img-step3').style.display = 'none';
+}
+
+/* ── Step 2b: select a keyword chip ── */
+function selectKeyword(chip, wrap, ta) {
+  // Activate the parent section first
+  selectSection(wrap, ta);
+
+  // Then override chip selection styles
+  document.querySelectorAll('#img-keyword-sections button').forEach(function(c) {
+    c.classList.remove('img-chip-selected');
+    c.style.background = '#fff';
+    c.style.borderColor = '#c7d9ff';
+    c.style.color = '#1B5EC7';
+  });
+  chip.classList.add('img-chip-selected');
+  chip.style.background = '#1B5EC7';
+  chip.style.borderColor = '#1B5EC7';
+  chip.style.color = '#fff';
+
+  // Override the input with the shorter keyword (not the full concept)
+  document.getElementById('img-selected-kw').value = chip.dataset.kw;
+  document.getElementById('img-selected-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ── Step 2b: fetch image for the (possibly edited) keyword ── */
+function fetchImageForKeyword() {
+  var kw = document.getElementById('img-selected-kw').value.trim();
+  if (!kw) { document.getElementById('img-selected-kw').focus(); return; }
+
+  var btn     = document.getElementById('img-gen-btn');
+  var spinner = document.getElementById('img-gen-spinner');
+  btn.disabled = true;
+  spinner.style.display = 'inline';
+
+  var proxyUrl = '/ai/fetch-image/?keywords=' + encodeURIComponent(kw);
+  _imgCurrentProxyUrl = proxyUrl;
+
+  // Show step 3 with loading state
+  var preview = document.getElementById('img-preview');
+  var loading = document.getElementById('img-preview-loading');
+  var useBtn  = document.getElementById('img-use-btn');
+  preview.src = '';
+  loading.style.display = 'flex';
+  useBtn.disabled = true;
+  document.getElementById('img-step3').style.display = 'block';
+  document.getElementById('img-step3').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // Load the image
+  var testImg = new Image();
+  testImg.onload = function() {
+    preview.src = proxyUrl;
+    loading.style.display = 'none';
+    useBtn.disabled = false;
+    btn.disabled = false;
+    spinner.style.display = 'none';
+  };
+  testImg.onerror = function() {
+    loading.textContent = 'Could not load image — try a different keyword.';
+    btn.disabled = false;
+    spinner.style.display = 'none';
+  };
+  testImg.src = proxyUrl;
+}
+
+/* ── Step 3: inject into photo upload queue ── */
+function useGeneratedImage() {
+  var btn = document.getElementById('img-use-btn');
+  btn.textContent = 'Adding…';
+  btn.disabled = true;
+
+  fetch(_imgCurrentProxyUrl)
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) {
+      var kw = document.getElementById('img-selected-kw').value.trim().replace(/\s+/g,'-').toLowerCase().slice(0,30);
+      var file = new File([blob], 'ai-image-' + kw + '.jpg', { type: blob.type || 'image/jpeg' });
+      addPhotos([file]);
+      btn.textContent = 'Added to photos!';
+      btn.style.background = '#059669';
+      setTimeout(function() {
+        document.getElementById('photo-grid').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 400);
+    })
+    .catch(function() {
+      btn.textContent = 'Failed — try again';
+      btn.disabled = false;
+    });
+}
+
+/* ── Back to keyword selection ── */
+function backToKeywords() {
+  document.getElementById('img-step3').style.display = 'none';
+  document.getElementById('img-step2').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 </script>

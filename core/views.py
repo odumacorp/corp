@@ -671,6 +671,12 @@ def add_project_comment(request, project_id):
 
 
 # View to handle attachment creation
+_ALLOWED_ATTACHMENT_EXTENSIONS = {
+    'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+    'txt', 'csv', 'zip', 'png', 'jpg', 'jpeg', 'gif', 'webp',
+}
+_MAX_ATTACHMENT_SIZE = 20 * 1024 * 1024  # 20 MB
+
 @login_required
 def add_attachment(request, project_id):
     project = get_object_or_404(Project, id=project_id, owner=request.user)
@@ -678,7 +684,15 @@ def add_attachment(request, project_id):
         files = request.FILES.getlist('attachments') or (
             [request.FILES['file']] if 'file' in request.FILES else []
         )
+        saved = 0
         for f in files:
+            ext = f.name.rsplit('.', 1)[-1].lower() if '.' in f.name else ''
+            if ext not in _ALLOWED_ATTACHMENT_EXTENSIONS:
+                messages.error(request, f'"{f.name}" — file type not allowed.')
+                continue
+            if f.size > _MAX_ATTACHMENT_SIZE:
+                messages.error(request, f'"{f.name}" exceeds the 20 MB limit.')
+                continue
             Attachment.objects.create(
                 project     = project,
                 file        = f,
@@ -687,8 +701,10 @@ def add_attachment(request, project_id):
                 doc_type    = request.POST.get('doc_type', 'general'),
                 visibility  = request.POST.get('visibility', 'connections'),
             )
-        messages.success(request, f'{len(files)} file(s) uploaded.')
-        return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+            saved += 1
+        if saved:
+            messages.success(request, f'{saved} file(s) uploaded.')
+        return redirect(_safe_referer(request, 'dashboard'))
     return render(request, 'add_attachment.html', {'project': project})
 
 
@@ -702,14 +718,25 @@ from django.shortcuts import render, redirect
 from .models import Project, ProjectImage
 from .forms import ProjectImageForm
 
+_MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10 MB
+_ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'}
+
 @login_required
 def upload_image(request, project_id):
     project = get_object_or_404(Project, id=project_id, owner=request.user)
     if request.method == 'POST':
         if 'image' in request.FILES:
+            f = request.FILES['image']
+            ext = f.name.rsplit('.', 1)[-1].lower() if '.' in f.name else ''
+            if ext not in _ALLOWED_IMAGE_EXTENSIONS:
+                messages.error(request, 'File type not allowed. Use JPG, PNG, GIF, or WebP.')
+                return redirect('project_images', project_id=project.id)
+            if f.size > _MAX_IMAGE_SIZE:
+                messages.error(request, 'Image exceeds the 10 MB limit.')
+                return redirect('project_images', project_id=project.id)
             img = ProjectImage(
                 project     = project,
-                image       = request.FILES['image'],
+                image       = f,
                 name        = request.POST.get('name', ''),
                 description = request.POST.get('description', ''),
                 is_main     = request.POST.get('is_main') == 'on',
@@ -1669,6 +1696,18 @@ def chat_page(request, conversation_id):
                     message=f"[Needs attention] {user_label}: {msg_text[:80]}",
                     link=f"/chat/{conversation.id}/",
                 )
+            # Also notify all admin users so they can monitor Odu conversations
+            admin_users = CustomUser.objects.filter(
+                user_type='admin', is_active=True
+            ).exclude(pk=participant.pk if participant else 0).exclude(pk=request.user.pk)
+            for admin in admin_users:
+                user_label = request.user.get_full_name() or request.user.username
+                Notification.objects.create(
+                    user=admin,
+                    notification_type='message_sent',
+                    message=f"Odu chat — {user_label}: {msg_text[:80]}",
+                    link=f"/chat/{conversation.id}/",
+                )
 
         return redirect('chat_page', conversation_id=conversation.id)
 
@@ -2035,7 +2074,7 @@ def app_view(request):
     date_filter     = request.GET.get('date', '')
 
     # Feed posts — prioritize by user's industry/interests
-    posts_qs = Post.objects.filter(is_hidden=False).select_related('user', 'user__userprofile').prefetch_related('comments').order_by('-created_at')
+    posts_qs = Post.objects.filter(is_hidden=False).select_related('user', 'user__userprofile').prefetch_related('comments', 'extra_images').order_by('-created_at')
     if industry_filter:
         posts_qs = posts_qs.filter(industry=industry_filter)
     if date_filter:
@@ -2295,6 +2334,7 @@ def project_detail(request, pk):
     images = ProjectImage.objects.filter(project=project)
     main_image = images.filter(is_main=True).first() or images.first()
     extra_images = images.exclude(pk=main_image.pk) if main_image else images.none()
+    all_images = ([main_image] if main_image else []) + list(extra_images)
 
     from .models import Rating, Attachment, ReadLater, Connection
     from django.db.models import Avg, Q as DQ
@@ -2348,6 +2388,7 @@ def project_detail(request, pk):
         'project': project,
         'main_image': main_image,
         'extra_images': extra_images,
+        'all_images': all_images,
         'avg_rating': avg_rating,
         'rating_count': rating_count,
         'user_rating': user_rating,
@@ -2521,8 +2562,13 @@ def update_password(request):
 
 # Delete Project
 @login_required
+@login_required
 def delete_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
+    is_admin = getattr(request.user, 'user_type', '') == 'admin'
+    if project.owner != request.user and not is_admin:
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden()
     if request.method == "POST":
         project.delete()
         return redirect('dashboard')
@@ -3753,12 +3799,15 @@ def chat_edit_message(request, message_id):
         return JsonResponse({'error': 'Not allowed'}, status=403)
     if msg.is_deleted:
         return JsonResponse({'error': 'Cannot edit deleted message'}, status=400)
+    from django.utils import timezone
+    from datetime import timedelta
+    if timezone.now() - msg.timestamp > timedelta(hours=1):
+        return JsonResponse({'error': 'Edit window has expired (1 hour limit)'}, status=403)
     import json as _json
     body = _json.loads(request.body)
     new_content = body.get('content', '').strip()
     if not new_content:
         return JsonResponse({'error': 'Content required'}, status=400)
-    from django.utils import timezone
     msg.content = new_content
     msg.is_edited = True
     msg.edited_at = timezone.now()
@@ -4164,8 +4213,20 @@ def admin_panel(request):
         'page_name': 'Admin Panel',
     })
 
+def _safe_referer(request, fallback='admin_panel'):
+    """Return a safe local redirect URL from the Referer header."""
+    from urllib.parse import urlparse
+    ref = request.META.get('HTTP_REFERER', '')
+    parsed = urlparse(ref)
+    # Only allow same-host redirects
+    if parsed.netloc and parsed.netloc.split(':')[0] != request.get_host().split(':')[0]:
+        return fallback
+    return ref or fallback
+
 def _admin_post_redirect(request):
-    return redirect(request.META.get('HTTP_REFERER', 'admin_panel'))
+    if getattr(request.user, 'user_type', '') != 'admin':
+        return redirect('app')
+    return redirect(_safe_referer(request, 'admin_panel'))
 
 
 @login_required
@@ -4375,9 +4436,14 @@ def admin_toggle_user(request, user_id):
 def admin_unflag_message(request, message_id):
     return _admin_post_redirect(request)
 
+def _is_admin(user):
+    return getattr(user, 'user_type', '') == 'admin' or user.is_superuser or user.is_staff
+
 # ── Admin delete views ─────────────────────────────────────────────────────────
 @login_required
 def admin_delete_user(request, user_id):
+    if not _is_admin(request.user):
+        return redirect('app')
     if request.method == 'POST':
         from .models import CustomUser
         user_obj = get_object_or_404(CustomUser, pk=user_id)
@@ -4387,6 +4453,8 @@ def admin_delete_user(request, user_id):
 
 @login_required
 def admin_delete_project(request, project_id):
+    if not _is_admin(request.user):
+        return redirect('app')
     if request.method == 'POST':
         from .models import Project
         get_object_or_404(Project, pk=project_id).delete()
@@ -4394,6 +4462,8 @@ def admin_delete_project(request, project_id):
 
 @login_required
 def admin_delete_post(request, post_id):
+    if not _is_admin(request.user):
+        return redirect('app')
     if request.method == 'POST':
         from .models import Post
         get_object_or_404(Post, pk=post_id).delete()
@@ -4401,6 +4471,8 @@ def admin_delete_post(request, post_id):
 
 @login_required
 def admin_delete_event(request, event_id):
+    if not _is_admin(request.user):
+        return redirect('app')
     if request.method == 'POST':
         from .models import Event
         get_object_or_404(Event, pk=event_id).delete()
@@ -4408,6 +4480,8 @@ def admin_delete_event(request, event_id):
 
 @login_required
 def admin_delete_news(request, news_id):
+    if not _is_admin(request.user):
+        return redirect('app')
     if request.method == 'POST':
         from .models import NewsItem
         get_object_or_404(NewsItem, pk=news_id).delete()
@@ -4415,6 +4489,8 @@ def admin_delete_news(request, news_id):
 
 @login_required
 def admin_delete_job(request, job_id):
+    if not _is_admin(request.user):
+        return redirect('app')
     if request.method == 'POST':
         from .models import Job
         get_object_or_404(Job, pk=job_id).delete()
@@ -4437,6 +4513,8 @@ def admin_accept_connection(request, connection_id):
 
 @login_required
 def admin_delete_connection(request, connection_id):
+    if not _is_admin(request.user):
+        return redirect('app')
     if request.method == 'POST':
         from .models import Connection
         get_object_or_404(Connection, pk=connection_id).delete()
@@ -4444,6 +4522,8 @@ def admin_delete_connection(request, connection_id):
 
 @login_required
 def admin_delete_comment(request, comment_id):
+    if not _is_admin(request.user):
+        return redirect('app')
     if request.method == 'POST':
         from .models import Comment
         get_object_or_404(Comment, pk=comment_id).delete()
@@ -4451,6 +4531,8 @@ def admin_delete_comment(request, comment_id):
 
 @login_required
 def admin_delete_group(request, group_id):
+    if not _is_admin(request.user):
+        return redirect('app')
     if request.method == 'POST':
         from .models import Group
         get_object_or_404(Group, pk=group_id).delete()
@@ -4458,6 +4540,8 @@ def admin_delete_group(request, group_id):
 
 @login_required
 def admin_delete_page(request, page_id):
+    if not _is_admin(request.user):
+        return redirect('app')
     if request.method == 'POST':
         from .models import Page
         get_object_or_404(Page, pk=page_id).delete()
@@ -4465,6 +4549,8 @@ def admin_delete_page(request, page_id):
 
 @login_required
 def admin_remove_sub_admin(request, user_id):
+    if not _is_admin(request.user):
+        return redirect('app')
     if request.method == 'POST':
         from .models import CustomUser
         user_obj = get_object_or_404(CustomUser, pk=user_id)
@@ -5974,6 +6060,236 @@ Output ONLY the description text, nothing else."""
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@login_required
+def ai_image_suggest(request):
+    """
+    POST JSON: { title, description, industry, user_prompt }
+    Returns: { concepts: [...], keywords: str, pexels_url: str|null }
+    """
+    import json, anthropic, urllib.request, urllib.parse
+    from django.conf import settings as dj_settings
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    api_key = getattr(dj_settings, 'ANTHROPIC_API_KEY', '')
+    if not api_key:
+        return JsonResponse({'error': 'AI service not configured.'}, status=503)
+
+    title       = data.get('title', '').strip()
+    description = data.get('description', '').strip()
+    industry    = data.get('industry', '').strip()
+    user_prompt = data.get('user_prompt', '').strip()
+
+    prompt = f"""You are a visual creative director helping an African innovator create compelling project imagery.
+
+Project title: {title or 'not provided'}
+Industry: {industry or 'not provided'}
+Description: {description[:400] if description else 'not provided'}
+User's own image idea: {user_prompt if user_prompt else 'none — suggest based on project'}
+
+Return EXACTLY this JSON (no markdown fences):
+{{
+  "sections": [
+    {{
+      "label": "Short section title (3-5 words)",
+      "concept": "Vivid 1-2 sentence description of what images in this theme should show",
+      "keywords": ["2-4 word search term", "2-4 word search term", "2-4 word search term"]
+    }},
+    {{
+      "label": "Short section title (3-5 words)",
+      "concept": "Vivid 1-2 sentence description of what images in this theme should show",
+      "keywords": ["2-4 word search term", "2-4 word search term"]
+    }},
+    {{
+      "label": "Short section title (3-5 words)",
+      "concept": "Vivid 1-2 sentence description of what images in this theme should show",
+      "keywords": ["2-4 word search term", "2-4 word search term"]
+    }}
+  ],
+  "visual_tip": "One sentence of practical advice on what makes a great project cover image"
+}}
+
+Rules: sections must be 3 distinct visual themes. Each keyword must be 2-4 words, suitable as a stock photo search query. Labels are short and descriptive."""
+
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        resp = client.messages.create(
+            model='claude-haiku-4-5-20251001',
+            max_tokens=600,
+            messages=[{'role': 'user', 'content': prompt}],
+        )
+        raw = resp.content[0].text.strip() if resp.content else ''
+        if raw.startswith('```'):
+            raw = raw.split('\n', 1)[-1].rsplit('```', 1)[0].strip()
+        result = json.loads(raw)
+    except Exception as e:
+        return JsonResponse({'error': f'AI error: {e}'}, status=500)
+
+    sections = result.get('sections', [])
+    # Flatten all keywords for Pexels fallback
+    all_kw_flat = []
+    for sec in sections:
+        all_kw_flat.extend(sec.get('keywords', []))
+    first_kw = all_kw_flat[0] if all_kw_flat else (title or industry or 'African innovation')
+
+    # Try to fetch matching Pexels photos (up to 3)
+    pexels_url = None
+    all_pexels = []
+    pexels_key = getattr(dj_settings, 'PEXELS_API_KEY', '')
+    if pexels_key:
+        try:
+            q = urllib.parse.quote(first_kw)
+            req = urllib.request.Request(
+                f"https://api.pexels.com/v1/search?query={q}&per_page=3&orientation=landscape",
+                headers={'Authorization': pexels_key, 'User-Agent': 'OdumaCorp/1.0'}
+            )
+            with urllib.request.urlopen(req, timeout=8) as r:
+                photos = json.loads(r.read()).get('photos', [])
+            all_pexels = [p['src']['large2x'] for p in photos[:3]]
+            if all_pexels:
+                pexels_url = all_pexels[0]
+        except Exception:
+            pass
+
+    return JsonResponse({
+        'sections': sections,
+        'visual_tip': result.get('visual_tip', ''),
+        'pexels_url': pexels_url,
+        'all_pexels': all_pexels,
+    })
+
+
+@login_required
+def view_media(request):
+    """
+    GET /view-media/
+    Supports two URL formats:
+      - Old: ?src=<url>&back=<path>&name=<label>   (single item)
+      - New: ?i=<index>&back=<path>&g=<url>&g=<url>...  (gallery)
+    Renders media_viewer.html with full gallery context.
+    """
+    import json
+    from urllib.parse import urlparse
+
+    back = request.GET.get('back', '/')
+    name = request.GET.get('name', '')
+
+    def _file_type(url):
+        path = urlparse(url).path.lower()
+        if path.endswith(('.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif', '.svg')):
+            return 'image'
+        if path.endswith(('.mp4', '.webm', '.mov', '.avi', '.mkv')):
+            return 'video'
+        if path.endswith(('.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac')):
+            return 'audio'
+        if path.endswith('.pdf'):
+            return 'pdf'
+        return 'file'
+
+    urls = request.GET.getlist('g')
+    src_single = request.GET.get('src', '')
+
+    if urls:
+        # Gallery mode: ?i=0&g=url1&g=url2...
+        try:
+            index = int(request.GET.get('i', 0))
+        except (ValueError, TypeError):
+            index = 0
+        index = max(0, min(index, len(urls) - 1))
+        gallery = [
+            {'src': u, 'type': _file_type(u), 'name': name if i == index else f'Photo {i + 1}'}
+            for i, u in enumerate(urls)
+        ]
+        # Use name for the selected item; fall back to Photo N
+        if not name:
+            gallery[index]['name'] = f'Photo {index + 1}'
+    elif src_single:
+        # Single-item mode: ?src=url
+        gallery = [{'src': src_single, 'type': _file_type(src_single), 'name': name or 'Media'}]
+        index = 0
+    else:
+        gallery = []
+        index = 0
+
+    total = len(gallery)
+    current = gallery[index] if gallery else {'src': '', 'type': 'image', 'name': 'Media'}
+
+    return render(request, 'media_viewer.html', {
+        'gallery': gallery,
+        'gallery_json': json.dumps(gallery),
+        'index': index,
+        'total': total,
+        'back': back,
+        'name': current.get('name', ''),
+        'src': current.get('src', ''),
+    })
+
+
+@login_required
+def proxy_fetch_image(request):
+    """
+    GET ?url=<image_url>&kw=<keywords>
+    Fetches the image server-side (no CORS), returns it as an image response.
+    Also accepts ?keywords=... to search Pexels fresh.
+    """
+    import urllib.request, urllib.parse
+    from django.http import HttpResponse
+    from django.conf import settings as dj_settings
+
+    url = request.GET.get('url', '').strip()
+    keywords = request.GET.get('keywords', '').strip()
+
+    if not url and keywords:
+        pexels_key = getattr(dj_settings, 'PEXELS_API_KEY', '')
+        if pexels_key:
+            try:
+                q = urllib.parse.quote(keywords.split(',')[0].strip())
+                req = urllib.request.Request(
+                    f"https://api.pexels.com/v1/search?query={q}&per_page=1&orientation=landscape",
+                    headers={'Authorization': pexels_key, 'User-Agent': 'OdumaCorp/1.0'}
+                )
+                with urllib.request.urlopen(req, timeout=8) as r:
+                    photos = __import__('json').loads(r.read()).get('photos', [])
+                if photos:
+                    url = photos[0]['src']['large2x']
+            except Exception:
+                pass
+
+        if not url:
+            seed = abs(hash(keywords)) % 1000
+            url = f"https://picsum.photos/seed/{seed}/1200/630"
+
+    if not url:
+        return HttpResponse(status=400)
+
+    ALLOWED = ('images.pexels.com', 'picsum.photos', 'fastly.picsum.photos')
+    try:
+        host = urllib.parse.urlparse(url).netloc.lstrip('www.')
+        if not any(host.endswith(a) for a in ALLOWED):
+            return HttpResponse(status=403)
+    except Exception:
+        return HttpResponse(status=400)
+
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent': 'OdumaCorp/1.0'})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            data = r.read()
+            content_type = r.headers.get_content_type() or 'image/jpeg'
+    except Exception:
+        return HttpResponse(status=502)
+
+    resp = HttpResponse(data, content_type=content_type)
+    resp['Content-Disposition'] = 'inline; filename="project-image.jpg"'
+    resp['Cache-Control'] = 'private, max-age=300'
+    return resp
+
+
 def _odu_local_reply(message, user):
     """Return a quick local reply for common patterns, or None to fall through to AI."""
     import re
@@ -7375,4 +7691,32 @@ def hashtag_feed(request, tag):
 def popular_hashtags(request):
     tags = _get_trending_hashtags(limit=20)
     return JsonResponse({'hashtags': [{'name': t, 'count': c} for t, c in tags]})
+
+
+@login_required
+def login_as_odu(request):
+    """Allow admin to impersonate the Odu bot account."""
+    if request.user.user_type != 'admin' and not request.user.is_superuser:
+        return redirect('app')
+    odu = CustomUser.objects.filter(username__iexact='odu').first()
+    if not odu:
+        from django.contrib import messages as _msgs
+        _msgs.error(request, "Odu bot account not found.")
+        return redirect('admin_panel')
+    request.session['impersonate_return_id'] = request.user.pk
+    from django.contrib.auth import login as _login
+    _login(request, odu, backend='django.contrib.auth.backends.ModelBackend')
+    return redirect('app')
+
+
+@login_required
+def return_from_odu(request):
+    """Return admin to their original account after impersonating Odu."""
+    original_id = request.session.pop('impersonate_return_id', None)
+    if original_id:
+        original = CustomUser.objects.filter(pk=original_id).first()
+        if original and (original.user_type == 'admin' or original.is_superuser):
+            from django.contrib.auth import login as _login
+            _login(request, original, backend='django.contrib.auth.backends.ModelBackend')
+    return redirect('admin_panel')
 

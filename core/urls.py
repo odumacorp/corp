@@ -348,6 +348,10 @@ urlpatterns = _html_redirects + [
     path('posts/<int:post_id>/comment/', views.add_comment, name='add_comment'),
     path('polls/<int:poll_id>/vote/', views.poll_vote, name='poll_vote'),
 
+    # Admin impersonation
+    path('admin/login-as-odu/', views.login_as_odu, name='login_as_odu'),
+    path('admin/return-from-odu/', views.return_from_odu, name='return_from_odu'),
+
     # Project actions
     path('projects/<int:project_id>/collaborate/', views.project_collaborate, name='project_collaborate'),
     path('projects/<int:project_id>/proposal/', views.project_send_proposal, name='project_send_proposal'),
@@ -371,6 +375,8 @@ urlpatterns = _html_redirects + [
 
     # General AI assist (titles, taglines, descriptions)
     path('ai/assist/', views.ai_assist, name='ai_assist'),
+    path('ai/image-suggest/', views.ai_image_suggest, name='ai_image_suggest'),
+    path('ai/fetch-image/', views.proxy_fetch_image, name='proxy_fetch_image'),
 
     # Odu chatbot + feedback
     path('odu/chat/', views.odu_chat, name='odu_chat'),
@@ -432,5 +438,8 @@ urlpatterns = _html_redirects + [
 
     # Intercept raw chat attachment media URLs → styled viewer
     path('media/chat_attachments/<path:file_path>', views.media_chat_attachment_viewer, name='media_chat_attachment_viewer'),
+
+    # Media viewer (collage click-through, gallery with thumbnail strip)
+    path('view-media/', views.view_media, name='view_media'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

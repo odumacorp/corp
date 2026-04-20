@@ -236,12 +236,12 @@
 
     {% with imgs=discussion.images.all %}{% with total=imgs|length %}
     {% if total %}
-    <div class="ig-grid g{% if total == 1 %}1{% elif total == 2 %}2{% elif total == 3 %}3{% elif total == 4 %}4{% else %}5{% endif %}">
+    <div class="oc-collage {% if total == 1 %}c1{% elif total == 2 %}c2{% elif total == 3 %}c3{% elif total == 4 %}c4{% else %}c5p{% endif %}" style="margin-bottom:8px;">
       {% for img in imgs %}{% if forloop.counter <= 5 %}
-      <a href="/view-media/?i={{ forloop.counter0 }}&back={{ request.path }}&name={{ img.name|default:discussion.title|urlencode }}{% for gi in imgs %}&g={{ gi.image.url }}{% endfor %}"
-         class="ig-cell{% if forloop.counter == 5 and total > 5 %} ig-more-cell{% endif %}">
-        <img src="{{ img.image.url }}" alt="{{ img.name|default:discussion.title }}">
-        {% if forloop.counter == 5 and total > 5 %}<span class="ig-more-overlay">+{{ total|add:"-4" }}</span>{% endif %}
+      <a class="oc-cc" href="/view-media/?i={{ forloop.counter0 }}&back={{ request.path }}{% for gi in imgs %}&g={{ gi.image.url }}{% endfor %}" aria-label="{{ img.name|default:discussion.title }}">
+        <img src="{{ img.image.url }}" alt="{{ img.name|default:discussion.title }}" {% if forloop.first %}loading="eager"{% else %}loading="lazy"{% endif %}>
+        {% if img.name %}<span class="oc-cc-caption">{{ img.name }}</span>{% endif %}
+        {% if forloop.counter == 5 and total > 5 %}<span class="oc-cc-more">+{{ total|add:"-4" }}</span>{% endif %}
       </a>
       {% endif %}{% endfor %}
     </div>

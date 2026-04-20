@@ -18,9 +18,13 @@ def linkify_hashtags(value, autoescape=True):
     """Convert #hashtag tokens to clickable links."""
     if not value:
         return value
-    escaped = conditional_escape(str(value)) if autoescape else str(value)
-    def _replace(m):
-        tag = m.group(1).lower()
-        display = m.group(1)
-        return f'<a href="/hashtags/{tag}/" class="oc-hashtag">#{display}</a>'
-    return mark_safe(re.sub(r'#(\w+)', _replace, escaped))
+    text = str(value)
+    parts = re.split(r'(#\w+)', text)
+    out = []
+    for part in parts:
+        if part.startswith('#') and len(part) > 1:
+            tag = part[1:].lower()
+            out.append(f'<a href="/hashtags/{tag}/" class="oc-hashtag">{part}</a>')
+        else:
+            out.append(conditional_escape(part) if autoescape else part)
+    return mark_safe(''.join(out))

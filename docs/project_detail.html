@@ -31,24 +31,19 @@
     <!-- LEFT: main content -->
     <div class="pd-main">
 
-      <!-- Hero image -->
-      {% if main_image %}
-      <div class="oc-img-wrap pd-hero-img">
-        <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:project.title }}" class="pd-hero-src" />
-        {% if main_image.name %}<span class="oc-img-caption">{{ main_image.name }}</span>{% endif %}
+      <!-- Media collage -->
+      {% if all_images %}
+      {% with total=all_images|length %}
+      <div class="oc-collage {% if total == 1 %}c1{% elif total == 2 %}c2{% elif total == 3 %}c3{% elif total == 4 %}c4{% else %}c5p{% endif %}" style="margin-bottom:16px;">
+        {% for img in all_images %}{% if forloop.counter <= 5 %}
+        <a class="oc-cc" href="/view-media/?i={{ forloop.counter0 }}&back={{ request.path }}{% for xi in all_images %}&g={{ xi.image.url }}{% endfor %}" aria-label="View image {{ forloop.counter }}">
+          <img src="{{ img.image.url }}" alt="{{ img.name|default:project.title }}" {% if forloop.first %}loading="eager"{% else %}loading="lazy"{% endif %}>
+          {% if img.name %}<span class="oc-cc-caption">{{ img.name }}</span>{% endif %}
+          {% if forloop.counter == 5 and total > 5 %}<span class="oc-cc-more">+{{ total|add:"-4" }}</span>{% endif %}
+        </a>
+        {% endif %}{% endfor %}
       </div>
-      {% endif %}
-
-      <!-- Thumbnail gallery -->
-      {% if extra_images %}
-      <div class="pd-gallery">
-        {% for img in extra_images %}
-        <div class="oc-img-wrap pd-thumb">
-          <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:project.title }}" loading="lazy" />
-          {% if img.name %}<span class="oc-img-caption">{{ img.name }}</span>{% endif %}
-        </div>
-        {% endfor %}
-      </div>
+      {% endwith %}
       {% endif %}
 
       <!-- Video -->
@@ -795,12 +790,7 @@
 .pd-layout { display: grid; grid-template-columns: 1fr 320px; gap: 28px; margin-top: 16px; }
 @media (max-width: 900px) { .pd-layout { grid-template-columns: 1fr; } }
 
-.pd-hero-img { width: 100%; border-radius: 14px; overflow: hidden; max-height: 440px; }
-.pd-hero-src { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-.pd-gallery { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-.pd-thumb { width: 120px; height: 90px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
-.pd-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* collage styles live in design-system.css (.oc-collage, .oc-cc) */
 
 .pd-video-wrap { margin-top: 18px; }
 .pd-video-player { width: 100%; border-radius: 12px; background: #000; }

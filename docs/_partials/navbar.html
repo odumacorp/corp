@@ -209,7 +209,7 @@
   <div class="oc-navbar__inner">
 
     <!-- Brand -->
-    <a href="/" class="oc-navbar__brand">
+    <a href="{% if user.is_authenticated %}{% url 'app' %}{% else %}/{% endif %}" class="oc-navbar__brand">
       <img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="Oduma Corp" class="oc-navbar__logo">
       <span class="oc-navbar__brand-name">Oduma Corp</span>
     </a>

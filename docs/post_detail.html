@@ -256,23 +256,35 @@
     </div>
     {% endif %}
 
-    {% if post.image %}
-      <div class="oc-img-wrap" style="max-height:420px;overflow:hidden;">
-        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="pdt-cover">
-        {% if post.image_name %}<span class="oc-img-caption">{{ post.image_name }}</span>{% endif %}
-      </div>
-    {% endif %}
-    {% with imgs=post.extra_images.all %}{% with total=imgs|length %}
-    {% if total %}
-    <div class="ig-grid g{% if total == 1 %}1{% elif total == 2 %}2{% elif total == 3 %}3{% elif total == 4 %}4{% else %}5{% endif %}" style="margin:0 0 8px;">
-      {% for ei in imgs %}{% if forloop.counter <= 5 %}
-      <a href="/view-media/?i={{ forloop.counter0 }}&back={{ request.path }}{% for xei in imgs %}&g={{ xei.image.url }}{% endfor %}"
-         class="ig-cell{% if forloop.counter == 5 and total > 5 %} ig-more-cell{% endif %}">
-        <img src="{{ ei.image.url }}" alt="{{ ei.name|default:'' }}">
-        {% if forloop.counter == 5 and total > 5 %}<span class="ig-more-overlay">+{{ total|add:"-4" }}</span>{% endif %}
-      </a>
-      {% endif %}{% endfor %}
-    </div>
+    {% with extras=post.extra_images.all %}{% with ecount=extras|length %}
+    {% if post.image or ecount %}
+      {% if post.image %}
+        {% with total=ecount|add:1 %}
+        <div class="oc-collage {% if total == 1 %}c1{% elif total == 2 %}c2{% elif total == 3 %}c3{% elif total == 4 %}c4{% else %}c5p{% endif %}" style="margin-bottom:8px;">
+          <a class="oc-cc" href="/view-media/?i=0&back={{ request.path }}&g={{ post.image.url }}{% for xi in extras %}&g={{ xi.image.url }}{% endfor %}" aria-label="View image 1">
+            <img src="{{ post.image.url }}" alt="{{ post.title }}" loading="eager">
+            {% if post.image_name %}<span class="oc-cc-caption">{{ post.image_name }}</span>{% endif %}
+          </a>
+          {% for ei in extras %}{% if forloop.counter <= 4 %}
+          <a class="oc-cc" href="/view-media/?i={{ forloop.counter }}&back={{ request.path }}&g={{ post.image.url }}{% for xi in extras %}&g={{ xi.image.url }}{% endfor %}" aria-label="View image {{ forloop.counter|add:1 }}">
+            <img src="{{ ei.image.url }}" alt="{{ ei.name|default:'' }}" loading="lazy">
+            {% if ei.name %}<span class="oc-cc-caption">{{ ei.name }}</span>{% endif %}
+            {% if forloop.counter == 4 and total > 5 %}<span class="oc-cc-more">+{{ total|add:"-4" }}</span>{% endif %}
+          </a>
+          {% endif %}{% endfor %}
+        </div>
+        {% endwith %}
+      {% else %}
+        <div class="oc-collage {% if ecount == 1 %}c1{% elif ecount == 2 %}c2{% elif ecount == 3 %}c3{% elif ecount == 4 %}c4{% else %}c5p{% endif %}" style="margin-bottom:8px;">
+          {% for ei in extras %}{% if forloop.counter <= 5 %}
+          <a class="oc-cc" href="/view-media/?i={{ forloop.counter0 }}&back={{ request.path }}{% for xi in extras %}&g={{ xi.image.url }}{% endfor %}" aria-label="View image {{ forloop.counter }}">
+            <img src="{{ ei.image.url }}" alt="{{ ei.name|default:'' }}" {% if forloop.first %}loading="eager"{% else %}loading="lazy"{% endif %}>
+            {% if ei.name %}<span class="oc-cc-caption">{{ ei.name }}</span>{% endif %}
+            {% if forloop.counter == 5 and ecount > 5 %}<span class="oc-cc-more">+{{ ecount|add:"-4" }}</span>{% endif %}
+          </a>
+          {% endif %}{% endfor %}
+        </div>
+      {% endif %}
     {% endif %}
     {% endwith %}{% endwith %}
     {% if post.user == request.user %}

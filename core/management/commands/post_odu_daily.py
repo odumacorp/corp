@@ -154,31 +154,58 @@ Return JSON only:
     return None
 
 
-def _fetch_unsplash_image(query, width=1200, height=630):
+def _slug(query):
+    import re
+    return re.sub(r'[^a-z0-9]+', '-', query.lower())[:40].strip('-')
+
+
+def _fetch_image(query):
     """
-    Fetch a relevant photo from Unsplash Source API.
-    Returns (filename, ContentFile) or (None, None) on failure.
+    Try Pexels API first (requires PEXELS_API_KEY in settings).
+    Falls back to picsum.photos seeded on the query (always works, high-quality).
+    Returns (filename, ContentFile) or (None, None).
     """
     import urllib.request
     import urllib.parse
+    from django.conf import settings
 
-    keywords = urllib.parse.quote(query.strip())
-    url = f"https://source.unsplash.com/{width}x{height}/?{keywords}"
+    headers = {'User-Agent': 'OdumaCorp/1.0'}
+    slug = _slug(query)
+    fname = f"odu_{slug}_{int(timezone.now().timestamp())}.jpg"
 
+    # ── 1. Pexels (relevant photos) ──────────────────────────────
+    pexels_key = getattr(settings, 'PEXELS_API_KEY', '')
+    if pexels_key:
+        try:
+            q = urllib.parse.quote(query.strip())
+            api_url = f"https://api.pexels.com/v1/search?query={q}&per_page=1&orientation=landscape"
+            req = urllib.request.Request(api_url, headers={**headers, 'Authorization': pexels_key})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                result = json.loads(r.read())
+            photos = result.get('photos', [])
+            if photos:
+                img_url = photos[0]['src']['large2x']
+                req2 = urllib.request.Request(img_url, headers=headers)
+                with urllib.request.urlopen(req2, timeout=15) as r2:
+                    data = r2.read()
+                if len(data) > 5000:
+                    return fname, ContentFile(data)
+        except Exception:
+            pass
+
+    # ── 2. Picsum (beautiful random photo, always works) ─────────
     try:
-        req = urllib.request.Request(url, headers={'User-Agent': 'OdumaCorp/1.0'})
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            if resp.status != 200:
-                return None, None
-            data = resp.read()
-            if len(data) < 5000:          # too small → probably an error page
-                return None, None
-            # Derive a clean filename from keywords
-            slug = query.lower().replace(' ', '-').replace(',', '')[:40]
-            fname = f"odu_{slug}_{int(timezone.now().timestamp())}.jpg"
+        seed = abs(hash(query)) % 1000
+        url = f"https://picsum.photos/seed/{seed}/1200/630"
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=15) as r:
+            data = r.read()
+        if len(data) > 5000:
             return fname, ContentFile(data)
     except Exception:
-        return None, None
+        pass
+
+    return None, None
 
 
 class Command(BaseCommand):
@@ -250,7 +277,7 @@ class Command(BaseCommand):
 
                 # Attach image
                 if image_query:
-                    fname, img_file = _fetch_unsplash_image(image_query)
+                    fname, img_file = _fetch_image(image_query)
                     if fname and img_file:
                         post.image.save(fname, img_file, save=True)
                         self.stdout.write(f'  Image attached: "{image_query}"')

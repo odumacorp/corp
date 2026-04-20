@@ -63,6 +63,19 @@
     {% include '_partials/navbar.html' %}
   {% endif %}
 
+  {% if request.session.impersonate_return_id %}
+  <div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#7c3aed;color:#fff;padding:8px 20px;display:flex;align-items:center;justify-content:space-between;font-size:1.2rem;font-weight:700;gap:12px;">
+    <span style="display:flex;align-items:center;gap:8px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      You are logged in as Odu Bot. Any actions you take will be posted as Odu.
+    </span>
+    <a href="{% url 'return_from_odu' %}" style="background:rgba(255,255,255,.2);color:#fff;padding:5px 14px;border-radius:7px;text-decoration:none;font-weight:800;white-space:nowrap;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.35)'" onmouseout="this.style.background='rgba(255,255,255,.2)'">
+      Return to Admin
+    </a>
+  </div>
+  <div style="height:40px;"></div>
+  {% endif %}
+
   <main>
     {% block content %}{% endblock %}
   </main>

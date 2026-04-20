@@ -411,7 +411,15 @@
     <div id="section-stats" class="adm-section">
       <div class="adm-page-header">
         <h1 class="adm-page-title">Dashboard</h1>
-        <span class="adm-badge-admin">Admin</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="adm-badge-admin">Admin</span>
+          <a href="{% url 'login_as_odu' %}"
+             style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;background:#0A1628;color:#fff;border-radius:9px;font-size:1.2rem;font-weight:700;text-decoration:none;transition:background .15s;"
+             onmouseover="this.style.background='#1B5EC7'" onmouseout="this.style.background='#0A1628'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Login as Odu Bot
+          </a>
+        </div>
       </div>
 
       <!-- Period filter -->

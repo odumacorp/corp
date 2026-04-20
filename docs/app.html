@@ -1538,11 +1538,33 @@
 
       </div>
 
-      {% if post.image %}
-      <a href="{% url 'post_detail' post.id %}" class="ap-card-img-wrap">
-        <img src="{{ post.image.url }}" class="ap-card-img" alt="{{ post.title }}">
-      </a>
+      {% with pex=post.extra_images.all %}{% with pexc=pex|length %}
+      {% if post.image or pexc %}
+        {% if post.image %}{% with ptotal=pexc|add:1 %}
+        <div class="oc-collage {% if ptotal == 1 %}c1{% elif ptotal == 2 %}c2{% elif ptotal == 3 %}c3{% elif ptotal == 4 %}c4{% else %}c5p{% endif %}" style="border-radius:0;margin-bottom:0;">
+          <a class="oc-cc" href="/view-media/?i=0&back={{ request.path }}&g={{ post.image.url }}{% for xi in pex %}&g={{ xi.image.url }}{% endfor %}">
+            <img src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy">
+            {% if post.image_name %}<span class="oc-cc-caption">{{ post.image_name }}</span>{% endif %}
+          </a>
+          {% for ei in pex %}{% if forloop.counter <= 4 %}
+          <a class="oc-cc" href="/view-media/?i={{ forloop.counter }}&back={{ request.path }}&g={{ post.image.url }}{% for xi in pex %}&g={{ xi.image.url }}{% endfor %}">
+            <img src="{{ ei.image.url }}" alt="{{ ei.name|default:'' }}" loading="lazy">
+            {% if forloop.counter == 4 and ptotal > 5 %}<span class="oc-cc-more">+{{ ptotal|add:"-4" }}</span>{% endif %}
+          </a>
+          {% endif %}{% endfor %}
+        </div>
+        {% endwith %}{% else %}
+        <div class="oc-collage {% if pexc == 1 %}c1{% elif pexc == 2 %}c2{% elif pexc == 3 %}c3{% elif pexc == 4 %}c4{% else %}c5p{% endif %}" style="border-radius:0;margin-bottom:0;">
+          {% for ei in pex %}{% if forloop.counter <= 5 %}
+          <a class="oc-cc" href="/view-media/?i={{ forloop.counter0 }}&back={{ request.path }}{% for xi in pex %}&g={{ xi.image.url }}{% endfor %}">
+            <img src="{{ ei.image.url }}" alt="{{ ei.name|default:'' }}" loading="lazy">
+            {% if forloop.counter == 5 and pexc > 5 %}<span class="oc-cc-more">+{{ pexc|add:"-4" }}</span>{% endif %}
+          </a>
+          {% endif %}{% endfor %}
+        </div>
+        {% endif %}
       {% endif %}
+      {% endwith %}{% endwith %}
 
       <!-- Reaction bar -->
       {% with my_rxn=user_post_reactions|get_item:post.id %}

@@ -9,28 +9,29 @@
 .hf-wrap { max-width: 860px; margin: 0 auto; padding: 32px 16px 80px; }
 
 .hf-hero {
-  background: linear-gradient(135deg, #0A1628 0%, #112244 60%, #1B3566 100%);
+  background: linear-gradient(135deg, #e8eef8 0%, #dce6f5 60%, #cdd9f0 100%);
   border-radius: 16px;
   padding: 36px 32px;
   margin-bottom: 32px;
   position: relative; overflow: hidden;
+  border: 1px solid #c8d8ee;
 }
 .hf-hero::after {
   content: ''; position: absolute; right: -40px; top: -40px;
   width: 220px; height: 220px; border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(0,87,255,.25) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(27,94,199,.12) 0%, transparent 70%);
   pointer-events: none;
 }
 .hf-tag {
   font-family: 'Space Grotesk', sans-serif;
   font-size: clamp(1.6rem, 4vw, 2.4rem);
-  font-weight: 900; color: #fff; margin: 0 0 8px;
+  font-weight: 900; color: #0A1628; margin: 0 0 8px;
 }
-.hf-tag span { color: #60a5fa; }
-.hf-sub { font-size: 1.2rem; color: rgba(255,255,255,.65); margin: 0 0 18px; }
+.hf-tag span { color: #1B5EC7; }
+.hf-sub { font-size: 1.2rem; color: #4b5e7a; margin: 0 0 18px; }
 .hf-total {
   display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(0,87,255,.25); color: #93c5fd;
+  background: rgba(27,94,199,.12); color: #1B5EC7;
   font-size: 1.2rem; font-weight: 700; padding: 5px 14px;
   border-radius: 20px;
 }
