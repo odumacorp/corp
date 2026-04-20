@@ -1775,10 +1775,20 @@ a, button, .oc-card, .oc-btn, input, textarea, select {
 
 /* Eliminate 300ms tap delay on all interactive elements */
 a, button, label, input, textarea, select,
-[role="button"], [tabindex], summary,
+[role="button"], [role="option"], [role="menuitem"],
+[tabindex], summary,
 .oc-btn, .oc-card, .oc-tab, .oc-chip,
-.oc-nav-item, .oc-dropdown-item {
+.oc-nav-item, .oc-dropdown-item,
+/* app-specific interactive divs */
+.pm-dd-option, .cl-dd-option, .ap-filter-dd-opt,
+.stc-conn-item, .ap-rxn-wrap, .ap-rxn-btn, .ap-rxn-pick-btn,
+.oc-fb-dd-opt, .oc-profile-dropdown a, .oc-mobile-menu a {
   touch-action: manipulation;
+}
+
+/* Ensure clickable divs that lack a native role get pointer cursor */
+[role="button"], [role="option"], [role="menuitem"] {
+  cursor: pointer;
 }
 
 /* Card lift on hover */

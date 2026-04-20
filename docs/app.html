@@ -312,6 +312,7 @@
   display:flex; align-items:center; gap:10px;
   padding:8px 10px; border-radius:9px; cursor:pointer;
   border:1.5px solid transparent; transition:background .15s, border-color .15s;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
 }
 .stc-conn-item:hover { background:#f0f5ff; }
 .stc-conn-item.selected { border-color:#1B5EC7; background:#eff6ff; }
@@ -673,7 +674,7 @@
   padding: 6px 10px; font-size: 1.2rem; color: #9ca3af; font-weight: 600;
 }
 /* ── Reaction picker ─────────────────────────────────────────── */
-.ap-rxn-wrap { position: relative; display: inline-flex; }
+.ap-rxn-wrap { position: relative; display: inline-flex; touch-action: manipulation; }
 .ap-rxn-picker {
   position: absolute;
   bottom: calc(100% + 10px);
@@ -2382,6 +2383,7 @@ function ocCloseWelcome() {
   padding: 9px 12px; border-radius: 7px; font-size: 1.1rem; font-family: inherit;
   color: #374151; cursor: pointer; transition: background .1s, color .1s;
   display: flex; align-items: center; justify-content: space-between;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
 }
 .pm-dd-option:hover { background: #f0f5ff; color: #1B5EC7; }
 .pm-dd-option.selected { background: #eef4ff; color: #1B5EC7; font-weight: 700; }
@@ -2968,6 +2970,9 @@ document.addEventListener('click', function(e) {
   };
   var _rxnTimers = {};
 
+  /* true when device has no fine pointer (phones, tablets) */
+  var _rxnTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
   window.ocRxnShow = function(postId) {
     clearTimeout(_rxnTimers[postId]);
     var p = document.getElementById('rxn-picker-' + postId);
@@ -2980,9 +2985,33 @@ document.addEventListener('click', function(e) {
     }, 280);
   };
   window.ocRxnClick = function(postId, btn) {
+    if (_rxnTouchDevice) {
+      /* On touch: first tap opens picker; second tap (outside picker) sends reaction */
+      var picker = document.getElementById('rxn-picker-' + postId);
+      if (picker && !picker.classList.contains('visible')) {
+        /* Close any other open pickers */
+        document.querySelectorAll('.ap-rxn-picker.visible').forEach(function(p) {
+          if (p !== picker) p.classList.remove('visible');
+        });
+        ocRxnShow(postId);
+        return;
+      }
+      if (picker) picker.classList.remove('visible');
+    }
     var active = btn.dataset.active;
     ocReact(postId, active || 'like', null);
   };
+
+  /* Close reaction pickers when tapping outside on touch devices */
+  if (_rxnTouchDevice) {
+    document.addEventListener('touchstart', function(e) {
+      if (!e.target.closest('.ap-rxn-wrap')) {
+        document.querySelectorAll('.ap-rxn-picker.visible').forEach(function(p) {
+          p.classList.remove('visible');
+        });
+      }
+    }, { passive: true });
+  }
   window.ocReact = function(postId, rxnType, pickBtn) {
     var btn  = document.getElementById('rxn-btn-' + postId);
     var ico  = document.getElementById('rxn-ico-' + postId);
