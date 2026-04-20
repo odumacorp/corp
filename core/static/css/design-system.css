@@ -1786,6 +1786,16 @@ a, button, label, input, textarea, select,
   touch-action: manipulation;
 }
 
+/* Any element with an onclick fires immediately on all phones —
+   no 300ms delay, pointer cursor, no tap flash */
+[onclick] {
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 /* Ensure clickable divs that lack a native role get pointer cursor */
 [role="button"], [role="option"], [role="menuitem"] {
   cursor: pointer;
