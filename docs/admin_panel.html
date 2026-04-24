@@ -432,6 +432,11 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Login as Odu Bot
           </a>
+          <button id="odu-trigger-btn" onclick="triggerOduPost()"
+             style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;background:#1B5EC7;color:#fff;border:none;border-radius:9px;font-size:1.2rem;font-weight:700;cursor:pointer;transition:background .15s;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Post Now (Odu)
+          </button>
         </div>
       </div>
 
@@ -4446,5 +4451,49 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.target === this) closeFlagModal();
   });
 })();
+</script>
+
+<script>
+/* ── Odu Post Trigger ── */
+function triggerOduPost() {
+  var btn = document.getElementById('odu-trigger-btn');
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Generating…';
+
+  var fd = new FormData();
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+  fetch('{% url "trigger_odu_post" %}', { method: 'POST', body: fd })
+  .then(function(r) {
+    if (!r.ok) return r.text().then(function(t) { throw new Error('HTTP ' + r.status + ': ' + t.slice(0, 200)); });
+    return r.json();
+  })
+  .then(function(data) {
+    if (data.ok) {
+      btn.style.background = '#10B981';
+      btn.style.opacity = '1';
+      btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg> '
+        + data.published + ' post' + (data.published !== 1 ? 's' : '') + ' published!';
+      setTimeout(function() {
+        btn.disabled = false;
+        btn.style.background = '#1B5EC7';
+        btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Post Now (Odu)';
+      }, 4000);
+    } else {
+      btn.style.background = '#DC2626';
+      btn.style.opacity = '1';
+      btn.innerHTML = 'Error: ' + (data.error || 'Unknown');
+      btn.disabled = false;
+    }
+  })
+  .catch(function(e) {
+    btn.style.background = '#DC2626';
+    btn.style.opacity = '1';
+    btn.innerHTML = e.message || 'Request failed';
+    btn.disabled = false;
+    console.error('triggerOduPost:', e);
+  });
+}
 </script>
 {% endblock %}

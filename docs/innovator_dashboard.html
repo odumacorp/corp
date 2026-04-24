@@ -4,316 +4,288 @@
 
 {% block content %}
 <style>
-/* ── Command Center Layout ───────────────────────────────────────── */
-:root {
-  --idb-blue:#1B5EC7; --idb-navy:#0A1628; --idb-bg:#F4F7FB;
-  --idb-green:#059669; --idb-gold:#D97706; --idb-red:#DC2626;
-}
-.idb-wrap { max-width:1280px; margin:0 auto; padding:16px 24px 44px; }
-.idb-header { display:flex; align-items:center; justify-content:space-between;
-  flex-wrap:wrap; gap:12px; margin-bottom:28px; }
-.idb-header h1 { font-family:'Space Grotesk',sans-serif; font-size: 1.2rem; font-weight:800;
-  color:var(--idb-navy); margin:0; }
-.idb-header-sub { font-size: 1.2rem; color:#6b7280; margin-top:2px; }
-.idb-header-actions { display:flex; gap:10px; flex-wrap:wrap; }
-.idb-btn { padding:9px 20px; border-radius:9px; font-size: 1.2rem; font-weight:700;
-  text-decoration:none; transition:all .2s; display:inline-flex; align-items:center; gap:6px; }
-.idb-btn--primary { background:var(--idb-blue); color:#fff; border:none; cursor:pointer; }
+/* ── Page wrapper ──────────────────────────────────────────────────── */
+.idb-wrap { max-width:1280px; margin:0 auto; padding:16px 20px 44px; }
+
+/* ── Top bar ───────────────────────────────────────────────────────── */
+.idb-topbar { display:flex; align-items:center; justify-content:space-between;
+  gap:12px; flex-wrap:wrap; margin-bottom:24px; }
+.idb-topbar-left { display:flex; align-items:center; gap:10px; min-width:0; }
+.idb-back-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 14px;
+  border-radius:9px; background:#fff; border:1.5px solid #e4eaf2; color:#374151;
+  font-size:.875rem; font-weight:600; text-decoration:none;
+  transition:border-color .15s, color .15s; white-space:nowrap; }
+.idb-back-btn:hover { border-color:#1B5EC7; color:#1B5EC7; }
+.idb-topbar-title { font-family:'Space Grotesk',sans-serif; font-size:1.25rem;
+  font-weight:800; color:#0A1628; }
+.idb-topbar-sub { font-size:.875rem; color:#6b7280; margin-top:1px; }
+.idb-topbar-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.idb-icon-btn { position:relative; width:38px; height:38px; border-radius:9px;
+  background:#fff; border:1.5px solid #e4eaf2; display:flex; align-items:center;
+  justify-content:center; color:#6b7280; text-decoration:none;
+  transition:border-color .15s, color .15s; }
+.idb-icon-btn:hover { border-color:#1B5EC7; color:#1B5EC7; }
+.idb-icon-badge { position:absolute; top:-5px; right:-5px; min-width:16px; height:16px;
+  padding:0 4px; border-radius:99px; background:#DC2626; color:#fff; font-size:.68rem;
+  font-weight:800; display:flex; align-items:center; justify-content:center; }
+.idb-btn { padding:8px 18px; border-radius:9px; font-size:.875rem; font-weight:700;
+  text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+  transition:all .18s; }
+.idb-btn--primary { background:#1B5EC7; color:#fff; border:none; cursor:pointer; }
 .idb-btn--primary:hover { background:#1448a3; color:#fff; }
-.idb-btn--outline { background:#fff; color:var(--idb-navy); border:1.5px solid #d1d5db; }
-.idb-btn--outline:hover { border-color:var(--idb-blue); color:var(--idb-blue); }
+.idb-btn--outline { background:#fff; color:#0A1628; border:1.5px solid #e4eaf2; }
+.idb-btn--outline:hover { border-color:#1B5EC7; color:#1B5EC7; }
 
-/* ── Analytics Row ───────────────────────────────────────────────── */
-.idb-analytics { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
-  gap:14px; margin-bottom:28px; }
-.idb-stat-card { 
-  background:#fff;
-  border:1px solid #e0e8f4; border-radius:14px;
-  padding:20px 22px; position:relative; overflow:hidden; transition:box-shadow .2s,transform .2s; }
-.idb-stat-card:hover { 
-  box-shadow:0 6px 24px rgba(27,94,199,.1); 
-  transform:translateY(-2px); 
-  /* box-shadow:0 6px 24px #059669; */
+/* ── Stat cards row ────────────────────────────────────────────────── */
+.idb-analytics { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:12px; margin-bottom:24px; }
+.idb-stat-card { background:#fff; border:1px solid #e4eaf2; border-radius:14px;
+  padding:18px 20px; transition:box-shadow .2s, transform .2s; }
+.idb-stat-card:hover { box-shadow:0 4px 20px rgba(27,94,199,.09); transform:translateY(-2px); }
+.idb-stat-icon { width:36px; height:36px; border-radius:9px; background:#eef4ff;
+  color:#1B5EC7; display:flex; align-items:center; justify-content:center; margin-bottom:10px; }
+.idb-stat-val { font-family:'Space Grotesk',sans-serif; font-size:2.4rem; font-weight:800;
+  color:#0A1628; line-height:1; margin-bottom:4px; }
+.idb-stat-label { font-size:.8rem; color:#6b7280; font-weight:600; }
+.idb-stat-delta { font-size:.8rem; font-weight:700; margin-top:4px; }
+.idb-stat-delta--up   { color:#059669; }
+.idb-stat-delta--down { color:#DC2626; }
 
-}
-.idb-stat-card::before {
-  content:'';
-  position:absolute;
-  top:0; left:0;
-  width:4px;
-  height:100%; }
-.idb-stat-card--blue::before   { background:var(--idb-blue); }
-.idb-stat-card--green::before  { background:var(--idb-green); }
-.idb-stat-card--gold::before   { background:var(--idb-gold); }
-.idb-stat-card--red::before    { background:var(--idb-red); }
-.idb-stat-card--purple::before { background:#7c3aed; }
-.idb-stat-icon { width:36px;height:36px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;border-radius:9px;background:#eef4ff;color:#1B5EC7; }
-.idb-stat-val { font-family:'Space Grotesk',sans-serif; font-size: 2.7rem; font-weight:800;
-  color:var(--idb-navy); line-height:1; margin-bottom:4px;
-  /* animated counter */ display:inline-block; }
-.idb-stat-label { font-size: 1.2rem; color:#6b7280; font-weight:600; }
-.idb-stat-delta { font-size: 1.2rem; font-weight:700; margin-top:4px; }
-.idb-stat-delta--up   { color:var(--idb-green); }
-.idb-stat-delta--down { color:var(--idb-red); }
+/* ── Section cards ─────────────────────────────────────────────────── */
+.idb-section { background:#fff; border:1px solid #e4eaf2; border-radius:14px;
+  padding:22px 22px; margin-bottom:16px; }
+.idb-section-head { display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+.idb-section-title { font-family:'Space Grotesk',sans-serif; font-size:.95rem;
+  font-weight:800; color:#0A1628; margin:0; }
+.idb-section-link { font-size:.8rem; color:#1B5EC7; text-decoration:none; font-weight:600; }
+.idb-section-link:hover { text-decoration:underline; }
 
-/* ── Two-column layout ───────────────────────────────────────────── */
-.idb-main { display:grid; grid-template-columns:1fr 340px; gap:22px; }
+/* ── Two-column layout ─────────────────────────────────────────────── */
+.idb-main { display:grid; grid-template-columns:1fr 320px; gap:16px; }
 @media(max-width:860px) { .idb-main { grid-template-columns:1fr; } }
 
-/* ── Section cards ───────────────────────────────────────────────── */
-.idb-section { background:#fff; border:1px solid #e0e8f4; border-radius:14px;
-  padding:22px 24px; margin-bottom:20px; }
-.idb-section-head { display:flex; align-items:center; justify-content:space-between;
-  margin-bottom:18px; flex-wrap:wrap; gap:8px; }
-.idb-section-title { font-family:'Space Grotesk',sans-serif; font-size: 1.2rem; font-weight:800; color:var(--idb-navy); margin:0; }
-.idb-section-link { font-size: 1.2rem; color:var(--idb-blue); text-decoration:none; font-weight:600; }
-
-/* ── Project row cards ───────────────────────────────────────────── */
-.idb-project-card { border:1px solid #e0e8f4; border-radius:12px; padding:16px 18px;
-  margin-bottom:12px; transition:box-shadow .2s; position:relative; background:#fff; }
-.idb-project-card:hover { box-shadow:0 4px 18px rgba(27,94,199,.1); }
-.idb-project-card-title { font-family:'Space Grotesk',sans-serif; font-weight:800; color:var(--idb-navy);
-  font-size: 1.2rem; text-decoration:none; }
-.idb-project-card-title:hover { color:var(--idb-blue); }
-.idb-project-meta { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
-.idb-meta-badge { font-size: 1.2rem; font-weight:700; padding:2px 9px; border-radius:20px; }
-.idb-meta-badge--industry { background:#e0e8f4; color:var(--idb-blue); }
-.idb-meta-badge--stage    { background:#fef9c3; color:#854d0e; }
-.idb-meta-badge--review   { }
-.idb-project-interest { font-size: 1.2rem; font-weight:700; color:var(--idb-blue); }
+/* ── Project cards ─────────────────────────────────────────────────── */
+.idb-project-card { border:1px solid #e4eaf2; border-radius:12px; padding:16px 18px;
+  margin-bottom:10px; background:#fff; transition:box-shadow .2s; }
+.idb-project-card:hover { box-shadow:0 4px 16px rgba(27,94,199,.09); }
+.idb-project-title { font-family:'Space Grotesk',sans-serif; font-weight:800; color:#0A1628;
+  font-size:.9rem; text-decoration:none; }
+.idb-project-title:hover { color:#1B5EC7; }
+.idb-project-meta { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
+.idb-badge { font-size:.75rem; font-weight:700; padding:2px 8px; border-radius:20px; }
+.idb-badge--industry { background:#e0e8f4; color:#1B5EC7; }
+.idb-badge--stage    { background:#fef9c3; color:#854d0e; }
+.idb-project-interest { font-size:.75rem; font-weight:700; color:#1B5EC7; }
 .idb-progress-row { display:flex; align-items:center; gap:10px; margin-top:10px; }
-.idb-progress-bar { flex:1; height:6px; background:#e0e8f4; border-radius:3px; overflow:hidden; }
-.idb-progress-fill { height:100%; border-radius:3px; transition:width .5s ease; }
-.idb-progress-fill--ready      { background:var(--idb-green); }
-.idb-progress-fill--strong     { background:var(--idb-blue); }
-.idb-progress-fill--developing { background:var(--idb-gold); }
+.idb-progress-bar { flex:1; height:5px; background:#e4eaf2; border-radius:3px; overflow:hidden; }
+.idb-progress-fill { height:100%; border-radius:3px; background:#1B5EC7; transition:width .5s; }
+.idb-progress-fill--ready      { background:#059669; }
+.idb-progress-fill--strong     { background:#1B5EC7; }
+.idb-progress-fill--developing { background:#D97706; }
 .idb-progress-fill--early      { background:#f59e0b; }
 .idb-progress-fill--starter    { background:#9ca3af; }
 .idb-suggestions { margin-top:10px; padding-top:10px; border-top:1px solid #f3f4f6; }
-.idb-suggestion-item { font-size: 1.2rem; color:#374151; display:flex; align-items:center; gap:6px; margin-bottom:5px; }
-.idb-suggestion-item::before { content:'→'; color:var(--idb-gold); font-weight:700; flex-shrink:0; }
+.idb-suggestion-item { font-size:.8rem; color:#374151; display:flex; align-items:center;
+  gap:6px; margin-bottom:5px; }
+.idb-suggestion-item::before { content:'→'; color:#D97706; font-weight:700; flex-shrink:0; }
 
-/* ── Match score cards ───────────────────────────────────────────── */
-.idb-match-card { display:flex; align-items:center; gap:14px; padding:12px 14px;
-  border:1px solid #e0e8f4; border-radius:10px; margin-bottom:10px; transition:box-shadow .2s; }
-.idb-match-card:hover { box-shadow:0 4px 14px rgba(27,94,199,.1); }
-.idb-match-score { width:48px; height:48px; border-radius:50%; display:flex; align-items:center;
-  justify-content:center; font-family:'Space Grotesk',sans-serif; font-size: 1.2rem; font-weight:800;
-  flex-shrink:0; }
+/* ── Match score cards ─────────────────────────────────────────────── */
+.idb-match-card { display:flex; align-items:center; gap:12px; padding:12px 14px;
+  border:1px solid #e4eaf2; border-radius:10px; margin-bottom:8px; transition:box-shadow .2s; }
+.idb-match-card:hover { box-shadow:0 4px 14px rgba(27,94,199,.09); }
+.idb-match-score { width:44px; height:44px; border-radius:50%; display:flex; align-items:center;
+  justify-content:center; font-family:'Space Grotesk',sans-serif; font-size:.8rem;
+  font-weight:800; flex-shrink:0; }
 .idb-match-score--excellent { background:#dcfce7; color:#166534; }
 .idb-match-score--strong    { background:#d1fae5; color:#065f46; }
 .idb-match-score--good      { background:#dbeafe; color:#1d4ed8; }
 .idb-match-score--partial   { background:#fef9c3; color:#854d0e; }
 .idb-match-score--low       { background:#f3f4f6; color:#6b7280; }
-.idb-match-name { font-size: 1.2rem; font-weight:700; color:var(--idb-navy); text-decoration:none; }
-.idb-match-label { font-size: 1.2rem; color:#6b7280; margin-top:2px; }
+.idb-match-name { font-size:.875rem; font-weight:700; color:#0A1628; text-decoration:none; }
+.idb-match-name:hover { color:#1B5EC7; }
+.idb-match-label { font-size:.78rem; color:#6b7280; margin-top:2px; }
 
-/* ── Activity timeline ───────────────────────────────────────────── */
+/* ── Activity timeline ─────────────────────────────────────────────── */
 .idb-timeline { list-style:none; margin:0; padding:0; }
-.idb-timeline-item { display:flex; gap:12px; margin-bottom:14px; position:relative; }
+.idb-timeline-item { display:flex; gap:10px; margin-bottom:12px; }
 .idb-timeline-item:last-child { margin-bottom:0; }
-.idb-timeline-dot { width:32px; height:32px; border-radius:50%; background:#e0e8f4;
-  display:flex; align-items:center; justify-content:center; font-size: 1.2rem; flex-shrink:0; margin-top:2px; }
-.idb-timeline-content { flex:1; }
-.idb-timeline-text { font-size: 1.2rem; color:#374151; line-height:1.4; }
-.idb-timeline-time { font-size: 1.2rem; color:#9ca3af; margin-top:3px; }
+.idb-timeline-dot { width:30px; height:30px; border-radius:50%; background:#eef4ff;
+  color:#1B5EC7; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.idb-timeline-text { font-size:.825rem; color:#374151; line-height:1.4; }
+.idb-timeline-time { font-size:.775rem; color:#9ca3af; margin-top:3px; }
 
-/* ── Service quick links ─────────────────────────────────────────── */
-.idb-services { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.idb-service-link { display:flex; align-items:center; gap:10px; padding:12px 14px;
-  border:1.5px solid #e0e8f4; border-radius:10px; text-decoration:none; color:var(--idb-navy);
-  font-size: 1.2rem; font-weight:700; transition:all .2s; }
-.idb-service-link:hover { border-color:var(--idb-blue); color:var(--idb-blue);
-  background:#f0f5ff; box-shadow:0 2px 10px rgba(27,94,199,.1); }
-.idb-service-icon { width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border-radius:7px;background:#eef4ff;color:#1B5EC7;flex-shrink:0; }
+/* ── Service quick links ───────────────────────────────────────────── */
+.idb-services { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.idb-service-link { display:flex; align-items:center; gap:8px; padding:10px 12px;
+  border:1.5px solid #e4eaf2; border-radius:10px; text-decoration:none; color:#0A1628;
+  font-size:.825rem; font-weight:700; transition:all .18s; }
+.idb-service-link:hover { border-color:#1B5EC7; color:#1B5EC7; background:#f5f8ff; }
+.idb-service-icon { width:26px; height:26px; display:inline-flex; align-items:center;
+  justify-content:center; border-radius:7px; background:#eef4ff; color:#1B5EC7; flex-shrink:0; }
 
-/* ── Events mini list ────────────────────────────────────────────── */
-.idb-event-item { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px;
-  padding-bottom:12px; border-bottom:1px solid #f0f0f0; }
+/* ── Events list ───────────────────────────────────────────────────── */
+.idb-event-item { display:flex; gap:12px; align-items:flex-start; margin-bottom:10px;
+  padding-bottom:10px; border-bottom:1px solid #f3f4f6; }
 .idb-event-item:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
-.idb-event-date { background:#e0e8f4; border-radius:8px; padding:8px 12px; text-align:center;
-  min-width:48px; flex-shrink:0; }
-.idb-event-day { font-family:'Space Grotesk',sans-serif; font-size: 1.2rem; font-weight:800; color:var(--idb-navy); line-height:1; }
-.idb-event-month { font-size: 1.2rem; font-weight:700; color:#6b7280; text-transform:uppercase; }
-.idb-event-name { font-weight:700; font-size: 1.2rem; color:var(--idb-navy); margin-bottom:2px; }
-.idb-event-loc  { font-size: 1.2rem; color:#6b7280; }
-.idb-event-type-tag { font-size: 1.2rem; font-weight:700; background:#7c3aed; color:#fff;
-  padding:2px 7px; border-radius:20px; margin-left:5px; }
+.idb-event-date { background:#eef4ff; border-radius:8px; padding:7px 10px; text-align:center;
+  min-width:44px; flex-shrink:0; }
+.idb-event-day { font-family:'Space Grotesk',sans-serif; font-size:.9rem; font-weight:800;
+  color:#0A1628; line-height:1; }
+.idb-event-month { font-size:.7rem; font-weight:700; color:#6b7280; text-transform:uppercase; }
+.idb-event-name { font-weight:700; font-size:.825rem; color:#0A1628; margin-bottom:2px; }
+.idb-event-loc  { font-size:.775rem; color:#6b7280; }
+.idb-event-type-tag { font-size:.7rem; font-weight:700; background:#7c3aed; color:#fff;
+  padding:1px 6px; border-radius:20px; margin-left:5px; }
 
-/* ── Loading skeleton (used on page load) ────────────────────────── */
-.idb-skeleton { background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);
-  background-size:200% 100%; animation:skeletonShimmer 1.4s infinite; border-radius:6px; }
-@keyframes skeletonShimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-/* ── Hover micro-interactions ────────────────────────────────────── */
-.idb-stat-card, .idb-project-card, .idb-match-card, .idb-service-link, .idb-section {
-  transition:box-shadow .22s ease, transform .22s ease;
-}
-</style>
-
-<style>
-.db-topbar{display:flex;align-items:center;gap:12px;padding:14px 0 20px;flex-wrap:wrap;}
-.db-topbar-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
-.db-topbar-right{display:flex;align-items:center;gap:8px;}
-.db-back-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;background:#fff;border:1.5px solid #e0e8f4;color:#374151;font-size:1.15rem;font-weight:600;text-decoration:none;transition:border-color .15s,color .15s;white-space:nowrap;}
-.db-back-btn:hover{border-color:#1B5EC7;color:#1B5EC7;}
-.db-topbar-title{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:800;color:#0A1628;}
-.db-topbar-sub{font-size:1.1rem;color:#6b7280;margin-top:1px;}
-.db-icon-btn{position:relative;width:38px;height:38px;border-radius:9px;background:#fff;border:1.5px solid #e0e8f4;display:flex;align-items:center;justify-content:center;color:#6b7280;text-decoration:none;transition:border-color .15s,color .15s;cursor:pointer;}
-.db-icon-btn:hover{border-color:#1B5EC7;color:#1B5EC7;}
-.db-icon-btn .db-badge{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:#DC2626;color:#fff;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1;}
-.db-stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:24px;}
-.db-stat{background:#fff;border:1.5px solid #e0e8f4;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;transition:box-shadow .15s,border-color .15s;text-decoration:none;cursor:pointer;}
-.db-stat:hover{box-shadow:0 4px 16px rgba(27,94,199,.1);border-color:#c3d4ec;}
-.db-stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.db-stat-val{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:800;color:#0A1628;line-height:1;}
-.db-stat-label{font-size:1.05rem;color:#6b7280;font-weight:600;margin-top:2px;}
+/* ── Pinned grid ───────────────────────────────────────────────────── */
+.idb-pinned-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; }
+.idb-pin-card { display:flex; align-items:center; gap:10px; padding:10px 13px;
+  border:1.5px solid #e4eaf2; border-radius:10px; text-decoration:none; color:inherit;
+  transition:border-color .15s, box-shadow .15s; background:#fff; }
+.idb-pin-card:hover { border-color:#1B5EC7; box-shadow:0 2px 10px rgba(27,94,199,.08); }
+.idb-pin-icon { width:30px; height:30px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; flex-shrink:0; }
+.idb-pin-label { font-weight:700; font-size:.825rem; color:#0A1628;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.idb-pin-type { font-size:.75rem; color:#9ca3af; }
 </style>
 
 <div class="idb-wrap">
 
   <!-- Top bar -->
-  <div class="db-topbar">
-    <div class="db-topbar-left">
-      <a href="{% url 'app' %}" class="db-back-btn">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  <div class="idb-topbar">
+    <div class="idb-topbar-left">
+      <a href="{% url 'app' %}" class="idb-back-btn">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
         Back
       </a>
       <div>
-        <div class="db-topbar-title">Innovator Dashboard</div>
-        <div class="db-topbar-sub">Welcome back, {{ request.user.first_name|default:request.user.username }}</div>
+        <div class="idb-topbar-title">Innovator Dashboard</div>
+        <div class="idb-topbar-sub">Welcome back, {{ request.user.first_name|default:request.user.username }}{% if profile.verification_status == 'verified' %} <span class="oc-verified-badge" style="margin-left:4px;">✓ Verified</span>{% endif %}</div>
       </div>
     </div>
-    <div class="db-topbar-right">
-      <a href="{% url 'inbox' %}" class="db-icon-btn" title="Messages">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        {% if unread_message_count %}<span class="db-badge">{{ unread_message_count }}</span>{% endif %}
+    <div class="idb-topbar-right">
+      <a href="{% url 'create_project' %}" class="idb-btn idb-btn--primary">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Project
       </a>
-      <a href="{% url 'notifications' %}" class="db-icon-btn" title="Notifications">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        {% if unread_notifications_count %}<span class="db-badge">{{ unread_notifications_count }}</span>{% endif %}
-      </a>
-      <a href="{% url 'profile_view' id=request.user.id %}" class="db-icon-btn" title="My Profile">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      </a>
-    </div>
-  </div>
-
-  <!-- Header -->
-  <div class="idb-header">
-    <div>
-      <h1>Command Center</h1>
-      <div class="idb-header-sub">
-        Welcome back, {{ request.user.first_name|default:request.user.username }}.
-        {% if profile.verification_status == 'verified' %}
-          <span class="oc-verified-badge" style="margin-left:6px;">✓ Verified</span>
-        {% endif %}
-      </div>
-    </div>
-    <div class="idb-header-actions">
-      <a href="{% url 'create_project' %}" class="idb-btn idb-btn--primary">+ New Project</a>
       <a href="{% url 'project_list' %}" class="idb-btn idb-btn--outline">All Projects</a>
+      <a href="{% url 'inbox' %}" class="idb-icon-btn" title="Messages">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        {% if unread_message_count %}<span class="idb-icon-badge">{{ unread_message_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'notifications' %}" class="idb-icon-btn" title="Notifications">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        {% if unread_notifications_count %}<span class="idb-icon-badge">{{ unread_notifications_count }}</span>{% endif %}
+      </a>
     </div>
   </div>
 
-  <!-- Analytics Cards -->
+  <!-- Stat cards -->
   <div class="idb-analytics">
-    <div class="idb-stat-card idb-stat-card--blue">
-      <div class="idb-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+
+    <div class="idb-stat-card">
+      <div class="idb-stat-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
       <div class="idb-stat-val" data-count="{{ total_projects }}">{{ total_projects }}</div>
       <div class="idb-stat-label">Total Projects</div>
       <div class="idb-stat-delta idb-stat-delta--up">{{ published_projects }} published</div>
     </div>
-    <div class="idb-stat-card idb-stat-card--green">
-      <div class="idb-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+
+    <div class="idb-stat-card">
+      <div class="idb-stat-icon" style="background:#f0fdf4;color:#059669;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      </div>
       <div class="idb-stat-val" data-count="{{ pitch_count }}">{{ pitch_count }}</div>
       <div class="idb-stat-label">Pitch Requests</div>
-      {% if pending_pitches %}<div class="idb-stat-delta idb-stat-delta--up">{{ pending_pitches }} pending response</div>{% endif %}
+      {% if pending_pitches %}<div class="idb-stat-delta idb-stat-delta--up">{{ pending_pitches }} pending</div>{% endif %}
     </div>
-    <div class="idb-stat-card idb-stat-card--gold">
-      <div class="idb-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+
+    <div class="idb-stat-card">
+      <div class="idb-stat-icon" style="background:#fffbeb;color:#D97706;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
       <div class="idb-stat-val" data-count="{{ connections }}">{{ connections }}</div>
       <div class="idb-stat-label">Connections</div>
       {% if pending_connections %}<div class="idb-stat-delta idb-stat-delta--up">{{ pending_connections }} pending</div>{% endif %}
     </div>
-    <div class="idb-stat-card idb-stat-card--purple">
-      <div class="idb-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+
+    <div class="idb-stat-card">
+      <div class="idb-stat-icon" style="background:#f5f3ff;color:#7c3aed;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      </div>
       <div class="idb-stat-val" data-count="{{ my_courses|length }}">{{ my_courses|length }}</div>
       <div class="idb-stat-label">Active Courses</div>
     </div>
-    <div class="idb-stat-card idb-stat-card--blue">
-      <div class="idb-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+
+    <div class="idb-stat-card">
+      <div class="idb-stat-icon" style="background:#fff7ed;color:#ea580c;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      </div>
       <div class="idb-stat-val" data-count="{{ open_consulting }}">{{ open_consulting }}</div>
-      <div class="idb-stat-label">Open Support Requests</div>
+      <div class="idb-stat-label">Support Requests</div>
     </div>
+
   </div>
 
-  <!-- Pinned Items -->
+  <!-- Pinned items -->
   {% if pinned_chats or pinned_posts or pinned_projects %}
-  <div class="idb-section" style="margin-bottom:22px;">
+  <div class="idb-section" style="margin-bottom:16px;">
     <div class="idb-section-head">
-      <h2 class="idb-section-title" style="display:flex;align-items:center;gap:8px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 00-1.11-1.79l-1.78-.9A2 2 0 0115 10.76V6h1a2 2 0 000-4H8a2 2 0 000 4h1v4.76a2 2 0 01-1.11 1.79l-1.78.9A2 2 0 005 15.24V17z"/></svg>
+      <h2 class="idb-section-title" style="display:flex;align-items:center;gap:7px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 00-1.11-1.79l-1.78-.9A2 2 0 0115 10.76V6h1a2 2 0 000-4H8a2 2 0 000 4h1v4.76a2 2 0 01-1.11 1.79l-1.78.9A2 2 0 005 15.24V17z"/></svg>
         Pinned
       </h2>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
-
-      {% for pin in pinned_chats %}
-      {% with conv=pin.conversation %}
-      <a href="{% url 'chat_page' conversation_id=conv.id %}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e0e8f4;border-radius:10px;text-decoration:none;color:inherit;transition:box-shadow .15s;background:#fff;">
-        <span style="width:32px;height:32px;border-radius:50%;background:#eef4ff;color:#1B5EC7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    <div class="idb-pinned-grid">
+      {% for pin in pinned_chats %}{% with conv=pin.conversation %}
+      <a href="{% url 'chat_page' conversation_id=conv.id %}" class="idb-pin-card">
+        <span class="idb-pin-icon" style="background:#eef4ff;color:#1B5EC7;">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         </span>
         <div style="min-width:0;">
-          <div style="font-weight:700;font-size:1.1rem;color:#0A1628;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-            {% for p in conv.participants.all %}{% if p != request.user %}{{ p.get_full_name|default:p.username }}{% endif %}{% endfor %}
-          </div>
-          <div style="font-size:1.05rem;color:#9ca3af;">Chat</div>
+          <div class="idb-pin-label">{% for p in conv.participants.all %}{% if p != request.user %}{{ p.get_full_name|default:p.username }}{% endif %}{% endfor %}</div>
+          <div class="idb-pin-type">Chat</div>
         </div>
       </a>
-      {% endwith %}
-      {% endfor %}
+      {% endwith %}{% endfor %}
 
-      {% for pin in pinned_posts %}
-      {% with p=pin.post %}
-      <a href="{% url 'post_detail' p.id %}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e0e8f4;border-radius:10px;text-decoration:none;color:inherit;transition:box-shadow .15s;background:#fff;">
-        <span style="width:32px;height:32px;border-radius:50%;background:#fffbeb;color:#D97706;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      {% for pin in pinned_posts %}{% with p=pin.post %}
+      <a href="{% url 'post_detail' p.id %}" class="idb-pin-card">
+        <span class="idb-pin-icon" style="background:#fffbeb;color:#D97706;">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </span>
         <div style="min-width:0;">
-          <div style="font-weight:700;font-size:1.1rem;color:#0A1628;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.title|default:p.content|truncatechars:30 }}</div>
-          <div style="font-size:1.05rem;color:#9ca3af;">Post</div>
+          <div class="idb-pin-label">{{ p.title|default:p.content|truncatechars:28 }}</div>
+          <div class="idb-pin-type">Post</div>
         </div>
       </a>
-      {% endwith %}
-      {% endfor %}
+      {% endwith %}{% endfor %}
 
-      {% for pin in pinned_projects %}
-      {% with proj=pin.project %}
-      <a href="{% url 'project_detail' proj.id %}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e0e8f4;border-radius:10px;text-decoration:none;color:inherit;transition:box-shadow .15s;background:#fff;">
-        <span style="width:32px;height:32px;border-radius:50%;background:#f0fdf4;color:#059669;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      {% for pin in pinned_projects %}{% with proj=pin.project %}
+      <a href="{% url 'project_detail' proj.id %}" class="idb-pin-card">
+        <span class="idb-pin-icon" style="background:#f0fdf4;color:#059669;">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         </span>
         <div style="min-width:0;">
-          <div style="font-weight:700;font-size:1.1rem;color:#0A1628;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ proj.title|truncatechars:30 }}</div>
-          <div style="font-size:1.05rem;color:#9ca3af;">Project</div>
+          <div class="idb-pin-label">{{ proj.title|truncatechars:28 }}</div>
+          <div class="idb-pin-type">Project</div>
         </div>
       </a>
-      {% endwith %}
-      {% endfor %}
-
+      {% endwith %}{% endfor %}
     </div>
   </div>
   {% endif %}
 
-  <!-- Main grid -->
+  <!-- Main two-column grid -->
   <div class="idb-main">
 
-    <!-- LEFT: Projects + matches -->
+    <!-- LEFT -->
     <div>
 
-      <!-- Projects -->
+      <!-- My Projects -->
       <div class="idb-section">
         <div class="idb-section-head">
           <h2 class="idb-section-title">My Projects</h2>
@@ -321,17 +293,15 @@
         </div>
 
         {% if projects_with_interest %}
-          {% for item in projects_with_interest %}
-          {% with p=item.project %}
+          {% for item in projects_with_interest %}{% with p=item.project %}
           <div class="idb-project-card">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
-              <a href="{% url 'project_detail' p.pk %}" class="idb-project-card-title">{{ p.title }}</a>
-              <span style="font-size: 1.2rem;color:#9ca3af;">{{ p.created_at|timesince }} ago</span>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px;">
+              <a href="{% url 'project_detail' p.pk %}" class="idb-project-title">{{ p.title }}</a>
+              <span style="font-size:.775rem;color:#9ca3af;">{{ p.created_at|timesince }} ago</span>
             </div>
-
             <div class="idb-project-meta">
-              <span class="idb-meta-badge idb-meta-badge--industry">{{ p.industry }}</span>
-              <span class="idb-meta-badge idb-meta-badge--stage">{{ p.get_pipeline_stage_display }}</span>
+              <span class="idb-badge idb-badge--industry">{{ p.industry }}</span>
+              <span class="idb-badge idb-badge--stage">{{ p.get_pipeline_stage_display }}</span>
               {% if p.review_status != 'draft' %}
               <span class="oc-review-badge oc-review-badge--{{ p.review_status }}">{{ p.get_review_status_display }}</span>
               {% endif %}
@@ -339,47 +309,43 @@
               <span class="idb-project-interest">★ {{ item.interest_count }} interested</span>
               {% endif %}
             </div>
-
-            <!-- Readiness bar -->
             <div class="idb-progress-row">
-              <span style="font-size: 1.2rem;color:#6b7280;white-space:nowrap;">Profile</span>
+              <span style="font-size:.775rem;color:#6b7280;white-space:nowrap;">Profile</span>
               <div class="idb-progress-bar">
                 <div class="idb-progress-fill idb-progress-fill--{% with rd=p.investment_readiness %}{{ rd.1 }}{% endwith %}"
                      style="width:{{ item.score }}%;"></div>
               </div>
-              <span style="font-size: 1.2rem;font-weight:700;color:var(--idb-blue);white-space:nowrap;">{{ item.score }}%</span>
+              <span style="font-size:.775rem;font-weight:700;color:#1B5EC7;white-space:nowrap;">{{ item.score }}%</span>
             </div>
-
-            <!-- Improvement suggestions -->
             {% if item.suggestions %}
             <div class="idb-suggestions">
-              <div style="font-size: 1.2rem;font-weight:700;color:#6b7280;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Improve your pitch</div>
+              <div style="font-size:.75rem;font-weight:700;color:#9ca3af;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Improve your pitch</div>
               {% for s in item.suggestions %}
               <div class="idb-suggestion-item">{{ s }}</div>
               {% endfor %}
             </div>
             {% endif %}
-
-            <!-- Quick actions -->
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-              <a href="{% url 'edit_project' p.pk %}" style="font-size: 1.2rem;padding:5px 12px;background:#f3f4f6;border-radius:6px;text-decoration:none;color:#374151;font-weight:600;">Edit</a>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
+              <a href="{% url 'edit_project' p.pk %}" style="font-size:.775rem;padding:5px 11px;background:#f3f4f6;border-radius:7px;text-decoration:none;color:#374151;font-weight:600;">Edit</a>
               {% if p.review_status == 'draft' or p.review_status == 'rejected' %}
               <form method="post" action="{% url 'submit_project_for_review' p.pk %}" style="display:inline;">
                 {% csrf_token %}
-                <button type="submit" style="font-size: 1.2rem;padding:5px 12px;background:#e0e8f4;border:none;border-radius:6px;color:#1B5EC7;font-weight:600;cursor:pointer;">Submit for Review</button>
+                <button type="submit" style="font-size:.775rem;padding:5px 11px;background:#eef4ff;border:none;border-radius:7px;color:#1B5EC7;font-weight:600;cursor:pointer;">Submit for Review</button>
               </form>
               {% endif %}
-              <a href="{% url 'project_investor_matches' p.pk %}" style="font-size: 1.2rem;padding:5px 12px;background:#f0f9f4;border-radius:6px;text-decoration:none;color:#059669;font-weight:600;">Find Investors</a>
-              <a href="{% url 'request_consulting_for_project' p.pk %}" style="font-size: 1.2rem;padding:5px 12px;background:#fef3c7;border-radius:6px;text-decoration:none;color:#92400e;font-weight:600;">Get Support</a>
+              <a href="{% url 'project_investor_matches' p.pk %}" style="font-size:.775rem;padding:5px 11px;background:#f0fdf4;border-radius:7px;text-decoration:none;color:#059669;font-weight:600;">Find Investors</a>
+              <a href="{% url 'request_consulting_for_project' p.pk %}" style="font-size:.775rem;padding:5px 11px;background:#fffbeb;border-radius:7px;text-decoration:none;color:#92400e;font-weight:600;">Get Support</a>
             </div>
           </div>
-          {% endwith %}
-          {% endfor %}
+          {% endwith %}{% endfor %}
         {% else %}
-        <div style="text-align:center;padding:28px;color:#6b7280;">
-          <p style="margin-bottom:8px;opacity:.4;color:#6b7280;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></p>
-          <p style="font-weight:700;margin-bottom:4px;">No projects yet</p>
-          <a href="{% url 'create_project' %}" class="idb-btn idb-btn--primary" style="margin-top:10px;display:inline-flex;">Create Your First Project</a>
+        <div style="text-align:center;padding:28px 22px;color:#6b7280;">
+          <div style="margin-bottom:10px;color:#d1d5db;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <p style="font-weight:700;font-size:.875rem;margin-bottom:4px;">No projects yet</p>
+          <p style="font-size:.8rem;margin-bottom:14px;">Create your first project to attract investors.</p>
+          <a href="{% url 'create_project' %}" class="idb-btn idb-btn--primary">Create Your First Project</a>
         </div>
         {% endif %}
       </div>
@@ -394,23 +360,16 @@
         {% for match in top_investor_matches %}
         <div class="idb-match-card">
           <div class="idb-match-score idb-match-score--{{ match.css }}">{{ match.score }}</div>
-          <div style="flex:1;">
+          <div style="flex:1;min-width:0;">
             <a href="{% url 'profile_view' id=match.investor.id %}" class="idb-match-name">
               {{ match.investor.get_full_name|default:match.investor.username }}
             </a>
             {% with ip=match.investor.userprofile %}
-            {% if ip.verification_status == 'verified' %}
-            <span class="oc-verified-badge" style="margin-left:5px;">✓ Verified</span>
-            {% endif %}
-            <div class="idb-match-label">{{ match.label }}
-              {% if ip.industry %} · {{ ip.industry }}{% endif %}
-              {% if ip.geography_focus %} · {{ ip.geography_focus }}{% endif %}
-            </div>
+            {% if ip.verification_status == 'verified' %}<span class="oc-verified-badge" style="margin-left:4px;">✓ Verified</span>{% endif %}
+            <div class="idb-match-label">{{ match.label }}{% if ip.industry %} · {{ ip.industry }}{% endif %}{% if ip.geography_focus %} · {{ ip.geography_focus }}{% endif %}</div>
             {% endwith %}
           </div>
-          <div>
-            <a href="{% url 'profile_view' id=match.investor.id %}" class="idb-btn idb-btn--outline" style="font-size: 1.2rem;padding:6px 14px;">Connect</a>
-          </div>
+          <a href="{% url 'profile_view' id=match.investor.id %}" class="idb-btn idb-btn--outline" style="padding:5px 12px;font-size:.775rem;">Connect</a>
         </div>
         {% endfor %}
       </div>
@@ -420,21 +379,20 @@
       {% if recent_notifications %}
       <div class="idb-section">
         <div class="idb-section-head">
-          <h2 class="idb-section-title">Activity Timeline</h2>
+          <h2 class="idb-section-title">Recent Activity</h2>
           <a href="{% url 'notifications' %}" class="idb-section-link">All notifications →</a>
         </div>
         <ul class="idb-timeline">
           {% for notif in recent_notifications %}
           <li class="idb-timeline-item">
             <div class="idb-timeline-dot">
-              {% if 'pitch' in notif.message|lower %}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-              {% elif 'view' in notif.message|lower %}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              {% elif 'connect' in notif.message|lower %}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-              {% elif 'interest' in notif.message|lower %}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              {% elif 'review' in notif.message|lower %}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              {% else %}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>{% endif %}
+              {% if 'pitch' in notif.message|lower %}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+              {% elif 'view' in notif.message|lower %}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              {% elif 'connect' in notif.message|lower %}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              {% elif 'interest' in notif.message|lower %}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              {% else %}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>{% endif %}
             </div>
-            <div class="idb-timeline-content">
+            <div>
               <div class="idb-timeline-text">{{ notif.message }}</div>
               <div class="idb-timeline-time">{{ notif.created_at|timesince }} ago</div>
             </div>
@@ -449,60 +407,62 @@
     <!-- RIGHT SIDEBAR -->
     <div>
 
-      <!-- Oduma Corp Services -->
+      <!-- Services -->
       <div class="idb-section">
-        <h2 class="idb-section-title" style="margin-bottom:14px;">Oduma Corp Services</h2>
+        <h2 class="idb-section-title" style="margin-bottom:14px;">Oduma Services</h2>
         <div class="idb-services">
           <a href="{% url 'training_hub' %}" class="idb-service-link">
-            <span class="idb-service-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span> Training
+            <span class="idb-service-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>Training
           </a>
           <a href="{% url 'mentorship_hub' %}" class="idb-service-link">
-            <span class="idb-service-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span> Mentorship
+            <span class="idb-service-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span>Mentorship
           </a>
           <a href="{% url 'request_consulting' %}" class="idb-service-link">
-            <span class="idb-service-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span> Consulting
+            <span class="idb-service-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Consulting
           </a>
           <a href="{% url 'events_hub' %}" class="idb-service-link">
-            <span class="idb-service-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span> Events
+            <span class="idb-service-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>Events
           </a>
           <a href="{% url 'top_matches_for_investor' %}" class="idb-service-link" style="grid-column:span 2;">
-            <span class="idb-service-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span> Find Investor Matches
+            <span class="idb-service-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>Find Investor Matches
           </a>
         </div>
       </div>
 
       <!-- Verification CTA -->
       {% if profile.verification_status != 'verified' %}
-      <div class="idb-section" style="background:linear-gradient(135deg,#f0f5ff,#e0e8f4);border-color:#c3d4ec;">
+      <div class="idb-section" style="background:linear-gradient(135deg,#f5f8ff,#eef4ff);border-color:#c3d4ec;">
         <h2 class="idb-section-title" style="margin-bottom:6px;">Get Verified</h2>
-        <p style="font-size: 1.2rem;color:#6b7280;margin-bottom:14px;">A verified badge builds trust with investors.</p>
+        <p style="font-size:.8rem;color:#6b7280;margin-bottom:12px;">A verified badge builds trust with investors and unlocks more features.</p>
         {% if profile.verification_status == 'pending' %}
-        <span style="font-size: 1.2rem;font-weight:700;color:#854d0e;">Verification under review</span>
+        <span style="font-size:.8rem;font-weight:700;color:#854d0e;">Verification under review</span>
         {% else %}
-        <a href="{% url 'my_profile' %}" class="idb-btn idb-btn--primary" style="font-size: 1.2rem;padding:8px 16px;">Apply for Verification</a>
+        <a href="{% url 'my_profile' %}" class="idb-btn idb-btn--primary" style="font-size:.8rem;padding:7px 14px;">Apply for Verification</a>
         {% endif %}
       </div>
       {% endif %}
 
       <!-- Active Mentorship -->
       {% if my_mentorship %}
-      <div class="idb-section" style="background:#f0f9f4;border-color:#bbf7d0;">
-        <h2 class="idb-section-title" style="margin-bottom:10px;">Active Mentor</h2>
+      <div class="idb-section" style="background:#f0fdf4;border-color:#bbf7d0;">
+        <h2 class="idb-section-title" style="margin-bottom:12px;">Active Mentor</h2>
         <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:40px;height:40px;border-radius:50%;background:#059669;color:#fff;
-            display:flex;align-items:center;justify-content:center;font-weight:800;font-size: 1.2rem;">
+          <div style="width:38px;height:38px;border-radius:50%;background:#059669;color:#fff;
+            display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.875rem;flex-shrink:0;">
             {{ my_mentorship.mentor.user.first_name|first|upper }}{{ my_mentorship.mentor.user.last_name|first|upper }}
           </div>
           <div>
-            <div style="font-weight:700;font-size: 1.2rem;color:#0A1628;">{{ my_mentorship.mentor.user.get_full_name|default:my_mentorship.mentor.user.username }}</div>
-            <div style="font-size: 1.2rem;color:#6b7280;">{{ my_mentorship.mentor.get_expertise_display }}</div>
+            <div style="font-weight:700;font-size:.875rem;color:#0A1628;">{{ my_mentorship.mentor.user.get_full_name|default:my_mentorship.mentor.user.username }}</div>
+            <div style="font-size:.775rem;color:#6b7280;">{{ my_mentorship.mentor.get_expertise_display }}</div>
           </div>
         </div>
       </div>
       {% else %}
-      <div class="idb-section" style="border-style:dashed;border-color:#d1d5db;text-align:center;">
-        <p style="margin-bottom:6px;opacity:.4;color:#6b7280;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></p>
-        <p style="font-size: 1.2rem;font-weight:700;margin-bottom:4px;">No mentor yet</p>
+      <div class="idb-section" style="border-style:dashed;text-align:center;padding:20px;">
+        <div style="color:#d1d5db;margin-bottom:8px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+        <p style="font-size:.825rem;font-weight:700;margin-bottom:4px;color:#0A1628;">No mentor yet</p>
         <a href="{% url 'mentorship_hub' %}" class="idb-section-link">Find a mentor →</a>
       </div>
       {% endif %}
@@ -512,16 +472,16 @@
       <div class="idb-section">
         <div class="idb-section-head">
           <h2 class="idb-section-title">Learning</h2>
-          <a href="{% url 'training_hub' %}" class="idb-section-link">All courses →</a>
+          <a href="{% url 'training_hub' %}" class="idb-section-link">All →</a>
         </div>
         {% for enr in my_courses %}
-        <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f0f0;">
-          <a href="{% url 'course_detail' enr.course.slug %}" style="font-size: 1.2rem;font-weight:700;color:#0A1628;text-decoration:none;">{{ enr.course.title }}</a>
+        <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #f3f4f6;">
+          <a href="{% url 'course_detail' enr.course.slug %}" style="font-size:.825rem;font-weight:700;color:#0A1628;text-decoration:none;">{{ enr.course.title }}</a>
           <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-            <div style="flex:1;height:5px;background:#e0e8f4;border-radius:3px;overflow:hidden;">
-              <div style="height:100%;background:var(--idb-blue);border-radius:3px;width:{{ enr.progress }}%;transition:width .4s;"></div>
+            <div style="flex:1;height:4px;background:#e4eaf2;border-radius:3px;overflow:hidden;">
+              <div style="height:100%;background:#1B5EC7;border-radius:3px;width:{{ enr.progress }}%;transition:width .4s;"></div>
             </div>
-            <span style="font-size: 1.2rem;font-weight:700;color:var(--idb-blue);">{{ enr.progress }}%</span>
+            <span style="font-size:.75rem;font-weight:700;color:#1B5EC7;">{{ enr.progress }}%</span>
           </div>
         </div>
         {% endfor %}
@@ -533,7 +493,7 @@
       <div class="idb-section">
         <div class="idb-section-head">
           <h2 class="idb-section-title">Upcoming Events</h2>
-          <a href="{% url 'events_hub' %}" class="idb-section-link">All events →</a>
+          <a href="{% url 'events_hub' %}" class="idb-section-link">All →</a>
         </div>
         {% for event in upcoming_events %}
         <div class="idb-event-item">
@@ -541,16 +501,15 @@
             <div class="idb-event-day">{{ event.date|date:"j" }}</div>
             <div class="idb-event-month">{{ event.date|date:"M" }}</div>
           </div>
-          <div style="flex:1;">
-            <div class="idb-event-name">
-              {{ event.name }}
-              <span class="idb-event-type-tag">{{ event.get_event_type_display }}</span>
+          <div style="flex:1;min-width:0;">
+            <div class="idb-event-name">{{ event.name }}<span class="idb-event-type-tag">{{ event.get_event_type_display }}</span></div>
+            <div class="idb-event-loc" style="display:flex;align-items:center;gap:4px;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>{{ event.location }}
             </div>
-            <div class="idb-event-loc" style="display:flex;align-items:center;gap:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> {{ event.location }}</div>
             {% if event.id in registered_event_ids %}
-            <span style="font-size: 1.2rem;color:#059669;font-weight:700;">✓ Registered</span>
+            <span style="font-size:.75rem;color:#059669;font-weight:700;">✓ Registered</span>
             {% else %}
-            <a href="{% url 'register_for_event' event.pk %}" style="font-size: 1.2rem;color:var(--idb-blue);font-weight:600;text-decoration:none;">Register →</a>
+            <a href="{% url 'register_for_event' event.pk %}" style="font-size:.775rem;color:#1B5EC7;font-weight:600;text-decoration:none;">Register →</a>
             {% endif %}
           </div>
         </div>
@@ -563,11 +522,10 @@
 </div>
 
 <script>
-/* Animated counters */
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.idb-stat-val[data-count]').forEach(el => {
     const target = parseInt(el.dataset.count, 10) || 0;
-    if (target === 0) return;
+    if (!target) return;
     let current = 0;
     const step = Math.max(1, Math.ceil(target / 30));
     const timer = setInterval(() => {

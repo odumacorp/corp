@@ -399,7 +399,7 @@
   </div>
 
   <!-- Cover -->
-  <div class="pf-cover"></div>
+  <div class="pf-cover"{% if profile.cover_style %} style="background:{{ profile.cover_style }}"{% endif %}></div>
 
   <!-- Hero card -->
   <div class="pf-hero">

@@ -1000,8 +1000,14 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
   cursor: pointer;
   transition: color .15s;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* kill 300ms iOS tap delay */
+  user-select: none;
+  -webkit-user-select: none;
 }
-.oc-bottom-nav__item:hover,
+/* hover only on real pointer devices — prevents iOS double-tap bug */
+@media (hover: hover) and (pointer: fine) {
+  .oc-bottom-nav__item:hover { color: #1B5EC7; }
+}
 .oc-bottom-nav__item--active { color: #1B5EC7; }
 .oc-bottom-nav__icon {
   position: relative;
@@ -2078,21 +2084,33 @@ input:focus, textarea:focus, select:focus {
   background: #fff;
   border: 1.5px solid #e4eaf2;
   border-radius: 16px;
-  overflow: hidden;
   box-shadow: 0 8px 32px rgba(10,22,40,.12);
+  max-height: 420px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #c7d8f8 transparent;
 }
+.oc-picker-panel::-webkit-scrollbar { width: 4px; }
+.oc-picker-panel::-webkit-scrollbar-thumb { background: #c7d8f8; border-radius: 4px; }
 
 /* ── Tab bar ── */
 .oc-ptabs {
   display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
   border-bottom: 1.5px solid #e4eaf2;
   background: #f8fafc;
   padding: 0 12px;
   gap: 2px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 .oc-ptab {
-  flex: 1;
-  padding: 10px 4px;
+  flex: 0 0 auto;
+  padding: 10px 18px;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1.1rem;
   font-weight: 600;
@@ -2100,49 +2118,58 @@ input:focus, textarea:focus, select:focus {
   background: none;
   border: none;
   border-bottom: 2.5px solid transparent;
+  outline: none;
   cursor: pointer;
   transition: color .15s, border-color .15s;
   margin-bottom: -1.5px;
 }
+.oc-ptabs::-webkit-scrollbar { display: none; }
+.oc-ptab:focus,
+.oc-ptab:focus-visible { outline: none; box-shadow: none; }
 .oc-ptab:hover { color: #1B5EC7; }
 .oc-ptab--active { color: #1B5EC7; border-bottom-color: #1B5EC7; }
 
 /* ── Pane content ── */
 .oc-pane {
-  padding: 14px;
+  padding: 14px 16px 16px;
 }
 
 /* ── Grid ── */
 .oc-picker-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
 .oc-picker-grid--cover {
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 .oc-picker-item {
   cursor: pointer;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid transparent;
-  transition: border-color .15s, transform .12s, box-shadow .15s;
-  flex-shrink: 0;
+  border: 2.5px solid transparent;
+  transition: border-color .15s, transform .13s, box-shadow .15s;
+  aspect-ratio: 1;
+  width: 100%;
 }
-.oc-picker-item--img {
-  border-radius: 50%;
+.oc-picker-item canvas,
+.oc-picker-item img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
-.oc-picker-item:hover {
-  border-color: #1B5EC7;
-  transform: scale(1.07);
-  box-shadow: 0 4px 12px rgba(27,94,199,.25);
+@media (hover: hover) and (pointer: fine) {
+  .oc-picker-item:hover {
+    border-color: #1B5EC7;
+    transform: scale(1.08);
+    box-shadow: 0 3px 10px rgba(27,94,199,.22);
+  }
 }
 .oc-picker-item--selected {
   border-color: #10b981 !important;
   box-shadow: 0 0 0 2px #d1fae5;
 }
-.oc-picker-item canvas,
-.oc-picker-item img { display: block; }
 
 /* ── Hashtag styles ──────────────────────────────────────────────────────── */
 .oc-hashtag {

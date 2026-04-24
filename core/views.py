@@ -149,7 +149,10 @@ def edit_profile(request):
             else:
                 # Location field (all user types)
                 up.location = request.POST.get('location', '').strip()
-                up.save(update_fields=['location'])
+                cover_style = request.POST.get('cover_style', '').strip()
+                if cover_style:
+                    up.cover_style = cover_style
+                up.save(update_fields=['location', 'cover_style'])
                 # Investor-specific fields not in ProfileEditForm
                 if user.user_type == 'investor':
                     up.ticket_size_min   = request.POST.get('ticket_size_min') or None
@@ -6259,7 +6262,19 @@ def view_media(request):
             return 'audio'
         if path.endswith('.pdf'):
             return 'pdf'
+        # Cloudinary URLs: detect by resource type in path (no extension)
+        if '/image/upload/' in path or '/images/' in path:
+            return 'image'
+        if '/video/upload/' in path:
+            return 'video'
         return 'file'
+
+    def _ext(url):
+        path = urlparse(url).path.lower()
+        dot = path.rfind('.')
+        if dot != -1 and len(path) - dot <= 5:
+            return path[dot + 1:]
+        return ''
 
     urls = request.GET.getlist('g')
     src_single = request.GET.get('src', '')
@@ -6272,7 +6287,7 @@ def view_media(request):
             index = 0
         index = max(0, min(index, len(urls) - 1))
         gallery = [
-            {'src': u, 'type': _file_type(u), 'name': name if i == index else f'Photo {i + 1}'}
+            {'src': u, 'type': _file_type(u), 'ext': _ext(u), 'name': name if i == index else f'Photo {i + 1}'}
             for i, u in enumerate(urls)
         ]
         # Use name for the selected item; fall back to Photo N
@@ -6280,7 +6295,7 @@ def view_media(request):
             gallery[index]['name'] = f'Photo {index + 1}'
     elif src_single:
         # Single-item mode: ?src=url
-        gallery = [{'src': src_single, 'type': _file_type(src_single), 'name': name or 'Media'}]
+        gallery = [{'src': src_single, 'type': _file_type(src_single), 'ext': _ext(src_single), 'name': name or 'Media'}]
         index = 0
     else:
         gallery = []
@@ -7795,6 +7810,106 @@ def return_from_odu(request):
             from django.contrib.auth import login as _login
             _login(request, original, backend='django.contrib.auth.backends.ModelBackend')
     return redirect('admin_panel')
+
+
+@login_required
+def trigger_odu_post(request):
+    """Manual trigger for Odu bot daily post — admin and Odu bot only."""
+    from django.http import JsonResponse
+    user = request.user
+    is_odu = user.username.lower() == 'odu'
+    if not (user.user_type == 'admin' or user.is_superuser or is_odu):
+        return JsonResponse({'ok': False, 'error': 'Permission denied.'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'POST required.'}, status=405)
+
+    import json, random, traceback
+    from datetime import timedelta
+    from django.conf import settings
+    from django.utils import timezone
+    from core.management.commands.post_odu_daily import (
+        POST_TYPE_POOL, INDUSTRIES, SYSTEM_PROMPT, _build_prompt, _fetch_image
+    )
+    from core.models import Post, Poll, PollOption
+
+    api_key = getattr(settings, 'ANTHROPIC_API_KEY', '')
+    if not api_key:
+        return JsonResponse({'ok': False, 'error': 'ANTHROPIC_API_KEY not configured.'}, status=500)
+
+    odu = CustomUser.objects.filter(username__iexact='odu').first()
+    if not odu:
+        return JsonResponse({'ok': False, 'error': 'Odu user not found.'}, status=500)
+
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+
+        pool = list(set(POST_TYPE_POOL))
+        types = random.sample(pool, 2)
+
+        results = []
+        for post_type in types:
+            industry = random.choice(INDUSTRIES)
+            prompt = _build_prompt(post_type, industry)
+            if not prompt:
+                continue
+
+            resp = client.messages.create(
+                model='claude-haiku-4-5-20251001',
+                max_tokens=900,
+                system=SYSTEM_PROMPT,
+                messages=[{'role': 'user', 'content': prompt}],
+            )
+            raw = resp.content[0].text.strip() if resp.content else ''
+            if raw.startswith('```'):
+                raw = raw.split('\n', 1)[-1].rsplit('```', 1)[0].strip()
+
+            data = json.loads(raw)
+            title       = data.get('title', '').strip()[:255]
+            content     = data.get('content', '').strip()
+            raw_tags    = data.get('hashtags', '').strip()
+            image_query = data.get('image_query', '').strip()
+
+            if raw_tags:
+                tokens = raw_tags.split()
+                tags = ' '.join(t if t.startswith('#') else '#' + t for t in tokens)
+                content = content.rstrip() + '\n\n' + tags
+
+            if not content:
+                continue
+
+            post = Post.objects.create(
+                user=odu,
+                title=title,
+                content=content,
+                post_type=post_type,
+                industry=industry,
+            )
+
+            if image_query:
+                fname, img_file = _fetch_image(image_query)
+                if fname and img_file:
+                    post.image.save(fname, img_file, save=True)
+
+            if post_type == 'poll':
+                poll_q  = data.get('poll_question', title)
+                options = data.get('poll_options', [])
+                if options:
+                    poll = Poll.objects.create(
+                        post=post,
+                        question=poll_q[:300],
+                        closes_at=timezone.now() + timedelta(days=5),
+                    )
+                    for i, opt_text in enumerate(options[:6]):
+                        PollOption.objects.create(poll=poll, text=opt_text[:150], order=i)
+
+            results.append(f'[{post_type}/{industry}] {title[:60]}')
+
+        return JsonResponse({'ok': True, 'published': len(results), 'posts': results})
+
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e), 'trace': traceback.format_exc()}, status=500)
 
 
 # ── Analytics API ──────────────────────────────────────────────────────────────

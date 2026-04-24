@@ -40,15 +40,65 @@
   ];
 
   /* ── Canvas drawers ── */
+
+  var DPR = Math.min(window.devicePixelRatio || 1, 3);
+
+  /* Create a crisp canvas at logical size `px`, drawn at physical DPR size */
+  function crispCanvas(px, py) {
+    py = py || px;
+    var c = document.createElement('canvas');
+    c.width  = Math.round(px * DPR);
+    c.height = Math.round(py * DPR);
+    c.style.width  = px + 'px';
+    c.style.height = py + 'px';
+    var ctx = c.getContext('2d');
+    ctx.scale(DPR, DPR);
+    return { cvs: c, ctx: ctx };
+  }
+
+  /* Parse hex color → {r,g,b} */
+  function hexToRgb(hex) {
+    var r = parseInt(hex.slice(1,3),16);
+    var g = parseInt(hex.slice(3,5),16);
+    var b = parseInt(hex.slice(5,7),16);
+    return {r:r, g:g, b:b};
+  }
+
+  /*
+   * Replicates the user.png silhouette design:
+   *   – light-tinted circular background
+   *   – subtle border ring
+   *   – head: filled circle (top-center)
+   *   – body: dome / arch (top half of a large circle), rounded corners via arc
+   */
   function drawPerson(ctx, s, color) {
+    var c = hexToRgb(color);
     ctx.clearRect(0, 0, s, s);
-    ctx.fillStyle = color;
+
+    /* ── background circle ── */
+    ctx.fillStyle = 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',0.13)';
     ctx.beginPath(); ctx.arc(s/2, s/2, s/2, 0, Math.PI*2); ctx.fill();
+
+    /* ── silhouette, clipped to circle ── */
     ctx.save();
     ctx.beginPath(); ctx.arc(s/2, s/2, s/2, 0, Math.PI*2); ctx.clip();
-    ctx.fillStyle = 'rgba(255,255,255,0.92)';
-    ctx.beginPath(); ctx.arc(s/2, s*0.37, s*0.19, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(s/2, s*0.82, s*0.31, s*0.24, 0, 0, Math.PI); ctx.fill();
+    ctx.fillStyle = color;
+
+    /* head */
+    ctx.beginPath();
+    ctx.arc(s/2, s*0.32, s*0.20, 0, Math.PI*2);
+    ctx.fill();
+
+    /* body dome */
+    var bcy = s * 0.90;
+    var br  = s * 0.40;
+    ctx.beginPath();
+    ctx.arc(s/2, bcy, br, Math.PI, 0);
+    ctx.lineTo(s/2 + br, s + 4);
+    ctx.lineTo(s/2 - br, s + 4);
+    ctx.closePath();
+    ctx.fill();
+
     ctx.restore();
   }
 
@@ -70,15 +120,22 @@
 
   function drawGradientCircle(ctx, s, from, to) {
     ctx.clearRect(0, 0, s, s);
-    var g = ctx.createLinearGradient(0, 0, s, s);
-    g.addColorStop(0, from); g.addColorStop(1, to);
-    ctx.fillStyle = g;
+    var cf = hexToRgb(from);
+    ctx.fillStyle = 'rgba(' + cf.r + ',' + cf.g + ',' + cf.b + ',0.13)';
     ctx.beginPath(); ctx.arc(s/2, s/2, s/2, 0, Math.PI*2); ctx.fill();
     ctx.save();
     ctx.beginPath(); ctx.arc(s/2, s/2, s/2, 0, Math.PI*2); ctx.clip();
-    ctx.fillStyle = 'rgba(255,255,255,0.88)';
-    ctx.beginPath(); ctx.arc(s/2, s*0.37, s*0.19, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(s/2, s*0.82, s*0.31, s*0.24, 0, 0, Math.PI); ctx.fill();
+    var g = ctx.createLinearGradient(0, 0, s, s);
+    g.addColorStop(0, from); g.addColorStop(1, to);
+    ctx.fillStyle = g;
+    /* head */
+    ctx.beginPath(); ctx.arc(s/2, s*0.32, s*0.20, 0, Math.PI*2); ctx.fill();
+    /* body dome */
+    ctx.beginPath();
+    ctx.arc(s/2, s*0.90, s*0.40, Math.PI, 0);
+    ctx.lineTo(s/2 + s*0.40, s + 4);
+    ctx.lineTo(s/2 - s*0.40, s + 4);
+    ctx.closePath(); ctx.fill();
     ctx.restore();
   }
 
@@ -91,22 +148,22 @@
 
   /* ── Patterns ── */
   var PATTERNS = [
-    { name:'dots-blue',   fn: drawDots('#EFF6FF','#1B5EC7') },
-    { name:'dots-teal',   fn: drawDots('#F0FDF4','#10B981') },
-    { name:'dots-purple', fn: drawDots('#F5F3FF','#8B5CF6') },
-    { name:'dots-rose',   fn: drawDots('#FFF1F2','#F43F5E') },
-    { name:'stripe-blue',   fn: drawStripes('#EFF6FF','#1B5EC7') },
-    { name:'stripe-ink',    fn: drawStripes('#F8FAFC','#0A1628') },
-    { name:'stripe-green',  fn: drawStripes('#F0FDF4','#059669') },
-    { name:'stripe-amber',  fn: drawStripes('#FFFBEB','#F59E0B') },
-    { name:'grid-blue',   fn: drawGrid('#EFF6FF','#BFDBFE') },
-    { name:'grid-slate',  fn: drawGrid('#F8FAFC','#CBD5E1') },
-    { name:'grid-purple', fn: drawGrid('#F5F3FF','#DDD6FE') },
-    { name:'grid-rose',   fn: drawGrid('#FFF1F2','#FECDD3') },
-    { name:'wave-ocean',  fn: drawWave('#0EA5E9','#1B5EC7') },
-    { name:'wave-sunset', fn: drawWave('#F59E0B','#EF4444') },
-    { name:'wave-forest', fn: drawWave('#10B981','#059669') },
-    { name:'wave-galaxy', fn: drawWave('#6366F1','#8B5CF6') },
+    { name:'dots-blue',   colors:['#EFF6FF','#1B5EC7'], fn: drawDots('#EFF6FF','#1B5EC7') },
+    { name:'dots-teal',   colors:['#F0FDF4','#10B981'], fn: drawDots('#F0FDF4','#10B981') },
+    { name:'dots-purple', colors:['#F5F3FF','#8B5CF6'], fn: drawDots('#F5F3FF','#8B5CF6') },
+    { name:'dots-rose',   colors:['#FFF1F2','#F43F5E'], fn: drawDots('#FFF1F2','#F43F5E') },
+    { name:'stripe-blue',   colors:['#EFF6FF','#1B5EC7'], fn: drawStripes('#EFF6FF','#1B5EC7') },
+    { name:'stripe-ink',    colors:['#F8FAFC','#0A1628'], fn: drawStripes('#F8FAFC','#0A1628') },
+    { name:'stripe-green',  colors:['#F0FDF4','#059669'], fn: drawStripes('#F0FDF4','#059669') },
+    { name:'stripe-amber',  colors:['#FFFBEB','#F59E0B'], fn: drawStripes('#FFFBEB','#F59E0B') },
+    { name:'grid-blue',   colors:['#EFF6FF','#BFDBFE'], fn: drawGrid('#EFF6FF','#BFDBFE') },
+    { name:'grid-slate',  colors:['#F8FAFC','#CBD5E1'], fn: drawGrid('#F8FAFC','#CBD5E1') },
+    { name:'grid-purple', colors:['#F5F3FF','#DDD6FE'], fn: drawGrid('#F5F3FF','#DDD6FE') },
+    { name:'grid-rose',   colors:['#FFF1F2','#FECDD3'], fn: drawGrid('#FFF1F2','#FECDD3') },
+    { name:'wave-ocean',  colors:['#0EA5E9','#1B5EC7'], fn: drawWave('#0EA5E9','#1B5EC7') },
+    { name:'wave-sunset', colors:['#F59E0B','#EF4444'], fn: drawWave('#F59E0B','#EF4444') },
+    { name:'wave-forest', colors:['#10B981','#059669'], fn: drawWave('#10B981','#059669') },
+    { name:'wave-galaxy', colors:['#6366F1','#8B5CF6'], fn: drawWave('#6366F1','#8B5CF6') },
   ];
 
   function drawDots(bg, fg) {
@@ -121,10 +178,10 @@
           ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
         }
       }
-      // silhouette overlay
       ctx.fillStyle = 'rgba(0,0,0,0.18)';
-      ctx.beginPath(); ctx.arc(s/2, s*0.37, s*0.19, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(s/2, s*0.82, s*0.31, s*0.24, 0, 0, Math.PI); ctx.fill();
+      ctx.beginPath(); ctx.arc(s/2, s*0.32, s*0.20, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(s/2, s*0.90, s*0.40, Math.PI, 0);
+      ctx.lineTo(s/2+s*0.40,s+4); ctx.lineTo(s/2-s*0.40,s+4); ctx.closePath(); ctx.fill();
     };
   }
 
@@ -140,8 +197,9 @@
       }
       ctx.globalAlpha = 1;
       ctx.fillStyle = 'rgba(0,0,0,0.18)';
-      ctx.beginPath(); ctx.arc(s/2, s*0.37, s*0.19, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(s/2, s*0.82, s*0.31, s*0.24, 0, 0, Math.PI); ctx.fill();
+      ctx.beginPath(); ctx.arc(s/2, s*0.32, s*0.20, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(s/2, s*0.90, s*0.40, Math.PI, 0);
+      ctx.lineTo(s/2+s*0.40,s+4); ctx.lineTo(s/2-s*0.40,s+4); ctx.closePath(); ctx.fill();
     };
   }
 
@@ -156,8 +214,9 @@
       for (var y = 0; y < s; y += sp) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(s,y); ctx.stroke(); }
       ctx.globalAlpha = 1;
       ctx.fillStyle = 'rgba(0,0,0,0.18)';
-      ctx.beginPath(); ctx.arc(s/2, s*0.37, s*0.19, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(s/2, s*0.82, s*0.31, s*0.24, 0, 0, Math.PI); ctx.fill();
+      ctx.beginPath(); ctx.arc(s/2, s*0.32, s*0.20, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(s/2, s*0.90, s*0.40, Math.PI, 0);
+      ctx.lineTo(s/2+s*0.40,s+4); ctx.lineTo(s/2-s*0.40,s+4); ctx.closePath(); ctx.fill();
     };
   }
 
@@ -176,8 +235,9 @@
         ctx.stroke();
       }
       ctx.fillStyle = 'rgba(255,255,255,0.85)';
-      ctx.beginPath(); ctx.arc(s/2, s*0.37, s*0.19, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(s/2, s*0.82, s*0.31, s*0.24, 0, 0, Math.PI); ctx.fill();
+      ctx.beginPath(); ctx.arc(s/2, s*0.32, s*0.20, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(s/2, s*0.90, s*0.40, Math.PI, 0);
+      ctx.lineTo(s/2+s*0.40,s+4); ctx.lineTo(s/2-s*0.40,s+4); ctx.closePath(); ctx.fill();
     };
   }
 
@@ -198,6 +258,14 @@
         fileInput.dispatchEvent(new Event('change', { bubbles: true }));
       } catch (e) {}
     }, 'image/png');
+  }
+
+  /* ── Update hero/sidebar background to match chosen avatar ── */
+  function setHeroBg(panel, bg) {
+    var hero = panel.closest('.ep-sidebar-hero') || document.getElementById('ep-sidebar-hero');
+    if (hero) hero.style.background = bg;
+    var inp = document.getElementById('ep-cover-style');
+    if (inp) inp.value = bg;
   }
 
   /* ── Build tabs UI ── */
@@ -254,17 +322,19 @@
     grid.className = 'oc-picker-grid';
 
     PALETTE.forEach(function (color) {
-      var cvs = document.createElement('canvas');
-      cvs.width = cvs.height = 56;
-      drawPerson(cvs.getContext('2d'), 56, color);
+      var cc = crispCanvas(64);
+      drawPerson(cc.ctx, 64, color);
       var item = document.createElement('div');
       item.className = 'oc-picker-item';
-      item.appendChild(cvs);
+      item.appendChild(cc.cvs);
       item.addEventListener('click', function () {
         var big = document.createElement('canvas');
         big.width = big.height = 300;
         drawPerson(big.getContext('2d'), 300, color);
         applyToInput(big, fileInput, previewEl, 'avatar.png');
+        var c = hexToRgb(color);
+        setHeroBg(pane.closest('.oc-picker-panel'),
+          'linear-gradient(135deg,rgba('+c.r+','+c.g+','+c.b+',0.18) 0%,rgba('+c.r+','+c.g+','+c.b+',0.38) 100%)');
         pane.querySelectorAll('.oc-picker-item').forEach(function(el){ el.classList.remove('oc-picker-item--selected'); });
         item.classList.add('oc-picker-item--selected');
         setTimeout(function () { pane.closest('.oc-picker-panel').style.display = 'none'; }, 340);
@@ -284,17 +354,12 @@
     grid.className = isCover ? 'oc-picker-grid oc-picker-grid--cover' : 'oc-picker-grid';
 
     GRADIENTS.forEach(function (pair) {
-      var cvs = document.createElement('canvas');
-      if (isCover) {
-        cvs.width = 100; cvs.height = 46;
-        drawCoverGradient(cvs.getContext('2d'), 100, 46, pair[0], pair[1]);
-      } else {
-        cvs.width = cvs.height = 56;
-        drawGradientCircle(cvs.getContext('2d'), 56, pair[0], pair[1]);
-      }
+      var cc = isCover ? crispCanvas(88, 40) : crispCanvas(64);
+      if (isCover) drawCoverGradient(cc.ctx, 88, 40, pair[0], pair[1]);
+      else         drawGradientCircle(cc.ctx, 64, pair[0], pair[1]);
       var item = document.createElement('div');
       item.className = 'oc-picker-item';
-      item.appendChild(cvs);
+      item.appendChild(cc.cvs);
       item.addEventListener('click', function () {
         var big = document.createElement('canvas');
         if (isCover) {
@@ -305,6 +370,8 @@
           drawGradientCircle(big.getContext('2d'), 300, pair[0], pair[1]);
         }
         applyToInput(big, fileInput, previewEl, 'gradient_avatar.png');
+        if (!isCover) setHeroBg(pane.closest('.oc-picker-panel'),
+          'linear-gradient(135deg,'+pair[0]+' 0%,'+pair[1]+' 100%)');
         pane.querySelectorAll('.oc-picker-item').forEach(function(el){ el.classList.remove('oc-picker-item--selected'); });
         item.classList.add('oc-picker-item--selected');
         setTimeout(function () { pane.closest('.oc-picker-panel').style.display = 'none'; }, 340);
@@ -323,17 +390,18 @@
     grid.className = 'oc-picker-grid';
 
     PATTERNS.forEach(function (pat) {
-      var cvs = document.createElement('canvas');
-      cvs.width = cvs.height = 56;
-      pat.fn(cvs.getContext('2d'), 56);
+      var cc = crispCanvas(64);
+      pat.fn(cc.ctx, 64);
       var item = document.createElement('div');
       item.className = 'oc-picker-item';
-      item.appendChild(cvs);
+      item.appendChild(cc.cvs);
       item.addEventListener('click', function () {
         var big = document.createElement('canvas');
         big.width = big.height = 300;
         pat.fn(big.getContext('2d'), 300);
         applyToInput(big, fileInput, previewEl, 'pattern_avatar.png');
+        setHeroBg(pane.closest('.oc-picker-panel'),
+          'linear-gradient(135deg,'+pat.colors[0]+' 0%,'+pat.colors[1]+' 100%)');
         pane.querySelectorAll('.oc-picker-item').forEach(function(el){ el.classList.remove('oc-picker-item--selected'); });
         item.classList.add('oc-picker-item--selected');
         setTimeout(function () { pane.closest('.oc-picker-panel').style.display = 'none'; }, 340);

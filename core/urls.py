@@ -46,6 +46,9 @@ urlpatterns = _html_redirects + [
     path('edit-profile/', views.edit_profile, name='edit_profile'),
     path('admin/contact-submissions/', views.contact_submissions, name='contact_submissions'),
     path('admin/contact-submissions/<int:sub_id>/reply/', views.reply_contact_submission, name='reply_contact_submission'),
+    path('admin/login-as-odu/', views.login_as_odu, name='login_as_odu'),
+    path('admin/return-from-odu/', views.return_from_odu, name='return_from_odu'),
+    path('admin/trigger-odu-post/', views.trigger_odu_post, name='trigger_odu_post'),
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path('app/', views.app_view, name='app'),
@@ -351,10 +354,6 @@ urlpatterns = _html_redirects + [
     path('posts/<int:post_id>/conversation/', views.start_post_conversation, name='start_post_conversation'),
     path('posts/<int:post_id>/comment/', views.add_comment, name='add_comment'),
     path('polls/<int:poll_id>/vote/', views.poll_vote, name='poll_vote'),
-
-    # Admin impersonation
-    path('admin/login-as-odu/', views.login_as_odu, name='login_as_odu'),
-    path('admin/return-from-odu/', views.return_from_odu, name='return_from_odu'),
 
     # Project actions
     path('projects/<int:project_id>/collaborate/', views.project_collaborate, name='project_collaborate'),

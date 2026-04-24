@@ -156,6 +156,9 @@ class UserProfile(models.Model):
     geography_focus   = models.CharField(max_length=255, blank=True, default='', help_text='Geographic markets of interest')
     investment_thesis = models.TextField(blank=True, default='', help_text='Brief investment thesis or mandate')
 
+    # ── Cover / banner style ─────────────────────────────────────────────
+    cover_style = models.CharField(max_length=300, blank=True, default='', help_text='CSS background value for profile banner')
+
     def disconnect_from_user(self, user_to_disconnect):
         self.connected_users.remove(user_to_disconnect)
 

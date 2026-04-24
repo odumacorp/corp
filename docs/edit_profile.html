@@ -133,7 +133,7 @@
 
 .ep-section {
   background: #fff; border: 1px solid var(--border);
-  border-radius: 16px; overflow: hidden;
+  border-radius: 16px;
   box-shadow: 0 2px 10px rgba(0,0,0,.04);
 }
 .ep-section-head {
@@ -245,11 +245,12 @@
 
   <form method="POST" enctype="multipart/form-data" id="ep-form">
     {% csrf_token %}
+    <input type="hidden" name="cover_style" id="ep-cover-style" value="{{ up.cover_style }}">
     <div class="ep-layout">
 
       <!-- ── Sidebar ── -->
       <div class="ep-sidebar">
-        <div class="ep-sidebar-hero">
+        <div class="ep-sidebar-hero" id="ep-sidebar-hero"{% if up.cover_style %} style="background:{{ up.cover_style }}"{% endif %}>
 
           <!-- Avatar -->
           {% avatar_url up as av_url %}

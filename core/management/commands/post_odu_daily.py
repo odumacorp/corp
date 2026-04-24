@@ -29,125 +29,160 @@ INDUSTRIES = [
     'energy', 'manufacturing', 'retail', 'media', 'logistics',
 ]
 
-SYSTEM_PROMPT = """You are Odu — the AI voice of Oduma Corp, a platform connecting African innovators and investors.
-Your posts are authoritative, warm, and practical. You speak to founders, investors, and builders across Africa.
-Tone: direct, insightful, never corporate-speak. No emojis. No hashtag spam (max 2 relevant ones at the end).
-Always write in full sentences. First-person plural ("we") or second-person ("you") where natural.
+SYSTEM_PROMPT = """You are Odu — the strategic voice of Oduma Corp, a platform connecting African innovators with investors.
 
-IMPORTANT: Every response must include an "image_query" field — 3-5 comma-separated English keywords
-that describe a relevant, professional stock photo for this post. Think visually: what scene or object
-best illustrates the topic? Examples: "African startup team meeting", "mobile payment Kenya",
-"solar panel installation Africa", "dartboard bullseye focus", "laptop open office team"."""
+You combine the mindset and communication styles of top entrepreneurial thinkers: disciplined like a builder, visionary like a founder, and pragmatic like an investor. You speak directly to innovators who are building ideas and seeking investment across Africa.
+
+Your posts must go beyond inspiration and push toward execution, clarity, and strategic thinking. Every post must feel like advice from someone who has built and funded companies — confident, sharp, and grounded in reality.
+
+Core focus areas: entrepreneurship, idea validation, risk-taking, resilience, and investor readiness.
+
+Tone rules:
+- Confident and direct. No fluff, no corporate-speak.
+- No emojis. Max 2 relevant hashtags at the end.
+- Avoid clichés like "never give up" unless reframed with depth.
+- Second-person ("you") or first-person plural ("we") where natural.
+- Full sentences throughout.
+
+Every post must follow this structure internally (Motivation → Insight → Action) even when formatted as a continuous piece.
+
+IMPORTANT: Every response must include an "image_query" field — 3-5 comma-separated English keywords describing a relevant professional stock photo. Think visually: "African founder pitching investors", "startup whiteboard strategy session", "entrepreneur laptop café Nairobi", "product launch team Africa"."""
 
 
 def _build_prompt(post_type, industry):
     today = timezone.now().strftime('%A %d %B %Y')
     context = f"Today is {today}. Industry focus: {industry}. Post type: {post_type}."
     image_field = '"image_query": "3-5 keywords describing a relevant professional stock photo"'
+    hashtag_rule = (
+        f'"hashtags": "exactly 2 hashtags with # prefix, relevant to {industry} and the post — '
+        f'e.g. \\"#StartupAfrica #Fintech\\" — always include the # symbol"'
+    )
+    structure_note = (
+        "Structure the content with these three clearly labelled sections:\n"
+        "Motivation: a powerful, original opening statement (NOT a cliché).\n"
+        "Insight: 2-4 sentences connecting to building ideas, attracting investors, or execution/validation.\n"
+        "Action: one clear, immediately actionable next step the innovator can take today."
+    )
 
     if post_type == 'tip':
         return f"""{context}
 
-Write a practical, specific tip for African startup founders or investors. It must be immediately actionable.
+Write a high-impact tip for innovators in the {industry} sector who are building ideas and seeking investment.
+
+{structure_note}
 
 Return JSON only:
 {{
-  "title": "short tip headline (max 12 words)",
-  "content": "the tip (150-250 words, 3-4 short paragraphs, ends with a clear action step)",
-  "hashtags": "2 relevant hashtags",
+  "title": "sharp tip headline (max 12 words, not a cliché)",
+  "content": "Motivation: ...\\n\\nInsight: ...\\n\\nAction: ...",
+  {hashtag_rule},
   {image_field}
 }}"""
 
     if post_type == 'question':
         return f"""{context}
 
-Write a thought-provoking open question for the Oduma Corp community. Invite genuine reflection from founders and investors.
+Write a thought-provoking question that challenges innovators in {industry} to think strategically about building or investor readiness.
+
+{structure_note}
 
 Return JSON only:
 {{
-  "title": "the question as a title (max 15 words)",
-  "content": "2-3 sentences of context that set up the question and invite responses (80-120 words)",
-  "hashtags": "2 relevant hashtags",
+  "title": "the question as a punchy title (max 15 words)",
+  "content": "Motivation: bold framing statement.\\n\\nInsight: 2-3 sentences of context connecting to execution or investor readiness.\\n\\nAction: invite the community to answer with a specific angle.",
+  {hashtag_rule},
   {image_field}
 }}"""
 
     if post_type == 'opinion':
         return f"""{context}
 
-Write a bold, slightly contrarian opinion about startups, investing, or building in Africa. End with "Agree or disagree? Tell us below."
+Write a bold, slightly contrarian opinion about building startups or raising investment in {industry} across Africa.
+
+{structure_note}
 
 Return JSON only:
 {{
-  "title": "punchy opinion headline (max 12 words)",
-  "content": "the opinion piece (180-250 words, 3-4 paragraphs)",
-  "hashtags": "2 relevant hashtags",
+  "title": "punchy contrarian headline (max 12 words)",
+  "content": "Motivation: the bold claim.\\n\\nInsight: 2-4 sentences defending the position with strategic depth.\\n\\nAction: specific thing the reader should do or reconsider. End with: Agree or disagree? Tell us below.",
+  {hashtag_rule},
   {image_field}
 }}"""
 
     if post_type == 'resource':
         return f"""{context}
 
-Share 3-5 genuinely useful free resources (tools, platforms, frameworks) for African founders or investors in {industry}. Include name and one-line description.
+Share 3-5 genuinely useful resources (tools, frameworks, or approaches) for founders in {industry} building investor-ready startups.
+
+{structure_note}
 
 Return JSON only:
 {{
   "title": "resource list headline (max 12 words)",
-  "content": "intro sentence, the list, closing sentence (150-200 words total)",
-  "hashtags": "2 relevant hashtags",
+  "content": "Motivation: one sharp opening line on why these matter.\\n\\nInsight: the list with brief context for each resource.\\n\\nAction: pick one and apply it this week.",
+  {hashtag_rule},
   {image_field}
 }}"""
 
     if post_type == 'article':
         return f"""{context}
 
-Write a short, high-value how-to or explainer article for the {industry} sector.
+Write a sharp, high-value article for innovators in {industry} — covering execution, validation, or investor readiness.
+
+{structure_note}
 
 Return JSON only:
 {{
   "title": "article headline (max 12 words)",
-  "content": "the article (250-320 words, numbered or clear paragraph structure)",
-  "hashtags": "2 relevant hashtags",
+  "content": "Motivation: powerful opening.\\n\\nInsight: the core argument or how-to (200-280 words, clear paragraph structure).\\n\\nAction: one concrete next step.",
+  {hashtag_rule},
   {image_field}
 }}"""
 
     if post_type == 'poll':
         return f"""{context}
 
-Create a compelling poll for African founders and investors about the {industry} sector. Options must be genuinely distinct.
+Create a poll that forces innovators in {industry} to make a strategic choice about building or funding.
+
+{structure_note}
 
 Return JSON only:
 {{
   "title": "poll headline (max 12 words)",
-  "content": "1-2 sentences inviting people to vote and comment (40-60 words)",
-  "poll_question": "the poll question (max 20 words)",
+  "content": "Motivation: sharp framing of the dilemma.\\n\\nInsight: 1-2 sentences on why this choice matters for execution or investor readiness.\\n\\nAction: vote and share your reasoning below.",
+  "poll_question": "the decisive poll question (max 20 words)",
   "poll_options": ["option 1", "option 2", "option 3", "option 4"],
-  "hashtags": "2 relevant hashtags",
+  {hashtag_rule},
   {image_field}
 }}"""
 
     if post_type == 'milestone':
         return f"""{context}
 
-Write a brief platform or community milestone post celebrating growth or achievement.
+Write a milestone post for the Oduma Corp community that connects platform growth to the mission of empowering African innovators.
+
+{structure_note}
 
 Return JSON only:
 {{
   "title": "milestone headline (max 12 words)",
-  "content": "the milestone post (100-150 words)",
-  "hashtags": "2 relevant hashtags",
+  "content": "Motivation: powerful statement about what the milestone means.\\n\\nInsight: 2-3 sentences on what it signals for innovators and investors on the platform.\\n\\nAction: one thing community members can do to build on this momentum.",
+  {hashtag_rule},
   {image_field}
 }}"""
 
     if post_type == 'announcement':
         return f"""{context}
 
-Write a short platform announcement about an upcoming feature, event, or improvement for the {industry} community.
+Write a platform announcement for the {industry} community that connects the update to helping innovators build or attract investment.
+
+{structure_note}
 
 Return JSON only:
 {{
   "title": "announcement headline (max 12 words)",
-  "content": "the announcement (100-150 words)",
-  "hashtags": "2 relevant hashtags",
+  "content": "Motivation: why this update matters to innovators.\\n\\nInsight: what it enables — for building, validation, or investor readiness.\\n\\nAction: what to do with it right now.",
+  {hashtag_rule},
   {image_field}
 }}"""
 
@@ -257,11 +292,16 @@ class Command(BaseCommand):
 
                 title       = data.get('title', '').strip()[:255]
                 content     = data.get('content', '').strip()
-                tags        = data.get('hashtags', '').strip()
+                raw_tags    = data.get('hashtags', '').strip()
                 image_query = data.get('image_query', '').strip()
 
-                if tags:
+                # Ensure every tag token starts with #
+                if raw_tags:
+                    tokens = raw_tags.split()
+                    tags = ' '.join(t if t.startswith('#') else '#' + t for t in tokens)
                     content = content.rstrip() + '\n\n' + tags
+                else:
+                    tags = ''
 
                 if not content:
                     self.stderr.write(f'Empty content for {post_type}, skipping.')
