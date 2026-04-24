@@ -142,6 +142,10 @@ class UserProfile(models.Model):
         null=True, blank=True, related_name='verifications_granted'
     )
 
+    # ── Gender ───────────────────────────────────────────────────────────
+    GENDER_CHOICES = [('', 'Prefer not to say'), ('male', 'Male'), ('female', 'Female'), ('other', 'Other')]
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, default='')
+
     # ── Location ─────────────────────────────────────────────────────────
     location = models.CharField(max_length=150, blank=True, default='', help_text='City and/or country (e.g. Nairobi, Kenya)')
 

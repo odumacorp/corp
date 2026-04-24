@@ -1,5 +1,5 @@
 {% extends "_partials/base.html" %}
-{% load static %}
+{% load static dict_extras %}
 
 {% block title %}Edit Profile — Oduma Corp{% endblock %}
 
@@ -314,7 +314,7 @@
       <div class="ep-avatar-card">
         <div class="ep-avatar-wrap" onclick="document.getElementById('ep-pic-input').click()">
           <img id="ep-avatar-preview"
-               src="{% if up.profile_pics %}{{ up.profile_pics.url }}{% else %}{% static 'images/usericon.png' %}{% endif %}"
+               {% avatar_url up as av_url %}src="{{ av_url }}"
                class="ep-avatar-img" alt="Profile picture">
           <div class="ep-avatar-overlay">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -328,27 +328,25 @@
 
         <div class="ep-avatar-name">{{ request.user.get_full_name|default:request.user.username }}</div>
         <div class="ep-avatar-role">{{ request.user.user_type|capfirst }}{% if up.industry %} · {{ up.get_industry_display }}{% endif %}</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px;" data-picker-wrap>
-          <label for="ep-pic-input" class="oc-pick-btn" style="margin:0;">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+
+        <div class="oc-av-actions" data-picker-wrap>
+          <label for="ep-pic-input" class="oc-av-btn oc-av-btn--primary">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
             Upload photo
           </label>
-          <button type="button" class="oc-pick-btn" style="margin:0;"
+          <button type="button" class="oc-av-btn oc-av-btn--secondary"
                   onclick="ocPicker.open({inputId:'ep-pic-input',previewId:'ep-avatar-preview',type:'person',containerId:'up-pic-picker'})">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
             Choose avatar
           </button>
-        </div>
-        {% if up.profile_pics %}
-        <form method="post" action="{% url 'remove_profile_photo' %}" style="margin:10px 0 0;" onsubmit="return confirm('Remove your profile photo?');">
-          {% csrf_token %}
-          <button type="submit" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:10px;border:1px solid #fecaca;background:#fff5f5;color:#ef4444;font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;cursor:pointer;transition:background .15s;" onmouseenter="this.style.background='#fee2e2'" onmouseleave="this.style.background='#fff5f5'">
+          {% if up.profile_pics %}
+          <button type="button" class="oc-av-btn oc-av-btn--danger" onclick="epOpenDeleteModal()">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-            Delete profile photo
+            Remove photo
           </button>
-        </form>
-        {% endif %}
-        <div id="up-pic-picker" class="oc-picker-panel" style="display:none;margin-top:10px;"></div>
+          {% endif %}
+          <div id="up-pic-picker" class="oc-picker-panel"></div>
+        </div>
 
         <!-- Profile completion bar -->
         {% with pc=profile_completion|default:0 %}
@@ -408,13 +406,22 @@
               </div>
             </div>
 
-            <div class="ep-field-row ep-field-row--full">
+            <div class="ep-field-row">
               <div class="ep-field">
                 <label class="ep-label" for="id_username">Username</label>
                 <input type="text" name="username" id="id_username" class="ep-input"
                        value="{{ form.username.value|default:request.user.username }}"
                        placeholder="username">
                 <span class="ep-hint">Your public handle on the platform.</span>
+              </div>
+              <div class="ep-field">
+                <label class="ep-label" for="id_gender">Gender</label>
+                <select name="gender" id="id_gender" class="ep-input">
+                  <option value="" {% if not up.gender %}selected{% endif %}>Prefer not to say</option>
+                  <option value="male"   {% if up.gender == 'male' %}selected{% endif %}>Male</option>
+                  <option value="female" {% if up.gender == 'female' %}selected{% endif %}>Female</option>
+                  <option value="other"  {% if up.gender == 'other' %}selected{% endif %}>Other</option>
+                </select>
               </div>
             </div>
 
@@ -495,6 +502,55 @@
   </form>
 
 </div>
+
+{% if up.profile_pics %}
+<!-- Delete photo modal — lives OUTSIDE the main form so the nested form is valid HTML -->
+<div id="ep-delete-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(10,22,40,0.52);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:20px;padding:32px 28px 26px;max-width:380px;width:100%;box-shadow:0 28px 64px rgba(10,22,40,0.22);text-align:center;animation:ep-modal-in .18s ease;">
+    <div style="width:60px;height:60px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;">
+      <svg width="26" height="26" fill="none" stroke="#ef4444" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    </div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:1.35rem;font-weight:700;color:#0A1628;margin-bottom:8px;">Remove profile photo?</div>
+    <div style="font-size:1.15rem;color:#6b7280;margin-bottom:26px;line-height:1.55;">This will permanently delete your photo. Your profile will use the default avatar until you upload a new one.</div>
+    <div style="display:flex;gap:10px;">
+      <button type="button" onclick="epCloseDeleteModal()"
+              style="flex:1;padding:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:600;color:#374151;cursor:pointer;transition:background .15s;"
+              onmouseenter="this.style.background='#f9fafb'" onmouseleave="this.style.background='#fff'">
+        Cancel
+      </button>
+      <form method="post" action="{% url 'remove_profile_photo' %}" style="flex:1;margin:0;">
+        {% csrf_token %}
+        <button type="submit"
+                style="width:100%;padding:12px;border-radius:10px;border:none;background:#ef4444;font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;color:#fff;cursor:pointer;transition:background .15s;"
+                onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'">
+          Remove
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes ep-modal-in {
+  from { opacity:0; transform:scale(.95) translateY(8px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+</style>
+<script>
+function epOpenDeleteModal() {
+  var m = document.getElementById('ep-delete-modal');
+  m.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function epCloseDeleteModal() {
+  var m = document.getElementById('ep-delete-modal');
+  m.style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.getElementById('ep-delete-modal').addEventListener('click', function(e) {
+  if (e.target === this) epCloseDeleteModal();
+});
+</script>
+{% endif %}
 
 <script>
 function epPreviewAvatar(input) {

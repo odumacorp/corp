@@ -1,21 +1,51 @@
 {
   "name": "Oduma Corp",
-  "short_name": "Oduma Corp",
+  "short_name": "Oduma",
   "description": "Connecting Africa's boldest innovators with the investors who believe in their vision.",
   "start_url": "/app/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#004AAD",
-  "theme_color": "#004AAD",
+  "orientation": "any",
+  "background_color": "#1B5EC7",
+  "theme_color": "#1B5EC7",
+  "categories": ["social", "business", "finance"],
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/static/images/OdumaCorp-icon-small.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/static/images/OdumaCorp-icon-small.png",
+      "src": "/static/images/OdumaCorp-icon.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Feed",
+      "short_name": "Feed",
+      "description": "View your innovation feed",
+      "url": "/feed/",
+      "icons": [{ "src": "/static/images/OdumaCorp-icon-small.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Projects",
+      "short_name": "Projects",
+      "description": "Browse projects",
+      "url": "/projects/",
+      "icons": [{ "src": "/static/images/OdumaCorp-icon-small.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Messages",
+      "short_name": "Messages",
+      "description": "Open your inbox",
+      "url": "/inbox/",
+      "icons": [{ "src": "/static/images/OdumaCorp-icon-small.png", "sizes": "96x96" }]
     }
   ]
 }

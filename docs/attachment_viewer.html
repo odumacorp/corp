@@ -5,259 +5,184 @@
 
 {% block content %}
 <style>
-  body { padding-top: 0 !important; }
+  body { padding-top: 0 !important; overflow: hidden; }
+  .oc-navbar, .oc-bottom-nav, .oc-back-btn, .oc-dock-tab,
+  #oc-dock-tab, #dock-tab, .oc-feedback-btn, #oc-feedback-btn,
+  #odu-fab { display: none !important; }
+
+  :root {
+    --av-bg:      #08080d;
+    --av-surface: rgba(255,255,255,0.06);
+    --av-border:  rgba(255,255,255,0.09);
+    --av-text:    #e2e8f0;
+    --av-muted:   rgba(226,232,240,0.45);
+    --av-blue:    #1B5EC7;
+    --av-bar-h:   54px;
+    --av-strip-h: 0px;
+  }
+
+  html, body { height: 100%; background: var(--av-bg); }
+
   .av-page {
-    min-height: 100vh;
-    background: #0d0f14;
-    display: flex;
-    flex-direction: column;
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    background: var(--av-bg);
+    z-index: 9999;
   }
 
   /* ── Top bar ── */
   .av-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
-    background: rgba(255,255,255,0.04);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 10;
     flex-shrink: 0;
+    height: var(--av-bar-h);
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 14px;
+    background: rgba(8,8,13,0.96);
+    border-bottom: 1px solid var(--av-border);
+    z-index: 10;
   }
   .av-back {
-    width: 34px; height: 34px;
-    border-radius: 9px;
+    width: 34px; height: 34px; flex-shrink: 0;
+    border-radius: 9px; border: 1px solid var(--av-border);
+    background: var(--av-surface);
     display: flex; align-items: center; justify-content: center;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #d1d5db;
-    text-decoration: none;
-    flex-shrink: 0;
-    transition: background .15s, color .15s;
+    color: var(--av-text); text-decoration: none;
+    transition: background .15s;
   }
-  .av-back:hover { background: rgba(255,255,255,0.14); color: #fff; }
+  .av-back:hover { background: rgba(255,255,255,0.13); color: #fff; }
 
+  .av-bar-mid { flex: 1; min-width: 0; }
   .av-bar-name {
-    flex: 1;
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #e2e8f0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
+    font-size: 1.25rem; font-weight: 600; color: var(--av-text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .av-bar-sub {
-    font-size: 1.1rem;
-    color: #6b7280;
-    font-weight: 400;
-  }
+  .av-bar-sub { font-size: 1.1rem; color: var(--av-muted); }
 
-  .av-bar-actions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-  }
+  .av-bar-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
   .av-icon-btn {
-    width: 34px; height: 34px;
-    border-radius: 9px;
+    width: 34px; height: 34px; border-radius: 9px;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #d1d5db;
-    cursor: pointer;
-    transition: background .15s, color .15s;
-    flex-shrink: 0;
+    background: var(--av-surface); border: 1px solid var(--av-border);
+    color: var(--av-text); cursor: pointer;
+    transition: background .15s;
   }
   .av-icon-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
   .av-dl-btn {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 7px 16px;
-    border-radius: 9px;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 9px;
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.2rem;
-    font-weight: 600;
-    background: #1B5EC7;
-    color: #fff;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    transition: background .15s;
-    flex-shrink: 0;
+    font-size: 1.2rem; font-weight: 600;
+    background: var(--av-blue); color: #fff;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: opacity .15s; flex-shrink: 0;
   }
-  .av-dl-btn:hover { background: #1451aa; }
+  .av-dl-btn:hover { opacity: .82; color: #fff; }
 
-  /* ── Main viewer area ── */
-  .av-main {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 28px 20px 36px;
+  /* ── Body: [arrow] [stage] [arrow] ── */
+  .av-body {
+    flex: 1; display: flex; align-items: stretch; overflow: hidden;
+    position: relative;
+  }
+
+  .av-side {
+    flex-shrink: 0; width: clamp(44px, 7vw, 80px);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 5; position: relative;
+  }
+  .av-side::before {
+    content: ''; position: absolute; inset: 0;
+    opacity: 0; transition: opacity .2s; pointer-events: none;
+  }
+  .av-side-left::before  { background: linear-gradient(to right, rgba(8,8,13,.6), transparent); }
+  .av-side-right::before { background: linear-gradient(to left,  rgba(8,8,13,.6), transparent); }
+  .av-side:hover::before { opacity: 1; }
+  .av-side.disabled { opacity: .18; cursor: default; pointer-events: none; }
+  .av-side-arrow {
+    width: 42px; height: 74px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.14);
+    color: #fff; font-size: 1.9rem; position: relative; z-index: 1;
+    transition: background .18s, transform .18s;
+  }
+  .av-side:hover .av-side-arrow { background: rgba(255,255,255,0.18); transform: scale(1.05); }
+  .av-side:active .av-side-arrow { transform: scale(0.96); }
+
+  /* ── Stage ── */
+  .av-stage {
+    flex: 1; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
   }
 
   /* Image */
-  .av-img-stage {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    max-width: 100%;
-  }
   .av-img-wrap {
-    position: relative;
-    overflow: hidden;
-    border-radius: 12px;
-    box-shadow: 0 24px 72px rgba(0,0,0,0.7);
-    max-width: 90vw;
-    max-height: calc(100vh - 200px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255,255,255,0.03);
+    max-width: 100%; max-height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px; overflow: hidden;
+    box-shadow: 0 16px 60px rgba(0,0,0,.65);
   }
   .av-img {
-    max-width: 100%;
-    max-height: calc(100vh - 200px);
-    display: block;
-    transition: transform .2s ease;
-    cursor: zoom-in;
-    transform-origin: center center;
+    max-width: 100%; max-height: calc(100vh - var(--av-bar-h) - var(--av-strip-h) - 16px);
+    display: block; cursor: zoom-in;
+    transition: transform .2s ease; transform-origin: center center;
+    border-radius: 8px;
   }
   .av-img.zoomed { cursor: zoom-out; }
 
-  /* Zoom controls */
-  .av-zoom-bar {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 50px;
-    padding: 4px 6px;
-  }
-  .av-zoom-btn {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-    border: none;
-    color: #d1d5db;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: background .15s;
-  }
-  .av-zoom-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
-  .av-zoom-label {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.1rem;
-    color: #9ca3af;
-    min-width: 40px;
-    text-align: center;
-  }
-  .av-zoom-reset {
-    padding: 0 10px;
-    height: 30px;
-    border-radius: 50px;
-    background: transparent;
-    border: none;
-    color: #6b7280;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: color .15s;
-    font-family: 'Space Grotesk', sans-serif;
-  }
-  .av-zoom-reset:hover { color: #d1d5db; }
-
   /* Video */
-  .av-video-stage {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    width: 100%;
-    max-width: 960px;
-  }
   .av-video {
-    width: 100%;
-    max-height: calc(100vh - 220px);
-    border-radius: 14px;
-    box-shadow: 0 24px 72px rgba(0,0,0,0.7);
-    background: #000;
+    max-width: 100%;
+    max-height: calc(100vh - var(--av-bar-h) - var(--av-strip-h) - 16px);
+    border-radius: 12px; background: #000;
+    box-shadow: 0 16px 60px rgba(0,0,0,.65);
     display: block;
   }
-  .av-vid-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .av-vid-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.1rem;
-    color: #9ca3af;
-  }
-  .av-vid-ctl-btn {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.1rem;
-    color: #9ca3af;
-    cursor: pointer;
-    transition: background .15s, color .15s;
-  }
-  .av-vid-ctl-btn:hover { background: rgba(255,255,255,0.12); color: #e2e8f0; }
 
-  /* Document */
-  .av-doc-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
-    padding: 52px 44px;
-    text-align: center;
-    max-width: 420px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
+  /* Zoom hint */
+  .av-hint {
+    position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    font-size: 1.1rem; color: rgba(255,255,255,.3);
+    pointer-events: none; transition: opacity .5s; white-space: nowrap;
+    background: rgba(0,0,0,.3); border-radius: 8px; padding: 3px 10px;
   }
-  .av-doc-icon-wrap {
-    width: 72px; height: 72px;
-    border-radius: 18px;
-    background: rgba(27,94,199,0.15);
-    border: 1px solid rgba(27,94,199,0.25);
+
+  /* ── Thumbnail strip ── */
+  .av-strip {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 14px max(8px, env(safe-area-inset-bottom, 0px));
+    background: rgba(8,8,13,0.96);
+    border-top: 1px solid var(--av-border);
+    overflow-x: auto; scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  .av-strip::-webkit-scrollbar { height: 3px; }
+  .av-strip::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 2px; }
+
+  .av-thumb {
+    flex-shrink: 0; width: 54px; height: 54px; border-radius: 8px;
+    overflow: hidden; cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color .15s, transform .15s;
+    background: var(--av-surface);
     display: flex; align-items: center; justify-content: center;
-    color: #4d8ef0;
-    margin-bottom: 20px;
   }
-  .av-doc-name {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #e2e8f0;
-    word-break: break-all;
-    margin-bottom: 6px;
-  }
-  .av-doc-meta {
-    font-size: 1.1rem;
-    color: #6b7280;
-    margin-bottom: 28px;
-  }
+  .av-thumb.active { border-color: var(--av-blue); transform: scale(1.08); }
+  .av-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .av-thumb-icon { font-size: 1.7rem; color: var(--av-muted); }
 
+  /* Hide strip/sides when only 1 item */
+  {% if total <= 1 %}
+  .av-strip, .av-side { display: none !important; }
+  {% endif %}
+
+  @media (max-width: 600px) {
+    .av-side { width: 34px; }
+    .av-side-arrow { width: 28px; height: 56px; font-size: 1.4rem; border-radius: 8px; }
+    .av-thumb { width: 46px; height: 46px; }
+    .av-strip { gap: 5px; padding: 7px 10px; }
+    .av-bar { padding: 0 10px; gap: 7px; }
+  }
 </style>
 
 <div class="av-page">
@@ -268,167 +193,207 @@
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
     </a>
 
-    <div>
-      <div class="av-bar-name">{{ att.filename|default:att.file.name }}</div>
-      {% if att.file_size %}<div class="av-bar-sub">{{ att.file_size|filesizeformat }}</div>{% endif %}
+    <div class="av-bar-mid">
+      <div class="av-bar-name" id="av-bar-name">{{ att.filename|default:"Media" }}</div>
+      <div class="av-bar-sub" id="av-bar-sub">
+        {% if total > 1 %}<span id="av-counter">{{ current_index|add:1 }} / {{ total }}</span>{% if att.file_size %} &middot; {% endif %}{% endif %}
+        {% if att.file_size %}<span id="av-size">{{ att.file_size|filesizeformat }}</span>{% endif %}
+      </div>
     </div>
 
     <div class="av-bar-actions">
-      {% if att.attachment_type == 'image' %}
-        <button class="av-icon-btn" onclick="avZoomReset()" title="Reset zoom">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/></svg>
-        </button>
-        <button class="av-icon-btn" onclick="avFullscreen()" title="Fullscreen">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
-        </button>
-      {% elif att.attachment_type == 'video' %}
-        <button class="av-icon-btn" onclick="avVidFullscreen()" title="Fullscreen">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
-        </button>
-      {% endif %}
-      <a href="{% url 'download_message_attachment' att.pk %}" class="av-dl-btn">
+      <button class="av-icon-btn" id="av-fs-btn" title="Fullscreen" onclick="avFullscreen()">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+      </button>
+      <a href="{% url 'download_message_attachment' att.pk %}" class="av-dl-btn" id="av-dl-btn">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-        Download
+        <span class="av-dl-text">Download</span>
       </a>
     </div>
   </div>
 
-  <!-- Viewer -->
-  <div class="av-main">
+  <!-- Body -->
+  <div class="av-body">
 
-    {% if att.attachment_type == 'image' %}
-      <div class="av-img-stage">
-        <div class="av-img-wrap" id="av-img-wrap">
-          <img src="{{ att.file_url }}" alt="{{ att.filename }}" class="av-img" id="av-img"
-               onclick="avToggleZoom()">
-        </div>
-        <div class="av-zoom-bar">
-          <button class="av-zoom-btn" onclick="avZoomOut()" title="Zoom out">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-          <span class="av-zoom-label" id="av-zoom-label">100%</span>
-          <button class="av-zoom-btn" onclick="avZoomIn()" title="Zoom in">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-          <button class="av-zoom-reset" onclick="avZoomReset()">Reset</button>
-        </div>
-      </div>
+    {% if total > 1 %}
+    <div class="av-side av-side-left {% if current_index == 0 %}disabled{% endif %}" id="av-prev" onclick="avGo(avIndex - 1)" role="button" aria-label="Previous">
+      <div class="av-side-arrow">&#8592;</div>
+    </div>
+    {% endif %}
 
-    {% elif att.attachment_type == 'video' %}
-      <div class="av-video-stage">
-        <video src="{{ att.file_url }}" class="av-video" controls autoplay id="av-video"></video>
-        <div class="av-vid-controls">
-          <div class="av-vid-badge" id="av-vid-time">0:00 / 0:00</div>
-          <button class="av-vid-ctl-btn" onclick="avVidMute()" id="av-mute-btn">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" id="av-mute-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
-            Mute
-          </button>
-        </div>
+    <div class="av-stage" id="av-stage">
+      <div id="av-media-wrap">
+        {% if att.attachment_type == 'image' %}
+          <div class="av-img-wrap" id="av-img-wrap">
+            <img src="{{ att.file_url }}" alt="{{ att.filename }}" class="av-img" id="av-img" onclick="avToggleZoom()">
+          </div>
+        {% elif att.attachment_type == 'video' %}
+          <video src="{{ att.file_url }}" class="av-video" controls autoplay playsinline id="av-video"></video>
+        {% endif %}
       </div>
+      <div class="av-hint" id="av-hint">Click to zoom &nbsp;·&nbsp; scroll to zoom &nbsp;·&nbsp; swipe to navigate</div>
+    </div>
 
-    {% else %}
-      {% with fname=att.filename|default:att.file.name %}
-      <div class="av-doc-card">
-        <div class="av-doc-icon-wrap">
-          {% if fname|lower|slice:"-3:" == "pdf" %}
-            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>
-          {% elif fname|lower|slice:"-3:" == "zip" or fname|lower|slice:"-3:" == "rar" %}
-            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-          {% else %}
-            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          {% endif %}
-        </div>
-        <div class="av-doc-name">{{ fname }}</div>
-        <div class="av-doc-meta">This file cannot be previewed in the browser.</div>
-        <a href="{% url 'download_message_attachment' att.pk %}" class="av-dl-btn">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-          Download file
-        </a>
-      </div>
-      {% endwith %}
+    {% if total > 1 %}
+    <div class="av-side av-side-right {% if current_index == total|add:'-1' %}disabled{% endif %}" id="av-next" onclick="avGo(avIndex + 1)" role="button" aria-label="Next">
+      <div class="av-side-arrow">&#8594;</div>
+    </div>
     {% endif %}
 
   </div>
 
+  <!-- Thumbnail strip -->
+  {% if total > 1 %}
+  <div class="av-strip" id="av-strip">
+    {% for item in gallery %}
+    <div class="av-thumb {% if forloop.counter0 == current_index %}active{% endif %}"
+         id="av-thumb-{{ forloop.counter0 }}"
+         onclick="avGo({{ forloop.counter0 }})"
+         title="{{ item.name }}">
+      {% if item.type == 'image' %}
+        <img src="{{ item.url }}" alt="" loading="lazy">
+      {% else %}
+        <span class="av-thumb-icon">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        </span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
 </div>
 
 <script>
-(function () {
-  var scale = 1;
-  var img   = document.getElementById('av-img');
-  var label = document.getElementById('av-zoom-label');
+var GALLERY  = {{ gallery_json|safe }};
+var avIndex  = {{ current_index }};
+var avTotal  = GALLERY.length;
 
-  function setScale(s) {
-    scale = Math.max(0.25, Math.min(4, s));
-    if (img) {
-      img.style.transform = 'scale(' + scale + ')';
-      img.style.cursor = scale > 1 ? 'zoom-out' : 'zoom-in';
-      label.textContent = Math.round(scale * 100) + '%';
-    }
-  }
+/* ── Navigate ── */
+function avGo(i) {
+  if (i < 0 || i >= avTotal) return;
 
-  window.avZoomIn    = function () { setScale(scale + 0.25); };
-  window.avZoomOut   = function () { setScale(scale - 0.25); };
-  window.avZoomReset = function () { setScale(1); };
-  window.avToggleZoom = function () { setScale(scale > 1 ? 1 : 2); };
-
-  if (img) {
-    img.addEventListener('wheel', function (e) {
-      e.preventDefault();
-      setScale(scale + (e.deltaY < 0 ? 0.12 : -0.12));
-    }, { passive: false });
-  }
-
-  window.avFullscreen = function () {
-    var el = document.getElementById('av-img-wrap');
-    if (!el) return;
-    document.fullscreenElement ? document.exitFullscreen() : el.requestFullscreen && el.requestFullscreen();
-  };
-
-  /* Video */
+  // Stop current media
   var vid = document.getElementById('av-video');
-  if (vid) {
-    function fmtTime(s) {
-      s = Math.floor(s || 0);
-      var m = Math.floor(s / 60); s = s % 60;
-      return m + ':' + (s < 10 ? '0' : '') + s;
-    }
-    function updateTime() {
-      var el = document.getElementById('av-vid-time');
-      if (el) el.textContent = fmtTime(vid.currentTime) + ' / ' + fmtTime(vid.duration);
-    }
-    vid.addEventListener('timeupdate', updateTime);
-    vid.addEventListener('loadedmetadata', updateTime);
+  if (vid) vid.pause();
+
+  avIndex = i;
+  var item = GALLERY[i];
+
+  // Swap media
+  var wrap = document.getElementById('av-media-wrap');
+  if (item.type === 'image') {
+    wrap.innerHTML = '<div class="av-img-wrap" id="av-img-wrap"><img src="' + item.url + '" alt="' + item.name + '" class="av-img" id="av-img" onclick="avToggleZoom()"></div>';
+    // Re-wire scroll zoom
+    var img = document.getElementById('av-img');
+    if (img) img.addEventListener('wheel', function(e) {
+      e.preventDefault(); avScale = Math.max(1, Math.min(4, avScale + (e.deltaY < 0 ? 0.15 : -0.15)));
+      avApply();
+    }, { passive: false });
+    document.getElementById('av-fs-btn').onclick = avFullscreen;
+    var hint = document.getElementById('av-hint');
+    if (hint) { hint.style.opacity = '1'; setTimeout(function(){ hint.style.opacity='0'; }, 3000); }
+  } else {
+    wrap.innerHTML = '<video src="' + item.url + '" class="av-video" controls autoplay playsinline id="av-video"></video>';
+    document.getElementById('av-fs-btn').onclick = avVidFullscreen;
   }
 
-  window.avVidMute = function () {
-    if (!vid) return;
-    vid.muted = !vid.muted;
-    var btn = document.getElementById('av-mute-btn');
-    if (btn) btn.lastChild.textContent = vid.muted ? ' Unmute' : ' Mute';
-    var icon = document.getElementById('av-mute-icon');
-    if (icon) icon.style.opacity = vid.muted ? '0.35' : '1';
-  };
+  avScale = 1;
 
-  window.avVidFullscreen = function () {
-    if (!vid) return;
-    document.fullscreenElement ? document.exitFullscreen() : vid.requestFullscreen && vid.requestFullscreen();
-  };
+  // Update topbar
+  document.getElementById('av-bar-name').textContent = item.name;
+  var counterEl = document.getElementById('av-counter');
+  if (counterEl) counterEl.textContent = (i + 1) + ' / ' + avTotal;
+  var sizeEl = document.getElementById('av-size');
+  if (sizeEl && item.size) sizeEl.textContent = avFmtSize(item.size);
 
-  /* Keyboard shortcuts */
-  document.addEventListener('keydown', function (e) {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-    if (e.key === '+' || e.key === '=') avZoomIn && avZoomIn();
-    if (e.key === '-') avZoomOut && avZoomOut();
-    if (e.key === '0') avZoomReset && avZoomReset();
-    if (e.key === 'f' || e.key === 'F') vid ? avVidFullscreen() : avFullscreen && avFullscreen();
-    if (e.key === ' ' && vid) { e.preventDefault(); vid.paused ? vid.play() : vid.pause(); }
-    if (e.key === 'ArrowRight' && vid) vid.currentTime = Math.min(vid.duration, vid.currentTime + 5);
-    if (e.key === 'ArrowLeft'  && vid) vid.currentTime = Math.max(0, vid.currentTime - 5);
-    if (e.key === 'm' || e.key === 'M') avVidMute && avVidMute();
-    if (e.key === 'Escape') document.fullscreenElement ? document.exitFullscreen() : history.back();
-  });
-}());
+  // Update download link
+  var dlEl = document.getElementById('av-dl-btn');
+  if (dlEl) dlEl.href = item.dl_url;
+
+  // Arrows
+  var prev = document.getElementById('av-prev');
+  var next = document.getElementById('av-next');
+  if (prev) prev.classList.toggle('disabled', i === 0);
+  if (next) next.classList.toggle('disabled', i === avTotal - 1);
+
+  // Thumbnails
+  document.querySelectorAll('.av-thumb').forEach(function(t){ t.classList.remove('active'); });
+  var th = document.getElementById('av-thumb-' + i);
+  if (th) { th.classList.add('active'); th.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }
+}
+
+function avFmtSize(bytes) {
+  if (!bytes) return '';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+/* ── Zoom ── */
+var avScale = 1;
+function avApply() {
+  var img = document.getElementById('av-img'); if (!img) return;
+  img.style.transform = 'scale(' + avScale + ')';
+  img.style.cursor = avScale > 1 ? 'zoom-out' : 'zoom-in';
+}
+window.avToggleZoom = function() {
+  avScale = avScale > 1 ? 1 : 2.2; avApply();
+  var h = document.getElementById('av-hint'); if (h) h.style.opacity = '0';
+};
+
+// Scroll-wheel zoom on initial image
+(function() {
+  var img = document.getElementById('av-img');
+  if (img) img.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    avScale = Math.max(1, Math.min(4, avScale + (e.deltaY < 0 ? 0.15 : -0.15)));
+    avApply();
+  }, { passive: false });
+})();
+
+/* ── Fullscreen ── */
+window.avFullscreen = function() {
+  var el = document.getElementById('av-img-wrap') || document.getElementById('av-img');
+  if (!el) return;
+  document.fullscreenElement ? document.exitFullscreen() : el.requestFullscreen && el.requestFullscreen();
+};
+window.avVidFullscreen = function() {
+  var v = document.getElementById('av-video'); if (!v) return;
+  document.fullscreenElement ? document.exitFullscreen() : v.requestFullscreen && v.requestFullscreen();
+};
+
+/* ── Swipe to navigate ── */
+var swX = null, swY = null;
+var stage = document.getElementById('av-stage');
+if (stage) {
+  stage.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 1 && avScale <= 1) { swX = e.touches[0].clientX; swY = e.touches[0].clientY; }
+  }, { passive: true });
+  stage.addEventListener('touchend', function(e) {
+    if (swX === null) return;
+    var dx = e.changedTouches[0].clientX - swX;
+    var dy = e.changedTouches[0].clientY - swY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 44)
+      avGo(dx < 0 ? avIndex + 1 : avIndex - 1);
+    swX = null;
+  }, { passive: true });
+}
+
+/* ── Keyboard ── */
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowRight') avGo(avIndex + 1);
+  if (e.key === 'ArrowLeft')  avGo(avIndex - 1);
+  if (e.key === 'Escape') document.fullscreenElement ? document.exitFullscreen() : history.back();
+  if (e.key === 'f' || e.key === 'F') {
+    var vid = document.getElementById('av-video');
+    vid ? avVidFullscreen() : avFullscreen();
+  }
+});
+
+/* Hide hint */
+setTimeout(function() {
+  var h = document.getElementById('av-hint'); if (h) h.style.opacity = '0';
+}, 3000);
 </script>
 {% endblock %}

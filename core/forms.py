@@ -399,7 +399,7 @@ class ProfileEditForm(SanitizeMixin, forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['first_name', 'last_name', 'email', 'phone_number', 'profile_pics', 'bio', 'industry', 'company']
+        fields = ['first_name', 'last_name', 'email', 'phone_number', 'profile_pics', 'bio', 'industry', 'company', 'gender']
         widgets = {
             'industry': forms.Select(attrs={'class': 'form-control'}),
         }

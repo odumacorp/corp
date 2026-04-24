@@ -249,7 +249,8 @@ p { margin-bottom: 0; }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 220px;
+  /* fluid: won't break on <220px screens */
+  max-width: clamp(80px, 40vw, 220px);
   display: inline-block;
 }
 
@@ -540,7 +541,9 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
   width: 100%;
   max-width: 100%;
   margin: 0;
-  padding-inline: var(--oc-space-6);
+  /* Safe-area insets for notch/Dynamic-Island devices */
+  padding-left: max(var(--oc-space-6), env(safe-area-inset-left));
+  padding-right: max(var(--oc-space-6), env(safe-area-inset-right));
   justify-content: space-between;
 }
 
@@ -689,13 +692,15 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
    No JS needed for initial state — media query handles it.
    ───────────────────────────────────────────────────────────── */
 @media (max-width: 1279px) {
-  /* Collapsed: shrink form to icon-sized button */
+  /* Collapsed: shrink form to icon-sized button — 44px for touch compliance */
   .oc-navbar__search:not(.oc-search--open) {
-    width: 32px !important;
-    min-width: 32px;
+    width: 44px !important;
+    min-width: 44px;
+    min-height: 44px;
     flex-shrink: 0;
     cursor: pointer;
     overflow: visible;
+    touch-action: manipulation;
   }
   /* Hide the text input completely */
   .oc-navbar__search:not(.oc-search--open) input {
@@ -792,14 +797,20 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
 .oc-navbar__hamburger {
   display: none;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 5px;
   cursor: pointer;
   background: none;
   border: none;
   padding: 6px;
+  /* 44px min touch target (Apple/Google HIG) */
+  min-width: 44px;
+  min-height: 44px;
   border-radius: var(--oc-radius-xs);
   transition: background var(--oc-transition);
-  /* right: 0; */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .oc-navbar__hamburger:hover { 
   /* background: rgba(98, 23, 23, 0.1);  */
@@ -822,6 +833,11 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
   inset: 0;
   z-index: 999;
   /* always in the DOM — panel slides off-screen when closed */
+  /* MUST be none when closed or it intercepts every page click */
+  pointer-events: none;
+}
+.oc-mobile-menu.is-open {
+  pointer-events: auto;
 }
 
 .oc-mobile-menu__backdrop {
@@ -858,9 +874,17 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
   gap: 1px;
   /* off-screen by default */
   transform: translateX(-100%);
-  transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 1s ease;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.28s ease;
   will-change: transform;
+}
+
+/* Full-width panel on mobile & tablet */
+@media (max-width: 768px) {
+  .oc-mobile-menu__panel {
+    width: 100%;
+    border-right: none;
+  }
 }
 .oc-mobile-menu.is-open .oc-mobile-menu__panel {
   transform: translateX(0);
@@ -1023,11 +1047,17 @@ textarea.cp-ghost-text { color: #9ca3af !important; }
   border: 1.5px solid rgba(255,255,255,0.9);
   line-height: 1;
 }
-/* Bottom nav: matches hamburger breakpoint */
+/* Bottom nav: activated on touch/mobile viewports; suppressed on landscape tablets */
 @media (max-width: 1050px) {
   .oc-bottom-nav { display: block; }
   body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
   .oc-footer { display: none; }
+}
+/* Landscape tablets (≥768px wide, touch, landscape): revert to footer */
+@media (min-width: 768px) and (max-width: 1050px) and (orientation: landscape) and (pointer: coarse) {
+  .oc-bottom-nav { display: none; }
+  body { padding-bottom: 0; }
+  .oc-footer { display: block; }
 }
 
 /* ----------------------------------------------------------
@@ -1976,6 +2006,53 @@ input:focus, textarea:focus, select:focus {
 /* ----------------------------------------------------------
    Avatar / Photo Picker (.oc-picker-*)
    ---------------------------------------------------------- */
+
+/* ── Action buttons row (Upload / Choose avatar / Remove) ── */
+.oc-av-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  width: 100%;
+}
+.oc-av-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .12s;
+  border: none;
+  text-decoration: none;
+}
+.oc-av-btn:active { transform: scale(.97); }
+.oc-av-btn--primary {
+  background: #1B5EC7;
+  color: #fff;
+  border: none;
+}
+.oc-av-btn--primary:hover { background: #144FA8; color: #fff; }
+.oc-av-btn--secondary {
+  background: #fff;
+  color: #1B5EC7;
+  border: 1.5px solid #c7d9ff;
+}
+.oc-av-btn--secondary:hover { background: #eff6ff; border-color: #1B5EC7; }
+.oc-av-btn--danger {
+  background: #fff5f5;
+  color: #ef4444;
+  border: 1.5px solid #fecaca;
+}
+.oc-av-btn--danger:hover { background: #fee2e2; }
+.oc-av-btn svg { flex-shrink: 0; }
+
+/* Legacy pick-btn kept for backward compat on other pages */
 .oc-pick-btn {
   display: inline-flex;
   align-items: center;
@@ -1986,45 +2063,86 @@ input:focus, textarea:focus, select:focus {
   padding: 7px 13px;
   font-size:  1.2rem;
   font-weight: 600;
-  color: #004AAD;
+  color: #1B5EC7;
   cursor: pointer;
   transition: background .15s, border-color .15s;
   margin-top: 8px;
 }
-.oc-pick-btn:hover { background: #f0f5ff; border-color: #004AAD; }
+.oc-pick-btn:hover { background: #eff6ff; border-color: #1B5EC7; }
 .oc-pick-btn svg { flex-shrink: 0; }
 
+/* ── Picker panel ── */
 .oc-picker-panel {
   display: none;
   margin-top: 10px;
   background: #fff;
-  border: 1.5px solid #c7d9ff;
-  border-radius: 12px;
-  padding: 14px 14px 10px;
-  box-shadow: 0 4px 18px rgba(0,74,173,.10);
+  border: 1.5px solid #e4eaf2;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(10,22,40,.12);
 }
-.oc-picker-label {
-  font-size:  1.2rem;
+
+/* ── Tab bar ── */
+.oc-ptabs {
+  display: flex;
+  border-bottom: 1.5px solid #e4eaf2;
+  background: #f8fafc;
+  padding: 0 12px;
+  gap: 2px;
+}
+.oc-ptab {
+  flex: 1;
+  padding: 10px 4px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #374151;
-  margin: 0 0 10px;
+  color: #6b7280;
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+  margin-bottom: -1.5px;
 }
+.oc-ptab:hover { color: #1B5EC7; }
+.oc-ptab--active { color: #1B5EC7; border-bottom-color: #1B5EC7; }
+
+/* ── Pane content ── */
+.oc-pane {
+  padding: 14px;
+}
+
+/* ── Grid ── */
 .oc-picker-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
+.oc-picker-grid--cover {
+  gap: 10px;
+}
 .oc-picker-item {
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 50%;
   overflow: hidden;
-  border: 2.5px solid transparent;
-  transition: border-color .15s, transform .12s;
+  border: 3px solid transparent;
+  transition: border-color .15s, transform .12s, box-shadow .15s;
   flex-shrink: 0;
 }
-.oc-picker-item:hover { border-color: #004AAD; transform: scale(1.06); }
-.oc-picker-item--selected { border-color: #10b981 !important; }
-.oc-picker-item canvas { display: block; }
+.oc-picker-item--img {
+  border-radius: 50%;
+}
+.oc-picker-item:hover {
+  border-color: #1B5EC7;
+  transform: scale(1.07);
+  box-shadow: 0 4px 12px rgba(27,94,199,.25);
+}
+.oc-picker-item--selected {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 2px #d1fae5;
+}
+.oc-picker-item canvas,
+.oc-picker-item img { display: block; }
 
 /* ── Hashtag styles ──────────────────────────────────────────────────────── */
 .oc-hashtag {
@@ -2154,7 +2272,7 @@ select.oc-invalid {
 
 
 /* ── iOS zoom prevention: force 16px min on all inputs at mobile ── */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   input,
   input[type="text"],
   input[type="email"],
@@ -2278,4 +2396,125 @@ select.oc-invalid {
   .oc-collage.c4  { height: 240px; }
   .oc-collage.c5p { height: 290px; }
   .oc-cc-more     { font-size: 1.8rem; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   CROSS-DEVICE OPTIMIZATIONS
+   Covers: iOS, Android, HarmonyOS, Windows, macOS
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Accessibility: respect reduced-motion preference ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Touch devices: enlarge interactive targets to 44×44px minimum ── */
+@media (pointer: coarse) {
+  /* Buttons and links need padding to reach 44px tap area */
+  .oc-btn, .oc-back-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .oc-bottom-nav__item {
+    min-height: 52px;
+  }
+  /* Navbar icon links */
+  .oc-navbar__link--icon {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Profile dropdown toggle */
+  .oc-profile-dropdown__toggle {
+    min-height: 44px;
+    padding: 7px 12px 7px 7px;
+  }
+  /* Card action rows */
+  .oc-post-action, .oc-project-action {
+    min-height: 44px;
+  }
+  /* Form controls */
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-width: 20px;
+    min-height: 20px;
+  }
+  /* Dropdown items */
+  .oc-navbar__dropdown-item {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* ── iOS safe-area: fixed elements that might be behind notch/home bar ── */
+.oc-feedback-btn {
+  bottom: calc(58px + 14px + env(safe-area-inset-bottom, 0px));
+}
+@media (max-width: 1050px) {
+  .oc-dock-tab {
+    bottom: calc(58px + 72px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ── Hover states: disable sticky hover on touch devices ── */
+@media (hover: none) {
+  .oc-card:hover { box-shadow: var(--oc-shadow-sm); transform: none; }
+  .oc-btn:hover { filter: none; }
+  a:hover { color: var(--oc-blue); }
+}
+
+/* ── High-DPI / Retina: crisp borders ── */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .oc-card { border-width: 0.5px; }
+  .oc-navbar { border-bottom-width: 0.5px; }
+}
+
+/* ── Small phones (≤360px): prevent horizontal overflow ── */
+@media (max-width: 360px) {
+  .oc-navbar__inner { padding-inline: 8px; gap: 4px; }
+  .oc-breadcrumbs { padding: 6px 10px; }
+  .oc-page-wrap { padding-inline: 10px; }
+  .oc-card { padding: var(--oc-space-3); }
+}
+
+/* ── Foldable phones / very tall aspect ratios ── */
+@media (max-width: 480px) and (min-height: 800px) {
+  /* full-width already applied by the 768px breakpoint above */
+}
+
+/* ── Landscape phones: give more vertical breathing room ── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .oc-mobile-menu__panel {
+    width: 320px;
+    overflow-y: auto;
+  }
+  .oc-navbar { height: 50px; }
+  main { padding-top: 50px; }
+  body { padding-bottom: calc(50px + env(safe-area-inset-bottom)); }
+}
+
+/* ── Windows high-contrast mode ── */
+@media (forced-colors: active) {
+  .oc-btn-primary { border: 2px solid ButtonText; }
+  .oc-card { border: 1px solid ButtonText; }
+  .oc-navbar { border-bottom: 1px solid ButtonText; }
+}
+
+/* ── Print styles ── */
+@media print {
+  .oc-navbar, .oc-bottom-nav, .oc-footer, .oc-feedback-btn, .oc-dock-tab {
+    display: none !important;
+  }
+  main { padding-top: 0 !important; }
+  body { background: #fff !important; color: #000 !important; }
+  .oc-card { box-shadow: none !important; border: 1px solid #ccc !important; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: 0.8em; color: #555; }
 }

@@ -191,7 +191,7 @@
         {% if post.user.userprofile.profile_pics %}
           <img src="{{ post.user.userprofile.profile_pics.url }}" class="hf-post-avatar" alt="">
         {% else %}
-          <img src="{% static 'images/usericon.png' %}" class="hf-post-avatar" alt="">
+          <img src="{% static 'images/avatar_default.png' %}" class="hf-post-avatar" alt="">
         {% endif %}
         <div>
           <div class="hf-post-name">{{ post.user.get_full_name|default:post.user.username }}</div>

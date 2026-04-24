@@ -1292,7 +1292,7 @@
           {% if profile.profile_pics %}
             <img src="{{ profile.profile_pics.url }}" alt="Profile picture" class="ap-profile-avatar">
           {% else %}
-            <img src="{% static 'images/usericon.png' %}" alt="Profile picture" class="ap-profile-avatar">
+            <img src="{% static 'images/avatar_default.png' %}" alt="Profile picture" class="ap-profile-avatar">
           {% endif %}
         </a>
         <a href="{% url 'profile_view' id=user.id %}" class="ap-profile-name">
@@ -1345,7 +1345,7 @@
       {% for conn in pending_connections %}
       <div class="ap-conn-item">
         <a href="{% url 'profile_view' id=conn.initiator.pk %}">
-          <img src="{% static 'images/usericon.png' %}" class="ap-conn-avatar" alt="">
+          <img src="{% static 'images/avatar_default.png' %}" class="ap-conn-avatar" alt="">
         </a>
         <a href="{% url 'profile_view' id=conn.initiator.pk %}" class="ap-conn-name">{{ conn.initiator.get_full_name }}</a>
         <form method="post" action="{% url 'accept_connection' conn.pk %}" style="display:inline;">
@@ -1427,7 +1427,7 @@
         {% if profile.profile_pics %}
           <img src="{{ profile.profile_pics.url }}" class="ap-composer-avatar" alt="">
         {% else %}
-          <img src="{% static 'images/usericon.png' %}" class="ap-composer-avatar" alt="">
+          <img src="{% static 'images/avatar_default.png' %}" class="ap-composer-avatar" alt="">
         {% endif %}
         <div class="ap-composer-input">Share an idea, project update, or insight…</div>
       </button>
@@ -1455,7 +1455,7 @@
             {% if post.user.userprofile.profile_pics %}
               <img src="{{ post.user.userprofile.profile_pics.url }}" class="ap-author-avatar" alt="">
             {% else %}
-              <img src="{% static 'images/usericon.png' %}" class="ap-author-avatar" alt="">
+              <img src="{% static 'images/avatar_default.png' %}" class="ap-author-avatar" alt="">
             {% endif %}
           </a>
           <div>
@@ -1622,7 +1622,7 @@
         {% for comment in post.comments.all|slice:":2" %}
         <div class="ap-comment-row">
           <a href="{% url 'profile_view' id=comment.user.id %}">
-            <img src="{% static 'images/usericon.png' %}" class="ap-comment-avatar" alt="">
+            <img src="{% static 'images/avatar_default.png' %}" class="ap-comment-avatar" alt="">
           </a>
           <div class="ap-comment-bubble">
             <a href="{% url 'profile_view' id=comment.user.id %}" class="ap-comment-author">{{ comment.user.get_full_name|default:comment.user.username }}</a>
@@ -1635,7 +1635,7 @@
 
       <!-- Comment input -->
       <div class="ap-comment-input-row">
-        <img src="{% if profile.profile_pics %}{{ profile.profile_pics.url }}{% else %}{% static 'images/usericon.png' %}{% endif %}"
+        <img {% avatar_url profile as avurl %}src="{{ avurl }}"
              class="ap-comment-avatar" alt="">
         <form method="POST" action="{% url 'add_comment' post.id %}" style="display:flex;flex:1;gap:8px;">
           {% csrf_token %}
@@ -1715,7 +1715,7 @@
             {% if entry.innovator.userprofile.profile_pics %}
               <img src="{{ entry.innovator.userprofile.profile_pics.url }}" class="ap-author-avatar" alt="">
             {% else %}
-              <img src="{% static 'images/usericon.png' %}" class="ap-author-avatar" alt="">
+              <img src="{% static 'images/avatar_default.png' %}" class="ap-author-avatar" alt="">
             {% endif %}
           </a>
           <div>
@@ -1832,7 +1832,7 @@
         {% for comment in project.project_comments.all|slice:":1" %}
         <div class="ap-comment-row">
           <a href="{% url 'profile_view' id=comment.user.id %}">
-            <img src="{% static 'images/usericon.png' %}" class="ap-comment-avatar" alt="">
+            <img src="{% static 'images/avatar_default.png' %}" class="ap-comment-avatar" alt="">
           </a>
           <div class="ap-comment-bubble">
             <a href="{% url 'profile_view' id=comment.user.id %}" class="ap-comment-author">{{ comment.user.get_full_name|default:comment.user.username }}</a>
@@ -1845,7 +1845,7 @@
 
       <!-- Comment input -->
       <div class="ap-comment-input-row">
-        <img src="{% if profile.profile_pics %}{{ profile.profile_pics.url }}{% else %}{% static 'images/usericon.png' %}{% endif %}"
+        <img {% avatar_url profile as avurl %}src="{{ avurl }}"
              class="ap-comment-avatar" alt="">
         <form method="POST" action="{% url 'add_project_comment' project.pk %}" style="display:flex;flex:1;gap:8px;">
           {% csrf_token %}
@@ -2025,7 +2025,7 @@
         {% if view.viewer %}
         <div class="ap-viewer-item">
           <a href="{% url 'profile_view' id=view.viewer.id %}">
-            <img src="{% static 'images/usericon.png' %}" class="ap-viewer-avatar" alt="">
+            <img src="{% static 'images/avatar_default.png' %}" class="ap-viewer-avatar" alt="">
           </a>
           <a href="{% url 'profile_view' id=view.viewer.id %}" class="ap-viewer-name">{{ view.viewer.get_full_name }}</a>
           <a href="{% url 'profile_view' id=view.viewer.id %}"
@@ -2066,7 +2066,7 @@
       <div class="ap-proposal-item">
         <div class="ap-proposal-author">
           <a href="{% url 'profile_view' id=proposal.from_user.pk %}">
-            <img src="{% static 'images/usericon.png' %}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;" alt="">
+            <img src="{% static 'images/avatar_default.png' %}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;" alt="">
           </a>
           <div>
             <a href="{% url 'profile_view' id=proposal.from_user.pk %}" style="font-size: 1.2rem;font-weight:700;color:#0A1628;text-decoration:none;">{{ proposal.from_user.get_full_name }}</a>

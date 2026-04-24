@@ -12,7 +12,18 @@
    </script>
    
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- iOS PWA / standalone -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Oduma Corp">
+  <!-- Android Chrome -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <!-- Windows tile -->
+  <meta name="msapplication-TileColor" content="#1B5EC7">
+  <meta name="msapplication-TileImage" content="{% static 'images/OdumaCorp-icon.png' %}">
+  <!-- Color scheme (prefers-color-scheme awareness) -->
+  <meta name="color-scheme" content="light">
   <title>{% block title %}{{ page_title|default:"Oduma Corp" }} | Oduma Corp{% endblock %}</title>
   {% block seo_meta %}
   <meta name="description" content="{% block meta_description %}Oduma Corp — Connecting Africa's boldest innovators with the investors who believe in their vision.{% endblock %}">
@@ -115,10 +126,17 @@
     var mobileMenu = document.getElementById('oc-mobile-menu');
     var backdrop   = document.getElementById('oc-mobile-backdrop');
 
+    /* ── Ensure the mobile menu never blocks page clicks when closed ──
+       The CSS sets pointer-events:none but JS applies it immediately
+       before first paint to eliminate any flash-of-blocking-overlay. */
+    if (mobileMenu) mobileMenu.style.pointerEvents = 'none';
+
     /* ── close helpers (safe to call even if element missing) ── */
     function closeDrawer() {
       if (!mobileMenu) return;
       mobileMenu.classList.remove('is-open');
+      mobileMenu.style.pointerEvents = 'none';
+      document.body.style.overflow = '';
       /* reset guest-only accordion; authenticated explore stays permanently open */
       var guestToggle = document.getElementById('oc-mobile-explore-toggle-guest');
       var guestPanel  = document.getElementById('oc-mobile-explore-panel-guest');
@@ -159,7 +177,11 @@
       closeExplorePanel();
       closeProfilePanel();
       closeSearchPanel();
-      mobileMenu && mobileMenu.classList.add('is-open');
+      if (mobileMenu) {
+        mobileMenu.classList.add('is-open');
+        mobileMenu.style.pointerEvents = 'auto';
+        document.body.style.overflow = 'hidden';
+      }
     }
 
     if (hamburger) hamburger.addEventListener('click', function(e) {
@@ -223,7 +245,9 @@
   .oc-fb-modal-overlay {
     display: none; position: fixed; inset: 0; z-index: 2000;
     background: rgba(10,12,20,.52); backdrop-filter: blur(4px);
-    align-items: center; justify-content: center; padding: 16px;
+    align-items: center; justify-content: center;
+    /* safe-area for notch/home-bar devices */
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   }
   .oc-fb-modal-overlay.open { display: flex; }
   .oc-fb-card {
@@ -1718,19 +1742,15 @@
   </script>
 
   <script>
-  /* Global click-outside-to-close for all modal overlays */
+  /* Global click-outside-to-close for explicit modal overlays only.
+     Only targets elements that opted in with data-modal-overlay,
+     never the mobile-menu shell which is always in the DOM. */
   document.addEventListener('click', function(e) {
     var t = e.target;
     if (t.nodeType !== 1) return;
-    var cs = window.getComputedStyle(t);
-    if (cs.position !== 'fixed') return;
-    var r = t.getBoundingClientRect();
-    var isFullscreen = r.width >= window.innerWidth - 4 && r.height >= window.innerHeight - 4;
-    if (!isFullscreen) return;
+    if (!t.hasAttribute('data-modal-overlay')) return;
     if (t.classList.contains('open')) {
       t.classList.remove('open');
-    } else if (cs.display !== 'none') {
-      t.style.display = 'none';
     }
   });
   </script>

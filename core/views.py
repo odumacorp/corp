@@ -124,26 +124,45 @@ def edit_profile(request):
     user = request.user
     up, _ = UserProfile.objects.get_or_create(user=user)
 
+    MAX_PHOTO_BYTES = 5 * 1024 * 1024  # 5 MB
+
     if request.method == 'POST':
-        form = ProfileEditForm(request.POST, request.FILES, instance=up)
+        # Reject oversized photo before hitting Cloudinary
+        photo = request.FILES.get('profile_pics')
+        if photo and photo.size > MAX_PHOTO_BYTES:
+            mb = photo.size / 1048576
+            messages.error(request, f'Photo too large ({mb:.1f} MB). Please upload a file under 5 MB.')
+            form = ProfileEditForm(request.POST, instance=up)
+        else:
+            form = ProfileEditForm(request.POST, request.FILES, instance=up)
+
         if form.is_valid():
-            form.save()
-            # Location field (all user types)
-            up.location = request.POST.get('location', '').strip()
-            up.save(update_fields=['location'])
-            # Investor-specific fields not in ProfileEditForm
-            if user.user_type == 'investor':
-                up.ticket_size_min   = request.POST.get('ticket_size_min') or None
-                up.ticket_size_max   = request.POST.get('ticket_size_max') or None
-                up.preferred_sectors = request.POST.get('preferred_sectors', '')
-                up.geography_focus   = request.POST.get('geography_focus', '')
-                up.investment_thesis = request.POST.get('investment_thesis', '')
-                up.save(update_fields=[
-                    'ticket_size_min', 'ticket_size_max',
-                    'preferred_sectors', 'geography_focus', 'investment_thesis',
-                ])
-            messages.success(request, 'Profile updated successfully.')
-            return redirect('profile_view', id=user.id)
+            try:
+                form.save()
+            except Exception as exc:
+                err = str(exc)
+                if 'File size too large' in err or 'file-limit' in err:
+                    messages.error(request, 'Photo too large for upload. Please choose a smaller image (under 5 MB).')
+                    form = ProfileEditForm(request.POST, instance=up)
+                else:
+                    raise
+            else:
+                # Location field (all user types)
+                up.location = request.POST.get('location', '').strip()
+                up.save(update_fields=['location'])
+                # Investor-specific fields not in ProfileEditForm
+                if user.user_type == 'investor':
+                    up.ticket_size_min   = request.POST.get('ticket_size_min') or None
+                    up.ticket_size_max   = request.POST.get('ticket_size_max') or None
+                    up.preferred_sectors = request.POST.get('preferred_sectors', '')
+                    up.geography_focus   = request.POST.get('geography_focus', '')
+                    up.investment_thesis = request.POST.get('investment_thesis', '')
+                    up.save(update_fields=[
+                        'ticket_size_min', 'ticket_size_max',
+                        'preferred_sectors', 'geography_focus', 'investment_thesis',
+                    ])
+                messages.success(request, 'Profile updated successfully.')
+                return redirect('profile_view', id=user.id)
     else:
         form = ProfileEditForm(instance=up)
 
@@ -602,16 +621,54 @@ def download_message_attachment(request, attachment_id):
 @login_required
 @login_required
 def view_message_attachment(request, attachment_id):
-    """Render a chat attachment in a styled viewer page."""
+    """Render a chat attachment in a styled viewer page with gallery navigation."""
     from .models import MessageAttachment
+    import json as _json
     att = get_object_or_404(MessageAttachment, pk=attachment_id)
     conversation = att.message.conversation
     if not conversation.participants.filter(pk=request.user.pk).exists():
         from django.http import HttpResponseForbidden
         return HttpResponseForbidden()
+
+    # Build gallery of all media attachments in this conversation (images + videos)
+    gallery_qs = MessageAttachment.objects.filter(
+        message__conversation=conversation,
+        attachment_type__in=['image', 'video'],
+    ).select_related('message').order_by('message__timestamp', 'id')
+
+    gallery = []
+    current_index = 0
+    for i, a in enumerate(gallery_qs):
+        gallery.append({
+            'id': a.pk,
+            'url': a.file_url,
+            'type': a.attachment_type,
+            'name': a.filename or f'Photo {i + 1}',
+            'size': a.file_size or 0,
+            'dl_url': f'/chat/attachments/{a.pk}/download/',
+        })
+        if a.pk == att.pk:
+            current_index = i
+
+    # Fall back: if this attachment isn't image/video, show it alone
+    if not gallery:
+        gallery = [{
+            'id': att.pk,
+            'url': att.file_url,
+            'type': att.attachment_type,
+            'name': att.filename or 'Attachment',
+            'size': att.file_size or 0,
+            'dl_url': f'/chat/attachments/{att.pk}/download/',
+        }]
+        current_index = 0
+
     return render(request, 'attachment_viewer.html', {
         'att': att,
         'conversation': conversation,
+        'gallery_json': _json.dumps(gallery),
+        'gallery': gallery,
+        'current_index': current_index,
+        'total': len(gallery),
         'hide_navbar': True,
     })
 
@@ -2497,7 +2554,7 @@ def remove_profile_photo(request):
         up.profile_pics = None
         up.save()
         messages.success(request, "Profile photo removed.")
-    return redirect('update_profile')
+    return redirect('edit_profile')
 
 
 ########################
@@ -4048,6 +4105,14 @@ def admin_panel(request):
             type_labels.append(label)
             type_data.append(by_type[key])
 
+    # In-app link sends (messages that share a post or project link)
+    sent_links_qs = (
+        Message.objects
+        .filter(message_type__in=['post_share', 'project_share'])
+        .select_related('sender', 'recipient', 'shared_post', 'shared_project')
+        .order_by('-timestamp')[:100]
+    )
+
     shares = {
         'total':           ShareEvent.objects.count(),
         'by_platform':     by_platform,
@@ -4059,6 +4124,8 @@ def admin_panel(request):
         'platform_data':   _json.dumps(platform_data),
         'type_labels':     _json.dumps(type_labels),
         'type_data':       _json.dumps(type_data),
+        'sent_links':      sent_links_qs,
+        'sent_links_total': Message.objects.filter(message_type__in=['post_share', 'project_share']).count(),
     }
 
     # ── Totals ───────────────────────────────────────────────────────
@@ -7562,7 +7629,6 @@ def innovator_dashboard(request):
     from .models import Pin
     user_pins = Pin.objects.filter(user=user).select_related(
         'conversation', 'post', 'project',
-        'conversation__participants',
     ).prefetch_related('conversation__participants')
     pinned_chat_ids    = set(p.conversation_id for p in user_pins if p.pin_type == 'chat' and p.conversation_id)
     pinned_post_ids    = set(p.post_id for p in user_pins if p.pin_type == 'post' and p.post_id)
@@ -7729,4 +7795,171 @@ def return_from_odu(request):
             from django.contrib.auth import login as _login
             _login(request, original, backend='django.contrib.auth.backends.ModelBackend')
     return redirect('admin_panel')
+
+
+# ── Analytics API ──────────────────────────────────────────────────────────────
+
+@login_required
+def admin_analytics_data(request):
+    import json as _json
+    from django.http import JsonResponse
+    from django.db.models import Count, Q
+    from django.utils import timezone as tz
+    from datetime import datetime, timedelta, date
+    from .models import (PageView, ClickEvent, ProjectView, ProjectComment,
+                         Collaboration, Proposal, Connection, ShareEvent, CustomUser)
+
+    if not _is_admin(request.user):
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+
+    # ── Date range ──────────────────────────────────────────────────────
+    today = date.today()
+    try:
+        start = datetime.strptime(request.GET.get('start', ''), '%Y-%m-%d').date()
+    except ValueError:
+        start = today - timedelta(days=30)
+    try:
+        end = datetime.strptime(request.GET.get('end', ''), '%Y-%m-%d').date()
+    except ValueError:
+        end = today
+
+    start_dt = tz.make_aware(datetime.combine(start, datetime.min.time()))
+    end_dt   = tz.make_aware(datetime.combine(end,   datetime.max.time()))
+
+    pvs = PageView.objects.filter(timestamp__range=(start_dt, end_dt))
+    ces = ClickEvent.objects.filter(timestamp__range=(start_dt, end_dt))
+
+    # ── Summary KPIs ────────────────────────────────────────────────────
+    total_views     = pvs.count()
+    unique_visitors = pvs.values('session_key').distinct().count()
+    total_clicks    = ces.count()
+    new_users       = CustomUser.objects.filter(date_joined__range=(start_dt, end_dt)).count()
+
+    # ── Daily traffic ───────────────────────────────────────────────────
+    from django.db.models.functions import TruncDate
+    daily_qs = (pvs.annotate(day=TruncDate('timestamp'))
+                   .values('day')
+                   .annotate(c=Count('id'))
+                   .order_by('day'))
+    # fill missing days
+    day_map = {row['day']: row['c'] for row in daily_qs}
+    days = []
+    cur = start
+    while cur <= end:
+        days.append(cur)
+        cur += timedelta(days=1)
+    daily_labels = [d.strftime('%Y-%m-%d') for d in days]
+    daily_data   = [day_map.get(d, 0) for d in days]
+
+    # ── Hourly distribution ─────────────────────────────────────────────
+    from django.db.models.functions import ExtractHour
+    hourly_qs = (pvs.annotate(hr=ExtractHour('timestamp'))
+                    .values('hr')
+                    .annotate(c=Count('id'))
+                    .order_by('hr'))
+    hour_map = {row['hr']: row['c'] for row in hourly_qs}
+    hourly_labels = list(range(24))
+    hourly_data   = [hour_map.get(h, 0) for h in hourly_labels]
+
+    # ── Devices / Browsers / OS ─────────────────────────────────────────
+    devices  = list(pvs.values('device_type').annotate(count=Count('id')).order_by('-count')[:8])
+    browsers = list(pvs.exclude(browser='').values('browser').annotate(count=Count('id')).order_by('-count')[:8])
+    os_data  = list(pvs.exclude(os='').values('os').annotate(count=Count('id')).order_by('-count')[:8])
+
+    # ── Top pages ───────────────────────────────────────────────────────
+    top_pages = list(pvs.values('path').annotate(views=Count('id')).order_by('-views')[:20])
+
+    # ── Referrers ───────────────────────────────────────────────────────
+    referrers = list(pvs.exclude(referrer='').values('referrer').annotate(count=Count('id')).order_by('-count')[:15])
+
+    # ── Most-viewed projects ─────────────────────────────────────────────
+    project_views = list(
+        ProjectView.objects.filter(viewed_at__range=(start_dt, end_dt))
+        .values('project__title')
+        .annotate(views=Count('id'))
+        .order_by('-views')[:10]
+    )
+
+    # ── Top click events ────────────────────────────────────────────────
+    top_clicks = list(
+        ces.values('element_text', 'element_id', 'path')
+           .annotate(count=Count('id'))
+           .order_by('-count')[:15]
+    )
+
+    # ── Engagement counts ────────────────────────────────────────────────
+    engagement = {
+        'project_views':    ProjectView.objects.filter(viewed_at__range=(start_dt, end_dt)).count(),
+        'project_comments': ProjectComment.objects.filter(created_at__range=(start_dt, end_dt)).count(),
+        'collaborations':   Collaboration.objects.filter(created_at__range=(start_dt, end_dt)).count(),
+        'proposals':        Proposal.objects.filter(created_at__range=(start_dt, end_dt)).count(),
+        'connections':      Connection.objects.filter(status='accepted').count(),
+        'post_shares':      ShareEvent.objects.filter(shared_at__range=(start_dt, end_dt)).count(),
+    }
+
+    payload = {
+        'summary': {
+            'total_views':     total_views,
+            'unique_visitors': unique_visitors,
+            'total_clicks':    total_clicks,
+            'new_users':       new_users,
+        },
+        'daily':         {'labels': daily_labels, 'data': daily_data},
+        'hourly':        {'labels': hourly_labels, 'data': hourly_data},
+        'devices':       devices,
+        'browsers':      browsers,
+        'os_data':       os_data,
+        'top_pages':     top_pages,
+        'referrers':     referrers,
+        'project_views': project_views,
+        'top_clicks':    top_clicks,
+        'engagement':    engagement,
+    }
+    return JsonResponse(payload)
+
+
+@login_required
+def admin_analytics_export(request):
+    import csv
+    from django.http import HttpResponse
+    from django.db.models import Count
+    from django.utils import timezone as tz
+    from datetime import datetime, timedelta, date
+    from .models import PageView, ClickEvent
+
+    if not _is_admin(request.user):
+        return HttpResponse('Forbidden', status=403)
+
+    today = date.today()
+    try:
+        start = datetime.strptime(request.GET.get('start', ''), '%Y-%m-%d').date()
+    except ValueError:
+        start = today - timedelta(days=30)
+    try:
+        end = datetime.strptime(request.GET.get('end', ''), '%Y-%m-%d').date()
+    except ValueError:
+        end = today
+
+    start_dt = tz.make_aware(datetime.combine(start, datetime.min.time()))
+    end_dt   = tz.make_aware(datetime.combine(end,   datetime.max.time()))
+
+    export_type = request.GET.get('type', 'pageviews')
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="analytics_{export_type}_{start}_{end}.csv"'
+    writer = csv.writer(response)
+
+    if export_type == 'pageviews':
+        writer.writerow(['Timestamp', 'Path', 'Browser', 'OS', 'Device', 'Country', 'Referrer'])
+        for pv in PageView.objects.filter(timestamp__range=(start_dt, end_dt)).order_by('-timestamp')[:5000]:
+            writer.writerow([pv.timestamp.strftime('%Y-%m-%d %H:%M'), pv.path, pv.browser, pv.os,
+                             pv.device_type, pv.country, pv.referrer])
+    elif export_type == 'clicks':
+        writer.writerow(['Timestamp', 'Path', 'Element ID', 'Element Text'])
+        for ce in ClickEvent.objects.filter(timestamp__range=(start_dt, end_dt)).order_by('-timestamp')[:5000]:
+            writer.writerow([ce.timestamp.strftime('%Y-%m-%d %H:%M'), ce.path, ce.element_id, ce.element_text])
+    else:
+        writer.writerow(['Export type not recognised'])
+
+    return response
 

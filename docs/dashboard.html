@@ -456,7 +456,7 @@
     {% if profile.profile_pics %}
       <img src="{{ profile.profile_pics.url }}" class="db-hero-avatar" alt="">
     {% else %}
-      <img src="{% static 'images/usericon.png' %}" class="db-hero-avatar" alt="">
+      <img src="{% static 'images/avatar_default.png' %}" class="db-hero-avatar" alt="">
     {% endif %}
     <div class="db-hero-text">
       <h1 class="db-hero-name">{{ request.user.get_full_name|default:request.user.username }}</h1>

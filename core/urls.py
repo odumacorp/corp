@@ -289,6 +289,9 @@ urlpatterns = _html_redirects + [
     path('admin-panel/verification/<int:req_id>/reject/', views.admin_reject_verification, name='admin_reject_verification'),
     path('admin-panel/project-reviews/', views.admin_project_review_queue, name='admin_project_review_queue'),
     path('admin-panel/project/<int:pk>/review-status/', views.admin_set_project_review_status, name='admin_set_project_review_status'),
+    # Analytics API
+    path('admin-panel/analytics/data/',   views.admin_analytics_data,   name='admin_analytics_data'),
+    path('admin-panel/analytics/export/', views.admin_analytics_export, name='admin_analytics_export'),
 
     # Companies
     path('companies/', views.companies_list, name='companies_list'),

@@ -1,4 +1,4 @@
-{% load static %}
+{% load static dict_extras %}
 
 <style>
 /* ── Profile avatar dropdown ── */
@@ -13,7 +13,10 @@
   border: 1px solid rgba(255,255,255,0.25);
   border-radius: 6px;
   padding: 5px 11px 5px 5px;
+  min-height: 44px;
   transition: background .15s, border-color .15s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .oc-profile-dropdown__toggle:hover {
   background: rgba(255,255,255,0.20);
@@ -224,7 +227,7 @@
 
         <a href="{% url 'project_list' %}" class="oc-navbar__link {% if url_name == 'project_list' %}active{% endif %}">Projects</a>
 
-        {% if url_name == 'innovators' or url_name == 'investors' or url_name == 'investors_by_industry' or url_name == 'companies_list' %}
+        {% if url_name == 'innovators' or url_name == 'investors' or url_name == 'investors_by_industry' or url_name == 'companies_list' or url_name == 'innovator_dashboard' %}
         <div class="oc-navbar__dropdown active" id="oc-explore-dropdown">
           <span class="oc-navbar__link oc-navbar__dropdown-toggle active"
                 role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" id="oc-explore-toggle">
@@ -255,6 +258,13 @@
               <svg class="oc-dd-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               Businesses
             </a>
+            {% if user.user_type == 'innovator' %}
+            <a href="{% url 'innovator_dashboard' %}" role="menuitem"
+               style="border-top:1px solid var(--oc-border);margin-top:4px;padding-top:10px;{% if url_name == 'innovator_dashboard' %}color:#1B5EC7;font-weight:600;{% endif %}">
+              <svg class="oc-dd-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              My Dashboard
+            </a>
+            {% endif %}
           </div>
         </div>
 
@@ -346,22 +356,15 @@
           <div class="oc-profile-dropdown" id="oc-profile-dropdown">
             <div class="oc-profile-dropdown__toggle" id="oc-profile-toggle"
                  role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">
-              {% if profile and profile.profile_pics %}
-                <img src="{{ profile.profile_pics.url }}" alt="" class="oc-profile-dropdown__avatar">
-              {% else %}
-                <img src="{% static 'images/usericon.png' %}" alt="" class="oc-profile-dropdown__avatar">
-              {% endif %}
+              {% avatar_url profile as av_url %}
+              <img src="{{ av_url }}" alt="" class="oc-profile-dropdown__avatar">
               <span class="oc-profile-dropdown__name">{{ user.first_name|default:user.username }}</span>
               <span class="oc-profile-dropdown__caret">▼</span>
             </div>
 
             <div class="oc-profile-dropdown__menu" role="menu">
               <div class="oc-profile-dropdown__header">
-                {% if profile and profile.profile_pics %}
-                  <img src="{{ profile.profile_pics.url }}" alt="">
-                {% else %}
-                  <img src="{% static 'images/usericon.png' %}" alt="">
-                {% endif %}
+                <img src="{{ av_url }}" alt="">
                 <div class="oc-profile-dropdown__header-info">
                   <strong>{{ user.get_full_name|default:user.username }}</strong>
                   <span>{{ user.user_type }}</span>
@@ -466,6 +469,9 @@
       <a href="{% url 'innovators' %}"     class="oc-mobile-menu__link oc-mobile-menu__link--sub {% if url_name == 'innovators' %}active{% endif %}">Innovators</a>
       <a href="{% url 'investors' %}"      class="oc-mobile-menu__link oc-mobile-menu__link--sub {% if url_name == 'investors' or url_name == 'investors_by_industry' %}active{% endif %}">Investors</a>
       <a href="{% url 'companies_list' %}" class="oc-mobile-menu__link oc-mobile-menu__link--sub {% if url_name == 'companies_list' %}active{% endif %}">Businesses</a>
+      {% if user.user_type == 'innovator' %}
+      <a href="{% url 'innovator_dashboard' %}" class="oc-mobile-menu__link oc-mobile-menu__link--sub {% if url_name == 'innovator_dashboard' %}active{% endif %}">My Dashboard</a>
+      {% endif %}
 
       {% if admin_view_mode != 'admin' or user.user_type != 'admin' %}
         <div class="oc-mobile-menu__divider"></div>

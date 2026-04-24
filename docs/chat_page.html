@@ -4,10 +4,20 @@
 
 {% block extra_head %}
 <style>
-/* ── Shell ── */
-.ch-shell{display:flex;flex-direction:column;height:calc(100vh - var(--oc-navbar-h, 62px) - 24px);max-width:800px;margin:12px auto;background:#f4f7fb;
+/* ── Shell: fixed to viewport so header + input are always on screen ── */
+.ch-shell{
+  position: fixed;
+  top: var(--oc-navbar-h, 62px);
+  left: 0; right: 0; bottom: 0;
+  display: flex; flex-direction: column;
+  max-width: 800px;
+  margin: 0 auto;
+  background: #f4f7fb;
   box-shadow: 10px 10px 20px rgba(154,152,152,0.837) !important;
-  border-radius: 20px;
+  /* Centre the fixed box when viewport > max-width */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
 }
 .ch-shell--project{}
 
@@ -1120,7 +1130,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
 .oc-bottom-nav { display: none !important; }
 
 @media(max-width:600px){
-  .ch-shell{height:calc(100vh - 56px);}
+  .ch-shell{ top: var(--oc-navbar-h, 56px); }
   .ch-messages{padding:14px 12px 6px;}
   .ch-inputbar{padding:10px 12px;position:relative;z-index:10;}
   .ch-msg-wrap{max-width:82%;}
@@ -1278,9 +1288,9 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
       </div>
     </div>
     {% if participant and not participant.is_staff and not participant.is_superuser and participant.user_type != 'admin' %}
-    <button class="ch-icon-btn" title="Profile info" onclick="togglePanel()" id="ch-panel-btn">
+    <a href="{% url 'profile_view' id=participant.id %}" class="ch-icon-btn" title="View profile" id="ch-panel-btn">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-    </button>
+    </a>
     {% endif %}
   </div>
 
