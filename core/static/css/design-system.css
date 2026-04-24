@@ -2137,12 +2137,16 @@ input:focus, textarea:focus, select:focus {
 /* ── Grid ── */
 .oc-picker-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
 }
 .oc-picker-grid--cover {
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.oc-picker-grid--cover .oc-picker-item {
+  aspect-ratio: 2.2 / 1;
+  border-radius: 8px;
 }
 .oc-picker-item {
   cursor: pointer;

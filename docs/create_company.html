@@ -104,6 +104,7 @@
   .cc-logo-upload input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
   .cc-logo-upload svg { color: var(--blue); opacity: .5; pointer-events: none; }
   #cc-logo-preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 10px; }
+  #cc-logo-placeholder { width: 46px; height: 46px; object-fit: contain; opacity: 0.35; pointer-events: none; }
   .cc-logo-hint { font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); line-height: 1.55; }
   .cc-logo-hint strong { display: block; font-size: 1.2rem; color: var(--text); margin-bottom: 2px; }
 
@@ -306,7 +307,7 @@
         <div class="cc-logo-upload" onclick="document.getElementById('cc-logo-input').click()">
           <input type="file" name="logo" accept="image/*" id="cc-logo-input" onclick="event.stopPropagation()">
           <img id="cc-logo-preview" alt="">
-          <svg id="cc-logo-icon" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <img id="cc-logo-placeholder" src="{% static 'images/enterprise.png' %}" alt="">
         </div>
         <div class="cc-logo-hint">
           <strong>Company Logo</strong>
@@ -678,7 +679,7 @@ function useCompanyDesc() {
     r.onload = function (e) {
       document.getElementById('cc-logo-preview').src = e.target.result;
       document.getElementById('cc-logo-preview').style.display = 'block';
-      document.getElementById('cc-logo-icon').style.display = 'none';
+      document.getElementById('cc-logo-placeholder').style.display = 'none';
     };
     r.readAsDataURL(this.files[0]);
   });

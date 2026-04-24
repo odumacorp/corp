@@ -263,7 +263,9 @@
 .nw-btn:hover { opacity: .85; text-decoration: none; }
 .nw-btn--primary  { background: var(--nw-blue); color: #fff; }
 .nw-btn--outline  { background: #fff; border: 1.5px solid var(--nw-border); color: var(--nw-ink); }
-.nw-btn--ghost    { background: #fef2f2; color: #dc2626; }
+.nw-btn--ghost    { background: #fff; border: 1.5px solid #fca5a5; color: #dc2626;
+  width: 34px; height: 34px; padding: 0; justify-content: center; flex-shrink: 0; }
+.nw-btn--ghost:hover { background: #fef2f2; opacity: 1; }
 .nw-btn--sm { padding: 5px 12px; font-size: 1.2rem; }
 .nw-btn--green { background: var(--nw-green); color: #fff; }
 .nw-btn--amber { background: var(--nw-amber); color: #fff; }
@@ -553,6 +555,7 @@
             <button type="submit" class="nw-btn nw-btn--primary" style="width:100%;">+ Connect</button>
           </form>
           <button class="nw-btn nw-btn--outline"
+            style="width:44px;height:44px;padding:0;justify-content:center;flex-shrink:0;"
             onclick="openQuickChat({{ person.pk }},'{{ person.get_full_name|escapejs }}','{{ person.first_name|first|upper }}{{ person.last_name|first|upper }}','{% if person.userprofile.profile_pics %}{{ person.userprofile.profile_pics.url }}{% endif %}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
         </div>
       </div>
@@ -603,6 +606,7 @@
             <button type="submit" class="nw-btn nw-btn--primary" style="width:100%;">+ Connect</button>
           </form>
           <button class="nw-btn nw-btn--outline"
+            style="width:44px;height:44px;padding:0;justify-content:center;flex-shrink:0;"
             onclick="openQuickChat({{ person.pk }},'{{ person.get_full_name|escapejs }}','{{ person.first_name|first|upper }}{{ person.last_name|first|upper }}','{% if person.userprofile.profile_pics %}{{ person.userprofile.profile_pics.url }}{% endif %}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
         </div>
       </div>

@@ -45,24 +45,23 @@
 }
 .pf-back-btn svg { flex-shrink: 0; }
 
-/* ── Cover ───────────────────────────────────────────────────── */
-.pf-cover {
-  height: 190px;
-  background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 55%, #3b82f6 100%);
-  border-radius: 0 0 20px 20px;
-  position: relative;
-  margin-top: 12px;
-}
-
-/* ── Hero card ───────────────────────────────────────────────── */
+/* ── Unified profile hero card ───────────────────────────────── */
 .pf-hero {
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 0 28px 22px;
+  border-radius: 18px;
+  overflow: hidden;
   position: relative;
   margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(10,22,40,.05);
+  margin-top: 12px;
+  box-shadow: 0 2px 12px rgba(10,22,40,.07);
+}
+.pf-cover-strip {
+  height: 160px;
+  background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 55%, #3b82f6 100%);
+}
+.pf-hero-inner {
+  padding: 0 28px 22px;
 }
 .pf-avatar-wrap { position: relative; display: inline-block; }
 .pf-avatar, .pf-avatar-init {
@@ -70,7 +69,7 @@
   border-radius: 50%;
   border: 4px solid #fff;
   box-shadow: 0 4px 16px rgba(0,0,0,.14);
-  margin-top: -44px;
+  margin-top: -48px;
   margin-bottom: 10px;
   display: block;
   object-fit: cover;
@@ -180,7 +179,8 @@
 .pf-grid { display: grid; grid-template-columns: 1fr 290px; gap: 20px; align-items: start; }
 @media (max-width: 860px) { .pf-grid { grid-template-columns: 1fr; } }
 @media (max-width: 600px) {
-  .pf-hero { padding: 0 14px 14px; }
+  .pf-hero-inner { padding: 0 14px 14px; }
+  .pf-cover-strip { height: 120px; }
   .pf-hero-top { flex-direction: column; gap: 8px; padding-top: 6px; }
   .pf-hero-left { min-width: 0; width: 100%; }
   .pf-hero-actions { width: 100%; flex-wrap: wrap; gap: 7px; }
@@ -398,12 +398,11 @@
     </button>
   </div>
 
-  <!-- Cover -->
-  <div class="pf-cover"{% if profile.cover_style %} style="background:{{ profile.cover_style }}"{% endif %}></div>
-
-  <!-- Hero card -->
+  <!-- Unified hero card -->
   <div class="pf-hero">
+    <div class="pf-cover-strip"{% if profile.cover_style %} style="background:{{ profile.cover_style }}"{% endif %}></div>
 
+    <div class="pf-hero-inner">
     <!-- Avatar -->
     <div class="pf-avatar-wrap">
       {% if profile.profile_pics %}
@@ -496,6 +495,7 @@
         <div class="pf-stat-label">Likes</div>
       </div>
     </div>
+    </div><!-- /pf-hero-inner -->
   </div><!-- /pf-hero -->
 
 

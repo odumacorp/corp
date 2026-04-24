@@ -68,6 +68,8 @@ class ProjectForm(SanitizeMixin, forms.ModelForm):
             'funding_stage', 'use_of_funds', 'team_overview',
         ]
         widgets = {
+            'category': forms.Select(choices=[('', 'Select category…')] + [('innovation','Innovation'),('invention','Invention')]),
+            'status':   forms.Select(choices=[('', 'Select status…')] + [('draft','Draft'),('active','Active'),('archived','Archived')]),
             'description':         forms.Textarea(attrs={'rows': 5, 'placeholder': 'Brief overview of your project…'}),
             'keywords':            forms.TextInput(attrs={'placeholder': 'e.g. fintech, mobile, payments'}),
             'video_description':   forms.Textarea(attrs={'rows': 2, 'placeholder': 'Brief description of the video…'}),

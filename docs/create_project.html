@@ -38,7 +38,7 @@
     <div class="cp-errors">Please fix the errors below before submitting.</div>
     {% endif %}
 
-    <form method="POST" enctype="multipart/form-data" id="project-form">
+    <form method="POST" enctype="multipart/form-data" id="project-form" autocomplete="off">
       {% csrf_token %}
 
       <!-- ── Basic info ── -->
@@ -55,8 +55,7 @@
             </button>
           </div>
           <input type="text" name="title" id="id_title" class="oc-input {% if form.title.errors %}oc-input--error{% endif %}"
-                 placeholder="" value="{{ form.title.value|default:'' }}" required maxlength="255"
-                 data-example="e.g. Smart Water Purification System" />
+                 placeholder="e.g. Smart Water Purification System" value="{{ form.title.value|default:'' }}" required maxlength="255" />
           {% if form.title.errors %}<span class="cp-err">{{ form.title.errors|join:", " }}</span>{% endif %}
 
           <!-- AI title suggestions panel -->
@@ -66,7 +65,7 @@
             </p>
             <textarea id="title-ai-hint" rows="2"
                       style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 11px;font-size: 1.2rem;resize:vertical;margin-bottom:10px;"
-                      placeholder="" data-example="e.g. A solar-powered filtration unit for rural communities…"></textarea>
+                      placeholder="e.g. A solar-powered filtration unit for rural communities…"></textarea>
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
               <button type="button" id="generate-titles-btn" onclick="generateTitles()"
                       style="background:#004AAD;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size: 1.2rem;font-weight:600;cursor:pointer;">
@@ -98,19 +97,35 @@
             </div>
           </div>
           <div class="cp-field">
-            <label class="cp-label" for="id_category">Category *</label>
-            <select name="category" id="id_category" class="oc-select" required>
-              <option value="innovation" {% if form.category.value == 'innovation' %}selected{% endif %}>Innovation</option>
-              <option value="invention" {% if form.category.value == 'invention' %}selected{% endif %}>Invention</option>
-            </select>
+            <label class="cp-label">Category *</label>
+            <div class="pm-dd" id="dd-category">
+              <input type="hidden" name="category" id="id_category"
+                     value="{{ form.category.value|default:'' }}" required>
+              <button type="button" class="pm-dd-trigger" onclick="pmDdToggle('dd-category')" aria-haspopup="listbox">
+                <span class="pm-dd-val">{% if form.category.value == 'innovation' %}Innovation{% elif form.category.value == 'invention' %}Invention{% else %}Select category…{% endif %}</span>
+                <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="pm-dd-list" role="listbox">
+                <div class="pm-dd-option{% if form.category.value == 'innovation' %} selected{% endif %}" data-val="innovation" onclick="pmDdSelect('dd-category','innovation','Innovation')" role="option">Innovation<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option{% if form.category.value == 'invention' %} selected{% endif %}" data-val="invention" onclick="pmDdSelect('dd-category','invention','Invention')" role="option">Invention<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              </div>
+            </div>
           </div>
           <div class="cp-field">
-            <label class="cp-label" for="id_status">Status</label>
-            <select name="status" id="id_status" class="oc-select">
-              <option value="draft" {% if form.status.value == 'draft' %}selected{% endif %}>Draft</option>
-              <option value="in_progress" {% if form.status.value == 'in_progress' %}selected{% endif %}>In Progress</option>
-              <option value="completed" {% if form.status.value == 'completed' %}selected{% endif %}>Completed</option>
-            </select>
+            <label class="cp-label">Status</label>
+            <div class="pm-dd" id="dd-status">
+              <input type="hidden" name="status" id="id_status"
+                     value="{{ form.status.value|default:'' }}">
+              <button type="button" class="pm-dd-trigger" onclick="pmDdToggle('dd-status')" aria-haspopup="listbox">
+                <span class="pm-dd-val">{% if form.status.value == 'draft' %}Draft{% elif form.status.value == 'in_progress' %}In Progress{% elif form.status.value == 'completed' %}Completed{% else %}Select status…{% endif %}</span>
+                <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="pm-dd-list" role="listbox">
+                <div class="pm-dd-option{% if form.status.value == 'draft' %} selected{% endif %}" data-val="draft" onclick="pmDdSelect('dd-status','draft','Draft')" role="option">Draft<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option{% if form.status.value == 'in_progress' %} selected{% endif %}" data-val="in_progress" onclick="pmDdSelect('dd-status','in_progress','In Progress')" role="option">In Progress<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option{% if form.status.value == 'completed' %} selected{% endif %}" data-val="completed" onclick="pmDdSelect('dd-status','completed','Completed')" role="option">Completed<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -139,7 +154,7 @@
                 </label>
                 <textarea id="q_problem" rows="2"
                           style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;resize:vertical;"
-                          placeholder="" data-example="e.g. 600 million Africans lack access to clean drinking water due to…"></textarea>
+                          placeholder="e.g. 600 million Africans lack access to clean drinking water due to…"></textarea>
               </div>
 
               <div>
@@ -148,7 +163,7 @@
                 </label>
                 <textarea id="q_solution" rows="2"
                           style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;resize:vertical;"
-                          placeholder="" data-example="e.g. A low-cost solar-powered filtration device that uses…"></textarea>
+                          placeholder="e.g. A low-cost solar-powered filtration device that uses…"></textarea>
               </div>
 
               <div>
@@ -157,7 +172,7 @@
                 </label>
                 <input type="text" id="q_target"
                        style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;"
-                       placeholder="" data-example="e.g. Rural households and small communities in Sub-Saharan Africa">
+                       placeholder="e.g. Rural households and small communities in Sub-Saharan Africa">
               </div>
 
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
@@ -165,16 +180,21 @@
                   <label style="display:block;font-size: 1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
                     4. Current project stage
                   </label>
-                  <select id="q_stage"
-                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;background:#fff;">
-                    <option value="">Select stage…</option>
-                    <option value="Idea / Concept">Idea / Concept</option>
-                    <option value="Research & Development">Research & Development</option>
-                    <option value="Prototype / MVP">Prototype / MVP</option>
-                    <option value="Beta / Pilot testing">Beta / Pilot testing</option>
-                    <option value="Launch-ready">Launch-ready</option>
-                    <option value="Live / Generating revenue">Live / Generating revenue</option>
-                  </select>
+                  <div class="pm-dd" id="dd-q-stage">
+                    <input type="hidden" id="q_stage" value="">
+                    <button type="button" class="pm-dd-trigger" onclick="pmDdToggle('dd-q-stage')" aria-haspopup="listbox">
+                      <span class="pm-dd-val" style="color:#9ca3af;">Select stage…</span>
+                      <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="pm-dd-list" role="listbox">
+                      <div class="pm-dd-option" data-val="Idea / Concept" onclick="pmDdSelectQ('dd-q-stage','Idea / Concept')" role="option">Idea / Concept<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                      <div class="pm-dd-option" data-val="Research & Development" onclick="pmDdSelectQ('dd-q-stage','Research &amp; Development')" role="option">Research &amp; Development<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                      <div class="pm-dd-option" data-val="Prototype / MVP" onclick="pmDdSelectQ('dd-q-stage','Prototype / MVP')" role="option">Prototype / MVP<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                      <div class="pm-dd-option" data-val="Beta / Pilot testing" onclick="pmDdSelectQ('dd-q-stage','Beta / Pilot testing')" role="option">Beta / Pilot testing<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                      <div class="pm-dd-option" data-val="Launch-ready" onclick="pmDdSelectQ('dd-q-stage','Launch-ready')" role="option">Launch-ready<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                      <div class="pm-dd-option" data-val="Live / Generating revenue" onclick="pmDdSelectQ('dd-q-stage','Live / Generating revenue')" role="option">Live / Generating revenue<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <label style="display:block;font-size: 1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
@@ -182,7 +202,7 @@
                   </label>
                   <input type="text" id="q_industry"
                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;"
-                         placeholder="" data-example="e.g. Clean Energy, AgriTech…">
+                         placeholder="e.g. Clean Energy, AgriTech…">
                 </div>
               </div>
 
@@ -192,7 +212,7 @@
                 </label>
                 <textarea id="q_unique" rows="2"
                           style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;resize:vertical;"
-                          placeholder="" data-example="e.g. Unlike existing products, ours costs 80% less…"></textarea>
+                          placeholder="e.g. Unlike existing products, ours costs 80% less…"></textarea>
               </div>
 
               <div>
@@ -201,7 +221,7 @@
                 </label>
                 <input type="text" id="q_revenue"
                        style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;"
-                       placeholder="" data-example="e.g. Hardware sales + subscription for maintenance">
+                       placeholder="e.g. Hardware sales + subscription for maintenance">
               </div>
 
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
@@ -211,7 +231,7 @@
                   </label>
                   <input type="text" id="q_team"
                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;"
-                         placeholder="" data-example="e.g. 2 engineers, 1 business lead">
+                         placeholder="e.g. 2 engineers, 1 business lead">
                 </div>
                 <div>
                   <label style="display:block;font-size: 1.2rem;font-weight:600;color:#1a1a2e;margin-bottom:5px;">
@@ -219,7 +239,7 @@
                   </label>
                   <input type="text" id="q_funding"
                          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;"
-                         placeholder="" data-example="e.g. $50,000 seed funding for manufacturing">
+                         placeholder="e.g. $50,000 seed funding for manufacturing">
                 </div>
               </div>
 
@@ -229,7 +249,7 @@
                 </label>
                 <input type="text" id="q_milestones"
                        style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size: 1.2rem;"
-                       placeholder="" data-example="e.g. Pilot with 200 households, 3 awards, patent filed…">
+                       placeholder="e.g. Pilot with 200 households, 3 awards, patent filed…">
               </div>
             </div>
 
@@ -275,8 +295,7 @@
             <textarea name="description" id="id_description"
                       class="oc-textarea {% if form.description.errors %}oc-input--error{% endif %}"
                       rows="6"
-                      placeholder=""
-                      data-example="Describe your project — what problem it solves, how it works, and what stage it's at."
+                      placeholder="Describe your project — what problem it solves, how it works, and what stage it's at."
                       required>{{ form.description.value|default:'' }}</textarea>
             {% if form.description.errors %}<span class="cp-err">{{ form.description.errors|join:", " }}</span>{% endif %}
           </div>
@@ -285,8 +304,7 @@
         <div class="cp-field">
           <label class="cp-label" for="id_website_link">Website / Demo URL</label>
           <input type="url" name="website_link" id="id_website_link" class="oc-input"
-                 placeholder="" value="{{ form.website_link.value|default:'' }}"
-                 data-example="https://yourproject.com" />
+                 placeholder="https://yourproject.com" value="{{ form.website_link.value|default:'' }}" />
         </div>
       </fieldset>
 
@@ -299,8 +317,7 @@
             <span class="cp-hint">Comma-separated — helps investors find your project via search.</span>
           </label>
           <input type="text" name="keywords" id="id_keywords" class="oc-input"
-                 placeholder="" value="{{ form.keywords.value|default:'' }}" maxlength="500"
-                 data-example="e.g. cleantech, water, IoT, Africa, sustainability" />
+                 placeholder="e.g. cleantech, water, IoT, Africa, sustainability" value="{{ form.keywords.value|default:'' }}" maxlength="500" />
         </div>
       </fieldset>
 
@@ -421,13 +438,13 @@
           <div class="cp-field">
             <label class="cp-label" for="id_video_name">Video Name <span class="cp-hint-inline">SEO title</span></label>
             <input type="text" name="video_name" id="id_video_name" class="oc-input"
-                   placeholder="" data-example="e.g. Product Demo v1" maxlength="255" value="{{ form.video_name.value|default:'' }}" />
+                   placeholder="e.g. Product Demo v1" maxlength="255" value="{{ form.video_name.value|default:'' }}" />
           </div>
         </div>
         <div class="cp-field">
           <label class="cp-label" for="id_video_description">Video Description</label>
           <textarea name="video_description" id="id_video_description" class="oc-textarea" rows="2"
-                    placeholder="" data-example="Brief description of what the video shows…">{{ form.video_description.value|default:'' }}</textarea>
+                    placeholder="Brief description of what the video shows…">{{ form.video_description.value|default:'' }}</textarea>
         </div>
       </fieldset>
 
@@ -449,24 +466,38 @@
               </div>
               <div class="cp-field">
                 <label class="cp-label">Type</label>
-                <select name="doc_type_1" class="oc-select">
-                  <option value="general">General</option>
-                  <option value="financial">Financial</option>
-                  <option value="legal">Legal</option>
-                  <option value="technical">Technical</option>
-                  <option value="presentation">Presentation</option>
-                  <option value="proposal">Proposal</option>
-                  <option value="report">Report</option>
-                  <option value="other">Other</option>
-                </select>
+                <div class="pm-dd" id="dd-doc-type-1">
+                  <input type="hidden" name="doc_type_1" value="general">
+                  <button type="button" class="pm-dd-trigger" onclick="pmDdToggle('dd-doc-type-1')">
+                    <span class="pm-dd-val">General</span>
+                    <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <div class="pm-dd-list" role="listbox">
+                    <div class="pm-dd-option selected" data-val="general" onclick="pmDdSelect('dd-doc-type-1','general','General')">General<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="financial" onclick="pmDdSelect('dd-doc-type-1','financial','Financial')">Financial<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="legal" onclick="pmDdSelect('dd-doc-type-1','legal','Legal')">Legal<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="technical" onclick="pmDdSelect('dd-doc-type-1','technical','Technical')">Technical<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="presentation" onclick="pmDdSelect('dd-doc-type-1','presentation','Presentation')">Presentation<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="proposal" onclick="pmDdSelect('dd-doc-type-1','proposal','Proposal')">Proposal<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="report" onclick="pmDdSelect('dd-doc-type-1','report','Report')">Report<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="other" onclick="pmDdSelect('dd-doc-type-1','other','Other')">Other<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  </div>
+                </div>
               </div>
               <div class="cp-field">
                 <label class="cp-label">Visibility</label>
-                <select name="doc_visibility_1" class="oc-select">
-                  <option value="connections">Connections only</option>
-                  <option value="public">Public</option>
-                  <option value="private">Private (only me)</option>
-                </select>
+                <div class="pm-dd" id="dd-doc-vis-1">
+                  <input type="hidden" name="doc_visibility_1" value="connections">
+                  <button type="button" class="pm-dd-trigger" onclick="pmDdToggle('dd-doc-vis-1')">
+                    <span class="pm-dd-val">Connections only</span>
+                    <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <div class="pm-dd-list" role="listbox">
+                    <div class="pm-dd-option selected" data-val="connections" onclick="pmDdSelect('dd-doc-vis-1','connections','Connections only')">Connections only<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="public" onclick="pmDdSelect('dd-doc-vis-1','public','Public')">Public<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="private" onclick="pmDdSelect('dd-doc-vis-1','private','Private (only me)')">Private (only me)<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="cp-field">
@@ -488,24 +519,38 @@
               </div>
               <div class="cp-field">
                 <label class="cp-label">Type</label>
-                <select name="doc_type_{{ n }}" class="oc-select">
-                  <option value="general">General</option>
-                  <option value="financial">Financial</option>
-                  <option value="legal">Legal</option>
-                  <option value="technical">Technical</option>
-                  <option value="presentation">Presentation</option>
-                  <option value="proposal">Proposal</option>
-                  <option value="report">Report</option>
-                  <option value="other">Other</option>
-                </select>
+                <div class="pm-dd" id="dd-doc-type-{{ n }}">
+                  <input type="hidden" name="doc_type_{{ n }}" value="general">
+                  <button type="button" class="pm-dd-trigger" onclick="pmDdToggle('dd-doc-type-{{ n }}')">
+                    <span class="pm-dd-val">General</span>
+                    <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <div class="pm-dd-list" role="listbox">
+                    <div class="pm-dd-option selected" data-val="general" onclick="pmDdSelect('dd-doc-type-{{ n }}','general','General')">General<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="financial" onclick="pmDdSelect('dd-doc-type-{{ n }}','financial','Financial')">Financial<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="legal" onclick="pmDdSelect('dd-doc-type-{{ n }}','legal','Legal')">Legal<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="technical" onclick="pmDdSelect('dd-doc-type-{{ n }}','technical','Technical')">Technical<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="presentation" onclick="pmDdSelect('dd-doc-type-{{ n }}','presentation','Presentation')">Presentation<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="proposal" onclick="pmDdSelect('dd-doc-type-{{ n }}','proposal','Proposal')">Proposal<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="report" onclick="pmDdSelect('dd-doc-type-{{ n }}','report','Report')">Report<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="other" onclick="pmDdSelect('dd-doc-type-{{ n }}','other','Other')">Other<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  </div>
+                </div>
               </div>
               <div class="cp-field">
                 <label class="cp-label">Visibility</label>
-                <select name="doc_visibility_{{ n }}" class="oc-select">
-                  <option value="connections">Connections only</option>
-                  <option value="public">Public</option>
-                  <option value="private">Private (only me)</option>
-                </select>
+                <div class="pm-dd" id="dd-doc-vis-{{ n }}">
+                  <input type="hidden" name="doc_visibility_{{ n }}" value="connections">
+                  <button type="button" class="pm-dd-trigger" onclick="pmDdToggle('dd-doc-vis-{{ n }}')">
+                    <span class="pm-dd-val">Connections only</span>
+                    <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <div class="pm-dd-list" role="listbox">
+                    <div class="pm-dd-option selected" data-val="connections" onclick="pmDdSelect('dd-doc-vis-{{ n }}','connections','Connections only')">Connections only<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="public" onclick="pmDdSelect('dd-doc-vis-{{ n }}','public','Public')">Public<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="pm-dd-option" data-val="private" onclick="pmDdSelect('dd-doc-vis-{{ n }}','private','Private (only me)')">Private (only me)<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="cp-field">
@@ -560,7 +605,7 @@
           </div>
           <textarea name="problem_statement" class="oc-textarea pb-textarea" rows="4" id="pb-ta-problem_statement"
             oninput="pbUpdate()"
-            placeholder="" data-example="What pain point are you solving and who suffers from it?">{{ form.problem_statement.value|default:'' }}</textarea>
+            placeholder="What pain point are you solving and who suffers from it?">{{ form.problem_statement.value|default:'' }}</textarea>
         </div>
 
         <!-- Slide 2: Solution -->
@@ -576,7 +621,7 @@
           </div>
           <textarea name="solution_overview" class="oc-textarea pb-textarea" rows="4" id="pb-ta-solution_overview"
             oninput="pbUpdate()"
-            placeholder="" data-example="Describe your product or service and what makes it different.">{{ form.solution_overview.value|default:'' }}</textarea>
+            placeholder="Describe your product or service and what makes it different.">{{ form.solution_overview.value|default:'' }}</textarea>
         </div>
 
         <!-- Slide 3: Market -->
@@ -592,7 +637,7 @@
           </div>
           <textarea name="market_opportunity" class="oc-textarea pb-textarea" rows="4" id="pb-ta-market_opportunity"
             oninput="pbUpdate()"
-            placeholder="" data-example="TAM, SAM, SOM — who is your ideal customer and how big is the opportunity?">{{ form.market_opportunity.value|default:'' }}</textarea>
+            placeholder="TAM, SAM, SOM — who is your ideal customer and how big is the opportunity?">{{ form.market_opportunity.value|default:'' }}</textarea>
         </div>
 
         <!-- Slide 4: Business Model -->
@@ -608,7 +653,7 @@
           </div>
           <textarea name="business_model" class="oc-textarea pb-textarea" rows="4" id="pb-ta-business_model"
             oninput="pbUpdate()"
-            placeholder="" data-example="Revenue streams, pricing strategy, path to profitability.">{{ form.business_model.value|default:'' }}</textarea>
+            placeholder="Revenue streams, pricing strategy, path to profitability.">{{ form.business_model.value|default:'' }}</textarea>
         </div>
 
         <!-- Slide 5: Traction -->
@@ -624,7 +669,7 @@
           </div>
           <textarea name="traction" class="oc-textarea pb-textarea" rows="4" id="pb-ta-traction"
             oninput="pbUpdate()"
-            placeholder="" data-example="Paying customers, pilots, revenue figures, partnerships, awards.">{{ form.traction.value|default:'' }}</textarea>
+            placeholder="Paying customers, pilots, revenue figures, partnerships, awards.">{{ form.traction.value|default:'' }}</textarea>
         </div>
 
         <!-- Slide 6: Funding Ask -->
@@ -641,16 +686,22 @@
           <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;margin-top:4px;">
             <input type="text" name="funding_requirement" class="oc-input" id="pb-ta-funding_requirement"
               oninput="pbUpdate()"
-              placeholder="" data-example="e.g. $500,000 seed round" value="{{ form.funding_requirement.value|default:'' }}" />
-            <select name="funding_stage" class="oc-select" style="min-width:150px;">
-              <option value="">Funding Stage</option>
-              <option value="pre_seed" {% if form.funding_stage.value == 'pre_seed' %}selected{% endif %}>Pre-Seed</option>
-              <option value="seed" {% if form.funding_stage.value == 'seed' %}selected{% endif %}>Seed</option>
-              <option value="pre_series_a" {% if form.funding_stage.value == 'pre_series_a' %}selected{% endif %}>Pre-Series A</option>
-              <option value="series_a" {% if form.funding_stage.value == 'series_a' %}selected{% endif %}>Series A</option>
-              <option value="series_b" {% if form.funding_stage.value == 'series_b' %}selected{% endif %}>Series B+</option>
-              <option value="grant" {% if form.funding_stage.value == 'grant' %}selected{% endif %}>Grant / Non-dilutive</option>
-            </select>
+              placeholder="e.g. $500,000 seed round" value="{{ form.funding_requirement.value|default:'' }}" />
+            <div class="pm-dd" id="dd-funding-stage" style="min-width:150px;">
+              <input type="hidden" name="funding_stage" value="{{ form.funding_stage.value|default:'' }}">
+              <button type="button" class="pm-dd-trigger" onclick="pmDdToggle('dd-funding-stage')" aria-haspopup="listbox">
+                <span class="pm-dd-val">{% if form.funding_stage.value == 'pre_seed' %}Pre-Seed{% elif form.funding_stage.value == 'seed' %}Seed{% elif form.funding_stage.value == 'pre_series_a' %}Pre-Series A{% elif form.funding_stage.value == 'series_a' %}Series A{% elif form.funding_stage.value == 'series_b' %}Series B+{% elif form.funding_stage.value == 'grant' %}Grant{% else %}Funding Stage{% endif %}</span>
+                <svg class="pm-dd-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="pm-dd-list" role="listbox">
+                <div class="pm-dd-option{% if form.funding_stage.value == 'pre_seed' %} selected{% endif %}" data-val="pre_seed" onclick="pmDdSelect('dd-funding-stage','pre_seed','Pre-Seed')" role="option">Pre-Seed<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option{% if form.funding_stage.value == 'seed' %} selected{% endif %}" data-val="seed" onclick="pmDdSelect('dd-funding-stage','seed','Seed')" role="option">Seed<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option{% if form.funding_stage.value == 'pre_series_a' %} selected{% endif %}" data-val="pre_series_a" onclick="pmDdSelect('dd-funding-stage','pre_series_a','Pre-Series A')" role="option">Pre-Series A<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option{% if form.funding_stage.value == 'series_a' %} selected{% endif %}" data-val="series_a" onclick="pmDdSelect('dd-funding-stage','series_a','Series A')" role="option">Series A<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option{% if form.funding_stage.value == 'series_b' %} selected{% endif %}" data-val="series_b" onclick="pmDdSelect('dd-funding-stage','series_b','Series B+')" role="option">Series B+<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="pm-dd-option{% if form.funding_stage.value == 'grant' %} selected{% endif %}" data-val="grant" onclick="pmDdSelect('dd-funding-stage','grant','Grant / Non-dilutive')" role="option">Grant / Non-dilutive<svg class="pm-dd-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -667,7 +718,7 @@
           </div>
           <textarea name="use_of_funds" class="oc-textarea pb-textarea" rows="4" id="pb-ta-use_of_funds"
             oninput="pbUpdate()"
-            placeholder="" data-example="e.g. 40% product, 30% sales, 20% operations, 10% working capital.">{{ form.use_of_funds.value|default:'' }}</textarea>
+            placeholder="e.g. 40% product, 30% sales, 20% operations, 10% working capital.">{{ form.use_of_funds.value|default:'' }}</textarea>
         </div>
 
         <!-- Slide 8: Team -->
@@ -683,7 +734,7 @@
           </div>
           <textarea name="team_overview" class="oc-textarea pb-textarea" rows="4" id="pb-ta-team_overview"
             oninput="pbUpdate()"
-            placeholder="" data-example="Co-founders, key hires: name, role, relevant experience. Why this team wins.">{{ form.team_overview.value|default:'' }}</textarea>
+            placeholder="Co-founders, key hires: name, role, relevant experience. Why this team wins.">{{ form.team_overview.value|default:'' }}</textarea>
         </div>
 
       </fieldset>
@@ -798,12 +849,42 @@
   background: #fafafa !important; 
   transition: background .2s; 
 }
-.pb-slide:focus-within .pb-textarea { 
-  background: #fff !important; 
+.pb-slide:focus-within .pb-textarea {
+  background: #fff !important;
   /* outline: unset; */
   /* box-shadow: 0 0 0 3px rgba(27,94,199,.1); */
   border:unset;
   }
+
+/* ── Custom dropdowns (pm-dd) ── */
+.pm-dd { position: relative; }
+.pm-dd-trigger {
+  width: 100%; display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border: 1.5px solid #e0e6f0; border-radius: 10px;
+  background: #fff; color: #0A1628; font-size: 1rem; font-weight: 500;
+  cursor: pointer; text-align: left; transition: border-color .15s;
+}
+.pm-dd-trigger:hover { border-color: #c3d4ec; }
+.pm-dd-trigger.open { border-color: #1B5EC7; box-shadow: 0 0 0 3px rgba(27,94,199,.08); }
+.pm-dd-trigger .pm-dd-val { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pm-dd-chevron { width: 16px; height: 16px; flex-shrink: 0; color: #9ca3af; transition: transform .18s, color .15s; }
+.pm-dd-trigger.open .pm-dd-chevron { transform: rotate(180deg); color: #1B5EC7; }
+.pm-dd-list {
+  display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: #fff; border: 1.5px solid #e4eaf2; border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(10,22,40,.1); z-index: 200; overflow: hidden;
+}
+.pm-dd-list.open { display: block; animation: pmDdIn .14s ease; }
+@keyframes pmDdIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+.pm-dd-option {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; font-size: .9rem; font-weight: 500; color: #374151;
+  cursor: pointer; transition: background .12s;
+}
+.pm-dd-option:hover { background: #f0f5ff; color: #1B5EC7; }
+.pm-dd-option.selected { background: #eef4ff; color: #1B5EC7; font-weight: 700; }
+.pm-dd-option .pm-dd-check { display: none; flex-shrink: 0; }
+.pm-dd-option.selected .pm-dd-check { display: block; color: #1B5EC7; }
 </style>
 
 <script>
@@ -1432,6 +1513,50 @@ function backToKeywords() {
 function escHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+
+/* ── Custom dropdown (pm-dd) ── */
+function pmDdCloseAll() {
+  document.querySelectorAll('.pm-dd-trigger.open').forEach(function(t){ t.classList.remove('open'); });
+  document.querySelectorAll('.pm-dd-list.open').forEach(function(l){ l.classList.remove('open'); });
+}
+function pmDdToggle(id) {
+  var dd = document.getElementById(id);
+  var trig = dd.querySelector('.pm-dd-trigger');
+  var list = dd.querySelector('.pm-dd-list');
+  var wasOpen = list.classList.contains('open');
+  pmDdCloseAll();
+  if (!wasOpen) { trig.classList.add('open'); list.classList.add('open'); }
+}
+function pmDdSelect(id, val, label) {
+  var dd = document.getElementById(id);
+  var valEl = dd.querySelector('.pm-dd-val');
+  valEl.textContent = label;
+  valEl.style.color = '';
+  dd.querySelector('input[type=hidden]').value = val;
+  dd.querySelectorAll('.pm-dd-option').forEach(function(o) {
+    o.classList.toggle('selected', o.dataset.val === val);
+  });
+  pmDdCloseAll();
+}
+function pmDdSelectQ(id, label) {
+  var dd = document.getElementById(id);
+  var valEl = dd.querySelector('.pm-dd-val');
+  valEl.textContent = label;
+  valEl.style.color = '';
+  dd.querySelector('input[type=hidden]').value = label;
+  dd.querySelectorAll('.pm-dd-option').forEach(function(o) {
+    o.classList.toggle('selected', o.dataset.val === label);
+  });
+  pmDdCloseAll();
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.pm-dd')) pmDdCloseAll();
+});
+
+/* ── Reset form on bfcache restore (browser back button) ── */
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) document.getElementById('project-form').reset();
+});
 
 </script>
 {% endblock %}

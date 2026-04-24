@@ -250,7 +250,7 @@ class Project(models.Model):
     image = models.ImageField(upload_to='project_images/', null=True, blank=True, default='project_images/mac.png')
 
     # Optional website link
-    website_link = models.URLField(null=True, blank=True, default="http://example.com")
+    website_link = models.URLField(null=True, blank=True, default='')
 
     # Auto-generated creation date
     created_at = models.DateTimeField(auto_now_add=True)
