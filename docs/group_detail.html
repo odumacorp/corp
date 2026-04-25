@@ -6,7 +6,7 @@
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><a href="{% url 'groups_list' %}" class="oc-breadcrumbs__link">Groups</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">{{ group.name }}</span></li>
   </ol>
@@ -283,7 +283,7 @@
         <span class="gd-tag">{{ group.get_industry_display }}</span>
         {% if group.is_private %}<span class="gd-private-tag">Private</span>{% else %}<span style="color:#059669;font-size: 1.2rem;">Open</span>{% endif %}
         <span><i class="fi fi-rr-user fi-sm"></i> {{ group.members.count }} member{{ group.members.count|pluralize }}</span>
-        {% if group.creator %}<span>Created by <a href="{% url 'profile_view' id=group.creator.id %}" style="color:inherit;text-decoration:underline;">{{ group.creator.get_full_name|default:group.creator.username }}</a></span>{% endif %}
+        {% if group.creator %}<span>Created by <a href="{% url 'profile_view' username=group.creator.username %}" style="color:inherit;text-decoration:underline;">{{ group.creator.get_full_name|default:group.creator.username }}</a></span>{% endif %}
       </div>
       {% if group.description %}<p class="gd-hero-desc">{{ group.description }}</p>{% endif %}
     </div>
@@ -482,7 +482,7 @@
         <h2 class="gd-panel-title"><i class="fi fi-rr-users"></i> Members ({{ members|length }})</h2>
         {% for mem in members %}
         {% with u=mem.user up=mem.user.userprofile %}
-        <a href="{% url 'profile_view' id=u.id %}" class="gd-member-row">
+        <a href="{% url 'profile_view' username=u.username %}" class="gd-member-row">
           <div class="gd-member-avatar">
             {% if up.profile_pics %}<img src="{{ up.profile_pics.url }}" alt="{{ u.get_full_name }}">{% else %}<i class="fi fi-rr-user"></i>{% endif %}
           </div>

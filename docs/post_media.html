@@ -152,7 +152,7 @@
   <nav class="oc-breadcrumb" style="margin-bottom:16px;">
     <a href="{% url 'app' %}"><i class="fi fi-rr-home fi-sm"></i> Home</a>
     <span class="oc-bc-sep">›</span>
-    <a href="{% url 'post_detail' post.id %}">{{ post.title|truncatewords:6 }}</a>
+    <a href="{% url 'post_detail' slug=post.slug %}">{{ post.title|truncatewords:6 }}</a>
     <span class="oc-bc-sep">›</span>
     <span class="oc-bc-current">Edit Photos</span>
   </nav>
@@ -163,7 +163,7 @@
       <h1><i class="fi fi-rr-picture" style="color:var(--blue);font-size: 1.2rem;"></i> Edit Post Photos</h1>
       <p>Add or remove images for <strong>{{ post.title|truncatewords:8 }}</strong></p>
     </div>
-    <a href="{% url 'post_detail' post.id %}" style="color:var(--blue);font-family:var(--ff-sans);font-size: 1.2rem;text-decoration:none;display:flex;align-items:center;gap:5px;margin-top:6px;">
+    <a href="{% url 'post_detail' slug=post.slug %}" style="color:var(--blue);font-family:var(--ff-sans);font-size: 1.2rem;text-decoration:none;display:flex;align-items:center;gap:5px;margin-top:6px;">
       <i class="fi fi-rr-arrow-left fi-sm"></i> Back to post
     </a>
   </div>

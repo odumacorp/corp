@@ -4,7 +4,7 @@
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><a href="{% url 'investors' %}" class="oc-breadcrumbs__link">Investors</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">{{ industry_name }}</span></li>
   </ol>
@@ -35,7 +35,7 @@
             <tr>
                 <td>{{ forloop.counter }}</td>
                 <td>
-                    <a href="{% url 'profile_view' investor.id %}">
+                    <a href="{% url 'profile_view' username=investor.username %}">
                         {{ investor.get_full_name|default:investor.username }}
                     </a>
                 </td>

@@ -7,7 +7,7 @@
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Groups</span></li>
   </ol>
 </nav>
@@ -453,7 +453,7 @@
     <div class="grp-invite-row">
       <div class="grp-invite-name">
         {{ inv.group.name }}
-        <a href="{% url 'profile_view' id=inv.invited_by.id %}" class="grp-invite-sub" style="color:var(--muted);text-decoration:none;">— invited by {{ inv.invited_by.get_full_name|default:inv.invited_by.username }}</a>
+        <a href="{% url 'profile_view' username=inv.invited_by.username %}" class="grp-invite-sub" style="color:var(--muted);text-decoration:none;">— invited by {{ inv.invited_by.get_full_name|default:inv.invited_by.username }}</a>
       </div>
       <div class="grp-invite-actions">
         <form method="post" action="{% url 'group_accept_invite' inv.group.pk %}" style="display:inline;">

@@ -423,6 +423,7 @@ class Post(models.Model):
     share_count  = models.PositiveIntegerField(default=0)
     is_hidden    = models.BooleanField(default=False)
     created_at   = models.DateTimeField(auto_now_add=True)
+    slug         = models.SlugField(max_length=120, unique=True, blank=True)
 
     class Meta:
         indexes = [
@@ -433,6 +434,10 @@ class Post(models.Model):
 
     def __str__(self):
         return f"Post by {self.user.username} - {self.industry}"
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('post_detail', kwargs={'slug': self.slug})
 
 
 class PostReaction(models.Model):
@@ -674,6 +679,7 @@ class Company(models.Model):
 
 ####Message
 from django.conf import settings
+import re as _re
 
 class Conversation(models.Model):
     CONTEXT_TYPE_CHOICES = [('direct','Direct Message'),('post','Post Discussion'),('project','Project Discussion'),('proposal','Proposal Discussion'),('collab','Collaboration Discussion')]
@@ -685,6 +691,53 @@ class Conversation(models.Model):
     is_resolved   = models.BooleanField(default=False)
     resolved_at   = models.DateTimeField(null=True, blank=True)
     auto_replied  = models.BooleanField(default=False)
+    slug          = models.CharField(max_length=80, unique=True, blank=True)
+
+    # Matches temp UUID slugs generated before participants are added
+    _TEMP_RE = _re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}$|^[0-9a-f]{12}$')
+
+    def build_slug(self):
+        from django.utils.text import slugify
+        usernames = list(
+            self.participants.values_list('username', flat=True).order_by('username')
+        )
+        parts = []
+        if self.context_type == 'project' and self.project_id:
+            try:
+                title = self.project.title
+                parts.append(slugify(title)[:25].strip('-'))
+            except Exception:
+                parts.append('project')
+        elif self.context_type == 'post':
+            parts.append('post')
+        elif self.context_type == 'proposal':
+            parts.append('proposal')
+        elif self.context_type == 'collab':
+            parts.append('collab')
+        for u in usernames[:2]:
+            parts.append(slugify(u.replace('.', '-')))
+        if not parts:
+            import uuid
+            h = uuid.uuid4().hex
+            return f"{h[:8]}-{h[8:12]}-{h[12:16]}"
+        base = '-'.join(p for p in parts if p)[:70]
+        slug = base
+        n = 2
+        qs = Conversation.objects.exclude(pk=self.pk) if self.pk else Conversation.objects.all()
+        while qs.filter(slug=slug).exists():
+            slug = f'{base}-{n}'
+            n += 1
+        return slug
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            import uuid
+            h = uuid.uuid4().hex
+            self.slug = f"{h[:8]}-{h[8:12]}-{h[12:16]}"
+            while Conversation.objects.filter(slug=self.slug).exists():
+                h = uuid.uuid4().hex
+                self.slug = f"{h[:8]}-{h[8:12]}-{h[12:16]}"
+        super().save(*args, **kwargs)
 
 class Message(models.Model):
     MSG_TYPE_CHOICES = [

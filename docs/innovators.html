@@ -6,7 +6,7 @@
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Innovators</span></li>
   </ol>
 </nav>
@@ -474,7 +474,7 @@
 
       <!-- Actions -->
       <div class="iv-card-actions">
-        <a href="{% url 'profile_view' id=innovator.id %}" class="iv-btn iv-btn--ghost">
+        <a href="{% url 'profile_view' username=innovator.username %}" class="iv-btn iv-btn--ghost">
           View Profile
         </a>
         <button class="iv-btn iv-btn--outline" style="flex:1;"

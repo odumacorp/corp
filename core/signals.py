@@ -1,7 +1,7 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.contrib.auth.models import User
-from .models import CustomUser, UserProfile, Notification, Message, Conversation, SubscriptionPlan, UserSubscription
+from .models import CustomUser, UserProfile, Notification, Message, Conversation, SubscriptionPlan, UserSubscription, Post
 # from .models import Profile
 
 # @receiver(post_save, sender=User)
@@ -111,6 +111,31 @@ def create_user_subscription(sender, instance, created, **kwargs):
             UserSubscription.objects.get_or_create(user=instance, defaults={'plan': free_plan})
         except Exception:
             pass
+
+@receiver(post_save, sender=Post)
+def set_post_slug(sender, instance, created, **kwargs):
+    if not instance.slug:
+        from django.utils.text import slugify
+        base = slugify(instance.title)[:80] or 'post'
+        slug = f"{base}-{instance.pk}"
+        Post.objects.filter(pk=instance.pk).update(slug=slug)
+        instance.slug = slug
+
+
+@receiver(m2m_changed, sender=Conversation.participants.through)
+def set_conversation_slug(sender, instance, action, **kwargs):
+    """Once participants are first added, replace the temp UUID slug with a readable one."""
+    if action != 'post_add':
+        return
+    if not Conversation._TEMP_RE.match(instance.slug or ''):
+        return
+    try:
+        new_slug = instance.build_slug()
+        Conversation.objects.filter(pk=instance.pk).update(slug=new_slug)
+        instance.slug = new_slug
+    except Exception:
+        pass
+
 
 @receiver(post_save, sender=CustomUser)
 def save_user_profile(sender, instance, **kwargs):

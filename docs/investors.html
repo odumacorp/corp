@@ -6,7 +6,7 @@
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Investors</span></li>
   </ol>
 </nav>
@@ -106,7 +106,7 @@
     <div class="oc-card" style="padding:22px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;">
 
       <!-- Avatar (clickable) -->
-      <a href="{% url 'profile_view' id=investor.id %}" style="display:block;line-height:0;">
+      <a href="{% url 'profile_view' username=investor.username %}" style="display:block;line-height:0;">
         {% if investor.userprofile.profile_pics %}
           <img src="{{ investor.userprofile.profile_pics.url }}" alt="{{ investor.get_full_name }}"
                style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--oc-border);">
@@ -120,7 +120,7 @@
 
       <!-- Name (clickable) -->
       <div>
-        <a href="{% url 'profile_view' id=investor.id %}"
+        <a href="{% url 'profile_view' username=investor.username %}"
            style="font-size: 1.2rem;font-weight:700;color:var(--oc-text-primary);text-decoration:none;display:block;margin-bottom:2px;">
           {{ investor.get_full_name|default:investor.username }}
         </a>
@@ -149,7 +149,7 @@
       <!-- Actions -->
       {% if user != investor %}
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;">
-          <a href="{% url 'profile_view' id=investor.id %}" class="oc-btn oc-btn-outline oc-btn-sm">View Profile</a>
+          <a href="{% url 'profile_view' username=investor.username %}" class="oc-btn oc-btn-outline oc-btn-sm">View Profile</a>
 
           {% if user.is_authenticated %}
             {% if user.userprofile not in investor.userprofile.connected_users.all %}

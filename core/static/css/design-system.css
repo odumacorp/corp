@@ -121,15 +121,14 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
-  font-size: 17px;   /* bumped from 16px for readability */
+  /* Fluid base: 14px @ 320px → 17px @ 1280px, clamped at both ends */
+  font-size: clamp(14px, 0.875rem + 0.625vw, 17px);
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   width: 100%;
   /* no overflow-x: hidden here — it clips position:absolute dropdowns */
 }
-@media (max-width: 900px)  { html { font-size: 16px; } }
-@media (max-width: 480px)  { html { font-size: 15px; } }
 
 body {
   font-family: var(--oc-font-sans);

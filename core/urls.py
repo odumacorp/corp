@@ -84,7 +84,8 @@ urlpatterns = _html_redirects + [
     # path('profile/', profile_view, name='profile'),
     # path('profile/<str:username>/', profile_view, name='profile_with_username'),  # With username
 
-    path('profile/<int:id>/', views.profile_view, name='profile_view'),
+    path('profile/<int:id>/', views.profile_view_by_id, name='profile_view_by_id'),  # legacy redirect
+    path('profile/<str:username>/', views.profile_view, name='profile_view'),
     path('profile/', views.my_profile_view, name='my_profile'),
 
     path('project/<int:project_id>/edit/', views.edit_project, name='edit_project'),
@@ -140,8 +141,9 @@ urlpatterns = _html_redirects + [
     path('message_investor/<int:investor_id>/', views.message_investor, name='message_investor'),
 
     path('start_conversation/<int:user_id>/', views.start_conversation, name='start_conversation'),
-    path('chat/<int:conversation_id>/', views.chat_page, name='chat_page'),
-    path('chat/<int:conversation_id>/resolve/', views.resolve_conversation, name='resolve_conversation'),
+    path('chat/<int:conversation_id>/', views.chat_page_by_id, name='chat_page_by_id'),  # legacy redirect
+    path('chat/<str:slug>/', views.chat_page, name='chat_page'),
+    path('chat/<str:slug>/resolve/', views.resolve_conversation, name='resolve_conversation'),
     path('project-chat/<int:project_id>/', views.start_project_conversation, name='start_project_conversation'),
     path('quick-message/', views.quick_message, name='quick_message'),
 
@@ -203,6 +205,8 @@ urlpatterns = _html_redirects + [
     # Connections
     path('connections/<int:conn_id>/accept/', views.accept_connection, name='accept_connection'),
     path('connections/<int:conn_id>/reject/', views.reject_connection, name='reject_connection'),
+    path('notifications/<int:notif_id>/read/', views.mark_notif_read, name='mark_notif_read'),
+    path('notifications/<int:notif_id>/dismiss/', views.dismiss_notif, name='dismiss_notif'),
 
     # Comments
     path('comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
@@ -342,8 +346,9 @@ urlpatterns = _html_redirects + [
     path('pages/<int:page_id>/edit/', views.page_edit, name='page_edit'),
     path('pages/<int:page_id>/delete/', views.page_delete, name='page_delete'),
 
-    # Posts
-    path('posts/<int:post_id>/', views.post_detail, name='post_detail'),
+    # Posts — canonical slug URL + legacy numeric redirects
+    path('posts/<int:post_id>/', views.post_detail_by_id, name='post_detail_by_id'),
+    path('posts/<slug:slug>/', views.post_detail, name='post_detail'),
     path('posts/<int:post_id>/edit/', views.edit_post, name='edit_post'),
     path('posts/<int:post_id>/delete/', views.delete_post, name='delete_post'),
     path('posts/<int:post_id>/media/', views.post_media, name='post_media'),

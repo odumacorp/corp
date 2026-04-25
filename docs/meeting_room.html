@@ -216,7 +216,7 @@
 
   <nav class="oc-breadcrumbs" aria-label="Breadcrumb" style="background:transparent;border:none;padding:0 0 16px;">
     <ol class="oc-breadcrumbs__list">
-      <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
       <li class="oc-breadcrumbs__item"><a href="{% url 'meetings_list' %}" class="oc-breadcrumbs__link">Meetings</a><span class="oc-breadcrumbs__sep">›</span></li>
       <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">{{ meeting.title|truncatechars:40 }}</span></li>
     </ol>
@@ -327,7 +327,7 @@
     {% if meeting.conversation %}
     <div class="mr-info-row">
       <span class="mr-info-label"><i class="fi fi-rr-comment fi-sm"></i> Chat</span>
-      <a href="{% url 'chat_page' meeting.conversation.id %}" class="mr-info-value" style="color:var(--blue);text-decoration:none;">
+      <a href="{% url 'chat_page' slug=meeting.conversation.slug %}" class="mr-info-value" style="color:var(--blue);text-decoration:none;">
         Open conversation <i class="fi fi-rr-arrow-up-right-from-square fi-sm"></i>
       </a>
     </div>

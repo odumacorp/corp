@@ -8,7 +8,11 @@
     {% for crumb in crumbs %}
       <li class="oc-breadcrumbs__item">
         {% if crumb.url %}
-          <a href="{{ crumb.url }}" class="oc-breadcrumbs__link">{{ crumb.label }}</a>
+          {% if crumb.label == 'Home' and request.user.is_authenticated %}
+            <a href="{% url 'app' %}" class="oc-breadcrumbs__link">{{ crumb.label }}</a>
+          {% else %}
+            <a href="{{ crumb.url }}" class="oc-breadcrumbs__link">{{ crumb.label }}</a>
+          {% endif %}
           <span class="oc-breadcrumbs__sep" aria-hidden="true">›</span>
         {% else %}
           <span class="oc-breadcrumbs__current" aria-current="page">{{ crumb.label }}</span>

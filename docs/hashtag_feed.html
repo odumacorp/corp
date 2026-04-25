@@ -186,7 +186,7 @@
       Posts <span class="hf-section-count">{{ posts|length }}</span>
     </p>
     {% for post in posts %}
-    <a href="{% url 'post_detail' post.id %}" class="hf-post">
+    <a href="{% url 'post_detail' slug=post.slug %}" class="hf-post">
       <div class="hf-post-author">
         {% if post.user.userprofile.profile_pics %}
           <img src="{{ post.user.userprofile.profile_pics.url }}" class="hf-post-avatar" alt="">

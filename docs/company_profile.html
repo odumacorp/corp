@@ -468,7 +468,7 @@
   <div style="max-width:1060px;margin:0 auto;padding:12px 16px 0;">
     <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
       <ol class="oc-breadcrumbs__list">
-        <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+        <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
         <li class="oc-breadcrumbs__item"><a href="{% url 'companies_list' %}" class="oc-breadcrumbs__link">Companies</a><span class="oc-breadcrumbs__sep">›</span></li>
         <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">{{ company.name }}</span></li>
       </ol>
@@ -588,7 +588,7 @@
               <li><i class="fi fi-rr-users"></i> {{ company.get_size_display }}</li>
               {% endif %}
               {% if company.owner %}
-              <li><i class="fi fi-rr-user"></i> <a href="{% url 'profile_view' company.owner.id %}">{{ company.owner.get_full_name|default:company.owner.username }}</a></li>
+              <li><i class="fi fi-rr-user"></i> <a href="{% url 'profile_view' username=company.owner.username %}">{{ company.owner.get_full_name|default:company.owner.username }}</a></li>
               {% endif %}
             </ul>
           </div>

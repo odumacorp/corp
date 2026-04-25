@@ -589,7 +589,7 @@
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
         {% if unread_notifications_count %}<span class="id-tb-badge">{{ unread_notifications_count }}</span>{% endif %}
       </a>
-      <a href="{% url 'profile_view' id=request.user.id %}" class="id-tb-icon-btn" title="My Profile">
+      <a href="{% url 'profile_view' username=request.user.username %}" class="id-tb-icon-btn" title="My Profile">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       </a>
     </div>
@@ -640,7 +640,7 @@
 
       {% for pin in pinned_chats %}
       {% with conv=pin.conversation %}
-      <a href="{% url 'chat_page' conversation_id=conv.id %}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;text-decoration:none;color:inherit;background:#f8faff;">
+      <a href="{% url 'chat_page' slug=conv.slug %}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;text-decoration:none;color:inherit;background:#f8faff;">
         <span style="width:30px;height:30px;border-radius:50%;background:#eef4ff;color:#1B5EC7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         </span>
@@ -656,7 +656,7 @@
 
       {% for pin in pinned_posts %}
       {% with p=pin.post %}
-      <a href="{% url 'post_detail' p.id %}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;text-decoration:none;color:inherit;background:#fffdf5;">
+      <a href="{% url 'post_detail' slug=p.slug %}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;text-decoration:none;color:inherit;background:#fffdf5;">
         <span style="width:30px;height:30px;border-radius:50%;background:#fffbeb;color:#D97706;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </span>
@@ -912,7 +912,7 @@
             <!-- Founder + completeness -->
             <div class="id-df-meta" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
               <span>
-                by <a href="{% url 'profile_view' id=proj.owner.id %}">{{ proj.owner.get_full_name|default:proj.owner.username }}</a>
+                by <a href="{% url 'profile_view' username=proj.owner.username %}">{{ proj.owner.get_full_name|default:proj.owner.username }}</a>
                 {% with op=proj.owner.userprofile %}
                 {% if op.verification_status == 'verified' %}<span class="id-df-verified">✓</span>{% endif %}
                 {% endwith %}
@@ -1127,7 +1127,7 @@
           <div class="id-row-item">
             <div>
               <a href="{% url 'project_detail' p.project.pk %}" class="id-row-label">{{ p.project.title|truncatechars:60 }}</a>
-              <div class="id-row-sub">to <a href="{% url 'profile_view' id=p.project.owner.id %}">{{ p.project.owner.get_full_name|default:p.project.owner.username }}</a> · {{ p.created_at|timesince }} ago</div>
+              <div class="id-row-sub">to <a href="{% url 'profile_view' username=p.project.owner.username %}">{{ p.project.owner.get_full_name|default:p.project.owner.username }}</a> · {{ p.created_at|timesince }} ago</div>
             </div>
             <div class="id-row-right">
               {% if p.amount %}<span class="id-amount">${{ p.amount }}</span>{% endif %}
@@ -1181,7 +1181,7 @@
             <a href="{% url 'project_detail' p.project.pk %}" class="id-row-label">{{ p.project.title }}</a>
             <div class="id-row-sub">
               {{ p.project.industry }} · {{ p.project.get_pipeline_stage_display }} ·
-              to <a href="{% url 'profile_view' id=p.project.owner.id %}">{{ p.project.owner.get_full_name|default:p.project.owner.username }}</a> ·
+              to <a href="{% url 'profile_view' username=p.project.owner.username %}">{{ p.project.owner.get_full_name|default:p.project.owner.username }}</a> ·
               {{ p.created_at|timesince }} ago
             </div>
             {% if p.message %}<div class="id-row-sub" style="margin-top:4px;font-style:italic;">"{{ p.message|truncatechars:100 }}"</div>{% endif %}
@@ -1276,12 +1276,12 @@
           <div class="id-conn-card">
             {% if u.userprofile.profile_pics %}<img src="{{ u.userprofile.profile_pics.url }}" alt="" class="id-conn-av">
             {% else %}<div class="id-conn-av-init">{{ u.first_name|slice:":1"|upper }}{{ u.last_name|slice:":1"|upper }}</div>{% endif %}
-            <a href="{% url 'profile_view' id=u.id %}" class="id-conn-name">{{ u.get_full_name|default:u.username }}</a>
+            <a href="{% url 'profile_view' username=u.username %}" class="id-conn-name">{{ u.get_full_name|default:u.username }}</a>
             <div class="id-conn-role">{{ u.userprofile.industry|default:"—" }}</div>
             <div class="id-conn-btns">
               <button class="id-btn id-btn-outline" style="font-size: 1.2rem;padding:4px 10px;"
                 onclick="openQuickChat({{ u.pk }},'{{ u.get_full_name|escapejs }}','{{ u.first_name|first|upper }}{{ u.last_name|first|upper }}','{% if u.userprofile.profile_pics %}{{ u.userprofile.profile_pics.url }}{% endif %}')">Message</button>
-              <a href="{% url 'profile_view' id=u.id %}" class="id-btn id-btn-ghost" style="font-size: 1.2rem;padding:4px 10px;">View</a>
+              <a href="{% url 'profile_view' username=u.username %}" class="id-btn id-btn-ghost" style="font-size: 1.2rem;padding:4px 10px;">View</a>
             </div>
           </div>
           {% endfor %}
@@ -1302,12 +1302,12 @@
         <div class="id-pend-grid">
           {% for conn in pending_connections %}
           <div class="id-pend-card">
-            <a href="{% url 'profile_view' id=conn.initiator.id %}">
+            <a href="{% url 'profile_view' username=conn.initiator.username %}">
               {% if conn.initiator.userprofile.profile_pics %}<img src="{{ conn.initiator.userprofile.profile_pics.url }}" alt="" class="id-pend-av">
               {% else %}<div class="id-pend-av-init">{{ conn.initiator.first_name|slice:":1"|upper }}{{ conn.initiator.last_name|slice:":1"|upper }}</div>{% endif %}
             </a>
             <div>
-              <a href="{% url 'profile_view' id=conn.initiator.id %}" class="id-pend-name">{{ conn.initiator.get_full_name|default:conn.initiator.username }}</a>
+              <a href="{% url 'profile_view' username=conn.initiator.username %}" class="id-pend-name">{{ conn.initiator.get_full_name|default:conn.initiator.username }}</a>
               <div style="font-size: 1.2rem;color:var(--id-muted);">Wants to connect</div>
               <div class="id-pend-btns">
                 <form method="post" action="{% url 'accept_connection' conn.id %}" style="display:contents;">{% csrf_token %}<button type="submit" class="id-accept-btn">Accept</button></form>

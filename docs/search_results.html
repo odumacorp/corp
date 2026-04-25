@@ -5,7 +5,7 @@
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Search Results</span></li>
   </ol>
 </nav>
@@ -50,7 +50,7 @@
           <div style="font-size: 1.2rem;color:#6b7280;margin:4px 0;">
             <span>{{ project.industry }}</span>
             {% if project.category %}&nbsp;·&nbsp;<span>{{ project.get_category_display|default:project.category }}</span>{% endif %}
-            &nbsp;·&nbsp; by <a href="{% url 'profile_view' id=project.owner.pk %}" style="color:var(--oc-primary);">{{ project.owner.get_full_name }}</a>
+            &nbsp;·&nbsp; by <a href="{% url 'profile_view' username=project.owner.username %}" style="color:var(--oc-primary);">{{ project.owner.get_full_name }}</a>
           </div>
           <p style="font-size: 1.2rem;color:#374151;margin:6px 0 0;line-height:1.6;">{{ project.description|truncatewords:25 }}</p>
         </div>
@@ -70,10 +70,10 @@
     <div style="display:flex;flex-direction:column;gap:12px;">
       {% for post in post_results %}
       <div class="oc-card" style="padding:16px;">
-        <a href="{% url 'post_detail' post.pk %}" style="font-weight:600;color:#1a1a2e;text-decoration:none;font-size: 1.2rem;">{{ post.title|default:"Untitled Post" }}</a>
+        <a href="{% url 'post_detail' slug=post.slug %}" style="font-weight:600;color:#1a1a2e;text-decoration:none;font-size: 1.2rem;">{{ post.title|default:"Untitled Post" }}</a>
         <div style="font-size: 1.2rem;color:#6b7280;margin:4px 0;">
           {{ post.get_post_type_display|default:post.post_type }} &nbsp;·&nbsp; {{ post.industry }}
-          &nbsp;·&nbsp; by <a href="{% url 'profile_view' id=post.user.pk %}" style="color:var(--oc-primary);">{{ post.user.get_full_name }}</a>
+          &nbsp;·&nbsp; by <a href="{% url 'profile_view' username=post.user.username %}" style="color:var(--oc-primary);">{{ post.user.get_full_name }}</a>
         </div>
         <p style="font-size: 1.2rem;color:#374151;margin:6px 0 0;line-height:1.6;">{{ post.content|truncatewords:25 }}</p>
       </div>

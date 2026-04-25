@@ -5,7 +5,7 @@
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Meetings</span></li>
   </ol>
 </nav>
@@ -341,7 +341,7 @@
               <i class="fi fi-rr-info fi-sm"></i> Details
             </a>
             {% if m.conversation %}
-            <a href="{% url 'chat_page' m.conversation.id %}" class="mt-action-btn view">
+            <a href="{% url 'chat_page' slug=m.conversation.slug %}" class="mt-action-btn view">
               <i class="fi fi-rr-comment fi-sm"></i> Chat
             </a>
             {% endif %}

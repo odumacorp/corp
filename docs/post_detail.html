@@ -8,7 +8,7 @@
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><a href="{% url 'app' %}" class="oc-breadcrumbs__link">Feed</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Post</span></li>
   </ol>
@@ -297,7 +297,7 @@
 
       <!-- Author -->
       <div class="pdt-author-row">
-        <a href="{% url 'profile_view' id=post.user.id %}" style="line-height:0;flex-shrink:0;">
+        <a href="{% url 'profile_view' username=post.user.username %}" style="line-height:0;flex-shrink:0;">
           {% if post.user.userprofile.profile_pics %}
             <img src="{{ post.user.userprofile.profile_pics.url }}" alt="" class="pdt-av">
           {% elif post.user.profile_pics %}
@@ -307,7 +307,7 @@
           {% endif %}
         </a>
         <div>
-          <a href="{% url 'profile_view' id=post.user.id %}" class="pdt-author-name">
+          <a href="{% url 'profile_view' username=post.user.username %}" class="pdt-author-name">
             {{ post.user.get_full_name|default:post.user.username }}
           </a>
           <div class="pdt-author-meta">
@@ -402,7 +402,7 @@
       {% for c in comments %}
       <div class="pdt-comment" id="cmt-{{ c.id }}">
         <div class="pdt-comment-row">
-          <a href="{% url 'profile_view' id=c.user.id %}" style="line-height:0;flex-shrink:0;">
+          <a href="{% url 'profile_view' username=c.user.username %}" style="line-height:0;flex-shrink:0;">
             {% if c.user.userprofile.profile_pics %}
               <img src="{{ c.user.userprofile.profile_pics.url }}" alt="" class="pdt-c-av">
             {% else %}
@@ -411,7 +411,7 @@
           </a>
           <div style="flex:1;min-width:0;">
             <div>
-              <a href="{% url 'profile_view' id=c.user.id %}" class="pdt-c-name">{{ c.user.get_full_name|default:c.user.username }}</a>
+              <a href="{% url 'profile_view' username=c.user.username %}" class="pdt-c-name">{{ c.user.get_full_name|default:c.user.username }}</a>
               <span class="pdt-c-time">{{ c.created_at|timesince }} ago</span>
               {% if c.updated_at != c.created_at %}<span class="pdt-c-edited">(edited)</span>{% endif %}
             </div>
@@ -480,7 +480,7 @@
           {% for r in c.replies.all %}
           <div class="pdt-reply" id="cmt-{{ r.id }}">
             <div class="pdt-comment-row">
-              <a href="{% url 'profile_view' id=r.user.id %}" style="line-height:0;flex-shrink:0;">
+              <a href="{% url 'profile_view' username=r.user.username %}" style="line-height:0;flex-shrink:0;">
                 {% if r.user.userprofile.profile_pics %}
                   <img src="{{ r.user.userprofile.profile_pics.url }}" alt="" class="pdt-c-av" style="width:28px;height:28px;">
                 {% else %}
@@ -489,7 +489,7 @@
               </a>
               <div style="flex:1;min-width:0;">
                 <div>
-                  <a href="{% url 'profile_view' id=r.user.id %}" class="pdt-c-name">{{ r.user.get_full_name|default:r.user.username }}</a>
+                  <a href="{% url 'profile_view' username=r.user.username %}" class="pdt-c-name">{{ r.user.get_full_name|default:r.user.username }}</a>
                   <span class="pdt-c-time">{{ r.created_at|timesince }} ago</span>
                   {% if r.updated_at != r.created_at %}<span class="pdt-c-edited">(edited)</span>{% endif %}
                 </div>

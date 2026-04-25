@@ -505,7 +505,7 @@
           {% endif %}
         </div>
         <div class="lp-proj-footer">
-          <a href="{% url 'profile_view' id=project.owner.pk %}" class="lp-proj-owner">
+          <a href="{% url 'profile_view' username=project.owner.username %}" class="lp-proj-owner">
             {% if project.owner.userprofile.profile_pics %}
               <img src="{{ project.owner.userprofile.profile_pics.url }}" class="lp-proj-owner-av" alt="">
             {% else %}

@@ -227,7 +227,7 @@
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Messages</span></li>
   </ol>
 </nav>
@@ -252,7 +252,7 @@
   <div class="ib-list">
     {% for item in inbox_items %}
     {% with ctx=item.conversation.context_type %}
-    <a href="{% url 'chat_page' conversation_id=item.conversation.id %}"
+    <a href="{% url 'chat_page' slug=item.conversation.slug %}"
        class="ib-tile {% if item.unread %}ib-tile--unread{% endif %} {% if ctx == 'project' %}ib-tile--project{% elif ctx == 'post' %}ib-tile--post{% elif ctx == 'proposal' %}ib-tile--proposal{% elif ctx == 'collab' %}ib-tile--collab{% endif %}">
 
       <!-- Avatar -->

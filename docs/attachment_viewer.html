@@ -189,7 +189,7 @@
 
   <!-- Top bar -->
   <div class="av-bar">
-    <a href="{% url 'chat_page' conversation.pk %}" class="av-back" title="Back to chat">
+    <a href="{% url 'chat_page' slug=conversation.slug %}" class="av-back" title="Back to chat">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
     </a>
 

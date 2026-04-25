@@ -47,7 +47,7 @@
           <div class="prp-card__from">
             <div class="prp-avatar">{{ proposal.from_user.first_name|first|upper }}{{ proposal.from_user.last_name|first|upper }}</div>
             <div>
-              <a href="{% url 'profile_view' id=proposal.from_user.id %}" class="prp-card__name" style="text-decoration:none;color:inherit;">{{ proposal.from_user.get_full_name|default:proposal.from_user.username }}</a>
+              <a href="{% url 'profile_view' username=proposal.from_user.username %}" class="prp-card__name" style="text-decoration:none;color:inherit;">{{ proposal.from_user.get_full_name|default:proposal.from_user.username }}</a>
               <span class="prp-card__role">{{ proposal.from_user.user_type|title }}</span>
             </div>
           </div>
@@ -114,7 +114,7 @@
           <div class="prp-card__from">
             <div class="prp-avatar" style="background:#7c3aed;">{{ collab.from_user.first_name|first|upper }}{{ collab.from_user.last_name|first|upper }}</div>
             <div>
-              <a href="{% url 'profile_view' id=collab.from_user.id %}" class="prp-card__name" style="text-decoration:none;color:inherit;">{{ collab.from_user.get_full_name|default:collab.from_user.username }}</a>
+              <a href="{% url 'profile_view' username=collab.from_user.username %}" class="prp-card__name" style="text-decoration:none;color:inherit;">{{ collab.from_user.get_full_name|default:collab.from_user.username }}</a>
               <span class="prp-card__role">{{ collab.from_user.user_type|title }}</span>
             </div>
           </div>
@@ -164,7 +164,7 @@
           <div class="prp-card__from">
             <div class="prp-avatar" style="background:#0ea5e9;">{{ proposal.project.owner.first_name|first|upper }}{{ proposal.project.owner.last_name|first|upper }}</div>
             <div>
-              <a href="{% url 'profile_view' id=proposal.project.owner.id %}" class="prp-card__name" style="text-decoration:none;color:inherit;">{{ proposal.project.owner.get_full_name|default:proposal.project.owner.username }}</a>
+              <a href="{% url 'profile_view' username=proposal.project.owner.username %}" class="prp-card__name" style="text-decoration:none;color:inherit;">{{ proposal.project.owner.get_full_name|default:proposal.project.owner.username }}</a>
               <span class="prp-card__role">Project Owner</span>
             </div>
           </div>
@@ -193,7 +193,7 @@
           <div class="prp-card__from">
             <div class="prp-avatar" style="background:#7c3aed;">{{ collab.project.owner.first_name|first|upper }}{{ collab.project.owner.last_name|first|upper }}</div>
             <div>
-              <a href="{% url 'profile_view' id=collab.project.owner.id %}" class="prp-card__name" style="text-decoration:none;color:inherit;">{{ collab.project.owner.get_full_name|default:collab.project.owner.username }}</a>
+              <a href="{% url 'profile_view' username=collab.project.owner.username %}" class="prp-card__name" style="text-decoration:none;color:inherit;">{{ collab.project.owner.get_full_name|default:collab.project.owner.username }}</a>
               <span class="prp-card__role">Project Owner</span>
             </div>
           </div>

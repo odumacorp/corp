@@ -165,7 +165,7 @@ def edit_profile(request):
                         'preferred_sectors', 'geography_focus', 'investment_thesis',
                     ])
                 messages.success(request, 'Profile updated successfully.')
-                return redirect('profile_view', id=user.id)
+                return redirect('profile_view', username=user.username)
     else:
         form = ProfileEditForm(instance=up)
 
@@ -233,12 +233,17 @@ def investors_by_industry_view(request, industry_name):
 
 @login_required
 def my_profile_view(request):
-    return redirect('profile_view', id=request.user.id)
+    return redirect('profile_view', username=request.user.username)
 
 @login_required
-def profile_view(request, id):
-    from .models import ProfileView as PV, Project, Patent, Like, Interest, Post, Group, Page, Company, Proposal
+def profile_view_by_id(request, id):
+    """Legacy numeric URL — redirect to username-based URL."""
     user_obj = get_object_or_404(CustomUser, id=id)
+    return redirect('profile_view', username=user_obj.username)
+
+def profile_view(request, username):
+    from .models import ProfileView as PV, Project, Patent, Like, Interest, Post, Group, Page, Company, Proposal
+    user_obj = get_object_or_404(CustomUser, username=username)
     profile  = get_object_or_404(UserProfile, user=user_obj)
 
     # Block regular users from viewing admin profiles
@@ -602,7 +607,7 @@ def download_message_attachment(request, attachment_id):
             user=msg.sender,
             message=f"{downloader_name} downloaded your attachment \"{file_label}\".",
             notification_type='other',
-            link=f'/chat/{conversation.pk}/',
+            link=f'/chat/{conversation.slug}/',
         )
 
     # Files are stored on Cloudinary — redirect to their URL with fl_attachment
@@ -972,10 +977,19 @@ def networks(request):
 ##notifications.html
 @login_required
 def notifications(request):
-    from .models import Notification, Conversation
-    notifs = Notification.objects.filter(user=request.user).order_by('-created_at')
+    from .models import Notification, Conversation, Connection
+    notifs = Notification.objects.filter(user=request.user, is_dismissed=False).order_by('-created_at')
     unread_count = notifs.filter(is_read=False).count()
-    notifs.filter(is_read=False).update(is_read=True)
+
+    # Build conn_map: notif.id → {conn_id, sender_username} for pending connection notifs
+    conn_notifs = notifs.filter(notification_type='connected', action_id__isnull=False)
+    conn_ids = [n.action_id for n in conn_notifs if n.action_id]
+    connections = {c.id: c for c in Connection.objects.filter(id__in=conn_ids, status='pending').select_related('initiator')}
+    conn_map = {}
+    for n in conn_notifs:
+        c = connections.get(n.action_id)
+        if c:
+            conn_map[n.id] = {'conn_id': c.id, 'initiator_username': c.initiator.username}
 
     # Build inbox items — same logic as the inbox view
     conversations = Conversation.objects.filter(
@@ -1009,6 +1023,7 @@ def notifications(request):
         'unread_count':            unread_count,
         'inbox_items':             inbox_items,
         'msg_unread_total':        msg_unread_total,
+        'conn_map':                conn_map,
     }
     return render(request, 'notifications.html', context)
 
@@ -1391,12 +1406,14 @@ def connect_user(request, user_id):
         ).first()
 
         if not existing:
-            Connection.objects.create(initiator=request.user, target=target, status='pending')
+            conn = Connection.objects.create(initiator=request.user, target=target, status='pending')
             Notification.objects.create(
                 user=target,
                 message=f"{request.user.get_full_name() or request.user.username} wants to connect with you.",
                 notification_type='connected',
                 action_type='connection_request',
+                action_id=conn.id,
+                project_id=request.user.id,
             )
             messages.success(request, f"Connection request sent to {target.get_full_name()}.")
         else:
@@ -1427,10 +1444,10 @@ def message_innovator(request, user_id):
         conversation = Conversation.objects.create(context_type='direct')
         conversation.participants.add(request.user, other_user)
 
-    return redirect('chat_page', conversation_id=conversation.id)
+    return redirect('chat_page', slug=conversation.slug)
 
 
-# #  
+# #
 from django.http import JsonResponse
 @login_required
 def like_project(request, pk):
@@ -1545,7 +1562,7 @@ def start_conversation(request, user_id):
         conversation = Conversation.objects.create(context_type='direct')
         conversation.participants.add(request.user, other_user)
 
-    return redirect('chat_page', conversation_id=conversation.id)
+    return redirect('chat_page', slug=conversation.slug)
 
 
 @login_required
@@ -1571,7 +1588,7 @@ def start_project_conversation(request, project_id):
         conversation = Conversation.objects.create(context_type='project', project=project)
         conversation.participants.add(request.user, owner)
 
-    return redirect('chat_page', conversation_id=conversation.id)
+    return redirect('chat_page', slug=conversation.slug)
 
 
 @login_required
@@ -1615,8 +1632,12 @@ def quick_message(request):
     return JsonResponse({'ok': True, 'conversation_id': conversation.id})
 
 @login_required
-def chat_page(request, conversation_id):
+def chat_page_by_id(request, conversation_id):
     conversation = get_object_or_404(Conversation, id=conversation_id)
+    return redirect('chat_page', slug=conversation.slug)
+
+def chat_page(request, slug):
+    conversation = get_object_or_404(Conversation, slug=slug)
 
     # Security: only participants can view
     if request.user not in conversation.participants.all():
@@ -1705,7 +1726,7 @@ def chat_page(request, conversation_id):
                 user=participant,
                 notification_type='message_sent',
                 message=f"Support request from {request.user.get_full_name() or request.user.username}: {preview}",
-                link=f"/chat/{conversation.id}/",
+                link=f"/chat/{conversation.slug}/",
             )
 
         # Auto-reply: always reply to keyword-matched topics; generic fallback only once
@@ -1744,7 +1765,7 @@ def chat_page(request, conversation_id):
                     user=request.user,
                     notification_type='other',
                     message="Your support request has been automatically resolved.",
-                    link=f"/chat/{conversation.id}/",
+                    link=f"/chat/{conversation.slug}/",
                 )
 
             # Notify admin urgently for issues only they can resolve
@@ -1754,7 +1775,7 @@ def chat_page(request, conversation_id):
                     user=participant,
                     notification_type='message_sent',
                     message=f"[Needs attention] {user_label}: {msg_text[:80]}",
-                    link=f"/chat/{conversation.id}/",
+                    link=f"/chat/{conversation.slug}/",
                 )
             # Also notify all admin users so they can monitor Odu conversations
             admin_users = CustomUser.objects.filter(
@@ -1766,10 +1787,10 @@ def chat_page(request, conversation_id):
                     user=admin,
                     notification_type='message_sent',
                     message=f"Odu chat — {user_label}: {msg_text[:80]}",
-                    link=f"/chat/{conversation.id}/",
+                    link=f"/chat/{conversation.slug}/",
                 )
 
-        return redirect('chat_page', conversation_id=conversation.id)
+        return redirect('chat_page', slug=conversation.slug)
 
     form = MessageForm()
 
@@ -1825,7 +1846,7 @@ def chat_page(request, conversation_id):
         'participant_profile':     participant_profile,
         'chat_messages':           messages_list,
         'form':                    form,
-        'room_name':               str(conversation_id),
+        'room_name':               str(conversation.id),
         'participant_projects':    participant_projects,
         'is_connected':            is_connected,
         'connection_pending_sent': connection_pending_sent,
@@ -1988,14 +2009,14 @@ def _admin_auto_reply(content):
 
 
 @login_required
-def resolve_conversation(request, conversation_id):
+def resolve_conversation(request, slug):
     from django.utils import timezone
     if request.method != 'POST':
-        return redirect('chat_page', conversation_id=conversation_id)
-    conversation = get_object_or_404(Conversation, id=conversation_id)
+        return redirect('chat_page', slug=slug)
+    conversation = get_object_or_404(Conversation, slug=slug)
     # Only admin can resolve
     if not (request.user.is_superuser or request.user.is_staff or getattr(request.user, 'user_type', '') == 'admin'):
-        return redirect('chat_page', conversation_id=conversation_id)
+        return redirect('chat_page', slug=slug)
     if request.user not in conversation.participants.all():
         return redirect('inbox')
 
@@ -2031,10 +2052,10 @@ def resolve_conversation(request, conversation_id):
                 user=user,
                 notification_type='other',
                 message="Your support request has been resolved by Oduma Corp.",
-                link=f"/chat/{conversation.id}/",
+                link=f"/chat/{conversation.slug}/",
             )
 
-    return redirect('chat_page', conversation_id=conversation_id)
+    return redirect('chat_page', slug=slug)
 
 
 @login_required
@@ -3363,7 +3384,7 @@ def share_meeting(request, meeting_id):
         user=recipient,
         message=f"{request.user.get_full_name() or request.user.username} shared a meeting with you: \"{meeting.title}\"",
         notification_type='message_sent',
-        link=f'/chat/{conv.pk}/',
+        link=f'/chat/{conv.slug}/',
     )
     return JsonResponse({'ok': True, 'conversation_id': conv.pk})
 
@@ -3795,6 +3816,29 @@ def reject_connection(request, conn_id):
     if request.method == 'POST' and conn.target == request.user:
         conn.delete()
         messages.info(request, 'Connection declined.')
+    return redirect('notifications')
+
+@login_required
+def mark_notif_read(request, notif_id):
+    from .models import Notification
+    notif = get_object_or_404(Notification, pk=notif_id, user=request.user)
+    notif.is_read = True
+    notif.save(update_fields=['is_read'])
+    from django.http import JsonResponse
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True})
+    return redirect('notifications')
+
+@login_required
+def dismiss_notif(request, notif_id):
+    from .models import Notification
+    notif = get_object_or_404(Notification, pk=notif_id, user=request.user)
+    notif.is_dismissed = True
+    notif.is_read = True
+    notif.save(update_fields=['is_dismissed', 'is_read'])
+    from django.http import JsonResponse
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True})
     return redirect('notifications')
 
 # --- comments ---
@@ -5541,9 +5585,14 @@ def page_post_media(request, page_id, post_id):
     return render(request, 'page_post_media.html', {'pg': pg, 'post': post})
 
 # --- posts ---
-def post_detail(request, post_id):
-    from .models import ReadLater
+def post_detail_by_id(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
+    return redirect('post_detail', slug=post.slug, permanent=True)
+
+
+def post_detail(request, slug):
+    from .models import ReadLater
+    post = get_object_or_404(Post, slug=slug)
     comments = post.comments.filter(parent=None).select_related('user').prefetch_related('replies__user', 'replies__likes')
     user_liked = False
     user_interested = False
@@ -5789,7 +5838,7 @@ def start_post_conversation(request, post_id):
     )
     if not conv.participants.filter(pk=request.user.pk).exists():
         conv.participants.add(request.user)
-    return redirect('chat_page', conversation_id=conv.id)
+    return redirect('chat_page', slug=conv.slug)
 
 # --- projects ---
 @login_required
@@ -5902,7 +5951,7 @@ def job_detail(request, pk):
 
 # --- user profile aliases ---
 def view_user(request, user_id):
-    return redirect('profile_view', id=user_id)
+    return redirect('profile_view_by_id', id=user_id)
 
 
 

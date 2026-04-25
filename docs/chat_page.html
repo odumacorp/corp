@@ -1288,7 +1288,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
       </div>
     </div>
     {% if participant and not participant.is_staff and not participant.is_superuser and participant.user_type != 'admin' %}
-    <a href="{% url 'profile_view' id=participant.id %}" class="ch-icon-btn" title="View profile" id="ch-panel-btn">
+    <a href="{% url 'profile_view' username=participant.username %}" class="ch-icon-btn" title="View profile" id="ch-panel-btn">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
     </a>
     {% endif %}
@@ -1330,7 +1330,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
       <div class="ch-admin-banner-title">Oduma Corp Admin</div>
     </div>
     {% if i_am_admin and not is_resolved %}
-    <form method="post" action="{% url 'resolve_conversation' conversation.id %}" class="ch-resolve-form" id="ch-resolve-form">
+    <form method="post" action="{% url 'resolve_conversation' slug=conversation.slug %}" class="ch-resolve-form" id="ch-resolve-form">
       {% csrf_token %}
       <button type="button" class="ch-resolve-btn" onclick="chOpenResolveModal()">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
@@ -1420,7 +1420,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
               {% endif %}
 
               {# Post card — editorial style #}
-              <a href="{% url 'post_detail' p.pk %}" class="ch-post-card" target="_blank">
+              <a href="{% url 'post_detail' slug=p.slug %}" class="ch-post-card" target="_blank">
                 {# Coloured type strip #}
                 <div class="ch-post-strip ch-post-strip--{{ p.post_type|default:'article' }}"></div>
 
@@ -1709,7 +1709,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
               {% endif %}
 
               {# Post card — editorial style #}
-              <a href="{% url 'post_detail' p.pk %}" class="ch-post-card" target="_blank">
+              <a href="{% url 'post_detail' slug=p.slug %}" class="ch-post-card" target="_blank">
                 {# Coloured type strip #}
                 <div class="ch-post-strip ch-post-strip--{{ p.post_type|default:'article' }}"></div>
 
@@ -2275,7 +2275,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
     <!-- Action buttons -->
     <div class="ch-panel-actions">
       {% if not participant.is_staff and not participant.is_superuser and participant.user_type != 'admin' %}
-      <a href="{% url 'profile_view' id=participant.id %}" class="ch-panel-btn ch-panel-btn--secondary">
+      <a href="{% url 'profile_view' username=participant.username %}" class="ch-panel-btn ch-panel-btn--secondary">
         View Profile
       </a>
       {% endif %}

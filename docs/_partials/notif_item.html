@@ -1,6 +1,6 @@
-{% load static %}
-{% with type=notif.notification_type %}
-<div class="nf-item{% if not notif.is_read %} unread{% endif %}">
+{% load static dict_extras %}
+{% with type=notif.notification_type ci=conn_map|get_item:notif.id %}
+<div class="nf-item{% if not notif.is_read %} unread{% endif %}" data-notif-id="{{ notif.id }}" onclick="nfToggle(this)">
 
   <!-- Icon -->
   <div class="nf-icon
@@ -27,14 +27,46 @@
         {% else %}{{ notif.action_type|default:"Update" }}{% endif %}
       </span>
     </div>
-  </div>
 
-  <!-- Action link -->
-  {% if notif.link %}
-  <div class="nf-action">
-    <a href="{{ notif.link }}">View →</a>
+    <!-- Action row (expands on click) -->
+    <div class="nf-actions" onclick="event.stopPropagation()">
+      {% if type == 'connected' and ci %}
+        <form method="POST" action="{% url 'accept_connection' ci.conn_id %}" style="display:inline">
+          {% csrf_token %}
+          <button type="submit" class="nf-act nf-act--accept">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Accept
+          </button>
+        </form>
+        <form method="POST" action="{% url 'reject_connection' ci.conn_id %}" style="display:inline">
+          {% csrf_token %}
+          <button type="submit" class="nf-act nf-act--ignore">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Ignore
+          </button>
+        </form>
+        <a href="/profile/{{ ci.initiator_username }}/" class="nf-act nf-act--view">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          View Profile
+        </a>
+      {% elif notif.link %}
+        <a href="{{ notif.link }}" class="nf-act nf-act--view">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          View
+        </a>
+      {% endif %}
+      {% if not notif.is_read %}
+      <button class="nf-act nf-act--read" onclick="nfMarkRead(event, {{ notif.id }}, this)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Mark read
+      </button>
+      {% endif %}
+      <button class="nf-act nf-act--dismiss" onclick="nfDismiss(event, {{ notif.id }}, this)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Dismiss
+      </button>
+    </div>
   </div>
-  {% endif %}
 
 </div>
 {% endwith %}

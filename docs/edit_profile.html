@@ -220,8 +220,8 @@
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><a href="{% url 'profile_view' id=request.user.id %}" class="oc-breadcrumbs__link">Profile</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% url 'profile_view' username=request.user.username %}" class="oc-breadcrumbs__link">Profile</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Edit Profile</span></li>
   </ol>
 </nav>
@@ -234,7 +234,7 @@
 
   <div class="ep-topbar">
     <h1>Edit Profile</h1>
-    <a href="{% url 'profile_view' id=request.user.id %}" class="ep-back">← Back to profile</a>
+    <a href="{% url 'profile_view' username=request.user.username %}" class="ep-back">← Back to profile</a>
   </div>
 
   {% if messages %}
@@ -487,7 +487,7 @@
 
         <!-- Actions -->
         <div class="ep-actions">
-          <a href="{% url 'profile_view' id=request.user.id %}" class="ep-btn-cancel">Cancel</a>
+          <a href="{% url 'profile_view' username=request.user.username %}" class="ep-btn-cancel">Cancel</a>
           <button type="submit" class="ep-btn-save">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>

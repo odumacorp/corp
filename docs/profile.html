@@ -550,7 +550,7 @@
           {% for post in posts|slice:":5" %}
           <div class="pf-post-item">
             <span class="pf-post-label">{{ post.industry|default:"General" }}</span>
-            <a href="{% url 'post_detail' post.pk %}" class="pf-post-title">{{ post.title|default:"Untitled Post" }}</a>
+            <a href="{% url 'post_detail' slug=post.slug %}" class="pf-post-title">{{ post.title|default:"Untitled Post" }}</a>
             <p class="pf-post-excerpt">{{ post.content|truncatewords:20 }}</p>
             <div class="pf-post-meta">
               {{ post.created_at|timesince }} ago &nbsp;·&nbsp;
@@ -806,7 +806,7 @@
         {% for post in posts %}
         <div class="pf-post-item">
           <span class="pf-post-label">{{ post.industry|default:"General" }}</span>
-          <a href="{% url 'post_detail' post.pk %}" class="pf-post-title">{{ post.title|default:"Untitled Post" }}</a>
+          <a href="{% url 'post_detail' slug=post.slug %}" class="pf-post-title">{{ post.title|default:"Untitled Post" }}</a>
           <p class="pf-post-excerpt">{{ post.content|truncatewords:30 }}</p>
           <div class="pf-post-meta">
             {{ post.created_at|timesince }} ago &nbsp;·&nbsp;

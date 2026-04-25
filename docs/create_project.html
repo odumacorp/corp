@@ -10,7 +10,7 @@
   <!-- Breadcrumbs -->
   <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
     <ol class="oc-breadcrumbs__list">
-      <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
       <li class="oc-breadcrumbs__item"><a href="{% url 'project_list' %}" class="oc-breadcrumbs__link">Projects</a><span class="oc-breadcrumbs__sep">›</span></li>
       <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Create Project</span></li>
     </ol>
@@ -462,7 +462,13 @@
             <div class="cp-row">
               <div class="cp-field" style="flex:2">
                 <label class="cp-label">File</label>
-                <input type="file" name="doc_file_1" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip" class="oc-input" />
+                <div class="cp-file-wrap">
+                  <input type="file" name="doc_file_1" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip" id="doc-file-1" onchange="cpFileChange(this,'doc-file-btn-1')">
+                  <div class="cp-file-btn" id="doc-file-btn-1">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    <span>Choose file…</span>
+                  </div>
+                </div>
               </div>
               <div class="cp-field">
                 <label class="cp-label">Type</label>
@@ -515,7 +521,13 @@
             <div class="cp-row">
               <div class="cp-field" style="flex:2">
                 <label class="cp-label">File</label>
-                <input type="file" name="doc_file_{{ n }}" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip" class="oc-input" />
+                <div class="cp-file-wrap">
+                  <input type="file" name="doc_file_{{ n }}" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip" id="doc-file-{{ n }}" onchange="cpFileChange(this,'doc-file-btn-{{ n }}')">
+                  <div class="cp-file-btn" id="doc-file-btn-{{ n }}">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    <span>Choose file…</span>
+                  </div>
+                </div>
               </div>
               <div class="cp-field">
                 <label class="cp-label">Type</label>
@@ -885,6 +897,22 @@
 .pm-dd-option.selected { background: #eef4ff; color: #1B5EC7; font-weight: 700; }
 .pm-dd-option .pm-dd-check { display: none; flex-shrink: 0; }
 .pm-dd-option.selected .pm-dd-check { display: block; color: #1B5EC7; }
+
+/* ── Doc file input ── */
+.cp-file-wrap { position: relative; }
+.cp-file-wrap input[type=file] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.01; cursor: pointer; z-index: 2; }
+.cp-file-btn {
+  width: 100%; display: flex; align-items: center; gap: 9px;
+  border: 1.5px solid #e0e6f0; border-radius: 10px;
+  padding: 9px 14px; background: #f8fafc; cursor: pointer;
+  font-family: inherit; font-size: 1.2rem; color: #9ca3af;
+  transition: border-color .18s, background .18s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-align: left; min-height: 42px;
+}
+.cp-file-btn:hover { border-color: #1B5EC7; background: #eef3fd; }
+.cp-file-btn.has-file { color: #374151; }
+.cp-file-btn svg { flex-shrink: 0; color: #9ca3af; }
 </style>
 
 <script>
@@ -1519,6 +1547,19 @@ function pmDdCloseAll() {
   document.querySelectorAll('.pm-dd-trigger.open').forEach(function(t){ t.classList.remove('open'); });
   document.querySelectorAll('.pm-dd-list.open').forEach(function(l){ l.classList.remove('open'); });
 }
+function cpFileChange(input, btnId) {
+  var btn = document.getElementById(btnId);
+  if (!btn) return;
+  var span = btn.querySelector('span');
+  if (input.files && input.files[0]) {
+    span.textContent = input.files[0].name;
+    btn.classList.add('has-file');
+  } else {
+    span.textContent = 'Choose file…';
+    btn.classList.remove('has-file');
+  }
+}
+
 function pmDdToggle(id) {
   var dd = document.getElementById(id);
   var trig = dd.querySelector('.pm-dd-trigger');

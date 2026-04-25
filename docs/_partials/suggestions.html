@@ -78,7 +78,7 @@
         <div class="sg-sub">{{ user.userprofile.get_industry_display }}</div>
       {% endif %}
     </div>
-    <a href="{% url 'profile_view' id=user.id %}" class="sg-btn">View</a>
+    <a href="{% url 'profile_view' username=user.username %}" class="sg-btn">View</a>
   </div>
   {% endfor %}
 </div>
@@ -100,7 +100,7 @@
         <div class="sg-sub">{{ user.userprofile.bio|truncatewords:6 }}</div>
       {% endif %}
     </div>
-    <a href="{% url 'profile_view' id=user.id %}" class="sg-btn">View</a>
+    <a href="{% url 'profile_view' username=user.username %}" class="sg-btn">View</a>
   </div>
   {% endfor %}
 </div>

@@ -120,7 +120,7 @@
           {% if post.post_type %}<span class="mp-tag mp-tag--type">{{ post.get_post_type_display }}</span>{% endif %}
           {% if post.industry %}<span class="mp-tag mp-tag--industry">{{ post.industry }}</span>{% endif %}
         </div>
-        <a href="{% url 'post_detail' post_id=post.id %}" class="mp-card-title">{{ post.title }}</a>
+        <a href="{% url 'post_detail' slug=post.slug %}" class="mp-card-title">{{ post.title }}</a>
         <p class="mp-card-content">{{ post.content }}</p>
       </div>
 
@@ -139,7 +139,7 @@
       </div>
 
       <div class="mp-card-actions">
-        <a href="{% url 'post_detail' post_id=post.id %}" class="mp-action-btn mp-action-btn--view">View</a>
+        <a href="{% url 'post_detail' slug=post.slug %}" class="mp-action-btn mp-action-btn--view">View</a>
         <a href="{% url 'edit_post' post_id=post.id %}" class="mp-action-btn mp-action-btn--edit">Edit</a>
         <a href="{% url 'delete_post' post_id=post.id %}" class="mp-action-btn mp-action-btn--delete"
            onclick="return confirm('Delete this post? This cannot be undone.')">Delete</a>

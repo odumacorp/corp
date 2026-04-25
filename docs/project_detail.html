@@ -16,7 +16,7 @@
   <!-- Breadcrumbs -->
   <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
     <ol class="oc-breadcrumbs__list">
-      <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
       <li class="oc-breadcrumbs__item"><a href="{% url 'project_list' %}" class="oc-breadcrumbs__link">Projects</a><span class="oc-breadcrumbs__sep">›</span></li>
       <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">{{ project.title }}</span></li>
     </ol>
@@ -581,7 +581,7 @@
               </div>
               <div style="flex:1;">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                  <a href="{% url 'profile_view' id=comment.user.pk %}" style="font-weight:600;font-size: 1.2rem;color:#1a1a2e;text-decoration:none;">{{ comment.user.get_full_name|default:comment.user.username }}</a>
+                  <a href="{% url 'profile_view' username=comment.user.username %}" style="font-weight:600;font-size: 1.2rem;color:#1a1a2e;text-decoration:none;">{{ comment.user.get_full_name|default:comment.user.username }}</a>
                   <span style="font-size: 1.2rem;color:#9ca3af;">{{ comment.created_at|timesince }} ago</span>
                   {% if request.user == comment.user %}
                   <span style="margin-left:auto;">
@@ -612,7 +612,7 @@
                     {{ reply.user.first_name|first|upper }}
                   </div>
                   <div>
-                    <a href="{% url 'profile_view' id=reply.user.pk %}" style="font-weight:600;font-size: 1.2rem;color:#1a1a2e;text-decoration:none;">{{ reply.user.get_full_name|default:reply.user.username }}</a>
+                    <a href="{% url 'profile_view' username=reply.user.username %}" style="font-weight:600;font-size: 1.2rem;color:#1a1a2e;text-decoration:none;">{{ reply.user.get_full_name|default:reply.user.username }}</a>
                     <span style="font-size: 1.2rem;color:#9ca3af;margin-left:6px;">{{ reply.created_at|timesince }} ago</span>
                     <p style="font-size: 1.2rem;color:#374151;margin:3px 0 0;">{{ reply.content }}</p>
                   </div>
@@ -636,7 +636,7 @@
 
       <!-- Owner card -->
       <div class="pd-card pd-owner-card">
-        <a href="{% url 'profile_view' id=project.owner.pk %}" class="pd-owner-link">
+        <a href="{% url 'profile_view' username=project.owner.username %}" class="pd-owner-link">
           {% if project.owner.userprofile.profile_pics %}
           <img src="{{ project.owner.userprofile.profile_pics.url }}" alt="{{ project.owner.get_full_name }}" class="pd-owner-avatar" />
           {% else %}
@@ -661,7 +661,7 @@
           <div style="width:30px;height:30px;border-radius:50%;background:#004AAD;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size: 1.2rem;flex-shrink:0;">
             {{ collab.from_user.first_name|first|upper }}
           </div>
-          <a href="{% url 'profile_view' id=collab.from_user.pk %}" style="font-size: 1.2rem;color:#1a1a2e;text-decoration:none;font-weight:500;">{{ collab.from_user.get_full_name }}</a>
+          <a href="{% url 'profile_view' username=collab.from_user.username %}" style="font-size: 1.2rem;color:#1a1a2e;text-decoration:none;font-weight:500;">{{ collab.from_user.get_full_name }}</a>
         </div>
         {% endfor %}
       </div>

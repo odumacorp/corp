@@ -10,7 +10,7 @@
   <nav style="font-size: 1.2rem;color:var(--oc-text-muted);margin-bottom:20px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
     <a href="{% url 'app' %}" style="color:var(--oc-primary);text-decoration:none;">Feed</a>
     <span>›</span>
-    <a href="{% url 'post_detail' post_id=post.id %}" style="color:var(--oc-primary);text-decoration:none;">{{ post.title|truncatechars:40 }}</a>
+    <a href="{% url 'post_detail' slug=post.slug %}" style="color:var(--oc-primary);text-decoration:none;">{{ post.title|truncatechars:40 }}</a>
     <span>›</span>
     <span>Edit</span>
   </nav>
@@ -77,7 +77,7 @@
 
       <!-- Actions -->
       <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:8px;border-top:1px solid var(--oc-border);">
-        <a href="{% url 'post_detail' post_id=post.id %}" class="oc-btn oc-btn-ghost">Cancel</a>
+        <a href="{% url 'post_detail' slug=post.slug %}" class="oc-btn oc-btn-ghost">Cancel</a>
         <button type="submit" class="oc-btn oc-btn-primary">Save Changes</button>
       </div>
     </form>

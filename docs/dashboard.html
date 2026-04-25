@@ -6,7 +6,7 @@
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Dashboard</span></li>
   </ol>
 </nav>
@@ -477,7 +477,7 @@
       </div>
     </div>
     <div class="db-hero-actions">
-      <a href="{% url 'profile_view' id=request.user.id %}" class="db-hero-btn db-hero-btn--solid">View Profile</a>
+      <a href="{% url 'profile_view' username=request.user.username %}" class="db-hero-btn db-hero-btn--solid">View Profile</a>
       <a href="{% url 'update_password' %}" class="db-hero-btn">Settings</a>
     </div>
   </div>
@@ -555,7 +555,7 @@
       <div class="db-stat-num">{{ connections_count }}</div>
       <div class="db-stat-label">Connections</div>
     </a>
-    <a href="{% url 'profile_view' id=request.user.id %}" class="db-stat">
+    <a href="{% url 'profile_view' username=request.user.username %}" class="db-stat">
       <div class="db-stat-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
       <div class="db-stat-num">{{ profile_views_count }}</div>
       <div class="db-stat-label">Profile Views</div>
@@ -657,7 +657,7 @@
             <div class="db-post-item">
               <div class="db-post-dot"></div>
               <div style="flex:1;min-width:0;">
-                <a href="{% url 'post_detail' post.pk %}" class="db-post-text" style="text-decoration:none;color:#0A1628;display:block;">{{ post.content|truncatechars:55 }}</a>
+                <a href="{% url 'post_detail' slug=post.slug %}" class="db-post-text" style="text-decoration:none;color:#0A1628;display:block;">{{ post.content|truncatechars:55 }}</a>
                 <div class="db-post-meta">{{ post.created_at|timesince }} ago</div>
               </div>
             </div>
@@ -766,7 +766,7 @@
           {% else %}<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{% endif %}
         </div>
         <div class="db-item-body">
-          <a href="{% url 'post_detail' post.pk %}" class="db-item-title">{{ post.title|default:post.content|truncatechars:60 }}</a>
+          <a href="{% url 'post_detail' slug=post.slug %}" class="db-item-title">{{ post.title|default:post.content|truncatechars:60 }}</a>
           <div class="db-item-meta">
             <span class="db-pill db-pill--gray">{{ post.get_post_type_display }}</span>
             &nbsp;{{ post.created_at|timesince }} ago
@@ -776,7 +776,7 @@
         </div>
         <div class="db-item-actions">
           <a href="{% url 'edit_post' post.pk %}" class="db-item-btn db-item-btn--edit">Edit</a>
-          <a href="{% url 'post_detail' post.pk %}" class="db-item-btn db-item-btn--view">View</a>
+          <a href="{% url 'post_detail' slug=post.slug %}" class="db-item-btn db-item-btn--view">View</a>
         </div>
       </div>
       {% endfor %}

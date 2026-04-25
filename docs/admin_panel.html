@@ -6,7 +6,7 @@
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
   <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Admin</span></li>
   </ol>
 </nav>
@@ -548,7 +548,7 @@
               {% for u in top_connected %}
               <tr>
                 <td style="color:#aaa;font-size: 1.2rem;">{{ forloop.counter }}</td>
-                <td><a href="{% url 'profile_view' id=u.id %}" style="color:var(--blue);font-weight:600;">{{ u.first_name }} {{ u.last_name }}</a><br><span style="font-size: 1.2rem;color:#aaa;">@{{ u.username }}</span></td>
+                <td><a href="{% url 'profile_view' username=u.username %}" style="color:var(--blue);font-weight:600;">{{ u.first_name }} {{ u.last_name }}</a><br><span style="font-size: 1.2rem;color:#aaa;">@{{ u.username }}</span></td>
                 <td><span class="adm-badge" style="{% if u.user_type == 'innovator' %}background:rgba(5,150,105,0.1);color:#059669;{% elif u.user_type == 'investor' %}background:rgba(0,74,173,0.1);color:#004aad;{% else %}background:rgba(124,58,237,0.1);color:#7c3aed;{% endif %}">{{ u.user_type|title }}</span></td>
                 <td style="text-align:center;">{{ u.initiated }}</td>
                 <td style="text-align:center;">{{ u.received }}</td>
@@ -794,13 +794,13 @@
                 {% endif %}
               </td>
               <td style="text-align:center;">
-                <a href="{% url 'profile_view' id=u.id %}#section-projects" style="color:var(--blue);font-weight:700;">{{ u.project_count }}</a>
+                <a href="{% url 'profile_view' username=u.username %}#section-projects" style="color:var(--blue);font-weight:700;">{{ u.project_count }}</a>
               </td>
               <td style="text-align:center;font-weight:700;color:#059669;">{{ u.conn_initiated|add:u.conn_received }}</td>
               <td>{{ u.date_joined|date:"M d, Y" }}</td>
               <td>
                 <div class="adm-actions">
-                  <a href="{% url 'profile_view' id=u.id %}" class="adm-act-btn adm-btn-view">View</a>
+                  <a href="{% url 'profile_view' username=u.username %}" class="adm-act-btn adm-btn-view">View</a>
 
                   <!-- Toggle active -->
                   {% if u.id != request.user.id %}
@@ -918,7 +918,7 @@
                 </a>
               </td>
               <td>
-                <a href="{% url 'profile_view' id=p.owner.id %}" style="color:var(--blue);text-decoration:none;">
+                <a href="{% url 'profile_view' username=p.owner.username %}" style="color:var(--blue);text-decoration:none;">
                   {{ p.owner.get_full_name|default:p.owner.username }}
                 </a>
               </td>
@@ -1026,7 +1026,7 @@
             <tr data-search="{{ p.title|lower }} {{ p.user.username|lower }}" data-industry="{{ p.industry }}" data-date="{{ p.created_at|date:'U' }}">
               <td style="font-family:var(--ff-serif);">{{ p.title|truncatechars:55 }}</td>
               <td>
-                <a href="{% url 'profile_view' id=p.user.id %}" style="color:var(--blue);text-decoration:none;">
+                <a href="{% url 'profile_view' username=p.user.username %}" style="color:var(--blue);text-decoration:none;">
                   {{ p.user.get_full_name|default:p.user.username }}
                 </a>
               </td>
@@ -1114,7 +1114,7 @@
             {% for n in recent_notifications %}
             <tr>
               <td>
-                <a href="{% url 'profile_view' id=n.user.id %}" style="color:var(--blue);text-decoration:none;">
+                <a href="{% url 'profile_view' username=n.user.username %}" style="color:var(--blue);text-decoration:none;">
                   {{ n.user.get_full_name|default:n.user.username }}
                 </a>
               </td>
@@ -1177,8 +1177,8 @@
           <tbody>
             {% for m in messages_list %}
             <tr data-search="{{ m.sender.username|lower }} {{ m.recipient.username|lower }} {{ m.content|lower }}" data-date="{{ m.timestamp|date:'U' }}">
-              <td><a href="{% url 'profile_view' id=m.sender.id %}" style="color:var(--blue);text-decoration:none;">{{ m.sender.get_full_name|default:m.sender.username }}</a></td>
-              <td><a href="{% url 'profile_view' id=m.recipient.id %}" style="color:var(--blue);text-decoration:none;">{{ m.recipient.get_full_name|default:m.recipient.username }}</a></td>
+              <td><a href="{% url 'profile_view' username=m.sender.username %}" style="color:var(--blue);text-decoration:none;">{{ m.sender.get_full_name|default:m.sender.username }}</a></td>
+              <td><a href="{% url 'profile_view' username=m.recipient.username %}" style="color:var(--blue);text-decoration:none;">{{ m.recipient.get_full_name|default:m.recipient.username }}</a></td>
               <td style="max-width:220px;">{{ m.content|truncatechars:60 }}{% if m.is_flagged %} <span style="color:#c0392b;font-weight:700;font-size: 1.2rem;"><i class="fi fi-rr-flag"></i> FLAGGED</span>{% endif %}</td>
               <td>{% if m.is_read %}<span class="adm-active-badge">Read</span>{% else %}<span class="adm-inactive-badge">Unread</span>{% endif %}</td>
               <td>{{ m.timestamp|date:"M d, H:i" }}</td>
@@ -1249,8 +1249,8 @@
           <tbody>
             {% for m in flagged_messages %}
             <tr data-date="{{ m.timestamp|date:'U' }}">
-              <td><a href="{% url 'profile_view' id=m.sender.id %}" style="color:var(--blue);text-decoration:none;">{{ m.sender.get_full_name|default:m.sender.username }}</a></td>
-              <td><a href="{% url 'profile_view' id=m.recipient.id %}" style="color:var(--blue);text-decoration:none;">{{ m.recipient.get_full_name|default:m.recipient.username }}</a></td>
+              <td><a href="{% url 'profile_view' username=m.sender.username %}" style="color:var(--blue);text-decoration:none;">{{ m.sender.get_full_name|default:m.sender.username }}</a></td>
+              <td><a href="{% url 'profile_view' username=m.recipient.username %}" style="color:var(--blue);text-decoration:none;">{{ m.recipient.get_full_name|default:m.recipient.username }}</a></td>
               <td style="max-width:180px;">{{ m.content|truncatechars:60 }}</td>
               <td>{{ m.flag_reason|default:"—"|truncatechars:50 }}</td>
               <td>{{ m.flagged_by.username|default:"—" }}</td>
@@ -1631,8 +1631,8 @@
           <tbody>
             {% for c in connections %}
             <tr data-date="{{ c.created_at|date:'U' }}">
-              <td><a href="{% url 'profile_view' id=c.initiator.id %}" style="color:var(--blue);text-decoration:none;">{{ c.initiator.get_full_name|default:c.initiator.username }}</a></td>
-              <td><a href="{% url 'profile_view' id=c.target.id %}" style="color:var(--blue);text-decoration:none;">{{ c.target.get_full_name|default:c.target.username }}</a></td>
+              <td><a href="{% url 'profile_view' username=c.initiator.username %}" style="color:var(--blue);text-decoration:none;">{{ c.initiator.get_full_name|default:c.initiator.username }}</a></td>
+              <td><a href="{% url 'profile_view' username=c.target.username %}" style="color:var(--blue);text-decoration:none;">{{ c.target.get_full_name|default:c.target.username }}</a></td>
               <td>
                 {% if c.status == 'accepted' %}<span class="adm-active-badge">Accepted</span>
                 {% elif c.status == 'pending' %}<span style="background:rgba(217,119,6,0.1);color:#d97706;padding:2px 9px;border-radius:20px;font-size: 1.2rem;font-weight:700;">Pending</span>
@@ -1704,7 +1704,7 @@
           <tbody>
             {% for c in project_comments %}
             <tr data-date="{{ c.created_at|date:'U' }}">
-              <td><a href="{% url 'profile_view' id=c.user.id %}" style="color:var(--blue);text-decoration:none;">{{ c.user.get_full_name|default:c.user.username }}</a></td>
+              <td><a href="{% url 'profile_view' username=c.user.username %}" style="color:var(--blue);text-decoration:none;">{{ c.user.get_full_name|default:c.user.username }}</a></td>
               <td><a href="{% url 'project_detail' c.project.id %}" style="color:var(--blue);text-decoration:none;">{{ c.project.title|truncatechars:30 }}</a></td>
               <td style="max-width:220px;">{{ c.content|truncatechars:70 }}</td>
               <td>
@@ -1769,8 +1769,8 @@
           <tbody>
             {% for c in post_comments %}
             <tr data-date="{{ c.created_at|date:'U' }}">
-              <td><a href="{% url 'profile_view' id=c.user.id %}" style="color:var(--blue);text-decoration:none;">{{ c.user.get_full_name|default:c.user.username }}</a></td>
-              <td><a href="{% url 'post_detail' c.post.id %}" style="color:var(--blue);text-decoration:none;">{{ c.post.content|truncatechars:30 }}</a></td>
+              <td><a href="{% url 'profile_view' username=c.user.username %}" style="color:var(--blue);text-decoration:none;">{{ c.user.get_full_name|default:c.user.username }}</a></td>
+              <td><a href="{% url 'post_detail' slug=c.post.slug %}" style="color:var(--blue);text-decoration:none;">{{ c.post.content|truncatechars:30 }}</a></td>
               <td style="max-width:220px;">{{ c.content|truncatechars:70 }}</td>
               <td>
                 {% if c.is_hidden %}
@@ -1833,7 +1833,7 @@
           <tbody>
             {% for col in collaborations %}
             <tr data-date="{{ col.created_at|date:'U' }}">
-              <td><a href="{% url 'profile_view' id=col.from_user.id %}" style="color:var(--blue);text-decoration:none;">{{ col.from_user.get_full_name|default:col.from_user.username }}</a></td>
+              <td><a href="{% url 'profile_view' username=col.from_user.username %}" style="color:var(--blue);text-decoration:none;">{{ col.from_user.get_full_name|default:col.from_user.username }}</a></td>
               <td><a href="{% url 'project_detail' col.project.id %}" style="color:var(--blue);text-decoration:none;">{{ col.project.title|truncatechars:35 }}</a></td>
               <td style="max-width:200px;">{{ col.message|truncatechars:60|default:"—" }}</td>
               <td>
@@ -1867,7 +1867,7 @@
           <tbody>
             {% for r in ratings %}
             <tr>
-              <td><a href="{% url 'profile_view' id=r.user.id %}" style="color:var(--blue);text-decoration:none;">{{ r.user.get_full_name|default:r.user.username }}</a></td>
+              <td><a href="{% url 'profile_view' username=r.user.username %}" style="color:var(--blue);text-decoration:none;">{{ r.user.get_full_name|default:r.user.username }}</a></td>
               <td><a href="{% url 'project_detail' r.project.id %}" style="color:var(--blue);text-decoration:none;">{{ r.project.title|truncatechars:40 }}</a></td>
               <td>
                 <span style="color:#f59e0b;font-size: 1.2rem;">{% for i in "12345" %}{% if forloop.counter <= r.value %}<i class="fi fi-rr-star"></i>{% else %}<i class="fi fi-rr-star"></i>{% endif %}{% endfor %}</span>
@@ -1916,7 +1916,7 @@
           <tbody>
             {% for app in job_applications %}
             <tr data-date="{{ app.applied_at|date:'U' }}">
-              <td><a href="{% url 'profile_view' id=app.applicant.id %}" style="color:var(--blue);text-decoration:none;">{{ app.applicant.get_full_name|default:app.applicant.username }}</a></td>
+              <td><a href="{% url 'profile_view' username=app.applicant.username %}" style="color:var(--blue);text-decoration:none;">{{ app.applicant.get_full_name|default:app.applicant.username }}</a></td>
               <td style="font-family:var(--ff-serif);">{{ app.job.title|truncatechars:40 }}</td>
               <td>{{ app.job.company }}</td>
               <td style="max-width:180px;">{{ app.letter|truncatechars:60|default:"—" }}</td>
@@ -2024,7 +2024,7 @@
             <tr data-date="{{ dl.downloaded_at|date:'U' }}">
               <td>
                 {% if dl.downloaded_by %}
-                  <a href="{% url 'profile_view' id=dl.downloaded_by.id %}" style="color:#004AAD;">
+                  <a href="{% url 'profile_view' username=dl.downloaded_by.username %}" style="color:#004AAD;">
                     {{ dl.downloaded_by.get_full_name|default:dl.downloaded_by.username }}
                   </a>
                   <span style="font-size: 1.2rem;color:#888;display:block;">{{ dl.downloaded_by.user_type }}</span>
@@ -2041,7 +2041,7 @@
                 </a>
               </td>
               <td>
-                <a href="{% url 'profile_view' id=dl.attachment.project.owner.id %}" style="color:#555;">
+                <a href="{% url 'profile_view' username=dl.attachment.project.owner.username %}" style="color:#555;">
                   {{ dl.attachment.project.owner.get_full_name|default:dl.attachment.project.owner.username }}
                 </a>
               </td>
@@ -2094,7 +2094,7 @@
               </td>
               <td>
                 {% if grp.creator %}
-                  <a href="{% url 'profile_view' id=grp.creator.id %}" style="color:var(--blue);text-decoration:none;">{{ grp.creator.get_full_name|default:grp.creator.username }}</a>
+                  <a href="{% url 'profile_view' username=grp.creator.username %}" style="color:var(--blue);text-decoration:none;">{{ grp.creator.get_full_name|default:grp.creator.username }}</a>
                 {% else %}—{% endif %}
               </td>
               <td>{{ grp.members.count }}</td>
@@ -2182,7 +2182,7 @@
                 <a href="{% url 'page_detail' pg.pk %}" style="color:var(--blue);text-decoration:none;font-family:var(--ff-serif);">{{ pg.title|truncatechars:40 }}</a>
               </td>
               <td>
-                <a href="{% url 'profile_view' id=pg.owner.id %}" style="color:var(--blue);text-decoration:none;">{{ pg.owner.get_full_name|default:pg.owner.username }}</a>
+                <a href="{% url 'profile_view' username=pg.owner.username %}" style="color:var(--blue);text-decoration:none;">{{ pg.owner.get_full_name|default:pg.owner.username }}</a>
               </td>
               <td>{{ pg.followers.count }}</td>
               <td>{{ pg.get_industry_display }}</td>
@@ -2821,7 +2821,7 @@
             <tr>
               <td>
                 {% if ev.shared_by %}
-                  <a href="{% url 'profile_view' ev.shared_by.id %}">{{ ev.shared_by.get_full_name|default:ev.shared_by.username }}</a>
+                  <a href="{% url 'profile_view' username=ev.shared_by.username %}">{{ ev.shared_by.get_full_name|default:ev.shared_by.username }}</a>
                 {% else %}
                   <span style="color:var(--muted);">Anonymous</span>
                 {% endif %}
@@ -2884,10 +2884,10 @@
             <tr>
               <td style="color:var(--muted);font-size:1.1rem;">{{ forloop.counter }}</td>
               <td>
-                <a href="{% url 'profile_view' msg.sender.id %}">{{ msg.sender.get_full_name|default:msg.sender.username }}</a>
+                <a href="{% url 'profile_view' username=msg.sender.username %}">{{ msg.sender.get_full_name|default:msg.sender.username }}</a>
               </td>
               <td>
-                <a href="{% url 'profile_view' msg.recipient.id %}">{{ msg.recipient.get_full_name|default:msg.recipient.username }}</a>
+                <a href="{% url 'profile_view' username=msg.recipient.username %}">{{ msg.recipient.get_full_name|default:msg.recipient.username }}</a>
               </td>
               <td>
                 {% if msg.message_type == 'post_share' %}
@@ -2898,7 +2898,7 @@
               </td>
               <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
                 {% if msg.message_type == 'post_share' and msg.shared_post %}
-                  <a href="{% url 'post_detail' msg.shared_post.id %}" target="_blank" style="color:var(--blue);">{{ msg.shared_post.content|truncatechars:50 }}</a>
+                  <a href="{% url 'post_detail' slug=msg.shared_post.slug %}" target="_blank" style="color:var(--blue);">{{ msg.shared_post.content|truncatechars:50 }}</a>
                 {% elif msg.message_type == 'project_share' and msg.shared_project %}
                   <a href="{% url 'project_detail' msg.shared_project.id %}" target="_blank" style="color:var(--blue);">{{ msg.shared_project.title|truncatechars:50 }}</a>
                 {% else %}
