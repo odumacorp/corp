@@ -145,10 +145,15 @@ class CustomUserCreationForm(SanitizeMixin, UserCreationForm):
         choices=[('innovator', 'Innovator'), ('investor', 'Investor')],
         widget=forms.Select(attrs={'class': 'form-control'}),
     )
+    gender = forms.ChoiceField(
+        choices=[('', '— Select gender —'), ('male', 'Male'), ('female', 'Female')],
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
 
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'phone_number', 'email', 'password1', 'password2', 'user_type']
+        fields = ['first_name', 'last_name', 'phone_number', 'email', 'password1', 'password2', 'user_type', 'gender']
         widgets = {
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter email'}),
             'password1': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter password'}),
@@ -161,6 +166,12 @@ class CustomUserCreationForm(SanitizeMixin, UserCreationForm):
             raise ValidationError('First name is required.')
         if not re.match(r"^[A-Za-z\s\-']+$", val):
             raise ValidationError('First name may only contain letters, spaces, hyphens, and apostrophes.')
+        return val
+
+    def clean_gender(self):
+        val = self.cleaned_data.get('gender', '')
+        if not val:
+            raise ValidationError('Please select your gender.')
         return val
 
     def clean_phone_number(self):
@@ -224,6 +235,9 @@ class CustomUserCreationForm(SanitizeMixin, UserCreationForm):
 
         if commit:
             user.save()
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            profile.gender = self.cleaned_data.get('gender', '')
+            profile.save(update_fields=['gender'])
 
         return user
 

@@ -409,6 +409,11 @@ class Post(models.Model):
         ('milestone',   'Milestone'),
         ('opinion',     'Opinion'),
     ]
+    REVIEW_STATUS_CHOICES = [
+        ('pending',  'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
     industry = models.CharField(max_length=100, choices=INDUSTRY_CHOICES, default='tech')
     user         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='posts')
     title        = models.CharField(max_length=255)
@@ -422,6 +427,7 @@ class Post(models.Model):
     reposts      = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='reposted_posts', blank=True)
     share_count  = models.PositiveIntegerField(default=0)
     is_hidden    = models.BooleanField(default=False)
+    review_status = models.CharField(max_length=10, choices=REVIEW_STATUS_CHOICES, default='pending', db_index=True)
     created_at   = models.DateTimeField(auto_now_add=True)
     slug         = models.SlugField(max_length=120, unique=True, blank=True)
 
@@ -1869,3 +1875,31 @@ class SitePage(models.Model):
 # ── Event type extension (added via migration) ────────────────────
 # event_type field added to existing Event model in migration 0086
 
+
+
+# ── Admin 2FA & Login Tracking ────────────────────────────────────
+class AdminTOTPSecret(models.Model):
+    user       = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='totp_secret')
+    secret     = models.CharField(max_length=64)
+    is_active  = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"TOTP for {self.user.username}"
+
+
+class AdminLoginAttempt(models.Model):
+    username    = models.CharField(max_length=150)
+    ip_address  = models.GenericIPAddressField(null=True, blank=True)
+    user_agent  = models.TextField(blank=True)
+    success     = models.BooleanField(default=False)
+    stage       = models.CharField(max_length=20, default='password',
+                                   choices=[('password','Password'),('totp','TOTP')])
+    timestamp   = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        status = 'OK' if self.success else 'FAIL'
+        return f"[{status}] {self.username} @ {self.timestamp:%Y-%m-%d %H:%M}"

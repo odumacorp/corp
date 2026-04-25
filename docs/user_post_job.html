@@ -7,9 +7,9 @@
 <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
 <style>
   :root {
-    --blue: #004AAD;
-    --blue-dark: #003490;
-    --text: #1a1a2e;
+    --blue: #1B5EC7;
+    --blue-dark: #154ea8;
+    --text: #0A1628;
     --muted: #6b7280;
     --border: rgba(0,0,0,0.10);
     --ff-serif: "Jacques Francois", serif;
@@ -26,7 +26,7 @@
   .pj-card {
     background: #fff;
     border-radius: 20px;
-    box-shadow: 0 8px 40px rgba(0,74,173,0.12);
+    box-shadow: 0 8px 40px rgba(27,94,199,0.12);
     width: 100%;
     max-width: 640px;
     overflow: hidden;
@@ -40,46 +40,30 @@
     gap: 16px;
   }
   .pj-company-logo {
-    width: 52px;
-    height: 52px;
+    width: 52px; height: 52px;
     border-radius: 10px;
     border: 2px solid rgba(255,255,255,0.4);
     background: rgba(255,255,255,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; flex-shrink: 0;
   }
   .pj-company-logo img { width:100%; height:100%; object-fit:cover; }
-  .pj-top-info h2 {
-    font-family: var(--ff-serif);
-    font-size: 1.8rem;
-    margin: 0 0 3px;
-  }
-  .pj-top-info p {
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    opacity: .8;
-    margin: 0;
-  }
+  .pj-top-info h2 { font-family: var(--ff-serif); font-size: 1.8rem; margin: 0 0 3px; }
+  .pj-top-info p { font-family: var(--ff-sans); font-size: 1.2rem; opacity: .8; margin: 0; }
 
   .pj-body { padding: 28px 32px 32px; }
   .pj-field { margin-bottom: 20px; }
   .pj-field label {
     display: block;
     font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--text);
-    text-transform: uppercase;
-    letter-spacing: .4px;
+    font-size: 1.2rem; font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase; letter-spacing: .5px;
     margin-bottom: 6px;
   }
   .pj-field label span { color: #e53e3e; }
   .pj-field input,
-  .pj-field textarea,
-  .pj-field select {
+  .pj-field textarea {
     width: 100%;
     padding: 10px 14px;
     border: 1.5px solid var(--border);
@@ -92,40 +76,61 @@
     transition: border-color .2s;
   }
   .pj-field input:focus,
-  .pj-field textarea:focus,
-  .pj-field select:focus {
+  .pj-field textarea:focus {
     outline: none;
     border-color: var(--blue);
     background: #fff;
   }
   .pj-field textarea { resize: vertical; min-height: 110px; }
+
+  /* Custom dropdown */
+  .pj-dd { position: relative; user-select: none; }
+  .pj-dd-btn {
+    width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border); border-radius: 10px;
+    background: #fafafa; font-family: var(--ff-sans); font-size: 1.2rem;
+    color: var(--text); cursor: pointer; text-align: left;
+    transition: border-color .2s;
+  }
+  .pj-dd-btn:hover, .pj-dd-btn.open { border-color: var(--blue); background: #fff; }
+  .pj-dd-menu {
+    display: none; position: absolute; z-index: 300;
+    top: calc(100% + 4px); left: 0; right: 0;
+    background: #fff; border: 1.5px solid #d0dff5;
+    border-radius: 12px; box-shadow: 0 8px 28px rgba(10,22,40,0.13);
+    overflow: hidden;
+  }
+  .pj-dd-opt {
+    padding: 10px 14px; font-family: var(--ff-sans); font-size: 1.2rem;
+    color: var(--text); cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background .13s;
+  }
+  .pj-dd-opt:hover { background: #f0f5ff; }
+  .pj-dd-opt.selected { background: #e8f0fe; color: var(--blue); font-weight: 700; }
+  .pj-dd-opt.selected::after {
+    content: "";
+    display: block; width: 16px; height: 16px; flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%231B5EC7' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: contain;
+  }
+
   .pj-two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
   }
   @media (max-width: 480px) { .pj-two-col { grid-template-columns: 1fr; } }
 
   .pj-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex; justify-content: space-between; align-items: center;
     padding: 16px 32px 24px;
-    border-top: 1px solid var(--border);
-    gap: 12px;
+    border-top: 1px solid var(--border); gap: 12px;
   }
   .pj-btn {
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    font-weight: 700;
-    padding: 11px 28px;
-    border-radius: 50px;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+    font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700;
+    padding: 11px 28px; border-radius: 50px; border: none;
+    cursor: pointer; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
     transition: all .2s;
   }
   .pj-btn-primary { background: var(--blue); color: #fff; }
@@ -152,7 +157,7 @@
 
     {% if messages %}
       {% for msg in messages %}
-        <div style="background:{% if msg.tags == 'error' %}#fee2e2{% else %}#d1fae5{% endif %};color:{% if msg.tags == 'error' %}#991b1b{% else %}#065f46{% endif %};padding:12px 28px;font-family:var(--ff-sans);font-size: 1.2rem;">
+        <div style="background:{% if msg.tags == 'error' %}#fee2e2{% else %}#d1fae5{% endif %};color:{% if msg.tags == 'error' %}#991b1b{% else %}#065f46{% endif %};padding:12px 28px;font-family:var(--ff-sans);font-size:1.2rem;">
           {{ msg }}
         </div>
       {% endfor %}
@@ -160,44 +165,79 @@
 
     <form method="post" action="{% url 'user_post_job' %}">
       {% csrf_token %}
+      <input type="hidden" name="job_type" id="pj-job-type-val" value="{{ job_type_choices.0.0 }}">
       <div class="pj-body">
         <div class="pj-field">
           <label>Job Title <span>*</span></label>
-          <input type="text" name="title" placeholder="" data-example="e.g. Senior Software Engineer" required>
+          <input type="text" name="title" placeholder="e.g. Senior Software Engineer" required>
         </div>
         <div class="pj-two-col">
           <div class="pj-field">
             <label>Job Type</label>
-            <select name="job_type">
-              {% for val, label in job_type_choices %}
-                <option value="{{ val }}">{{ label }}</option>
-              {% endfor %}
-            </select>
+            <div class="pj-dd" id="pj-jt-dd">
+              <button type="button" class="pj-dd-btn" id="pj-jt-btn" onclick="pjDdToggle()">
+                <span id="pj-jt-label">{{ job_type_choices.0.1 }}</span>
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="pj-dd-menu" id="pj-jt-menu">
+                {% for val, label in job_type_choices %}
+                <div class="pj-dd-opt{% if forloop.first %} selected{% endif %}" data-val="{{ val }}" data-label="{{ label }}" onclick="pjDdPick(this)">{{ label }}</div>
+                {% endfor %}
+              </div>
+            </div>
           </div>
           <div class="pj-field">
             <label>Location</label>
-            <input type="text" name="location" placeholder="" data-example="e.g. Nairobi, Kenya or Remote">
+            <input type="text" name="location" placeholder="e.g. Nairobi, Kenya or Remote">
           </div>
         </div>
         <div class="pj-field">
           <label>Salary / Compensation</label>
-          <input type="text" name="salary_range" placeholder="" data-example="e.g. ₦300,000–₦500,000/month">
+          <input type="text" name="salary_range" placeholder="e.g. Ksh 80,000–150,000/month">
         </div>
         <div class="pj-field">
           <label>Job Description <span>*</span></label>
-          <textarea name="description" placeholder="" data-example="Describe the role, responsibilities, and requirements." required></textarea>
+          <textarea name="description" placeholder="Describe the role, responsibilities, and requirements." required></textarea>
         </div>
         <div class="pj-field">
-          <label>Application Link (optional)</label>
+          <label>Application Link <span style="font-size:1rem;font-weight:400;text-transform:none;color:var(--muted);">(optional)</span></label>
           <input type="url" name="apply_url" placeholder="https://example.com/apply or leave blank">
-          <div style="font-size: 1.2rem;color:var(--muted);margin-top:4px;">If left blank, applicants will apply through Oduma Corp.</div>
+          <div style="font-size:1.1rem;color:var(--muted);margin-top:5px;">If left blank, applicants will apply through Oduma Corp.</div>
         </div>
       </div>
       <div class="pj-footer">
         <a href="{% url 'company_profile' company.pk %}" class="pj-btn pj-btn-ghost">Cancel</a>
-        <button type="submit" class="pj-btn pj-btn-primary"><i class="fi fi-rr-paper-plane"></i> Post Job</button>
+        <button type="submit" class="pj-btn pj-btn-primary">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Post Job
+        </button>
       </div>
     </form>
   </div>
 </div>
+
+<script>
+function pjDdToggle() {
+  var menu = document.getElementById('pj-jt-menu');
+  var btn  = document.getElementById('pj-jt-btn');
+  var open = menu.style.display === 'block';
+  menu.style.display = open ? 'none' : 'block';
+  btn.classList.toggle('open', !open);
+}
+function pjDdPick(el) {
+  document.getElementById('pj-job-type-val').value = el.dataset.val;
+  document.getElementById('pj-jt-label').textContent = el.dataset.label;
+  document.querySelectorAll('#pj-jt-menu .pj-dd-opt').forEach(function(o) { o.classList.remove('selected'); });
+  el.classList.add('selected');
+  document.getElementById('pj-jt-menu').style.display = 'none';
+  document.getElementById('pj-jt-btn').classList.remove('open');
+}
+document.addEventListener('click', function(e) {
+  var dd = document.getElementById('pj-jt-dd');
+  if (dd && !dd.contains(e.target)) {
+    document.getElementById('pj-jt-menu').style.display = 'none';
+    document.getElementById('pj-jt-btn').classList.remove('open');
+  }
+});
+</script>
 {% endblock %}

@@ -266,29 +266,58 @@ function switchTab(id, btn) {
   btn.classList.add('active');
 }
 
+var _nfCsrf = () => (document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '');
+
+function _nfDecrBadge() {
+  var ids = ['nav-notif-badge', 'dd-notif-badge', 'bn-notif-badge'];
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var n = parseInt(el.textContent, 10) || 0;
+    if (n <= 1) { el.style.display = 'none'; el.textContent = ''; }
+    else { el.textContent = n - 1; }
+  });
+}
+
 function nfToggle(el) {
   el.classList.toggle('nf-expanded');
+  if (el.classList.contains('unread')) {
+    var notifId = el.dataset.notifId;
+    fetch('/notifications/' + notifId + '/read/', {
+      method: 'POST',
+      headers: {'X-CSRFToken': _nfCsrf(), 'X-Requested-With': 'XMLHttpRequest'}
+    }).then(() => {
+      el.classList.remove('unread');
+      var markBtn = el.querySelector('.nf-act--read');
+      if (markBtn) markBtn.remove();
+      _nfDecrBadge();
+    });
+  }
 }
 
 function nfMarkRead(e, notifId, btn) {
   e.stopPropagation();
+  var item = btn.closest('.nf-item');
+  if (!item.classList.contains('unread')) return;
   fetch('/notifications/' + notifId + '/read/', {
     method: 'POST',
-    headers: {'X-CSRFToken': document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '', 'X-Requested-With': 'XMLHttpRequest'}
+    headers: {'X-CSRFToken': _nfCsrf(), 'X-Requested-With': 'XMLHttpRequest'}
   }).then(() => {
-    var item = btn.closest('.nf-item');
     item.classList.remove('unread');
     btn.remove();
+    _nfDecrBadge();
   });
 }
 
 function nfDismiss(e, notifId, btn) {
   e.stopPropagation();
+  var item = btn.closest('.nf-item');
+  var wasUnread = item.classList.contains('unread');
   fetch('/notifications/' + notifId + '/dismiss/', {
     method: 'POST',
-    headers: {'X-CSRFToken': document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '', 'X-Requested-With': 'XMLHttpRequest'}
+    headers: {'X-CSRFToken': _nfCsrf(), 'X-Requested-With': 'XMLHttpRequest'}
   }).then(() => {
-    var item = btn.closest('.nf-item');
+    if (wasUnread) _nfDecrBadge();
     item.style.transition = 'opacity .25s, transform .25s';
     item.style.opacity = '0';
     item.style.transform = 'translateX(10px)';

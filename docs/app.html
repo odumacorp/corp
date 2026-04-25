@@ -65,6 +65,8 @@
 .ap-profile-cover {
   height: 56px;
   background: linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
+  border-radius: 14px 14px 0 0;
+  overflow: hidden;
 }
 .ap-profile-body { padding: 0 18px 18px; text-align: center; }
 .ap-profile-avatar {
@@ -1306,7 +1308,7 @@
 
     <!-- Profile card -->
     <div class="ap-card">
-      <div class="ap-profile-cover" {% if profile.cover_style %}style="{{ profile.cover_style }}"{% endif %}></div>
+      <div class="ap-profile-cover" {% if profile.cover_style %}style="background: {{ profile.cover_style }}"{% endif %}></div>
       <div class="ap-profile-body">
         <a href="{% url 'profile_view' username=user.username %}">
           {% if profile.profile_pics %}
@@ -1654,6 +1656,15 @@
         <button type="button" class="ap-rxn-btn ap-rxn-btn--send" onclick="stcOpen('post', {{ post.id }}, '{{ post.title|default:post.content|truncatewords:6|escapejs }}')">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           <span class="ap-rxn-lbl">Send</span>
+        </button>
+        <button type="button" class="ap-rxn-btn"
+                data-share-toggle
+                data-share-url="{{ request.scheme }}://{{ request.get_host }}{% url 'post_detail' slug=post.slug %}"
+                data-share-title="{{ post.title|default:post.content|truncatewords:8|escapejs }}"
+                data-content-type="post"
+                data-object-id="{{ post.id }}">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span class="ap-rxn-lbl">Share</span>
         </button>
       </div>
       {% endwith %}
@@ -2298,7 +2309,12 @@ function ocCloseWelcome() {
   if (!overlay) return;
   overlay.style.opacity = '0';
   overlay.style.transition = 'opacity .3s';
-  setTimeout(function(){ overlay.remove(); }, 320);
+  setTimeout(function(){
+    overlay.remove();
+    var canvas = document.getElementById('oc-confetti-canvas');
+    if (canvas) canvas.remove();
+    if (typeof window.ocStartTour === 'function') window.ocStartTour();
+  }, 320);
 }
 
 (function loadConfetti() {

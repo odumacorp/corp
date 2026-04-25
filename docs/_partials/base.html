@@ -67,6 +67,26 @@
 
   {% block extra_head %}{% endblock %}
 
+  <!-- Structured data: WebSite + SiteLinksSearchBox (helps Google show sitelinks) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Oduma Corp",
+    "alternateName": "OdumaCorp",
+    "url": "{{ request.scheme }}://{{ request.get_host }}/",
+    "description": "Connecting innovators and investors across Africa.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "{{ request.scheme }}://{{ request.get_host }}/search/?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
 </head>
 <body{% if hide_navbar %} class="no-navbar"{% endif %}>
 
@@ -754,8 +774,10 @@
     // Only run on the home feed
     if (window.location.pathname !== '/app/') return;
 
-    window.addEventListener('DOMContentLoaded', function() {
-      if (typeof Shepherd === 'undefined') return;
+    var isWelcomeFlow = window.location.search.indexOf('welcome=1') !== -1;
+
+    function buildTour() {
+      if (typeof Shepherd === 'undefined') return null;
       var tour = new Shepherd.Tour({
         useModalOverlay: true,
         defaultStepOptions: {
@@ -817,8 +839,21 @@
       steps.forEach(function(s) { tour.addStep(s); });
       tour.on('complete', function() { localStorage.setItem(TOUR_KEY, '1'); });
       tour.on('cancel', function()   { localStorage.setItem(TOUR_KEY, '1'); });
+      return tour;
+    }
 
-      setTimeout(function() { tour.start(); }, 1200);
+    // Expose start function so welcome modal can trigger it after closing
+    window.ocStartTour = function() {
+      if (localStorage.getItem(TOUR_KEY)) return;
+      var t = buildTour();
+      if (t) setTimeout(function() { t.start(); }, 400);
+    };
+
+    window.addEventListener('DOMContentLoaded', function() {
+      // If this is a new-registration flow, defer to the welcome modal's close handler
+      if (isWelcomeFlow) return;
+      var t = buildTour();
+      if (t) setTimeout(function() { t.start(); }, 1200);
     });
   })();
   </script>
@@ -861,32 +896,22 @@
 
     // Internal: fire one share (platform chosen, type known) + open window
     function _doShare(platform, shareType, shareUrl, title, contentType, objectId) {
-      // Track it
-      var fd = new FormData();
-      fd.append('csrfmiddlewaretoken', CSRF);
-      fd.append('platform',     platform);
-      fd.append('share_type',   shareType || 'general');
-      fd.append('content_type', contentType || '');
-      fd.append('object_id',    String(objectId || ''));
-      fd.append('shared_url',   shareUrl || window.location.href);
-      fetch('{% url "track_share" %}', { method: 'POST', body: fd }).catch(function(){});
+      var url     = shareUrl || window.location.href;
+      var trackBase = '{% url "share_redirect" %}?platform=' + encodeURIComponent(platform)
+        + '&share_type=' + encodeURIComponent(shareType || 'general')
+        + '&content_type=' + encodeURIComponent(contentType || '')
+        + '&object_id=' + encodeURIComponent(objectId || '')
+        + '&url=' + encodeURIComponent(url);
 
-      // Open share window
-      var encoded    = encodeURIComponent(shareUrl || window.location.href);
-      var encodedTxt = encodeURIComponent((title ? title + ' — ' : '') + (shareUrl || window.location.href));
-      var platformUrls = {
-        whatsapp:  'https://wa.me/?text=' + encodedTxt,
-        telegram:  'https://t.me/share/url?url=' + encoded + (title ? '&text=' + encodeURIComponent(title) : ''),
-        twitter:   'https://twitter.com/intent/tweet?url=' + encoded + (title ? '&text=' + encodeURIComponent(title) : ''),
-        facebook:  'https://www.facebook.com/sharer/sharer.php?u=' + encoded,
-        linkedin:  'https://www.linkedin.com/sharing/share-offsite/?url=' + encoded,
-      };
       if (platform === 'copy_link') {
-        navigator.clipboard && navigator.clipboard.writeText(shareUrl || window.location.href).then(function() {
+        // For copy: fire tracking GET then copy to clipboard
+        fetch(trackBase, { method: 'GET', credentials: 'same-origin' }).catch(function(){});
+        navigator.clipboard && navigator.clipboard.writeText(url).then(function() {
           ocToast('Link copied!');
         });
-      } else if (platformUrls[platform]) {
-        window.open(platformUrls[platform], '_blank', 'width=620,height=500,noopener');
+      } else {
+        // Open the server-side tracked redirect (records + redirects to platform)
+        window.open(trackBase, '_blank', 'width=620,height=520,noopener');
       }
     }
 
@@ -895,13 +920,17 @@
       var existing = document.getElementById('oc-share-dropdown');
       if (existing) { existing.remove(); return; }
 
+      var WA_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.546 21.5l4.456-.88A9.953 9.953 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>';
+      var TG_SVG  = '<svg width="16" height="16" viewBox="0 0 24 24" fill="#2aabee"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.04 9.607c-.152.678-.556.843-1.126.524l-3.113-2.294-1.504 1.449c-.166.166-.305.305-.626.305l.223-3.174 5.779-5.22c.251-.223-.054-.347-.39-.124L7.24 14.6 4.184 13.64c-.667-.208-.68-.667.14-.988l10.879-4.194c.556-.2 1.042.136.859.987l-.5-.197z"/></svg>';
       var PLATFORMS = [
-        {key:'whatsapp',  label:'WhatsApp',   icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.546 21.5l4.456-.88A9.953 9.953 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>', bg:'#f0fdf4', border:'#bbf7d0'},
-        {key:'telegram',  label:'Telegram',   icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#2aabee"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.04 9.607c-.152.678-.556.843-1.126.524l-3.113-2.294-1.504 1.449c-.166.166-.305.305-.626.305l.223-3.174 5.779-5.22c.251-.223-.054-.347-.39-.124L7.24 14.6 4.184 13.64c-.667-.208-.68-.667.14-.988l10.879-4.194c.556-.2 1.042.136.859.987-.001-.001-.001-.001 0 0l-.5-.197z"/></svg>', bg:'#eff6ff', border:'#bfdbfe'},
-        {key:'twitter',   label:'X / Twitter',icon:'<svg width="15" height="15" viewBox="0 0 24 24" fill="#0f172a"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>', bg:'#f8fafc', border:'#e2e8f0'},
-        {key:'linkedin',  label:'LinkedIn',   icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>', bg:'#eff6ff', border:'#bfdbfe'},
-        {key:'facebook',  label:'Facebook',   icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>', bg:'#eff6ff', border:'#bfdbfe'},
-        {key:'copy_link', label:'Copy link',  icon:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>', bg:'#f8fafc', border:'#e2e8f0'},
+        {key:'whatsapp', stype:'individual', label:'WhatsApp (DM)',    icon:WA_SVG, bg:'#f0fdf4', border:'#bbf7d0'},
+        {key:'whatsapp', stype:'group',      label:'WhatsApp Group',   icon:WA_SVG, bg:'#dcfce7', border:'#86efac'},
+        {key:'telegram', stype:'individual', label:'Telegram (DM)',    icon:TG_SVG, bg:'#eff6ff', border:'#bfdbfe'},
+        {key:'telegram', stype:'group',      label:'Telegram Group',   icon:TG_SVG, bg:'#dbeafe', border:'#93c5fd'},
+        {key:'twitter',  stype:'general',    label:'X / Twitter',      icon:'<svg width="15" height="15" viewBox="0 0 24 24" fill="#0f172a"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>', bg:'#f8fafc', border:'#e2e8f0'},
+        {key:'linkedin', stype:'general',    label:'LinkedIn',         icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>', bg:'#eff6ff', border:'#bfdbfe'},
+        {key:'facebook', stype:'general',    label:'Facebook',         icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>', bg:'#eff6ff', border:'#bfdbfe'},
+        {key:'copy_link',stype:'general',    label:'Copy link',        icon:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>', bg:'#f8fafc', border:'#e2e8f0'},
       ];
 
       var dd = document.createElement('div');
@@ -956,9 +985,11 @@
       }
 
       PLATFORMS.forEach(function(p) {
-        dd.appendChild(makeItem(p, p.label, function() {
-          _doShare(p.key, 'general', shareUrl, title, contentType, objectId);
-        }));
+        (function(plat) {
+          dd.appendChild(makeItem(plat, plat.label, function() {
+            _doShare(plat.key, plat.stype, shareUrl, title, contentType, objectId);
+          }));
+        })(p);
       });
 
       document.body.appendChild(dd);

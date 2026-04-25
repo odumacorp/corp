@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Login — Oduma Corp</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f0f4ff;font-family:'Space Grotesk',system-ui,sans-serif}
+.card{background:#fff;border-radius:18px;box-shadow:0 4px 32px rgba(10,22,40,.12);padding:40px 36px;width:100%;max-width:400px}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.logo-icon{width:40px;height:40px;background:#1B5EC7;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.logo-text{font-weight:800;font-size:1.2rem;color:#0A1628}
+h1{font-size:1.4rem;font-weight:700;color:#0A1628;margin-bottom:6px}
+p.sub{font-size:.95rem;color:#6b7280;margin-bottom:24px}
+label{display:block;font-size:.9rem;font-weight:600;color:#374151;margin-bottom:5px}
+input{width:100%;padding:11px 14px;border:1.5px solid #e4eaf2;border-radius:10px;font-size:1rem;outline:none;transition:border-color .15s;margin-bottom:16px}
+input:focus{border-color:#1B5EC7}
+.btn{width:100%;padding:13px;background:#1B5EC7;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:background .15s}
+.btn:hover{background:#1649a8}
+.err{background:#fff0f0;border:1px solid #fca5a5;color:#b91c1c;border-radius:8px;padding:10px 14px;font-size:.9rem;margin-bottom:16px}
+.lock-icon{margin:0 auto 20px;width:52px;height:52px;background:#f0f5ff;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#1B5EC7}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    </div>
+    <span class="logo-text">Oduma Corp</span>
+  </div>
+  <div class="lock-icon">
+    <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  </div>
+  <h1>Admin Login</h1>
+  <p class="sub">Staff &amp; admin accounts only. 2FA required.</p>
+
+  {% if error %}
+  <div class="err">{{ error }}</div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" autocomplete="username" required autofocus>
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" autocomplete="current-password" required>
+    <button type="submit" class="btn">Continue →</button>
+  </form>
+</div>
+</body>
+</html>

@@ -170,6 +170,13 @@
   .adm-active-badge   { background: rgba(5,150,105,0.1); color: #059669; padding: 2px 9px; border-radius: 20px; font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700; }
   .adm-inactive-badge { background: rgba(192,57,43,0.1); color: #c0392b; padding: 2px 9px; border-radius: 20px; font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700; }
 
+  /* Pending Post Review cards */
+  .ppr-card { background:#fff; border:1.5px solid rgba(245,158,11,.25); border-radius:12px; overflow:hidden; }
+  .ppr-card-body { padding:16px 18px; }
+  .ppr-meta { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .ppr-card-actions { display:flex; align-items:center; gap:8px; padding:10px 18px; background:#fffbf0; border-top:1px solid rgba(245,158,11,.15); flex-wrap:wrap; }
+  .ppr-reason-input { flex:1; min-width:160px; border:1px solid #e5e7eb; border-radius:6px; padding:5px 10px; font-size:1.2rem; font-family:var(--ff-sans); }
+
   /* Inline action forms */
   .adm-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .adm-act-btn {
@@ -189,14 +196,16 @@
   .adm-btn-primary { border-color: var(--blue); color: #fff; background: var(--blue); }
   .adm-btn-primary:hover { background: var(--blue-dark); border-color: var(--blue-dark); }
 
-  /* Role selector inside table */
-  .adm-role-form { display: flex; align-items: center; gap: 4px; }
-  .adm-role-select {
-    padding: 3px 6px; border: 1.5px solid var(--border); border-radius: 7px;
-    font-family: var(--ff-sans); font-size: 1.2rem; color: var(--text); background: var(--card-bg);
-    cursor: pointer; outline: none;
+  /* Role inline dropdown */
+  .rl-dd-btn { transition: opacity .15s; }
+  .rl-dd-btn:hover { opacity: .85; }
+  .rl-opt {
+    padding: 7px 10px; cursor: pointer; display: flex; align-items: center;
+    transition: background .12s; border-bottom: 1px solid #f0f4fb;
   }
-  .adm-role-select:focus { border-color: var(--blue); }
+  .rl-opt:last-child { border-bottom: none; }
+  .rl-opt:hover { background: #f5f8ff; }
+  .rl-opt.rl-sel { background: #eef3fd; }
 
   /* Status selector inside table */
   .adm-status-form { display: flex; align-items: center; gap: 4px; }
@@ -426,12 +435,12 @@
         <h1 class="adm-page-title">Dashboard</h1>
         <div style="display:flex;align-items:center;gap:10px;">
           <span class="adm-badge-admin">Admin</span>
-          <a href="{% url 'login_as_odu' %}"
-             style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;background:#0A1628;color:#fff;border-radius:9px;font-size:1.2rem;font-weight:700;text-decoration:none;transition:background .15s;"
+          <button type="button" id="odu-login-btn" onclick="loginAsOdu()"
+             style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;background:#0A1628;color:#fff;border:none;border-radius:9px;font-size:1.2rem;font-weight:700;cursor:pointer;transition:background .15s;"
              onmouseover="this.style.background='#1B5EC7'" onmouseout="this.style.background='#0A1628'">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Login as Odu Bot
-          </a>
+          </button>
           <button id="odu-trigger-btn" onclick="triggerOduPost()"
              style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;background:#1B5EC7;color:#fff;border:none;border-radius:9px;font-size:1.2rem;font-weight:700;cursor:pointer;transition:background .15s;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -774,24 +783,53 @@
                 </div>
               </td>
               <td>
-                <!-- Change role -->
-                <select class="adm-role-select" data-user-id="{{ u.id }}" data-action="change-role"
-                  onchange="adminAjaxAction('{% url 'admin_change_role' u.id %}', {role: this.value}, this)"
-                  {% if u.id == request.user.id %}disabled title="Cannot change own role"{% endif %}>
-                  <option value="innovator" {% if u.user_type == 'innovator' %}selected{% endif %}>Innovator</option>
-                  <option value="investor"  {% if u.user_type == 'investor'  %}selected{% endif %}>Investor</option>
-                  <option value="admin"     {% if u.user_type == 'admin'     %}selected{% endif %}>Admin</option>
-                </select>
+                <!-- Change role — custom dropdown -->
+                {% if u.id == request.user.id %}
+                  <span class="adm-role role-{{ u.user_type }}" title="Cannot change own role" style="opacity:.6;cursor:default;">{{ u.user_type|capfirst }}</span>
+                {% else %}
+                <div class="rl-dd" id="rl-dd-{{ u.id }}" style="position:relative;user-select:none;display:inline-block;">
+                  <button type="button"
+                    class="rl-dd-btn adm-role role-{{ u.user_type }}"
+                    onclick="rlDdToggle('{{ u.id }}')"
+                    style="display:inline-flex;align-items:center;gap:5px;border:none;cursor:pointer;padding:3px 8px 3px 9px;border-radius:20px;font-size:1.2rem;font-weight:700;font-family:var(--ff-sans);">
+                    <span id="rl-lbl-{{ u.id }}">{{ u.user_type|capfirst }}</span>
+                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                  </button>
+                  <div class="rl-dd-menu" id="rl-menu-{{ u.id }}"
+                    style="display:none;position:fixed;z-index:9000;min-width:130px;
+                           background:#fff;border:1.5px solid #d0dff5;border-radius:10px;
+                           box-shadow:0 6px 20px rgba(10,22,40,0.13);overflow:hidden;">
+                    <div class="rl-opt{% if u.user_type == 'innovator' %} rl-sel{% endif %}" data-val="innovator" data-uid="{{ u.id }}" data-url="{% url 'admin_change_role' u.id %}" onclick="rlDdPick(this)">
+                      <span class="adm-role role-innovator" style="padding:2px 8px;">Innovator</span>
+                    </div>
+                    <div class="rl-opt{% if u.user_type == 'investor' %} rl-sel{% endif %}"  data-val="investor"  data-uid="{{ u.id }}" data-url="{% url 'admin_change_role' u.id %}" onclick="rlDdPick(this)">
+                      <span class="adm-role role-investor"  style="padding:2px 8px;">Investor</span>
+                    </div>
+                    <div class="rl-opt{% if u.user_type == 'admin' %} rl-sel{% endif %}"     data-val="admin"     data-uid="{{ u.id }}" data-url="{% url 'admin_change_role' u.id %}" onclick="rlDdPick(this)">
+                      <span class="adm-role role-admin"     style="padding:2px 8px;">Admin</span>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
               </td>
               <td>
-                {% if u.is_active %}
-                  <span class="adm-active-badge">Active</span>
-                {% else %}
-                  <span class="adm-inactive-badge">Inactive</span>
-                {% endif %}
-                {% if u.is_hidden %}
-                  <span class="adm-inactive-badge" style="background:rgba(124,58,237,0.1);color:#7c3aed;">Hidden</span>
-                {% endif %}
+                <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
+                  {% if u.is_active %}
+                    <span class="adm-active-badge">Active</span>
+                  {% else %}
+                    <span class="adm-inactive-badge">Inactive</span>
+                  {% endif %}
+                  {% if u.is_hidden %}
+                    <span class="adm-inactive-badge" style="background:rgba(124,58,237,0.1);color:#7c3aed;">Hidden</span>
+                  {% endif %}
+                  {% with vs=u.userprofile.verification_status %}
+                  {% if vs == 'verified' %}
+                    <span class="adm-active-badge" style="background:rgba(5,150,105,.1);color:#059669;">✓ Verified</span>
+                  {% elif vs == 'pending' %}
+                    <span class="adm-inactive-badge" style="background:rgba(245,200,66,.12);color:#b45309;">Pending</span>
+                  {% endif %}
+                  {% endwith %}
+                </div>
               </td>
               <td style="text-align:center;">
                 <a href="{% url 'profile_view' username=u.username %}#section-projects" style="color:var(--blue);font-weight:700;">{{ u.project_count }}</a>
@@ -824,6 +862,15 @@
                     onclick="adminToggleHide(this, '{% url 'admin_toggle_hide_user' u.id %}')">
                     {% if u.is_hidden %}Unhide{% else %}Hide{% endif %}
                   </button>
+
+                  <!-- Verify / Unverify -->
+                  {% with vs=u.userprofile.verification_status %}
+                  <button type="button"
+                    class="adm-act-btn {% if vs == 'verified' %}adm-btn-warn{% else %}adm-btn-success{% endif %}"
+                    onclick="adminVerifyUser(this, '{% url 'admin_verify_user' u.id %}', '{{ vs }}')">
+                    {% if vs == 'verified' %}Unverify{% else %}Verify{% endif %}
+                  </button>
+                  {% endwith %}
 
                   <!-- Reset password (email temp) -->
                   <form method="post" action="{% url 'admin_reset_user_password' u.id %}" style="display:inline">
@@ -970,7 +1017,55 @@
       <div class="adm-section-head">
         <h2 class="adm-section-title">Posts</h2>
         <span class="adm-section-label">{{ total_posts }} total</span>
+        {% if pending_posts_count %}
+        <span class="adm-active-badge" style="background:rgba(245,158,11,.12);color:#b45309;margin-left:auto;">{{ pending_posts_count }} pending</span>
+        {% endif %}
       </div>
+
+      <!-- ── Pending Post Review Queue ── -->
+      {% if pending_posts %}
+      <div style="margin-bottom:24px;">
+        <h3 style="font-family:var(--ff-serif);font-size:1.25rem;font-weight:800;color:#0a1628;margin:0 0 12px;display:flex;align-items:center;gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Awaiting Approval
+          <span style="background:rgba(245,158,11,.15);color:#b45309;font-size:1.1rem;padding:2px 9px;border-radius:99px;">{{ pending_posts_count }}</span>
+        </h3>
+        <div style="display:flex;flex-direction:column;gap:12px;" id="pending-posts-list">
+          {% for p in pending_posts %}
+          <div class="ppr-card" id="ppr-{{ p.id }}">
+            <div class="ppr-card-body">
+              <div class="ppr-meta">
+                {% if p.user.userprofile.profile_pics %}
+                  <img src="{{ p.user.userprofile.profile_pics.url }}" class="adm-avatar" alt="">
+                {% else %}
+                  <div class="adm-avatar-init">{{ p.user.first_name|slice:":1"|upper }}{{ p.user.last_name|slice:":1"|upper }}</div>
+                {% endif %}
+                <div>
+                  <div style="font-weight:700;color:#0a1628;font-size:1.2rem;">{{ p.user.get_full_name|default:p.user.username }}</div>
+                  <div style="color:#6b7280;font-size:1.15rem;">{{ p.created_at|timesince }} ago · {{ p.get_post_type_display }}</div>
+                </div>
+                <span class="adm-inactive-badge" style="margin-left:auto;background:rgba(245,158,11,.1);color:#b45309;">Pending</span>
+              </div>
+              {% if p.title %}<div style="font-family:var(--ff-serif);font-weight:700;color:#0a1628;font-size:1.2rem;margin-bottom:4px;">{{ p.title }}</div>{% endif %}
+              <div style="color:#374151;font-size:1.2rem;line-height:1.6;">{{ p.content|truncatewords:40 }}</div>
+              {% if p.image %}<img src="{{ p.image.url }}" style="margin-top:10px;max-height:140px;border-radius:8px;object-fit:cover;" alt="">{% endif %}
+            </div>
+            <div class="ppr-card-actions">
+              <input type="text" class="ppr-reason-input" id="ppr-reason-{{ p.id }}" placeholder="Rejection reason (optional)…">
+              <button type="button" class="adm-act-btn adm-btn-success" onclick="pprApprove({{ p.id }}, '{% url 'admin_approve_post' p.id %}')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Approve
+              </button>
+              <button type="button" class="adm-act-btn adm-btn-danger" onclick="pprReject({{ p.id }}, '{% url 'admin_reject_post' p.id %}')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Reject
+              </button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
 
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
         <select id="post-industry-filter" onchange="filterPosts()" class="adm-role-select" style="padding:6px 10px;">
@@ -2230,22 +2325,81 @@
         <span class="adm-section-label">{{ total_admins }} admin{{ total_admins|pluralize }}</span>
       </div>
 
+      <!-- 2FA Management -->
+      <div class="adm-broadcast-card" style="margin-bottom:24px;">
+        <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+          <svg width="16" height="16" fill="none" stroke="#1B5EC7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Two-Factor Authentication (2FA)
+        </h3>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          {% for u in twofa_users %}
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1.5px solid #e4eaf2;border-radius:12px;background:#fafbff;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="adm-avatar-init" style="width:36px;height:36px;font-size:1.1rem;">{{ u.first_name|first|upper }}{{ u.last_name|first|upper }}</div>
+              <div>
+                <div style="font-family:var(--ff-sans);font-size:1.2rem;font-weight:700;color:#0A1628;">{{ u.get_full_name|default:u.username }}</div>
+                <div style="font-size:1.1rem;color:#6b7280;">{{ u.email }} &middot; {{ u.user_type|capfirst }}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              {% if u.totp_secret.is_active %}
+                <span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:700;font-family:var(--ff-sans);background:rgba(5,150,105,0.1);color:#059669;">Enabled</span>
+                <form method="post" action="{% url 'admin_disable_2fa' u.id %}" style="margin:0;">
+                  {% csrf_token %}
+                  <button type="submit" class="adm-act-btn adm-btn-danger" style="padding:4px 12px;"
+                    onclick="return confirm('Disable 2FA for {{ u.get_full_name|default:u.username }}?')">Disable 2FA</button>
+                </form>
+              {% else %}
+                <span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:700;font-family:var(--ff-sans);background:rgba(107,114,128,0.1);color:#6b7280;">Not set up</span>
+                <a href="{% url 'admin_setup_2fa_for' u.id %}" class="adm-act-btn adm-btn-primary" style="padding:4px 12px;">Enable 2FA</a>
+              {% endif %}
+            </div>
+          </div>
+          {% empty %}
+          <div class="adm-empty">No admin or Odu accounts found.</div>
+          {% endfor %}
+        </div>
+      </div>
+
       <!-- Add new sub-admin form -->
       <div class="adm-broadcast-card" style="margin-bottom:24px;">
         <h3>Promote User to Admin</h3>
         <form method="post" action="{% url 'admin_add_sub_admin' %}">
           {% csrf_token %}
           <div class="adm-form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-            <div class="adm-broadcast-field">
+            <div class="adm-broadcast-field" style="position:relative;">
               <label>Select User</label>
-              <select name="user_id" class="adm-broadcast-select" style="width:100%;" required>
-                <option value="">— choose a user —</option>
-                {% for u in users %}
-                  {% if u.user_type != 'admin' and u.id != request.user.id %}
-                  <option value="{{ u.id }}">{{ u.get_full_name|default:u.username }} ({{ u.user_type }})</option>
-                  {% endif %}
-                {% endfor %}
-              </select>
+              <input type="hidden" name="user_id" id="promote-user-id" required>
+              <div id="promote-dd" style="position:relative;user-select:none;">
+                <button type="button" id="promote-dd-btn" onclick="promDdToggle()"
+                  style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
+                         padding:10px 14px;border:1.5px solid #e0e6f0;border-radius:10px;background:#fff;
+                         font-family:var(--ff-sans);font-size:1.2rem;color:#374151;cursor:pointer;text-align:left;">
+                  <span id="promote-dd-label" style="color:#9ca3af;">— choose a user —</span>
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div id="promote-dd-menu" style="display:none;position:absolute;z-index:200;top:calc(100% + 4px);left:0;right:0;
+                     background:#fff;border:1.5px solid #e0e6f0;border-radius:10px;
+                     box-shadow:0 8px 24px rgba(10,22,40,0.12);overflow:hidden;">
+                  <div style="padding:8px;">
+                    <input type="text" id="promote-dd-search" placeholder="Search user…" oninput="promDdSearch(this.value)"
+                      style="width:100%;padding:8px 12px;border:1.5px solid #e0e6f0;border-radius:8px;
+                             font-size:1.2rem;outline:none;box-sizing:border-box;">
+                  </div>
+                  <div id="promote-dd-list" style="max-height:220px;overflow-y:auto;padding:4px 8px 8px;">
+                    {% for u in users %}{% if u.user_type != 'admin' and u.id != request.user.id %}
+                    <div class="prom-opt" data-val="{{ u.id }}"
+                      data-label="{{ u.get_full_name|default:u.username }} ({{ u.user_type }})"
+                      onclick="promDdPick(this)"
+                      style="padding:9px 12px;border-radius:8px;cursor:pointer;font-size:1.2rem;
+                             color:#0A1628;display:flex;align-items:center;justify-content:space-between;">
+                      <span>{{ u.get_full_name|default:u.username }}</span>
+                      <span style="font-size:1.1rem;color:#6b7280;background:#f0f4f8;padding:2px 8px;border-radius:20px;">{{ u.user_type }}</span>
+                    </div>
+                    {% endif %}{% endfor %}
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="adm-broadcast-field">
               <label style="visibility:hidden;">placeholder</label>
@@ -2758,37 +2912,217 @@
         <span class="adm-section-sub">Tracks every time a user shares content to a social platform</span>
       </div>
 
-      <!-- Summary strip -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;margin-bottom:24px;">
-        <div class="sv-score-card">
-          <div class="sv-score-num">{{ shares.total }}</div>
-          <div class="sv-score-label">Social Shares</div>
+      <!-- Stat totals row -->
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+        {% for stat in shares.stat_row|default:'' %}{% endfor %}
+        <div class="shs-total-pill" style="background:#0A1628;color:#fff;">
+          <span class="shs-tp-num">{{ shares.total }}</span><span class="shs-tp-lbl">Total Shares</span>
         </div>
-        <div class="sv-score-card">
-          <div class="sv-score-num" style="color:#1B5EC7;">{{ shares.sent_links_total }}</div>
-          <div class="sv-score-label">Links Sent (DM)</div>
+        <div class="shs-total-pill" style="background:#f0fdf4;color:#15803d;border:1.5px solid #bbf7d0;">
+          <span class="shs-tp-num" style="color:#15803d;">{{ shares.by_platform.whatsapp|default:0 }}</span><span class="shs-tp-lbl">WhatsApp</span>
         </div>
-        <div class="sv-score-card">
-          <div class="sv-score-num" style="color:#25d366;">{{ shares.by_platform.whatsapp|default:0 }}</div>
-          <div class="sv-score-label">WhatsApp</div>
+        <div class="shs-total-pill" style="background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;">
+          <span class="shs-tp-num" style="color:#1d4ed8;">{{ shares.by_platform.telegram|default:0 }}</span><span class="shs-tp-lbl">Telegram</span>
         </div>
-        <div class="sv-score-card">
-          <div class="sv-score-num" style="color:#2aabee;">{{ shares.by_platform.telegram|default:0 }}</div>
-          <div class="sv-score-label">Telegram</div>
+        <div class="shs-total-pill" style="background:#f8fafc;color:#0f172a;border:1.5px solid #e2e8f0;">
+          <span class="shs-tp-num">{{ shares.by_platform.twitter|default:0 }}</span><span class="shs-tp-lbl">X / Twitter</span>
         </div>
-        <div class="sv-score-card">
-          <div class="sv-score-num" style="color:#e05c4b;">{{ shares.groups }}</div>
-          <div class="sv-score-label">Group Shares</div>
+        <div class="shs-total-pill" style="background:#eff6ff;color:#0a66c2;border:1.5px solid #bfdbfe;">
+          <span class="shs-tp-num" style="color:#0a66c2;">{{ shares.by_platform.linkedin|default:0 }}</span><span class="shs-tp-lbl">LinkedIn</span>
         </div>
-        <div class="sv-score-card">
-          <div class="sv-score-num" style="color:#7c3aed;">{{ shares.individuals }}</div>
-          <div class="sv-score-label">Individual / DM</div>
+        <div class="shs-total-pill" style="background:#fff7ed;color:#c2410c;border:1.5px solid #fed7aa;">
+          <span class="shs-tp-num" style="color:#c2410c;">{{ shares.groups }}</span><span class="shs-tp-lbl">Group</span>
         </div>
-        <div class="sv-score-card">
-          <div class="sv-score-num" style="color:#0d9488;">{{ shares.by_platform.copy_link|default:0 }}</div>
-          <div class="sv-score-label">Copy Link</div>
+        <div class="shs-total-pill" style="background:#faf5ff;color:#7c3aed;border:1.5px solid #e9d5ff;">
+          <span class="shs-tp-num" style="color:#7c3aed;">{{ shares.individuals }}</span><span class="shs-tp-lbl">Individual / DM</span>
+        </div>
+        <div class="shs-total-pill" style="background:#f0fdfa;color:#0d9488;border:1.5px solid #99f6e4;">
+          <span class="shs-tp-num" style="color:#0d9488;">{{ shares.by_platform.copy_link|default:0 }}</span><span class="shs-tp-lbl">Copy Link</span>
         </div>
       </div>
+
+      <!-- Platform share cards -->
+      <div class="shs-grid" style="margin-bottom:24px;">
+
+        {% with base_url=request.scheme|add:'://'|add:request.get_host|add:'/' %}
+
+        <!-- WhatsApp -->
+        <div class="shs-card" style="--shs-accent:#25d366;">
+          <div class="shs-card-head">
+            <div class="shs-icon" style="background:#f0fdf4;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.546 21.5l4.456-.88A9.953 9.953 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+            </div>
+            <div>
+              <div class="shs-card-name">WhatsApp</div>
+              <div class="shs-card-count" style="color:#25d366;">{{ shares.by_platform.whatsapp|default:0 }} shares</div>
+            </div>
+          </div>
+          <div class="shs-actions">
+            <a class="shs-btn shs-btn-solid" style="background:#25d366;"
+               href="{% url 'share_redirect' %}?platform=whatsapp&share_type=individual&content_type=other&url={{ base_url|urlencode }}"
+               target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.546 21.5l4.456-.88A9.953 9.953 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+              Send DM
+            </a>
+            <a class="shs-btn shs-btn-ghost" style="color:#15803d;border-color:#bbf7d0;"
+               href="{% url 'share_redirect' %}?platform=whatsapp&share_type=group&content_type=other&url={{ base_url|urlencode }}"
+               target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Group
+            </a>
+          </div>
+          <div class="shs-link-row">
+            <div class="shs-link-box">{{ request.scheme }}://{{ request.get_host }}/share/go/?platform=whatsapp&amp;...</div>
+            <button class="shs-copy-btn" onclick="shsCopy(this,'{% url 'share_redirect' %}?platform=whatsapp&share_type=individual&content_type=other&url={{ base_url|urlencode }}')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy Link
+            </button>
+          </div>
+        </div>
+
+        <!-- Telegram -->
+        <div class="shs-card" style="--shs-accent:#2aabee;">
+          <div class="shs-card-head">
+            <div class="shs-icon" style="background:#eff6ff;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#2aabee"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.04 9.607c-.152.678-.556.843-1.126.524l-3.113-2.294-1.504 1.449c-.166.166-.305.305-.626.305l.223-3.174 5.779-5.22c.251-.223-.054-.347-.39-.124L7.24 14.6 4.184 13.64c-.643-.208-.68-.667.14-.988l10.879-4.194c.556-.2 1.042.136.859.987l-.5-.197z"/></svg>
+            </div>
+            <div>
+              <div class="shs-card-name">Telegram</div>
+              <div class="shs-card-count" style="color:#2aabee;">{{ shares.by_platform.telegram|default:0 }} shares</div>
+            </div>
+          </div>
+          <div class="shs-actions">
+            <a class="shs-btn shs-btn-solid" style="background:#2aabee;"
+               href="{% url 'share_redirect' %}?platform=telegram&share_type=individual&content_type=other&url={{ base_url|urlencode }}"
+               target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.04 9.607c-.152.678-.556.843-1.126.524l-3.113-2.294-1.504 1.449c-.166.166-.305.305-.626.305l.223-3.174 5.779-5.22c.251-.223-.054-.347-.39-.124L7.24 14.6 4.184 13.64c-.643-.208-.68-.667.14-.988l10.879-4.194c.556-.2 1.042.136.859.987l-.5-.197z"/></svg>
+              Send DM
+            </a>
+            <a class="shs-btn shs-btn-ghost" style="color:#1d4ed8;border-color:#93c5fd;"
+               href="{% url 'share_redirect' %}?platform=telegram&share_type=group&content_type=other&url={{ base_url|urlencode }}"
+               target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Group
+            </a>
+          </div>
+          <div class="shs-link-row">
+            <div class="shs-link-box">{{ request.scheme }}://{{ request.get_host }}/share/go/?platform=telegram&amp;...</div>
+            <button class="shs-copy-btn" onclick="shsCopy(this,'{% url 'share_redirect' %}?platform=telegram&share_type=individual&content_type=other&url={{ base_url|urlencode }}')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy Link
+            </button>
+          </div>
+        </div>
+
+        <!-- X / Twitter -->
+        <div class="shs-card" style="--shs-accent:#0f172a;">
+          <div class="shs-card-head">
+            <div class="shs-icon" style="background:#f1f5f9;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#0f172a"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </div>
+            <div>
+              <div class="shs-card-name">X / Twitter</div>
+              <div class="shs-card-count">{{ shares.by_platform.twitter|default:0 }} shares</div>
+            </div>
+          </div>
+          <div class="shs-actions">
+            <a class="shs-btn shs-btn-solid" style="background:#0f172a;"
+               href="{% url 'share_redirect' %}?platform=twitter&share_type=general&content_type=other&url={{ base_url|urlencode }}"
+               target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              Share on X
+            </a>
+          </div>
+          <div class="shs-link-row">
+            <div class="shs-link-box">{{ request.scheme }}://{{ request.get_host }}/share/go/?platform=twitter&amp;...</div>
+            <button class="shs-copy-btn" onclick="shsCopy(this,'{% url 'share_redirect' %}?platform=twitter&share_type=general&content_type=other&url={{ base_url|urlencode }}')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy Link
+            </button>
+          </div>
+        </div>
+
+        <!-- LinkedIn -->
+        <div class="shs-card" style="--shs-accent:#0a66c2;">
+          <div class="shs-card-head">
+            <div class="shs-icon" style="background:#eff6ff;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </div>
+            <div>
+              <div class="shs-card-name">LinkedIn</div>
+              <div class="shs-card-count" style="color:#0a66c2;">{{ shares.by_platform.linkedin|default:0 }} shares</div>
+            </div>
+          </div>
+          <div class="shs-actions">
+            <a class="shs-btn shs-btn-solid" style="background:#0a66c2;"
+               href="{% url 'share_redirect' %}?platform=linkedin&share_type=general&content_type=other&url={{ base_url|urlencode }}"
+               target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+              Share
+            </a>
+          </div>
+          <div class="shs-link-row">
+            <div class="shs-link-box">{{ request.scheme }}://{{ request.get_host }}/share/go/?platform=linkedin&amp;...</div>
+            <button class="shs-copy-btn" onclick="shsCopy(this,'{% url 'share_redirect' %}?platform=linkedin&share_type=general&content_type=other&url={{ base_url|urlencode }}')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy Link
+            </button>
+          </div>
+        </div>
+
+        <!-- Copy Link -->
+        <div class="shs-card" style="--shs-accent:#0d9488;">
+          <div class="shs-card-head">
+            <div class="shs-icon" style="background:#f0fdfa;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            </div>
+            <div>
+              <div class="shs-card-name">Copy Link</div>
+              <div class="shs-card-count" style="color:#0d9488;">{{ shares.by_platform.copy_link|default:0 }} copies</div>
+            </div>
+          </div>
+          <div class="shs-actions">
+            <button class="shs-btn shs-btn-solid" style="background:#0d9488;" onclick="admCopyLink(this, '{{ request.scheme }}://{{ request.get_host }}/')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy Site URL
+            </button>
+          </div>
+          <div class="shs-link-row">
+            <div class="shs-link-box">{{ request.scheme }}://{{ request.get_host }}/</div>
+            <button class="shs-copy-btn" onclick="shsCopy(this,'{{ request.scheme }}://{{ request.get_host }}/')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+        {% endwith %}
+      </div>
+
+      <style>
+        .shs-total-pill { display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:20px;font-family:var(--ff-sans); }
+        .shs-tp-num { font-size:1.4rem;font-weight:800; }
+        .shs-tp-lbl { font-size:1.05rem;opacity:.75; }
+        .shs-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px; }
+        .shs-card {
+          background:#fff;border-radius:14px;border:1px solid #e8edf4;
+          padding:16px;display:flex;flex-direction:column;gap:12px;
+          box-shadow:0 2px 8px rgba(10,22,40,0.05);
+        }
+        .shs-card-head { display:flex;align-items:center;gap:10px; }
+        .shs-icon { width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+        .shs-card-name { font-family:var(--ff-serif);font-size:1.15rem;font-weight:700;color:#0A1628; }
+        .shs-card-count { font-family:var(--ff-sans);font-size:1.05rem;color:#6b7280;margin-top:1px; }
+        .shs-actions { display:flex;flex-wrap:wrap;gap:6px; }
+        .shs-btn { display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;font-family:var(--ff-sans);font-size:1.1rem;font-weight:700;text-decoration:none;cursor:pointer;border:none;transition:opacity .15s; }
+        .shs-btn:hover { opacity:.85;text-decoration:none; }
+        .shs-btn-solid { color:#fff; }
+        .shs-btn-ghost { background:transparent;border:1.5px solid; }
+        .shs-link-row { display:flex;align-items:center;gap:6px;background:#f8fafc;border-radius:8px;padding:6px 8px;border:1px solid #e8edf4; }
+        .shs-link-box { flex:1;font-family:monospace;font-size:.95rem;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+        .shs-copy-btn { flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#1B5EC7;color:#fff;border:none;border-radius:6px;font-family:var(--ff-sans);font-size:1.05rem;font-weight:700;cursor:pointer;transition:background .15s;white-space:nowrap; }
+        .shs-copy-btn:hover { background:#154ea8; }
+      </style>
 
       <!-- Charts row -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;">
@@ -3578,6 +3912,40 @@ function adminAjaxAction(url, data, triggerEl) {
     if (!res.ok && triggerEl) triggerEl.style.outline = '2px solid red';
   })
   .catch(function(){ if (triggerEl) triggerEl.style.outline = '2px solid red'; });
+}
+
+function adminVerifyUser(btn, url, currentStatus) {
+  var action = currentStatus === 'verified' ? 'unverify' : 'verify';
+  var body = new URLSearchParams({ action: action });
+  fetch(url, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': _getCsrf(), 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString()
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    var verified = res.status === 'verified';
+    btn.textContent = verified ? 'Unverify' : 'Verify';
+    btn.className = 'adm-act-btn ' + (verified ? 'adm-btn-warn' : 'adm-btn-success');
+    btn.setAttribute('onclick', "adminVerifyUser(this, '" + url + "', '" + res.status + "')");
+    // Update badge in status cell
+    var row = btn.closest('tr');
+    if (row) {
+      var statusCell = row.querySelector('td:nth-child(3)');
+      if (statusCell) {
+        var wrap = statusCell.querySelector('div');
+        var old = wrap && wrap.querySelector('[style*="059669"], [style*="b45309"]');
+        if (old) old.remove();
+        if (verified) {
+          var badge = document.createElement('span');
+          badge.className = 'adm-active-badge';
+          badge.style.cssText = 'background:rgba(5,150,105,.1);color:#059669;';
+          badge.textContent = '✓ Verified';
+          (wrap || statusCell).appendChild(badge);
+        }
+      }
+    }
+  });
 }
 
 function adminToggleUser(btn, url) {
@@ -4495,5 +4863,111 @@ function triggerOduPost() {
     console.error('triggerOduPost:', e);
   });
 }
+
+/* ── Admin copy link with tracking ── */
+function admCopyLink(btn, url) {
+  fetch('{% url "share_redirect" %}?platform=copy_link&share_type=general&content_type=other&url=' + encodeURIComponent(url), {credentials:'same-origin'}).catch(function(){});
+  navigator.clipboard.writeText(url).then(function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '✓ Copied!';
+    btn.style.background = '#d1fae5'; btn.style.color = '#065f46';
+    setTimeout(function(){ btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
+  });
+}
+
+/* ── Social Shares copy tracked link ── */
+function shsCopy(btn, url) {
+  navigator.clipboard.writeText(url).then(function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '✓ Copied!';
+    btn.style.background = '#065f46'; btn.style.color = '#d1fae5';
+    setTimeout(function(){ btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
+  });
+}
+
+/* ── Login as Odu Bot ── */
+function loginAsOdu() {
+  var token = (document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/) || [])[1] || '{{ csrf_token }}';
+  var form = document.createElement('form');
+  form.method = 'POST';
+  form.action = "{% url 'login_as_odu' %}";
+  var inp = document.createElement('input');
+  inp.type = 'hidden'; inp.name = 'csrfmiddlewaretoken'; inp.value = token;
+  form.appendChild(inp);
+  document.body.appendChild(form);
+  form.submit();
+}
+
+/* ── Role inline dropdown ── */
+function rlDdToggle(uid) {
+  var menu = document.getElementById('rl-menu-' + uid);
+  var btn  = document.getElementById('rl-dd-' + uid).querySelector('.rl-dd-btn');
+  var open = menu.style.display === 'block';
+  document.querySelectorAll('.rl-dd-menu').forEach(function(m) { m.style.display = 'none'; });
+  if (!open) {
+    var r = btn.getBoundingClientRect();
+    menu.style.top  = (r.bottom + 4) + 'px';
+    menu.style.left = r.left + 'px';
+    menu.style.display = 'block';
+  }
+}
+function rlDdPick(el) {
+  var uid  = el.dataset.uid;
+  var val  = el.dataset.val;
+  var url  = el.dataset.url;
+  var menu = document.getElementById('rl-menu-' + uid);
+  var btn  = document.getElementById('rl-dd-' + uid).querySelector('.rl-dd-btn');
+  var lbl  = document.getElementById('rl-lbl-' + uid);
+
+  // Optimistic UI update
+  var colorMap = { innovator:'role-innovator', investor:'role-investor', admin:'role-admin' };
+  btn.className = btn.className.replace(/role-\w+/, colorMap[val]);
+  lbl.textContent = val.charAt(0).toUpperCase() + val.slice(1);
+  menu.querySelectorAll('.rl-opt').forEach(function(o) { o.classList.remove('rl-sel'); });
+  el.classList.add('rl-sel');
+  menu.style.display = 'none';
+
+  // AJAX call
+  var fd = new FormData();
+  fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fd.append('role', val);
+  fetch(url, { method: 'POST', body: fd })
+    .then(function(r) { return r.json(); })
+    .catch(function() {});
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.rl-dd')) {
+    document.querySelectorAll('.rl-dd-menu').forEach(function(m) { m.style.display = 'none'; });
+  }
+});
+
+/* ── Promote User custom dropdown ── */
+function promDdToggle() {
+  var menu = document.getElementById('promote-dd-menu');
+  var btn  = document.getElementById('promote-dd-btn');
+  var open = menu.style.display === 'block';
+  menu.style.display = open ? 'none' : 'block';
+  btn.setAttribute('aria-expanded', String(!open));
+  if (!open) { document.getElementById('promote-dd-search').focus(); }
+}
+function promDdSearch(q) {
+  var lower = q.toLowerCase();
+  document.querySelectorAll('#promote-dd-menu .prom-opt').forEach(function(o) {
+    var label = (o.dataset.label || o.textContent).toLowerCase();
+    o.style.display = label.includes(lower) ? '' : 'none';
+  });
+}
+function promDdPick(el) {
+  document.getElementById('promote-user-id').value = el.dataset.val;
+  document.getElementById('promote-dd-btn').querySelector('span').textContent = el.dataset.label;
+  document.getElementById('promote-dd-menu').style.display = 'none';
+}
+document.addEventListener('click', function(e) {
+  var dd = document.getElementById('promote-dd');
+  if (dd && !dd.contains(e.target)) {
+    var menu = document.getElementById('promote-dd-menu');
+    if (menu) menu.style.display = 'none';
+  }
+});
 </script>
 {% endblock %}

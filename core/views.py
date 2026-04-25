@@ -1,4 +1,4 @@
-from .models import CustomUser, Company, Project, UserProfile, INDUSTRY_CHOICES
+from .models import CustomUser, Company, Project, UserProfile, INDUSTRY_CHOICES, Notification
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -243,6 +243,10 @@ def profile_view_by_id(request, id):
 
 def profile_view(request, username):
     from .models import ProfileView as PV, Project, Patent, Like, Interest, Post, Group, Page, Company, Proposal
+    if username == 'me':
+        if not request.user.is_authenticated:
+            return redirect('login')
+        return redirect('profile_view', username=request.user.username)
     user_obj = get_object_or_404(CustomUser, username=username)
     profile  = get_object_or_404(UserProfile, user=user_obj)
 
@@ -346,6 +350,20 @@ def linkedin(request):
     return render(request, 'linkedin.html', context)
 
 ##index.html
+def robots_txt(request):
+    from django.http import HttpResponse
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /admin/",
+        "Disallow: /admin-panel/",
+        "Disallow: /api/",
+        "Disallow: /track/",
+        f"Sitemap: {request.scheme}://{request.get_host()}/sitemap.xml",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
 def index(request):
     from .models import Project, CustomUser, UserProfile, SubscriptionPlan
     featured = Project.objects.filter(
@@ -2121,9 +2139,11 @@ def app_view(request):
         industry  = request.POST.get('post_industry', '')
         image     = request.FILES.get('post_image')
         if content:
+            auto_approve = user.user_type == 'admin'
             post = Post.objects.create(
                 user=user, title=title, content=content,
                 post_type=post_type, industry=industry,
+                review_status='approved' if auto_approve else 'pending',
             )
             if image:
                 post.image = image
@@ -2137,6 +2157,9 @@ def app_view(request):
                     poll = Poll.objects.create(post=post, question=poll_q, closes_at=closes_at)
                     for i, opt in enumerate(options[:6]):
                         PollOption.objects.create(poll=poll, text=opt, order=i)
+            if not auto_approve:
+                from django.contrib import messages as _msgs
+                _msgs.success(request, "Your post has been submitted for review. It will appear in the feed once approved.")
         return redirect('app')
 
     # Accepted connection IDs
@@ -2155,7 +2178,7 @@ def app_view(request):
     date_filter     = request.GET.get('date', '')
 
     # Feed posts — prioritize by user's industry/interests
-    posts_qs = Post.objects.filter(is_hidden=False).select_related('user', 'user__userprofile').prefetch_related('comments', 'extra_images').order_by('-created_at')
+    posts_qs = Post.objects.filter(is_hidden=False, review_status='approved').select_related('user', 'user__userprofile').prefetch_related('comments', 'extra_images').order_by('-created_at')
     if industry_filter:
         posts_qs = posts_qs.filter(industry=industry_filter)
     if date_filter:
@@ -2920,6 +2943,37 @@ def admin_reject_verification(request, req_id):
     return redirect('admin_verification_queue')
 
 
+@require_POST
+@login_required
+def admin_verify_user(request, user_id):
+    """Admin: directly set a user's verification status (verified / unverified)."""
+    from django.utils import timezone as tz
+    if request.user.user_type != 'admin':
+        return JsonResponse({'error': 'forbidden'}, status=403)
+    target = get_object_or_404(CustomUser, pk=user_id)
+    profile, _ = UserProfile.objects.get_or_create(user=target)
+    action = request.POST.get('action', 'verify')
+    if action == 'verify':
+        profile.verification_status = 'verified'
+        profile.verified_at = tz.now()
+        profile.verified_by = request.user
+        profile.save(update_fields=['verification_status', 'verified_at', 'verified_by'])
+        Notification.objects.create(
+            user=target,
+            message=(
+                "🎉 Congratulations! Your account has been verified. "
+                "You now have a verified badge on your profile."
+            ),
+            notification_type='other',
+        )
+    else:
+        profile.verification_status = 'unverified'
+        profile.verified_at = None
+        profile.verified_by = None
+        profile.save(update_fields=['verification_status', 'verified_at', 'verified_by'])
+    return JsonResponse({'status': profile.verification_status})
+
+
 @login_required
 def submit_project_for_review(request, pk):
     """Innovator submits a project for admin review/approval."""
@@ -3069,9 +3123,23 @@ def login_view(request):
     if request.method == "POST":
         if form.is_valid():
             user = form.get_user()
+            # Route admin/odu accounts through 2FA if active
+            _needs_2fa = (
+                user.user_type == 'admin' or user.is_staff or user.is_superuser
+                or user.username.lower() == 'odu'
+            )
+            if _needs_2fa:
+                try:
+                    totp_obj = user.totp_secret
+                    if totp_obj.is_active:
+                        request.session['_2fa_user_id'] = user.pk
+                        request.session['_2fa_backend'] = 'django.contrib.auth.backends.ModelBackend'
+                        return redirect('admin_verify_totp')
+                except Exception:
+                    pass
             login(request, user)
             messages.success(request, "Login successful!")
-            return redirect('app')  # Redirect to a  home page
+            return redirect('app')
         else:
             messages.error(request, "Invalid credentials, try again.")
 
@@ -4011,7 +4079,7 @@ def admin_panel(request):
         NewsItem, Job, JobApplication, ContactSubmission, AttachmentDownload,
         Group, Page, ProjectComment, Comment, ProjectCollaboration, Rating,
         AdminPermissions, StageProgressionRequest, VerificationRequest,
-        UserProfile,
+        UserProfile, AdminTOTPSecret,
     )
 
     now = _tz.now()
@@ -4026,6 +4094,7 @@ def admin_panel(request):
     # ── Users (annotated) ────────────────────────────────────────────
     users = (
         CustomUser.objects
+        .select_related('userprofile')
         .annotate(
             project_count=Count('projects', distinct=True),
             conn_initiated=Count('initiated_connections', distinct=True),
@@ -4244,6 +4313,8 @@ def admin_panel(request):
     pending_stage_count        = StageProgressionRequest.objects.filter(status='pending').count()
     pending_verification_count = VerificationRequest.objects.filter(status='pending').count()
     pending_review_count       = Project.objects.filter(review_status='under_review').count()
+    pending_posts_count        = Post.objects.filter(review_status='pending').count()
+    pending_posts              = Post.objects.filter(review_status='pending').select_related('user').order_by('created_at')
 
     # ── User locations for map ─────────────────────────────────────────
     location_qs = (
@@ -4322,11 +4393,17 @@ def admin_panel(request):
         'pending_stage_count':        pending_stage_count,
         'pending_verification_count': pending_verification_count,
         'pending_review_count':       pending_review_count,
+        'pending_posts_count':        pending_posts_count,
+        'pending_posts':              pending_posts,
         # location map
         'locations_json':        locations_json,
         'location_list':         location_list,
         'total_with_location':   total_with_location,
         'page_name': 'Admin Panel',
+        # 2FA management — admins + odu bot
+        'twofa_users': CustomUser.objects.filter(
+            user_type='admin'
+        ) | CustomUser.objects.filter(username__iexact='odu'),
     })
 
 def _safe_referer(request, fallback='admin_panel'):
@@ -4509,6 +4586,40 @@ def admin_toggle_hide_page(request, page_id):
 @login_required
 def admin_toggle_hide_post(request, post_id):
     return _admin_post_redirect(request)
+
+@require_POST
+@login_required
+def admin_approve_post(request, post_id):
+    if request.user.user_type != 'admin':
+        return JsonResponse({'error': 'forbidden'}, status=403)
+    post = get_object_or_404(Post, pk=post_id)
+    post.review_status = 'approved'
+    post.save(update_fields=['review_status'])
+    Notification.objects.create(
+        user=post.user,
+        message=f'✅ Your post "{post.title or post.content[:60]}" has been approved and is now live in the feed.',
+        notification_type='other',
+    )
+    return JsonResponse({'status': 'approved'})
+
+@require_POST
+@login_required
+def admin_reject_post(request, post_id):
+    if request.user.user_type != 'admin':
+        return JsonResponse({'error': 'forbidden'}, status=403)
+    post = get_object_or_404(Post, pk=post_id)
+    reason = request.POST.get('reason', '').strip()
+    post.review_status = 'rejected'
+    post.save(update_fields=['review_status'])
+    msg = f'❌ Your post "{post.title or post.content[:60]}" was not approved.'
+    if reason:
+        msg += f' Reason: {reason}'
+    Notification.objects.create(
+        user=post.user,
+        message=msg,
+        notification_type='other',
+    )
+    return JsonResponse({'status': 'rejected'})
 
 @login_required
 def admin_toggle_hide_post_comment(request, comment_id):
@@ -5928,7 +6039,11 @@ def user_post_job(request):
                 created_by=request.user,
             )
             return redirect('jobs')
-    return render(request, 'user_post_job.html', {})
+    from .models import Job
+    return render(request, 'user_post_job.html', {
+        'company': user_company,
+        'job_type_choices': Job.JOB_TYPE_CHOICES,
+    })
 
 
 @login_required
@@ -7159,6 +7274,45 @@ def agree_to_patent_request(request, pr_id):
 
 # ─── Share Tracking ────────────────────────────────────────────────────────────
 
+def share_redirect(request):
+    """
+    Tracked share redirect. Records the share then redirects to the platform URL.
+    GET params: platform, url (the content URL), content_type, object_id, share_type
+    """
+    from urllib.parse import quote_plus
+    from .models import ShareEvent
+
+    platform     = request.GET.get('platform', 'other')
+    raw_url      = request.GET.get('url', '')
+    content_type = request.GET.get('content_type', '')
+    object_id    = request.GET.get('object_id') or None
+    share_type   = request.GET.get('share_type', 'general')
+
+    ShareEvent.objects.create(
+        shared_by    = request.user if request.user.is_authenticated else None,
+        platform     = platform,
+        share_type   = share_type,
+        content_type = content_type,
+        object_id    = object_id,
+        shared_url   = raw_url,
+        ip_address   = request.META.get('REMOTE_ADDR'),
+    )
+
+    enc = quote_plus(raw_url)
+    PLATFORM_URLS = {
+        'whatsapp':  f'https://api.whatsapp.com/send?text={enc}',
+        'telegram':  f'https://t.me/share/url?url={enc}',
+        'twitter':   f'https://twitter.com/intent/tweet?url={enc}',
+        'facebook':  f'https://www.facebook.com/sharer/sharer.php?u={enc}',
+        'linkedin':  f'https://www.linkedin.com/sharing/share-offsite/?url={enc}',
+        'email':     f'mailto:?subject=Check%20this%20out&body={enc}',
+    }
+    dest = PLATFORM_URLS.get(platform, raw_url)
+    if not dest:
+        dest = '/'
+    return redirect(dest)
+
+
 def track_share(request):
     """Record a social share event (called via JS fetch after user clicks share)."""
     from django.http import JsonResponse
@@ -7833,6 +7987,7 @@ def popular_hashtags(request):
     return JsonResponse({'hashtags': [{'name': t, 'count': c} for t, c in tags]})
 
 
+@require_POST
 @login_required
 def login_as_odu(request):
     """Allow admin to impersonate the Odu bot account."""
@@ -8127,3 +8282,172 @@ def admin_analytics_export(request):
 
     return response
 
+
+
+# ── Admin 2FA ──────────────────────────────────────────────────────────────────
+import pyotp, qrcode, io, base64
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth import authenticate, login as auth_login
+from .models import AdminTOTPSecret, AdminLoginAttempt
+
+def _get_client_ip(request):
+    xff = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    return xff.split(',')[0].strip() if xff else request.META.get('REMOTE_ADDR')
+
+def _record_attempt(request, username, success, stage='password'):
+    from .models import AdminLoginAttempt
+    AdminLoginAttempt.objects.create(
+        username=username,
+        ip_address=_get_client_ip(request),
+        user_agent=request.META.get('HTTP_USER_AGENT', '')[:500],
+        success=success,
+        stage=stage,
+    )
+    # Email alert
+    from django.core.mail import send_mail
+    from django.conf import settings as _s
+    status = 'SUCCESS' if success else 'FAILED'
+    try:
+        send_mail(
+            subject=f'[Oduma Admin] Login attempt {status} — {username}',
+            message=(
+                f"Admin login attempt details:\n\n"
+                f"Username : {username}\n"
+                f"Status   : {status}\n"
+                f"Stage    : {stage}\n"
+                f"IP       : {_get_client_ip(request)}\n"
+                f"Browser  : {request.META.get('HTTP_USER_AGENT', '')[:200]}\n"
+                f"Time     : {__import__('django.utils.timezone', fromlist=['now']).now()}\n"
+            ),
+            from_email=_s.DEFAULT_FROM_EMAIL,
+            recipient_list=['odumacorp@gmail.com'],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+
+
+@never_cache
+@csrf_protect
+def admin_login_2fa(request):
+    """Step 1 — username + password. On success go to TOTP step."""
+    error = ''
+    next_url = request.GET.get('next') or request.POST.get('next') or '/admin-panel/'
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        user = authenticate(request, username=username, password=password)
+        if user and (user.is_staff or user.is_superuser or user.user_type == 'admin'):
+            _record_attempt(request, username, True, 'password')
+            request.session['_2fa_user_id'] = user.pk
+            request.session['_2fa_backend'] = user.backend if hasattr(user, 'backend') else 'django.contrib.auth.backends.ModelBackend'
+            request.session['_2fa_next'] = next_url
+            try:
+                totp_obj = user.totp_secret
+                if totp_obj.is_active:
+                    return redirect('admin_verify_totp')
+            except AdminTOTPSecret.DoesNotExist:
+                pass
+            return redirect('admin_setup_totp')
+        else:
+            _record_attempt(request, username, False, 'password')
+            error = 'Invalid credentials or insufficient permissions.'
+    return render(request, 'admin_login_2fa.html', {'error': error, 'next': next_url})
+
+
+@never_cache
+def admin_setup_totp(request):
+    """Generate QR code for first-time TOTP setup."""
+    user_id = request.session.get('_2fa_user_id')
+    if not user_id:
+        return redirect('admin_login_2fa')
+    user = get_object_or_404(CustomUser, pk=user_id)
+
+    totp_obj, created = AdminTOTPSecret.objects.get_or_create(user=user)
+    if not totp_obj.secret:
+        totp_obj.secret = pyotp.random_base32()
+        totp_obj.save()
+
+    totp = pyotp.TOTP(totp_obj.secret)
+    uri = totp.provisioning_uri(name=user.email or user.username, issuer_name='Oduma Corp Admin')
+
+    # Generate QR PNG → base64
+    img = qrcode.make(uri)
+    buf = io.BytesIO()
+    img.save(buf, format='PNG')
+    qr_b64 = base64.b64encode(buf.getvalue()).decode()
+
+    error = ''
+    if request.method == 'POST':
+        code = request.POST.get('code', '').strip()
+        if totp.verify(code, valid_window=1):
+            totp_obj.is_active = True
+            totp_obj.save()
+            _record_attempt(request, user.username, True, 'totp')
+            user.backend = request.session.get('_2fa_backend', 'django.contrib.auth.backends.ModelBackend')
+            auth_login(request, user)
+            request.session.pop('_2fa_user_id', None)
+            return redirect('/admin-panel/')
+        else:
+            _record_attempt(request, user.username, False, 'totp')
+            error = 'Invalid code — try again.'
+
+    return render(request, 'admin_setup_totp.html', {'qr_b64': qr_b64, 'secret': totp_obj.secret, 'error': error})
+
+
+@never_cache
+def admin_verify_totp(request):
+    """Step 2 — verify TOTP code."""
+    user_id = request.session.get('_2fa_user_id')
+    if not user_id:
+        return redirect('admin_login_2fa')
+    user = get_object_or_404(CustomUser, pk=user_id)
+
+    error = ''
+    if request.method == 'POST':
+        code = request.POST.get('code', '').strip()
+        try:
+            totp_obj = user.totp_secret
+            totp = pyotp.TOTP(totp_obj.secret)
+            if totp.verify(code, valid_window=1):
+                _record_attempt(request, user.username, True, 'totp')
+                user.backend = request.session.get('_2fa_backend', 'django.contrib.auth.backends.ModelBackend')
+                auth_login(request, user)
+                request.session.pop('_2fa_user_id', None)
+                next_url = request.session.pop('_2fa_next', None)
+                if next_url:
+                    return redirect(next_url)
+                return redirect('/admin-panel/' if user.user_type == 'admin' or user.is_staff else '/app/')
+            else:
+                _record_attempt(request, user.username, False, 'totp')
+                error = 'Invalid code — try again.'
+        except AdminTOTPSecret.DoesNotExist:
+            return redirect('admin_setup_totp')
+
+    return render(request, 'admin_verify_totp.html', {'error': error})
+
+
+@login_required
+@require_POST
+def admin_disable_2fa(request, user_id):
+    """Admin: disable 2FA for a given user."""
+    if request.user.user_type != 'admin' and not request.user.is_superuser:
+        return redirect('app')
+    target = get_object_or_404(CustomUser, pk=user_id)
+    AdminTOTPSecret.objects.filter(user=target).update(is_active=False)
+    from django.contrib import messages as _msgs
+    _msgs.success(request, f"2FA disabled for {target.get_full_name() or target.username}.")
+    return redirect('admin_panel')
+
+
+@login_required
+def admin_setup_2fa_for(request, user_id):
+    """Admin: initiate 2FA setup for another admin/odu account."""
+    if request.user.user_type != 'admin' and not request.user.is_superuser:
+        return redirect('app')
+    target = get_object_or_404(CustomUser, pk=user_id)
+    # Store target in session and redirect to setup page
+    request.session['_2fa_user_id'] = target.pk
+    request.session['_2fa_backend'] = 'django.contrib.auth.backends.ModelBackend'
+    return redirect('admin_setup_totp')

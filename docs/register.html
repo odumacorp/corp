@@ -113,7 +113,7 @@
 }
 .af-eye:hover { color: #1B5EC7; }
 
-/* Role picker */
+/* Role / Gender picker */
 .role-section-label {
   font-size: 1.15rem; font-weight: 600; color: #374151; margin-bottom: 8px;
 }
@@ -329,6 +329,30 @@
       </div>
       {% if form.user_type.errors %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ form.user_type.errors.as_text|cut:"* " }}</span></span>{% endif %}
 
+      <!-- Gender picker -->
+      <div class="role-section-label" style="margin-top:8px;">I identify as…</div>
+      <div class="role-picker" id="gender-picker">
+        <label class="role-card {% if form.gender.value == 'male' %}selected{% endif %}">
+          <input type="radio" name="gender" value="male"
+            {% if form.gender.value == 'male' %}checked{% endif %}
+            onchange="gcPick(this)">
+          <div class="role-card-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="10" cy="14" r="6"/><path d="M20 4l-6 6"/><path d="M14 4h6v6"/></svg>
+          </div>
+          <div class="role-card-name">Male</div>
+        </label>
+        <label class="role-card {% if form.gender.value == 'female' %}selected{% endif %}">
+          <input type="radio" name="gender" value="female"
+            {% if form.gender.value == 'female' %}checked{% endif %}
+            onchange="gcPick(this)">
+          <div class="role-card-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><line x1="12" y1="14" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
+          </div>
+          <div class="role-card-name">Female</div>
+        </label>
+      </div>
+      {% if form.gender.errors %}<span class="oc-field-err"><span class="oc-fe-dot"></span><span class="oc-fe-txt">{{ form.gender.errors.as_text|cut:"* " }}</span></span>{% endif %}
+
       <button type="submit" class="auth-btn">Create Free Account</button>
 
       <p class="auth-terms">
@@ -424,5 +448,10 @@ document.querySelectorAll('#role-picker input[type=radio]').forEach(function(rad
     if (this.checked) this.closest('.role-card').classList.add('selected');
   });
 });
+// Gender picker
+function gcPick(radio) {
+  document.querySelectorAll('#gender-picker .role-card').forEach(function(c){ c.classList.remove('selected'); });
+  radio.closest('.role-card').classList.add('selected');
+}
 </script>
 {% endblock %}

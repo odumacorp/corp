@@ -1,0 +1,520 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Terms of Service — Oduma Corp{% endblock %}
+
+{% block content %}
+<button onclick="history.back()" class="oc-back-btn">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+  Back
+</button>
+<style>
+:root {
+  --blue: #004AAD;
+  --ff-sans: "Jaldi", sans-serif;
+  --border: #e5e7eb;
+}
+
+.pp-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 100px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .pp-layout { grid-template-columns: 1fr; }
+  .pp-toc { display: none; }
+}
+
+.pp-toc {
+  position: sticky;
+  top: 80px;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  font-size: 1.2rem;
+}
+.pp-toc-title {
+  font-family: "Jacques Francois", serif;
+  font-size: 1.2rem;
+  color: #0f172a;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.pp-toc a {
+  display: block;
+  color: #64748b;
+  text-decoration: none;
+  padding: 5px 8px;
+  border-radius: 7px;
+  font-family: var(--ff-sans);
+  transition: color 0.15s, background 0.15s;
+  line-height: 1.4;
+}
+.pp-toc a:hover, .pp-toc a.active { color: var(--blue); background: #eff6ff; }
+.pp-toc a.sub { padding-left: 20px; font-size: 1.1rem; }
+
+.pp-hero {
+  background: #eef4ff;
+  border: 1.5px solid #d0e2ff;
+  border-radius: 20px;
+  padding: 40px 36px;
+  margin-bottom: 40px;
+}
+.pp-hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #dbeafe;
+  border: 1px solid #bfdbfe;
+  border-radius: 99px;
+  padding: 5px 14px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  color: #1e40af;
+}
+.pp-hero h1 {
+  font-family: "Jacques Francois", serif;
+  font-size: 2.6rem;
+  color: #0f172a;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+.pp-hero p {
+  font-size: 1.2rem;
+  color: #475569;
+  line-height: 1.65;
+  max-width: 580px;
+  margin-bottom: 20px;
+}
+.pp-hero-meta {
+  display: flex; gap: 24px; flex-wrap: wrap;
+  font-size: 1.2rem; color: #64748b;
+}
+.pp-hero-meta span { display: flex; align-items: center; gap: 6px; }
+
+.pp-alert {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 16px 18px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+.pp-alert-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+.pp-alert.blue   { background: #eff6ff; border: 1.5px solid #bfdbfe; color: #1e40af; }
+.pp-alert.amber  { background: #fffbeb; border: 1.5px solid #fde68a; color: #92400e; }
+.pp-alert.green  { background: #f0fdf4; border: 1.5px solid #bbf7d0; color: #14532d; }
+.pp-alert.red    { background: #fff0f0; border: 1.5px solid #fca5a5; color: #b91c1c; }
+
+.pp-section {
+  margin-bottom: 48px;
+  scroll-margin-top: 90px;
+}
+.pp-section-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f1f5f9;
+}
+.pp-section-icon {
+  width: 40px; height: 40px;
+  border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; flex-shrink: 0;
+}
+.pp-section-header h2 {
+  font-family: "Jacques Francois", serif;
+  font-size: 1.2rem;
+  color: #0f172a;
+  margin: 0;
+}
+
+.pp-contract-card {
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  border: 1.5px solid;
+}
+.pp-contract-card.blue   { background: #eff6ff; border-color: #bfdbfe; }
+.pp-contract-card.purple { background: #faf5ff; border-color: #ddd6fe; }
+.pp-contract-card.green  { background: #f0fdf4; border-color: #bbf7d0; }
+.pp-contract-card.amber  { background: #fffbeb; border-color: #fde68a; }
+.pp-contract-card.red    { background: #fff0f0; border-color: #fca5a5; }
+.pp-contract-card .cc-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px;
+}
+.pp-contract-card .cc-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; flex-shrink: 0;
+}
+.pp-contract-card.blue   .cc-icon { background: rgba(0,74,173,0.12); color: #004AAD; }
+.pp-contract-card.purple .cc-icon { background: rgba(124,58,237,0.12); color: #7c3aed; }
+.pp-contract-card.green  .cc-icon { background: rgba(5,150,105,0.12); color: #059669; }
+.pp-contract-card.amber  .cc-icon { background: rgba(217,119,6,0.12); color: #d97706; }
+.pp-contract-card.red    .cc-icon { background: rgba(185,28,28,0.12); color: #b91c1c; }
+.pp-contract-card .cc-title {
+  font-weight: 700; font-size: 1.2rem; color: #0f172a;
+}
+.pp-contract-card .cc-body {
+  font-size: 1.2rem; line-height: 1.65; color: #475569;
+}
+.pp-contract-card .cc-body ul { margin: 8px 0 0 18px; padding: 0; }
+.pp-contract-card .cc-body li { margin-bottom: 5px; }
+
+.pp-body {
+  font-size: 1.2rem;
+  line-height: 1.75;
+  color: #374151;
+}
+.pp-body p { margin-bottom: 14px; }
+.pp-body ul, .pp-body ol { margin: 8px 0 14px 20px; padding: 0; }
+.pp-body li { margin-bottom: 6px; }
+.pp-body strong { color: #0f172a; }
+.pp-body a { color: var(--blue); text-decoration: none; font-weight: 600; }
+.pp-body a:hover { text-decoration: underline; }
+
+.pp-divider { border: none; border-top: 1.5px solid #f1f5f9; margin: 40px 0; }
+
+.pp-acceptance {
+  background: #f8fafc;
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 28px;
+  text-align: center;
+  margin-top: 48px;
+}
+.pp-acceptance h3 {
+  font-family: "Jacques Francois", serif;
+  font-size: 1.2rem;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+.pp-acceptance p {
+  font-size: 1.2rem;
+  color: #64748b;
+  max-width: 520px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+}
+.pp-acceptance-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.pp-acc-btn {
+  padding: 10px 26px; border-radius: 10px;
+  font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700;
+  text-decoration: none; cursor: pointer; border: none;
+  transition: opacity 0.15s;
+}
+.pp-acc-btn:hover { opacity: 0.85; }
+.pp-acc-btn-primary { background: var(--blue); color: #fff; }
+.pp-acc-btn-ghost { background: #fff; color: #64748b; border: 1.5px solid var(--border); }
+</style>
+
+<div class="pp-layout">
+
+  <!-- Sticky TOC -->
+  <aside class="pp-toc">
+    <div class="pp-toc-title"><i class="fi fi-rr-list fi-sm"></i> Contents</div>
+    <a href="#acceptance">Acceptance</a>
+    <a href="#eligibility">Eligibility</a>
+    <a href="#account">Account Responsibilities</a>
+    <a href="#acceptable-use">Acceptable Use</a>
+    <a class="sub" href="#use-allowed">Permitted</a>
+    <a class="sub" href="#use-prohibited">Prohibited</a>
+    <a href="#content">Content &amp; IP</a>
+    <a href="#investment">Investment Disclaimer</a>
+    <a href="#termination">Termination</a>
+    <a href="#liability">Limitation of Liability</a>
+    <a href="#governing">Governing Law</a>
+    <a href="#changes">Changes</a>
+    <a href="#contact">Contact</a>
+  </aside>
+
+  <!-- Main -->
+  <main class="pp-content">
+
+    <!-- Hero -->
+    <div class="pp-hero">
+      <div class="pp-hero-badge"><i class="fi fi-rr-document-signed fi-xs"></i> Legal Document</div>
+      <h1>Terms of Service</h1>
+      <p>These Terms govern your access to and use of the Oduma Corp platform. Please read them carefully before creating an account — by registering you agree to be bound by them.</p>
+      <div class="pp-hero-meta">
+        <span><i class="fi fi-rr-calendar fi-xs"></i> Effective: April 2026</span>
+        <span><i class="fi fi-rr-refresh fi-xs"></i> Last updated: April 2026</span>
+        <span><i class="fi fi-rr-building fi-xs"></i> Oduma Corp</span>
+      </div>
+    </div>
+
+    <div class="pp-alert blue">
+      <span class="pp-alert-icon"><i class="fi fi-rr-info"></i></span>
+      <div>By creating an account or using any part of the Oduma Corp platform you confirm that you have read, understood, and agree to these Terms of Service. If you do not agree, you may not use the platform.</div>
+    </div>
+
+    <!-- 1. Acceptance -->
+    <section class="pp-section" id="acceptance">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#eff6ff;color:#004AAD;"><i class="fi fi-rr-handshake"></i></div>
+        <h2>1. Acceptance of Terms</h2>
+      </div>
+      <div class="pp-body">
+        <p>These Terms of Service ("Terms") constitute a legally binding agreement between you ("User") and <strong>Oduma Corp</strong> ("we", "us", "our") governing your use of the Oduma Corp platform, website, and all associated services (collectively, the "Platform").</p>
+        <p>These Terms are effective upon registration and apply to all users, regardless of role (innovator, investor, or administrator). They are to be read together with our <a href="/privacy/">Privacy Policy &amp; Platform Agreement</a>, which is incorporated herein by reference.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- 2. Eligibility -->
+    <section class="pp-section" id="eligibility">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#f0fdf4;color:#059669;"><i class="fi fi-rr-user-check"></i></div>
+        <h2>2. Eligibility</h2>
+      </div>
+      <div class="pp-body">
+        <p>To use Oduma Corp you must:</p>
+        <ul>
+          <li>Be at least <strong>18 years of age</strong>.</li>
+          <li>Have the legal capacity to enter into a binding contract under the laws of your jurisdiction.</li>
+          <li>Not be barred from receiving services under applicable law.</li>
+          <li>Provide accurate, current, and complete registration information.</li>
+        </ul>
+        <p>The Platform is designed for innovators, investors, and businesses operating in or engaging with African markets. Use outside this context does not exempt you from these Terms.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- 3. Account -->
+    <section class="pp-section" id="account">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#faf5ff;color:#7c3aed;"><i class="fi fi-rr-lock"></i></div>
+        <h2>3. Account Responsibilities</h2>
+      </div>
+      <div class="pp-body">
+        <div class="pp-contract-card blue">
+          <div class="cc-header">
+            <div class="cc-icon"><i class="fi fi-rr-shield-check"></i></div>
+            <div class="cc-title">You are responsible for your account</div>
+          </div>
+          <div class="cc-body">
+            <ul>
+              <li>Maintain the confidentiality of your login credentials at all times.</li>
+              <li>You may not share, sell, or transfer your account to any other person.</li>
+              <li>Notify us immediately at <a href="mailto:odumacorp@gmail.com">odumacorp@gmail.com</a> if you suspect unauthorised access.</li>
+              <li>All activity that occurs under your account is your responsibility.</li>
+              <li>Oduma Corp is not liable for losses arising from unauthorised use of your account.</li>
+            </ul>
+          </div>
+        </div>
+        <p>Providing false information during registration — including a false name, email address, or role — is grounds for immediate account suspension without notice.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- 4. Acceptable Use -->
+    <section class="pp-section" id="acceptable-use">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#fffbeb;color:#d97706;"><i class="fi fi-rr-rules-alt"></i></div>
+        <h2>4. Acceptable Use</h2>
+      </div>
+
+      <div id="use-allowed" class="pp-contract-card green" style="margin-bottom:16px;">
+        <div class="cc-header">
+          <div class="cc-icon"><i class="fi fi-rr-check-circle"></i></div>
+          <div class="cc-title">You may use Oduma Corp to…</div>
+        </div>
+        <div class="cc-body">
+          <ul>
+            <li>Create and publish genuine innovation projects, ideas, and business proposals.</li>
+            <li>Connect with and message other registered users for professional purposes.</li>
+            <li>Send and receive investment proposals, collaboration requests, and project feedback.</li>
+            <li>Schedule and conduct video meetings through the Zoom integration.</li>
+            <li>Access courses, mentorship, and consulting services available on the platform.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div id="use-prohibited" class="pp-contract-card red">
+        <div class="cc-header">
+          <div class="cc-icon"><i class="fi fi-rr-ban"></i></div>
+          <div class="cc-title">You must not…</div>
+        </div>
+        <div class="cc-body">
+          <ul>
+            <li>Post false, misleading, plagiarised, or fraudulent project or investment information.</li>
+            <li>Harass, threaten, impersonate, or abuse any other user.</li>
+            <li>Use the Platform for spam, phishing, pyramid schemes, or any unlawful purpose.</li>
+            <li>Attempt to gain unauthorised access to other accounts or platform systems.</li>
+            <li>Scrape, copy, or redistribute Platform content without prior written permission from Oduma Corp.</li>
+            <li>Introduce malware, viruses, or any code designed to disrupt the Platform.</li>
+            <li>Circumvent platform agreements by conducting off-platform transactions after initial contact through Oduma Corp (see Privacy Policy — Project Agreement).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pp-alert amber" style="margin-top:16px;">
+        <span class="pp-alert-icon"><i class="fi fi-rr-triangle-warning"></i></span>
+        <div>Violations of the acceptable use policy may result in immediate account suspension, permanent ban, and/or legal action, at our sole discretion.</div>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- 5. Content & IP -->
+    <section class="pp-section" id="content">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#faf5ff;color:#7c3aed;"><i class="fi fi-rr-copyright"></i></div>
+        <h2>5. Content &amp; Intellectual Property</h2>
+      </div>
+      <div class="pp-body">
+        <p><strong>Your content.</strong> You retain full ownership of all content you create and post on the Platform — including project descriptions, posts, proposals, and media. By posting, you grant Oduma Corp a non-exclusive, worldwide, royalty-free licence to display, distribute, and promote that content <em>within the Platform</em> for the purpose of operating the service. We do not sell your content to third parties.</p>
+        <p><strong>Platform content.</strong> All Platform software, design, branding, logos, and documentation are the exclusive property of Oduma Corp and are protected by applicable intellectual property laws. You may not copy, reproduce, or create derivative works without written permission.</p>
+        <p><strong>Your responsibility.</strong> You confirm that any content you post does not infringe the intellectual property rights of any third party. Oduma Corp reserves the right to remove content that appears to violate third-party IP rights without notice.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- 6. Investment Disclaimer -->
+    <section class="pp-section" id="investment">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#fffbeb;color:#d97706;"><i class="fi fi-rr-sack-dollar"></i></div>
+        <h2>6. Investment Disclaimer</h2>
+      </div>
+      <div class="pp-body">
+        <div class="pp-alert amber">
+          <span class="pp-alert-icon"><i class="fi fi-rr-triangle-warning"></i></span>
+          <div><strong>Oduma Corp is not a licensed investment adviser, broker, dealer, or financial institution.</strong> Nothing on the Platform constitutes financial, legal, or investment advice. All investment decisions made through connections formed here are solely at your own risk. Always conduct independent due diligence before committing capital.</div>
+        </div>
+        <p>Oduma Corp facilitates introductions and collaboration between innovators and investors but does not verify the accuracy of project financials, valuations, or projections. Past performance of projects on the Platform does not guarantee future results.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- 7. Termination -->
+    <section class="pp-section" id="termination">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#fff0f0;color:#b91c1c;"><i class="fi fi-rr-user-slash"></i></div>
+        <h2>7. Termination</h2>
+      </div>
+      <div class="pp-body">
+        <p><strong>By Oduma Corp.</strong> We reserve the right to suspend or permanently terminate any account that violates these Terms, at our sole discretion, with or without prior notice. In cases of serious violations (fraud, abuse, illegal activity), termination is immediate.</p>
+        <p><strong>By you.</strong> You may delete your account at any time from your profile settings. Upon deletion, your public content will be removed from the Platform. However, data relating to completed contracts, equity agreements, and financial transactions may be retained for legal and audit purposes as described in our Privacy Policy.</p>
+        <p>Termination does not release you from obligations arising under agreements formed with other users through the Platform prior to termination.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- 8. Liability -->
+    <section class="pp-section" id="liability">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#f1f5f9;color:#64748b;"><i class="fi fi-rr-balance-scale"></i></div>
+        <h2>8. Limitation of Liability</h2>
+      </div>
+      <div class="pp-body">
+        <p>To the maximum extent permitted by applicable law, Oduma Corp and its affiliates, officers, employees, and agents shall not be liable for:</p>
+        <ul>
+          <li>Any indirect, incidental, special, consequential, or punitive damages.</li>
+          <li>Loss of profits, data, goodwill, or other intangible losses.</li>
+          <li>Damages arising from unauthorised access to or alteration of your content or account.</li>
+          <li>The conduct, content, or actions of any other Platform user.</li>
+          <li>Any investment outcomes resulting from connections made through the Platform.</li>
+        </ul>
+        <p>The Platform is provided on an "as is" and "as available" basis without warranties of any kind, express or implied.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- 9. Governing Law -->
+    <section class="pp-section" id="governing">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#eff6ff;color:#004AAD;"><i class="fi fi-rr-gavel"></i></div>
+        <h2>9. Governing Law &amp; Disputes</h2>
+      </div>
+      <div class="pp-body">
+        <p>These Terms are governed by the laws of Kenya, without regard to its conflict of law provisions. Any disputes arising from or relating to these Terms or your use of the Platform shall first be referred to Oduma Corp's internal mediation process. If unresolved within 30 days, disputes shall be submitted to the jurisdiction of the courts of Nairobi, Kenya.</p>
+        <p>You agree to attempt good-faith resolution of any dispute directly with Oduma Corp before initiating any formal legal proceeding.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- 10. Changes -->
+    <section class="pp-section" id="changes">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#f1f5f9;color:#64748b;"><i class="fi fi-rr-refresh"></i></div>
+        <h2>10. Changes to These Terms</h2>
+      </div>
+      <div class="pp-body">
+        <p>Oduma Corp may update these Terms from time to time. When we make material changes we will:</p>
+        <ul>
+          <li>Update the "Last updated" date at the top of this page.</li>
+          <li>Send a notification to your registered email address.</li>
+          <li>Display a prominent notice on the Platform for at least 14 days.</li>
+        </ul>
+        <p>Your continued use of the Platform after the effective date of any changes constitutes acceptance of the revised Terms. If you do not agree, you must stop using the Platform and may request account deletion.</p>
+      </div>
+    </section>
+
+    <hr class="pp-divider">
+
+    <!-- 11. Contact -->
+    <section class="pp-section" id="contact">
+      <div class="pp-section-header">
+        <div class="pp-section-icon" style="background:#eff6ff;color:#004AAD;"><i class="fi fi-rr-envelope"></i></div>
+        <h2>11. Contact &amp; Legal</h2>
+      </div>
+      <div class="pp-body">
+        <p>For questions about these Terms or to raise a concern, contact Oduma Corp:</p>
+        <ul>
+          <li><strong>Legal &amp; Terms:</strong> legal@odumacorp.com</li>
+          <li><strong>General:</strong> <a href="mailto:odumacorp@gmail.com">odumacorp@gmail.com</a></li>
+          <li><strong>Contact form:</strong> <a href="{% url 'index' %}#contact">Homepage contact form</a></li>
+        </ul>
+        <p>We aim to respond to all legal enquiries within <strong>5 business days</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Acceptance -->
+    <div class="pp-acceptance">
+      <h3>You agree by using Oduma Corp</h3>
+      <p>By creating an account and using the Platform, you have agreed to these Terms of Service. If you have questions before accepting, please contact our legal team.</p>
+      <div class="pp-acceptance-btns">
+        <a href="{% url 'app' %}" class="pp-acc-btn pp-acc-btn-primary"><i class="fi fi-rr-check fi-sm"></i> I understand — Back to App</a>
+        <a href="/privacy/" class="pp-acc-btn pp-acc-btn-ghost"><i class="fi fi-rr-shield-check fi-sm"></i> Read Privacy Policy</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+(function () {
+  var links = document.querySelectorAll('.pp-toc a');
+  var sections = document.querySelectorAll('.pp-section, [id^="use-"]');
+  function onScroll() {
+    var scrollY = window.scrollY + 100;
+    var current = '';
+    sections.forEach(function (s) {
+      if (s.id && s.offsetTop <= scrollY) current = s.id;
+    });
+    links.forEach(function (a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+{% endblock %}

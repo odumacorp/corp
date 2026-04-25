@@ -5,6 +5,17 @@ from .views import edit_profile
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.conf import settings
+from django.contrib.sitemaps.views import sitemap
+from .sitemaps import StaticSitemap, AppPagesSitemap, ProjectSitemap, PostSitemap, ProfileSitemap, CompanySitemap
+
+_sitemaps = {
+    'static':   StaticSitemap(),
+    'app':      AppPagesSitemap(),
+    'projects': ProjectSitemap(),
+    'posts':    PostSitemap(),
+    'profiles': ProfileSitemap(),
+    'companies':CompanySitemap(),
+}
 
 
 from .views import contact
@@ -43,9 +54,12 @@ _html_redirects = [
 ]
 
 urlpatterns = _html_redirects + [
+    path('sitemap.xml', sitemap, {'sitemaps': _sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('robots.txt', views.robots_txt, name='robots_txt'),
     path('edit-profile/', views.edit_profile, name='edit_profile'),
     path('admin/contact-submissions/', views.contact_submissions, name='contact_submissions'),
     path('admin/contact-submissions/<int:sub_id>/reply/', views.reply_contact_submission, name='reply_contact_submission'),
+    path('admin/login/', views.admin_login_2fa, name='django_admin_login'),  # intercept before admin.site.urls
     path('admin/login-as-odu/', views.login_as_odu, name='login_as_odu'),
     path('admin/return-from-odu/', views.return_from_odu, name='return_from_odu'),
     path('admin/trigger-odu-post/', views.trigger_odu_post, name='trigger_odu_post'),
@@ -174,6 +188,7 @@ urlpatterns = _html_redirects + [
     path('test-404/', TemplateView.as_view(template_name='404.html'), name='test_404'),
     path('test-500/', TemplateView.as_view(template_name='500.html'), name='test_500'),
     path('privacy/', TemplateView.as_view(template_name='privacy_policy.html'), name='privacy_policy'),
+    path('terms/', TemplateView.as_view(template_name='terms.html'), name='terms'),
     path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     path('social-campaigns/', views.social_campaigns, name='social_campaigns'),
     path('service-worker.js', views.service_worker, name='service_worker'),
@@ -224,6 +239,11 @@ urlpatterns = _html_redirects + [
 
     # Admin panel
     path('admin-panel/', views.admin_panel, name='admin_panel'),
+    path('admin-panel/login/', views.admin_login_2fa, name='admin_login_2fa'),
+    path('admin-panel/login/setup-totp/', views.admin_setup_totp, name='admin_setup_totp'),
+    path('admin-panel/login/verify-totp/', views.admin_verify_totp, name='admin_verify_totp'),
+    path('admin-panel/2fa/disable/<int:user_id>/', views.admin_disable_2fa, name='admin_disable_2fa'),
+    path('admin-panel/2fa/setup/<int:user_id>/', views.admin_setup_2fa_for, name='admin_setup_2fa_for'),
     path('admin-panel/stats/range/', views.admin_stats_range, name='admin_stats_range'),
     path('admin-panel/toggle-view/', views.toggle_admin_view, name='toggle_admin_view'),
     path('admin-panel/event/add/', views.admin_add_event, name='admin_add_event'),
@@ -240,6 +260,8 @@ urlpatterns = _html_redirects + [
     path('admin-panel/message/<int:message_id>/edit/', views.admin_edit_message, name='admin_edit_message'),
     path('admin-panel/news/<int:news_id>/edit/', views.admin_edit_news, name='admin_edit_news'),
     path('admin-panel/page/<int:page_id>/edit/', views.admin_edit_page, name='admin_edit_page'),
+    path('admin-panel/post/<int:post_id>/approve/', views.admin_approve_post, name='admin_approve_post'),
+    path('admin-panel/post/<int:post_id>/reject/', views.admin_reject_post, name='admin_reject_post'),
     path('admin-panel/post/<int:post_id>/edit/', views.admin_edit_post, name='admin_edit_post'),
     path('admin-panel/project/<int:project_id>/edit/', views.admin_edit_project, name='admin_edit_project'),
     path('admin-panel/event/<int:event_id>/attendees/', views.admin_event_attendees, name='admin_event_attendees'),
@@ -294,6 +316,7 @@ urlpatterns = _html_redirects + [
     path('admin-panel/verifications/', views.admin_verification_queue, name='admin_verification_queue'),
     path('admin-panel/verification/<int:req_id>/approve/', views.admin_approve_verification, name='admin_approve_verification'),
     path('admin-panel/verification/<int:req_id>/reject/', views.admin_reject_verification, name='admin_reject_verification'),
+    path('admin-panel/user/<int:user_id>/verify/', views.admin_verify_user, name='admin_verify_user'),
     path('admin-panel/project-reviews/', views.admin_project_review_queue, name='admin_project_review_queue'),
     path('admin-panel/project/<int:pk>/review-status/', views.admin_set_project_review_status, name='admin_set_project_review_status'),
     # Analytics API
@@ -392,6 +415,7 @@ urlpatterns = _html_redirects + [
 
     # Share tracking
     path('track/share/', views.track_share, name='track_share'),
+    path('share/go/', views.share_redirect, name='share_redirect'),
 
     # Read Later
     path('read-later/', views.read_later_list, name='read_later_list'),

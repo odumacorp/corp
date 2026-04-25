@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2FA Verification — Oduma Corp Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f0f4ff;font-family:'Space Grotesk',system-ui,sans-serif}
+.card{background:#fff;border-radius:18px;box-shadow:0 4px 32px rgba(10,22,40,.12);padding:40px 36px;width:100%;max-width:400px;text-align:center}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;justify-content:center}
+.logo-icon{width:40px;height:40px;background:#1B5EC7;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.logo-text{font-weight:800;font-size:1.2rem;color:#0A1628}
+.shield{margin:0 auto 20px;width:56px;height:56px;background:#f0f5ff;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#1B5EC7}
+h1{font-size:1.35rem;font-weight:700;color:#0A1628;margin-bottom:8px}
+p.sub{font-size:.95rem;color:#6b7280;margin-bottom:24px;line-height:1.5}
+label{display:block;font-size:.9rem;font-weight:600;color:#374151;margin-bottom:5px;text-align:left}
+input{width:100%;padding:13px 14px;border:1.5px solid #e4eaf2;border-radius:10px;font-size:1.5rem;letter-spacing:.4em;text-align:center;outline:none;transition:border-color .15s;margin-bottom:16px}
+input:focus{border-color:#1B5EC7}
+.btn{width:100%;padding:13px;background:#1B5EC7;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:background .15s}
+.btn:hover{background:#1649a8}
+.err{background:#fff0f0;border:1px solid #fca5a5;color:#b91c1c;border-radius:8px;padding:10px 14px;font-size:.9rem;margin-bottom:16px;text-align:left}
+.back{display:block;margin-top:16px;font-size:.9rem;color:#6b7280;text-decoration:none}
+.back:hover{color:#1B5EC7}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    </div>
+    <span class="logo-text">Oduma Corp</span>
+  </div>
+
+  <div class="shield">
+    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+  </div>
+
+  <h1>Enter Authentication Code</h1>
+  <p class="sub">Open your authenticator app and enter the current 6-digit code for Oduma Corp Admin.</p>
+
+  {% if error %}
+  <div class="err">{{ error }}</div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    <label for="code">6-digit code</label>
+    <input type="text" id="code" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="one-time-code" required autofocus>
+    <button type="submit" class="btn">Sign In →</button>
+  </form>
+  <a href="{% url 'admin_login_2fa' %}" class="back">← Back to login</a>
+</div>
+</body>
+</html>
