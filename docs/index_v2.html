@@ -1,0 +1,399 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Oduma Corp — Africa's Innovation & Investment Platform{% endblock %}
+{% block meta_description %}Where Africa's boldest innovators meet the investors who back them. Deal flow, collaboration, and capital — structured for serious players.{% endblock %}
+
+{% block extra_head %}
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --v2-navy:#0A1628;--v2-blue:#1B5EC7;--v2-blue-d:#144FA8;--v2-blue-lt:#e0e8f4;
+  --v2-muted:#6b7280;--v2-border:#e4eaf2;--v2-ff:'Space Grotesk',sans-serif;
+}
+
+@keyframes v2FadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes v2Pulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+@keyframes v2Shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes v2Float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* ── Nav ── */
+.v2-nav{position:fixed;top:0;left:0;right:0;z-index:900;background:#fff;border-bottom:1px solid var(--v2-border);height:64px;display:flex;align-items:center;transition:box-shadow .3s;}
+.v2-nav__inner{width:100%;max-width:1280px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+.v2-nav__logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+.v2-nav__logo img{width:36px;height:36px;border-radius:8px;}
+.v2-nav__logo-name{font-family:var(--v2-ff);font-size:1.5rem;font-weight:800;color:var(--v2-navy);letter-spacing:-.02em;}
+.v2-nav__links{display:flex;align-items:center;gap:2px;list-style:none;}
+.v2-nav__links a{font-family:var(--v2-ff);font-size:1.1rem;font-weight:600;color:#64748b;text-decoration:none;padding:6px 14px;border-radius:8px;transition:background .15s,color .15s;}
+.v2-nav__links a:hover{background:var(--v2-blue-lt);color:var(--v2-navy);}
+.v2-nav__actions{display:flex;align-items:center;gap:10px;}
+.v2-nav__login{font-family:var(--v2-ff);font-size:1.1rem;font-weight:700;color:#64748b;text-decoration:none;padding:7px 16px;border-radius:8px;transition:color .15s;}
+.v2-nav__login:hover{color:var(--v2-navy);}
+.v2-nav__cta{font-family:var(--v2-ff);font-size:1.1rem;font-weight:700;color:#fff;background:var(--v2-blue);text-decoration:none;padding:9px 20px;border-radius:9px;transition:background .18s,transform .18s;white-space:nowrap;box-shadow:0 2px 12px rgba(27,94,199,.25);}
+.v2-nav__cta:hover{background:var(--v2-blue-d);color:#fff;transform:translateY(-1px);}
+.v2-nav__hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;}
+.v2-nav__hamburger span{display:block;width:22px;height:2px;background:#64748b;border-radius:2px;transition:all .2s;}
+.v2-mob{display:none;position:fixed;top:64px;left:0;right:0;background:#fff;border-bottom:1px solid var(--v2-border);padding:16px 24px 20px;z-index:899;flex-direction:column;gap:4px;}
+.v2-mob.open{display:flex;}
+.v2-mob a{font-family:var(--v2-ff);font-size:1.1rem;font-weight:600;color:#374151;text-decoration:none;padding:10px 12px;border-radius:8px;transition:background .15s;}
+.v2-mob a:hover{background:var(--v2-blue-lt);}
+.v2-mob__div{height:1px;background:var(--v2-border);margin:8px 0;}
+.v2-mob a.primary{background:var(--v2-blue);color:#fff;text-align:center;margin-top:4px;}
+
+/* ── Hero ── */
+.v2-hero{position:relative;background:#f8faff;min-height:100vh;display:flex;align-items:center;overflow:hidden;padding-top:64px;}
+.v2-hero__blob{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);width:900px;height:700px;background:radial-gradient(ellipse at 50% 40%,rgba(27,94,199,.1) 0%,rgba(99,155,255,.06) 35%,transparent 65%);pointer-events:none;filter:blur(48px);}
+.v2-hero__blob2{position:absolute;bottom:-10%;right:-5%;width:500px;height:500px;background:radial-gradient(circle,rgba(99,102,241,.07) 0%,transparent 60%);pointer-events:none;filter:blur(32px);}
+.v2-hero__inner{position:relative;z-index:1;width:100%;max-width:1280px;margin:0 auto;padding:80px 32px 80px;display:grid;grid-template-columns:1fr 420px;gap:64px;align-items:center;}
+
+.v2-hero__badge{display:inline-flex;align-items:center;gap:8px;background:rgba(27,94,199,.08);border:1px solid rgba(27,94,199,.2);border-radius:100px;padding:5px 14px 5px 8px;margin-bottom:24px;animation:v2FadeUp .5s ease both;}
+.v2-hero__badge-dot{width:7px;height:7px;border-radius:50%;background:var(--v2-blue);box-shadow:0 0 8px rgba(27,94,199,.5);flex-shrink:0;animation:v2Pulse 2s ease-in-out infinite;}
+.v2-hero__badge span{font-family:var(--v2-ff);font-size:1.05rem;font-weight:700;color:var(--v2-blue);letter-spacing:.05em;text-transform:uppercase;}
+
+.v2-hero__headline{font-family:var(--v2-ff);font-size:clamp(2.4rem,5vw,3.9rem);font-weight:800;color:var(--v2-navy);line-height:1.06;letter-spacing:-.035em;margin-bottom:20px;animation:v2FadeUp .55s .06s ease both;}
+.v2-hero__headline em{font-style:normal;background:linear-gradient(90deg,var(--v2-blue) 0%,#4f8ef7 50%,#818cf8 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:v2Shimmer 4s linear infinite;}
+
+.v2-hero__sub{font-family:var(--v2-ff);font-size:1.15rem;color:#4b5563;line-height:1.75;max-width:480px;margin-bottom:36px;animation:v2FadeUp .6s .12s ease both;}
+
+.v2-hero__actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px;animation:v2FadeUp .65s .18s ease both;}
+.v2-btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--v2-blue);color:#fff;font-family:var(--v2-ff);font-size:1.1rem;font-weight:700;padding:13px 26px;border-radius:10px;text-decoration:none;transition:background .18s,transform .18s,box-shadow .18s;box-shadow:0 4px 20px rgba(27,94,199,.3);}
+.v2-btn-primary:hover{background:var(--v2-blue-d);color:#fff;transform:translateY(-2px);box-shadow:0 8px 28px rgba(27,94,199,.4);}
+.v2-btn-outline{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--v2-navy);font-family:var(--v2-ff);font-size:1.1rem;font-weight:700;padding:13px 26px;border-radius:10px;text-decoration:none;border:1.5px solid var(--v2-border);transition:border-color .18s,box-shadow .18s;}
+.v2-btn-outline:hover{border-color:var(--v2-blue);box-shadow:0 4px 16px rgba(27,94,199,.12);color:var(--v2-navy);}
+
+/* Stat pills */
+.v2-hero__pills{display:flex;gap:12px;flex-wrap:wrap;animation:v2FadeUp .7s .24s ease both;}
+.v2-pill{background:#fff;border:1px solid var(--v2-border);border-radius:14px;padding:14px 20px;text-align:center;min-width:100px;box-shadow:0 2px 12px rgba(10,22,40,.05);}
+.v2-pill__val{font-family:var(--v2-ff);font-size:1.6rem;font-weight:800;color:var(--v2-blue);line-height:1;margin-bottom:4px;}
+.v2-pill__label{font-size:.85rem;font-weight:600;color:var(--v2-muted);text-transform:uppercase;letter-spacing:.06em;}
+
+/* Hero card */
+.v2-hero__card{background:#fff;border:1px solid var(--v2-border);border-radius:20px;overflow:hidden;box-shadow:0 8px 48px rgba(10,22,40,.1);animation:v2FadeUp .7s .08s ease both;}
+.v2-hero__card-top{background:linear-gradient(135deg,var(--v2-navy) 0%,var(--v2-blue) 100%);padding:20px 22px 18px;}
+.v2-hero__card-top-label{font-size:.85rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:8px;}
+.v2-hero__card-top-title{font-family:var(--v2-ff);font-size:1.25rem;font-weight:800;color:#fff;line-height:1.25;}
+.v2-hero__card-body{padding:20px 22px;}
+.v2-hero__card-meta{font-size:.9rem;color:var(--v2-muted);margin-bottom:16px;}
+.v2-hero__card-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--v2-ff);font-size:.85rem;font-weight:700;padding:5px 12px;border-radius:100px;background:rgba(27,94,199,.08);color:var(--v2-blue);border:1px solid rgba(27,94,199,.18);margin-bottom:16px;}
+.v2-hero__card-divider{height:1px;background:var(--v2-border);margin:16px 0;}
+.v2-hero__card-row{display:flex;justify-content:space-between;margin-bottom:8px;}
+.v2-hero__card-row-label{font-size:.85rem;color:var(--v2-muted);}
+.v2-hero__card-row-val{font-family:var(--v2-ff);font-size:.9rem;font-weight:700;color:var(--v2-navy);}
+.v2-hero__card-cta{display:block;background:var(--v2-blue);color:#fff;font-family:var(--v2-ff);font-size:.95rem;font-weight:700;text-align:center;padding:11px;border-radius:10px;text-decoration:none;margin-top:18px;transition:background .18s;}
+.v2-hero__card-cta:hover{background:var(--v2-blue-d);color:#fff;}
+
+/* ── Stats bar ── */
+.v2-statsbar{background:#fff;border-bottom:1px solid var(--v2-border);}
+.v2-statsbar__inner{max-width:1280px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:repeat(4,1fr);}
+.v2-stat{padding:28px 20px;border-right:1px solid var(--v2-border);text-align:center;}
+.v2-stat:last-child{border-right:none;}
+.v2-stat__val{font-family:var(--v2-ff);font-size:2.0rem;font-weight:800;color:var(--v2-blue);line-height:1;margin-bottom:5px;}
+.v2-stat__label{font-size:.8rem;font-weight:700;color:var(--v2-muted);text-transform:uppercase;letter-spacing:.08em;}
+
+/* ── Section shell ── */
+.v2-section{padding:96px 0;}
+.v2-section--alt{background:#f8faff;}
+.v2-inner{max-width:1280px;margin:0 auto;padding:0 32px;}
+.v2-label{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--v2-blue);background:rgba(27,94,199,.07);padding:4px 12px;border-radius:100px;margin-bottom:12px;border:1px solid rgba(27,94,199,.13);}
+.v2-h2{font-family:var(--v2-ff);font-size:clamp(1.8rem,3.2vw,2.6rem);font-weight:800;color:var(--v2-navy);letter-spacing:-.03em;line-height:1.12;margin-bottom:14px;}
+.v2-lead{font-size:1.05rem;color:#4b5563;line-height:1.75;max-width:560px;}
+.v2-section-head{margin-bottom:52px;display:flex;flex-direction:column;}
+.v2-section-head--center{align-items:center;text-align:center;}
+.v2-section-head--center .v2-lead{margin:0 auto;}
+
+/* ── Steps ── */
+.v2-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.v2-step{background:#fff;border:1px solid var(--v2-border);border-radius:20px;padding:32px 28px;transition:box-shadow .25s,transform .25s,border-color .25s;}
+.v2-step:hover{box-shadow:0 12px 40px rgba(27,94,199,.09);transform:translateY(-4px);border-color:#c3d5ef;}
+.v2-step__num{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#0d2147,var(--v2-blue));color:#fff;font-family:var(--v2-ff);font-size:.9rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:18px;box-shadow:0 4px 14px rgba(27,94,199,.25);}
+.v2-step__title{font-family:var(--v2-ff);font-size:1.1rem;font-weight:800;color:var(--v2-navy);margin-bottom:8px;}
+.v2-step__desc{font-size:.95rem;color:#6b7280;line-height:1.65;}
+
+/* ── For you panels ── */
+.v2-split{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.v2-panel{border-radius:22px;padding:48px 40px;display:flex;flex-direction:column;gap:24px;position:relative;overflow:hidden;}
+.v2-panel--blue{background:linear-gradient(145deg,#0b1f47 0%,var(--v2-blue) 100%);}
+.v2-panel--dark{background:linear-gradient(145deg,#07111f 0%,#0e2040 100%);}
+.v2-panel__icon{width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:#fff;}
+.v2-panel__title{font-family:var(--v2-ff);font-size:1.7rem;font-weight:800;color:#fff;letter-spacing:-.025em;}
+.v2-panel__desc{font-size:1rem;color:rgba(255,255,255,.55);line-height:1.7;}
+.v2-panel__features{display:flex;flex-direction:column;gap:9px;}
+.v2-panel__feature{display:flex;align-items:flex-start;gap:10px;font-size:.95rem;color:rgba(255,255,255,.7);line-height:1.5;}
+.v2-panel__feature-dot{width:18px;height:18px;border-radius:50%;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:.7rem;color:#93c5fd;}
+.v2-panel__cta{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.12);color:#fff;font-family:var(--v2-ff);font-size:.95rem;font-weight:700;padding:12px 22px;border-radius:9px;text-decoration:none;border:1px solid rgba(255,255,255,.16);transition:background .18s;align-self:flex-start;margin-top:auto;}
+.v2-panel__cta:hover{background:rgba(255,255,255,.2);color:#fff;}
+
+/* ── Footer CTA ── */
+.v2-cta{background:var(--v2-blue-lt);padding:96px 32px;text-align:center;}
+.v2-cta__inner{max-width:600px;margin:0 auto;}
+.v2-cta__label{display:inline-block;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--v2-blue);background:rgba(27,94,199,.1);padding:4px 14px;border-radius:100px;border:1px solid rgba(27,94,199,.18);margin-bottom:20px;}
+.v2-cta__title{font-family:var(--v2-ff);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;color:var(--v2-navy);letter-spacing:-.03em;line-height:1.1;margin-bottom:14px;}
+.v2-cta__sub{font-size:1.05rem;color:#4b5563;line-height:1.7;margin-bottom:36px;}
+.v2-cta__actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+
+/* ── Responsive ── */
+@media(max-width:960px){
+  .v2-hero__inner{grid-template-columns:1fr;gap:48px;}
+  .v2-steps{grid-template-columns:1fr;}
+  .v2-split{grid-template-columns:1fr;}
+  .v2-statsbar__inner{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:768px){
+  .v2-nav__links,.v2-nav__login{display:none;}
+  .v2-nav__hamburger{display:flex;}
+  .v2-hero__inner{padding:72px 20px 64px;}
+  .v2-inner{padding:0 20px;}
+  .v2-statsbar__inner{padding:0 20px;}
+  .v2-section{padding:72px 0;}
+  .v2-cta{padding:72px 20px;}
+  .v2-hero__pills{gap:8px;}
+  .v2-pill{min-width:80px;padding:12px 14px;}
+  .v2-hero__actions{flex-direction:column;}
+  .v2-btn-primary,.v2-btn-outline{width:100%;justify-content:center;}
+}
+@media(max-width:480px){
+  .v2-nav__cta{display:none;}
+  .v2-statsbar__inner{grid-template-columns:1fr 1fr;}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Nav -->
+<nav class="v2-nav" role="navigation">
+  <div class="v2-nav__inner">
+    <a href="{% url 'index' %}" class="v2-nav__logo">
+      <img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="Oduma Corp">
+      <span class="v2-nav__logo-name">Oduma Corp</span>
+    </a>
+    <ul class="v2-nav__links">
+      <li><a href="#v2-how">How it works</a></li>
+      <li><a href="#v2-for-you">For you</a></li>
+      <li><a href="{% url 'project_list' %}">Projects</a></li>
+      <li><a href="{% url 'about' %}">About</a></li>
+    </ul>
+    <div class="v2-nav__actions">
+      {% if user.is_authenticated %}
+        <a href="{% url 'app' %}" class="v2-nav__login">Feed</a>
+        <a href="{% url 'create_project' %}" class="v2-nav__cta">+ Create Project</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="v2-nav__login">Log in</a>
+        <a href="{% url 'register' %}" class="v2-nav__cta">Get Started Free</a>
+      {% endif %}
+    </div>
+    <button class="v2-nav__hamburger" onclick="document.getElementById('v2-mob').classList.toggle('open')" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="v2-mob" id="v2-mob">
+  <a href="#v2-how" onclick="document.getElementById('v2-mob').classList.remove('open')">How it works</a>
+  <a href="#v2-for-you" onclick="document.getElementById('v2-mob').classList.remove('open')">For you</a>
+  <a href="{% url 'project_list' %}">Projects</a>
+  <a href="{% url 'about' %}">About</a>
+  <div class="v2-mob__div"></div>
+  {% if user.is_authenticated %}
+    <a href="{% url 'app' %}">Feed</a>
+    <a href="{% url 'create_project' %}" class="primary">+ Create Project</a>
+  {% else %}
+    <a href="{% url 'login' %}">Log in</a>
+    <a href="{% url 'register' %}" class="primary">Get Started Free</a>
+  {% endif %}
+</div>
+
+<!-- Hero -->
+<section class="v2-hero" id="v2-hero">
+  <div class="v2-hero__blob"></div>
+  <div class="v2-hero__blob2"></div>
+  <div class="v2-hero__inner">
+    <div>
+      <div class="v2-hero__badge">
+        <span class="v2-hero__badge-dot"></span>
+        <span>Africa's Innovation Platform</span>
+      </div>
+      <h1 class="v2-hero__headline">Where Ideas Meet<br><em>Capital &amp; Growth.</em></h1>
+      <p class="v2-hero__sub">Oduma Corp connects Kenya's boldest innovators with investors ready to back them. Structured deal flow, real partnerships, and the tools to scale.</p>
+      <div class="v2-hero__actions">
+        {% if user.is_authenticated %}
+          <a href="{% url 'create_project' %}" class="v2-btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Create Project
+          </a>
+          <a href="{% url 'app' %}" class="v2-btn-outline">Go to Feed</a>
+        {% else %}
+          <a href="{% url 'register' %}" class="v2-btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Start for Free
+          </a>
+          <a href="{% url 'login' %}" class="v2-btn-outline">Sign In</a>
+        {% endif %}
+      </div>
+      <div class="v2-hero__pills">
+        <div class="v2-pill">
+          <div class="v2-pill__val">{{ innovator_count|default:"500" }}+</div>
+          <div class="v2-pill__label">Innovators</div>
+        </div>
+        <div class="v2-pill">
+          <div class="v2-pill__val">{{ investor_count|default:"200" }}+</div>
+          <div class="v2-pill__label">Investors</div>
+        </div>
+        <div class="v2-pill">
+          <div class="v2-pill__val">{{ project_count|default:"120" }}+</div>
+          <div class="v2-pill__label">Projects</div>
+        </div>
+        <div class="v2-pill">
+          <div class="v2-pill__val">54</div>
+          <div class="v2-pill__label">Countries</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Latest Opportunity Card -->
+    <div class="v2-hero__card">
+      <div class="v2-hero__card-top">
+        <div class="v2-hero__card-top-label">Latest Opportunity</div>
+        <div class="v2-hero__card-top-title">{% if featured_projects %}{{ featured_projects.0.title|truncatechars:48 }}{% else %}AgriTech Smart Irrigation System{% endif %}</div>
+      </div>
+      <div class="v2-hero__card-body">
+        <div class="v2-hero__card-meta">{% if featured_projects %}{{ featured_projects.0.industry|default:"Technology" }} &middot; Kenya{% else %}Agriculture &middot; Nairobi, Kenya{% endif %}</div>
+        <div class="v2-hero__card-badge">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Seeking investment
+        </div>
+        <div class="v2-hero__card-divider"></div>
+        {% if featured_projects %}
+        <div class="v2-hero__card-row"><span class="v2-hero__card-row-label">Funding ask</span><span class="v2-hero__card-row-val">{{ featured_projects.0.funding_requirement|default:"KES 2.5M" }}</span></div>
+        <div class="v2-hero__card-row"><span class="v2-hero__card-row-label">Stage</span><span class="v2-hero__card-row-val">{{ featured_projects.0.get_pipeline_stage_display|default:"Seed" }}</span></div>
+        {% else %}
+        <div class="v2-hero__card-row"><span class="v2-hero__card-row-label">Funding ask</span><span class="v2-hero__card-row-val">KES 2.5M</span></div>
+        <div class="v2-hero__card-row"><span class="v2-hero__card-row-label">Stage</span><span class="v2-hero__card-row-val">Seed</span></div>
+        {% endif %}
+        {% if user.is_authenticated %}
+          <a href="{% if featured_projects %}{% url 'project_detail' featured_projects.0.pk %}{% else %}{% url 'project_list' %}{% endif %}" class="v2-hero__card-cta">View Full Pitch &rarr;</a>
+        {% else %}
+          <a href="{% url 'register' %}" class="v2-hero__card-cta">Join to View &rarr;</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Bar -->
+<div class="v2-statsbar">
+  <div class="v2-statsbar__inner">
+    <div class="v2-stat"><div class="v2-stat__val">{{ innovator_count|default:"500" }}+</div><div class="v2-stat__label">Innovators</div></div>
+    <div class="v2-stat"><div class="v2-stat__val">{{ investor_count|default:"200" }}+</div><div class="v2-stat__label">Investors</div></div>
+    <div class="v2-stat"><div class="v2-stat__val">{{ project_count|default:"120" }}+</div><div class="v2-stat__label">Projects Listed</div></div>
+    <div class="v2-stat"><div class="v2-stat__val">54</div><div class="v2-stat__label">African Countries</div></div>
+  </div>
+</div>
+
+<!-- How it works -->
+<section class="v2-section" id="v2-how">
+  <div class="v2-inner">
+    <div class="v2-section-head v2-section-head--center">
+      <span class="v2-label">How it works</span>
+      <h2 class="v2-h2">Simple. Structured. Effective.</h2>
+      <p class="v2-lead">From first idea to funded venture &mdash; Oduma Corp guides every step of the journey.</p>
+    </div>
+    <div class="v2-steps">
+      <div class="v2-step">
+        <div class="v2-step__num">01</div>
+        <div class="v2-step__title">Build your profile</div>
+        <p class="v2-step__desc">Sign up as an innovator or investor. Build a rich profile that showcases your work, thesis, or track record in minutes.</p>
+      </div>
+      <div class="v2-step">
+        <div class="v2-step__num">02</div>
+        <div class="v2-step__title">Connect &amp; discover</div>
+        <p class="v2-step__desc">Our intelligent matching surfaces the right projects to investors and the right capital to innovators — based on industry, stage, and geography.</p>
+      </div>
+      <div class="v2-step">
+        <div class="v2-step__num">03</div>
+        <div class="v2-step__title">Collaborate &amp; close</div>
+        <p class="v2-step__desc">Use built-in messaging, proposals, and meeting scheduling to move from interest to agreement — all in one place.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- For you -->
+<section class="v2-section v2-section--alt" id="v2-for-you">
+  <div class="v2-inner">
+    <div class="v2-section-head v2-section-head--center">
+      <span class="v2-label">Built for both sides</span>
+      <h2 class="v2-h2">Everything you need to succeed</h2>
+      <p class="v2-lead">Whether you're building the next big thing or backing it — Oduma Corp is your unfair advantage.</p>
+    </div>
+    <div class="v2-split">
+      <div class="v2-panel v2-panel--blue">
+        <div class="v2-panel__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div>
+          <div class="v2-panel__title">For Innovators</div>
+          <p class="v2-panel__desc">Showcase your project, attract investors, and access the tools and mentorship to take your idea from concept to scale.</p>
+        </div>
+        <div class="v2-panel__features">
+          <div class="v2-panel__feature"><span class="v2-panel__feature-dot">&#10003;</span>Publish projects with rich media and detailed pitches</div>
+          <div class="v2-panel__feature"><span class="v2-panel__feature-dot">&#10003;</span>Get verified to build trust with investors</div>
+          <div class="v2-panel__feature"><span class="v2-panel__feature-dot">&#10003;</span>Receive and respond to investment proposals</div>
+          <div class="v2-panel__feature"><span class="v2-panel__feature-dot">&#10003;</span>Access mentorship, training, and consulting services</div>
+        </div>
+        {% if user.is_authenticated %}<a href="{% url 'app' %}" class="v2-panel__cta">Go to Feed &rarr;</a>{% else %}<a href="{% url 'register' %}" class="v2-panel__cta">Join as Innovator &rarr;</a>{% endif %}
+      </div>
+      <div class="v2-panel v2-panel--dark">
+        <div class="v2-panel__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div>
+          <div class="v2-panel__title">For Investors</div>
+          <p class="v2-panel__desc">Access curated deal flow, run due diligence, and build a portfolio of Africa's most promising ventures — all from one platform.</p>
+        </div>
+        <div class="v2-panel__features">
+          <div class="v2-panel__feature"><span class="v2-panel__feature-dot">&#10003;</span>AI-matched project recommendations by thesis</div>
+          <div class="v2-panel__feature"><span class="v2-panel__feature-dot">&#10003;</span>Filter by industry, stage, funding range, and geography</div>
+          <div class="v2-panel__feature"><span class="v2-panel__feature-dot">&#10003;</span>Send proposals and schedule meetings in-platform</div>
+          <div class="v2-panel__feature"><span class="v2-panel__feature-dot">&#10003;</span>Save projects and manage your pipeline</div>
+        </div>
+        {% if user.is_authenticated %}<a href="{% url 'app' %}" class="v2-panel__cta">Go to Feed &rarr;</a>{% else %}<a href="{% url 'register' %}" class="v2-panel__cta">Join as Investor &rarr;</a>{% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer CTA -->
+<section class="v2-cta">
+  <div class="v2-cta__inner">
+    <span class="v2-cta__label">Join the network</span>
+    <h2 class="v2-cta__title">Africa's next big idea starts here.</h2>
+    <p class="v2-cta__sub">Join thousands of innovators and investors already building the future together. It's free to get started.</p>
+    <div class="v2-cta__actions">
+      {% if user.is_authenticated %}
+        <a href="{% url 'app' %}" class="v2-btn-primary">Go to your feed &rarr;</a>
+        <a href="{% url 'project_list' %}" class="v2-btn-outline">Browse projects</a>
+      {% else %}
+        <a href="{% url 'register' %}" class="v2-btn-primary">Create free account &rarr;</a>
+        <a href="{% url 'login' %}" class="v2-btn-outline">Log in</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      var id=this.getAttribute('href').slice(1);
+      var el=document.getElementById(id);
+      if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('v2-mob').classList.remove('open');}
+    });
+  });
+  var nav=document.querySelector('.v2-nav');
+  window.addEventListener('scroll',function(){
+    nav.style.boxShadow=window.scrollY>10?'0 2px 20px rgba(10,22,40,.1)':'none';
+  },{passive:true});
+});
+</script>
+
+{% endblock %}

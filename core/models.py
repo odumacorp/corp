@@ -1784,6 +1784,7 @@ class SiteSettings(models.Model):
     contact_email  = models.EmailField(blank=True, default='')
     contact_phone  = models.CharField(max_length=30, blank=True, default='')
     footer_tagline = models.CharField(max_length=200, blank=True, default='')
+    pricing_enabled = models.BooleanField(default=False, help_text='Show Pricing page and tabs to users')
     updated_at     = models.DateTimeField(auto_now=True)
     updated_by     = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
                                        null=True, blank=True, related_name='site_settings_updates')

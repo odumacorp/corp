@@ -477,10 +477,13 @@
         <a href="{% url 'profile_view' username=innovator.username %}" class="iv-btn iv-btn--ghost">
           View Profile
         </a>
+        {% if request.user.is_authenticated %}
         <button class="iv-btn iv-btn--outline" style="flex:1;"
           onclick="openQuickChat({{ innovator.id }},'{{ innovator.get_full_name|escapejs }}','{{ innovator.first_name|first|upper }}{{ innovator.last_name|first|upper }}','{% if innovator.userprofile.profile_pics %}{{ innovator.userprofile.profile_pics.url }}{% endif %}')">
           Message
         </button>
+        {% endif %}
+        {% if request.user.is_authenticated %}
         {% with request.user.userprofile as cp %}
           {% with innovator.userprofile as tp %}
             <form method="POST" action="{% url 'connect_innovator' innovator.id %}" style="flex:1;display:flex;">
@@ -493,6 +496,7 @@
             </form>
           {% endwith %}
         {% endwith %}
+        {% endif %}
       </div>
     </div>
 

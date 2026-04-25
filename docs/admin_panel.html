@@ -75,14 +75,14 @@
     --ff-sans: "Jaldi", sans-serif;
   }
 
-  .adm-layout { display: flex; min-height: calc(100vh - var(--nav-h, 130px)); background: #f4f6fb; }
+  .adm-layout { display: flex; min-height: calc(100vh - var(--oc-navbar-h, 62px)); background: #f4f6fb; }
 
   /* ---- Sidebar (slim) ---- */
   .adm-sidebar {
     width: 180px; flex-shrink: 0; background: #fff;
     border-right: 1px solid var(--border);
     padding: 24px 0 40px; display: flex; flex-direction: column;
-    position: sticky; top: var(--nav-h, 130px); height: calc(100vh - var(--nav-h, 130px)); overflow-y: auto;
+    position: sticky; top: var(--oc-navbar-h, 62px); height: calc(100vh - var(--oc-navbar-h, 62px)); overflow-y: auto;
   }
   .adm-sidebar-logo {
     display: flex; align-items: center; gap: 10px;
@@ -386,6 +386,10 @@
         <span>Project Reviews</span>
         {% if pending_review_count %}<span class="adm-nav-count">{{ pending_review_count }}</span>{% endif %}
       </a>
+      <a href="#section-features" class="adm-nav-link" onclick="showTab('features');return false;">
+        <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+        <span>Feature Flags</span>
+      </a>
     </div>
     <div class="adm-sidebar-bottom">
       <a href="{% url 'index' %}" class="adm-sidebar-back">← Back to site</a>
@@ -427,6 +431,7 @@
       <button class="adm-tab-btn" data-tab="survey" onclick="showTab('survey')"><i class="fi fi-rr-star fi-sm"></i> Survey <span class="adm-nav-count">{{ survey.total }}</span></button>
       <button class="adm-tab-btn" data-tab="shares" onclick="showTab('shares')"><i class="fi fi-rr-share fi-sm"></i> Shares <span class="adm-nav-count">{{ shares.total }}</span></button>
       <button class="adm-tab-btn" data-tab="locations" onclick="showTab('locations')"><i class="fi fi-rr-map-marker fi-sm"></i> Locations <span class="adm-nav-count">{{ total_with_location }}</span></button>
+      <button class="adm-tab-btn" data-tab="features" onclick="showTab('features')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Features</button>
     </div>
 
     <!-- ===== Dashboard / Stats ===== -->
@@ -1112,6 +1117,7 @@
               <th>Title</th>
               <th>Author</th>
               <th>Industry</th>
+              <th>Status</th>
               <th>Posted</th>
               <th>Actions</th>
             </tr>
@@ -1126,6 +1132,15 @@
                 </a>
               </td>
               <td>{{ p.get_industry_display }}</td>
+              <td>
+                {% if p.review_status == 'approved' %}
+                  <span class="adm-active-badge">Approved</span>
+                {% elif p.review_status == 'pending' %}
+                  <span class="adm-inactive-badge" style="background:rgba(245,158,11,.1);color:#b45309;">Pending</span>
+                {% else %}
+                  <span class="adm-inactive-badge">Rejected</span>
+                {% endif %}
+              </td>
               <td>{{ p.created_at|date:"M d, Y" }}</td>
               <td>
                 <div class="adm-actions">
@@ -3354,6 +3369,32 @@
 
     </div><!-- /section-locations -->
 
+    <!-- ===== Feature Flags ===== -->
+    <div id="section-features" class="adm-section">
+      <div class="adm-section-head">
+        <h2 class="adm-section-title">Feature Flags</h2>
+        <span class="adm-section-label">Control which features are visible to users</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:540px;">
+
+        <!-- Pricing toggle -->
+        <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 20px;">
+          <div>
+            <div style="font-family:var(--ff-serif);font-weight:700;color:#0a1628;font-size:1.2rem;">Pricing Page</div>
+            <div style="font-size:1.15rem;color:#6b7280;margin-top:2px;">Show the Pricing page, navbar link, and footer link to users.</div>
+          </div>
+          <button type="button"
+            id="ff-pricing-btn"
+            class="adm-act-btn {% if site_settings.pricing_enabled %}adm-btn-warn{% else %}adm-btn-success{% endif %}"
+            style="min-width:90px;flex-shrink:0;"
+            onclick="ffToggle('pricing_enabled', this)">
+            {% if site_settings.pricing_enabled %}Disable{% else %}Enable{% endif %}
+          </button>
+        </div>
+
+      </div>
+    </div><!-- /section-features -->
+
     <script>
     // ── Location view toggle ─────────────────────────────────────────
     function locShowView(view) {
@@ -3912,6 +3953,65 @@ function adminAjaxAction(url, data, triggerEl) {
     if (!res.ok && triggerEl) triggerEl.style.outline = '2px solid red';
   })
   .catch(function(){ if (triggerEl) triggerEl.style.outline = '2px solid red'; });
+}
+
+/* ── Pending post approve / reject ── */
+/* ── Feature flag toggle ── */
+function ffToggle(flag, btn) {
+  var body = new URLSearchParams({ flag: flag });
+  fetch('{% url "admin_toggle_feature" %}', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': _getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString()
+  }).then(function(r){ return r.json(); }).then(function(res) {
+    if (res.enabled) {
+      btn.textContent = 'Disable';
+      btn.className = 'adm-act-btn adm-btn-warn';
+    } else {
+      btn.textContent = 'Enable';
+      btn.className = 'adm-act-btn adm-btn-success';
+    }
+  });
+}
+
+function pprApprove(postId, url) {
+  fetch(url, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': _getCsrf(), 'X-Requested-With': 'XMLHttpRequest' }
+  }).then(function(r){ return r.json(); }).then(function() {
+    var card = document.getElementById('ppr-' + postId);
+    if (card) {
+      card.style.transition = 'opacity .25s';
+      card.style.opacity = '0';
+      setTimeout(function(){ card.remove(); _pprUpdateCount(-1); }, 260);
+    }
+  });
+}
+
+function pprReject(postId, url) {
+  var reason = (document.getElementById('ppr-reason-' + postId) || {}).value || '';
+  var body = new URLSearchParams({ reason: reason });
+  fetch(url, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': _getCsrf(), 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString()
+  }).then(function(r){ return r.json(); }).then(function() {
+    var card = document.getElementById('ppr-' + postId);
+    if (card) {
+      card.style.transition = 'opacity .25s, transform .25s';
+      card.style.opacity = '0';
+      card.style.transform = 'translateX(8px)';
+      setTimeout(function(){ card.remove(); _pprUpdateCount(-1); }, 260);
+    }
+  });
+}
+
+function _pprUpdateCount(delta) {
+  var badge = document.querySelector('#section-posts .adm-section-head [style*="b45309"]');
+  if (!badge) return;
+  var n = parseInt(badge.textContent, 10) + delta;
+  if (n <= 0) badge.style.display = 'none';
+  else badge.textContent = n + ' pending';
 }
 
 function adminVerifyUser(btn, url, currentStatus) {

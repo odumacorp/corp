@@ -1,4 +1,4 @@
-from .models import UserProfile
+from .models import UserProfile, SiteSettings
 from .models import Message
 from .models import Notification
 
@@ -31,6 +31,10 @@ def unread_notification_count(request):
         count = Notification.objects.filter(user=request.user, is_read=False).count()
         return {'unread_notification_count': count}
     return {}
+
+def site_settings(request):
+    s = SiteSettings.get()
+    return {'pricing_enabled': s.pricing_enabled}
 
 def admin_view_mode(request):
     """Exposes admin_view_mode ('admin' or 'user') to every template."""

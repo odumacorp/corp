@@ -1,8 +1,7 @@
 {% extends '_partials/base.html' %}
 {% load static %}
 
-{% block title %}Companies | Oduma Corp
-{% endblock %}
+{% block title %}Companies | Oduma Corp{% endblock %}
 
 {% block content %}
 <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
@@ -15,395 +14,214 @@
   <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
   Back
 </button>
-<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
 <style>
-  :root {
-    --blue: #004AAD;
-    --blue-dark: #003490;
-    --text: #1a1a2e;
-    --muted: #6b7280;
-    --border: rgba(0,0,0,0.08);
-    --ff-serif: "Jacques Francois", serif;
-    --ff-sans: "Jaldi", sans-serif;
-  }
+:root {
+  --cl-blue:   #1B5EC7;
+  --cl-blue-dk:#1448a3;
+  --cl-blue-lt:#e0e8f4;
+  --cl-ink:    #0A1628;
+  --cl-muted:  #6b7280;
+  --cl-border: #e4eaf2;
+  --cl-bg:     #f4f6fb;
+}
 
-  .cl-page {
-    max-width: 1060px;
-    margin: 0 auto;
-    padding: 16px 16px 44px;
-  }
-  .cl-page-title {
-    font-family: var(--ff-serif);
-    font-size: 2.7rem;
-    color: var(--text);
-    margin: 0 0 6px;
-  }
-  .cl-page-sub {
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    color: var(--muted);
-    margin: 0 0 16px;
-  }
+.cl-page { max-width: 1060px; margin: 0 auto; padding: 16px 16px 48px; }
 
-  /* CTA Banner */
-  .cl-cta {
-    background: linear-gradient(135deg, #004AAD 0%, #0077ff 100%);
-    border-radius: 16px;
-    padding: 22px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-bottom: 32px;
-  }
-  .cl-cta-text {
-    color: #fff;
-    font-family: var(--ff-sans);
-  }
-  .cl-cta-text strong {
-    font-family: var(--ff-serif);
-    font-size: 1.2rem;
-    display: block;
-    margin-bottom: 4px;
-  }
-  .cl-cta-text span { font-size: 1.2rem; opacity: .88; }
-  .cl-cta-btn {
-    background: #fff;
-    color: var(--blue);
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    font-weight: 700;
-    padding: 10px 22px;
-    border-radius: 50px;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    white-space: nowrap;
-    transition: background .2s;
-  }
-  .cl-cta-btn:hover { background: #eaf0ff; }
+.cl-page-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 800; color: var(--cl-ink); margin: 0 0 4px;
+}
+.cl-page-sub { font-size: 1.2rem; color: var(--cl-muted); margin: 0 0 20px; }
 
-  /* Search bar */
-  .cl-search-bar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-  .cl-search-input {
-    flex: 1;
-    min-width: 220px;
-    border: 1.5px solid var(--border);
-    border-radius: 50px;
-    padding: 10px 18px;
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    color: var(--text);
-    background: #fff;
-    transition: border-color .2s;
-    box-sizing: border-box;
-  }
-  .cl-search-input:focus { outline: none; border-color: var(--blue); }
-  .cl-search-btn {
-    background: var(--blue);
-    color: #fff;
-    border: none;
-    border-radius: 50px;
-    padding: 10px 22px;
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    transition: background .2s;
-  }
-  .cl-search-btn:hover { background: var(--blue-dark); }
+/* CTA Banner */
+.cl-cta {
+  background: linear-gradient(135deg, #1B5EC7 0%, #3b82f6 100%);
+  border-radius: 16px; padding: 22px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 28px;
+}
+.cl-cta-text { color: #fff; }
+.cl-cta-text strong { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; display: block; margin-bottom: 4px; }
+.cl-cta-text span { font-size: 1.2rem; opacity: .88; }
+.cl-cta-btn {
+  background: #fff; color: var(--cl-blue);
+  font-size: 1.2rem; font-weight: 700;
+  padding: 10px 22px; border-radius: 50px;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
+  white-space: nowrap; transition: background .2s; font-family: inherit;
+}
+.cl-cta-btn:hover { background: #eaf0ff; }
 
-  /* Industry filter chips */
-  .cl-chips {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 28px;
-  }
-  .cl-chip {
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    font-weight: 700;
-    padding: 6px 14px;
-    border-radius: 50px;
-    border: 1.5px solid var(--border);
-    background: #fff;
-    color: var(--muted);
-    cursor: pointer;
-    text-decoration: none;
-    transition: all .2s;
-    white-space: nowrap;
-  }
-  .cl-chip:hover, .cl-chip.active {
-    background: var(--blue);
-    color: #fff;
-    border-color: var(--blue);
-  }
+/* Search bar */
+.cl-search-bar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.cl-search-input {
+  flex: 1; min-width: 220px;
+  border: 1.5px solid var(--cl-border); border-radius: 50px;
+  padding: 10px 18px; font-family: inherit; font-size: 1.2rem; color: var(--cl-ink);
+  background: #fff; transition: border-color .2s; box-sizing: border-box; outline: none;
+}
+.cl-search-input:focus { border-color: var(--cl-blue); }
+.cl-search-btn {
+  background: var(--cl-blue); color: #fff; border: none; border-radius: 50px;
+  padding: 10px 22px; font-family: inherit; font-size: 1.2rem; font-weight: 700;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: background .2s;
+}
+.cl-search-btn:hover { background: var(--cl-blue-dk); }
 
-  /* Industry category cards */
-  .iv-cat-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:#fff;border:1.5px solid rgba(0,0,0,0.08);border-radius:14px;padding:16px 14px;text-decoration:none;cursor:pointer;transition:border-color .18s,box-shadow .18s,background .18s;}
-  .iv-cat-card:hover{border-color:var(--blue);box-shadow:0 4px 16px rgba(0,74,173,.1);}
-  .iv-cat-card--active{background:var(--blue);border-color:var(--blue);box-shadow:0 4px 18px rgba(0,74,173,.28);}
-  .iv-cat-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#4b6cb7;}
-  .iv-cat-name{font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;line-height:1.2;}
-  .iv-cat-card--active .iv-cat-name{color:#fff;}
-  .iv-cat-card--active .iv-cat-icon{color:rgba(255,255,255,.85);}
-  .iv-cat-count{font-size: 1.2rem;color:#6b7280;font-weight:600;}
-  .iv-cat-card--active .iv-cat-count{color:rgba(255,255,255,.75);}
+/* Industry category cards */
+.iv-cat-card { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; background: #fff; border: 1.5px solid var(--cl-border); border-radius: 12px; padding: 12px; text-decoration: none; cursor: pointer; transition: border-color .18s, box-shadow .18s, background .18s; }
+.iv-cat-card:hover { border-color: var(--cl-blue); box-shadow: 0 4px 16px rgba(27,94,199,.1); }
+.iv-cat-card--active { background: var(--cl-blue); border-color: var(--cl-blue); box-shadow: 0 4px 18px rgba(27,94,199,.28); }
+.iv-cat-icon { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: #4b6cb7; }
+.iv-cat-card--active .iv-cat-icon { color: rgba(255,255,255,.85); }
+.iv-cat-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 800; color: var(--cl-ink); line-height: 1.2; }
+.iv-cat-card--active .iv-cat-name { color: #fff; }
+.iv-cat-count { font-size: 1.1rem; color: var(--cl-muted); font-weight: 600; }
+.iv-cat-card--active .iv-cat-count { color: rgba(255,255,255,.75); }
 
-  /* Company grid */
-  .cl-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-  }
+/* Company grid */
+.cl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
-  /* Company card */
-  .cl-card {
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0,74,173,0.06);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: box-shadow .2s, transform .2s;
-  }
-  .cl-card:hover { box-shadow: 0 6px 24px rgba(0,74,173,0.12); transform: translateY(-2px); }
-  .cl-card-cover {
-    height: 90px;
-    background: linear-gradient(135deg, #004AAD 0%, #0077ff 100%);
-    position: relative;
-  }
-  .cl-card-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .cl-card-logo {
-    width: 56px;
-    height: 56px;
-    border-radius: 10px;
-    border: 3px solid #fff;
-    background: #eaf0ff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: absolute;
-    bottom: -24px;
-    left: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-    flex-shrink: 0;
-  }
-  .cl-card-logo img { width: 100%; height: 100%; object-fit: cover; }
-  .cl-card-logo-placeholder { font-size: 2.0rem; color: var(--blue); }
-  .cl-card-body {
-    padding: 32px 16px 16px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  .cl-card-name {
-    font-family: var(--ff-serif);
-    font-size: 1.2rem;
-    color: var(--text);
-    margin: 0 0 4px;
-  }
-  .cl-card-tagline {
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    color: var(--muted);
-    margin: 0 0 10px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    flex: 1;
-  }
-  .cl-card-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: auto;
-  }
-  .cl-industry-badge {
-    background: #eaf0ff;
-    color: var(--blue);
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    font-weight: 700;
-    padding: 2px 9px;
-    border-radius: 20px;
-    text-transform: uppercase;
-    letter-spacing: .3px;
-  }
-  .cl-follower-meta {
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    color: var(--muted);
-  }
-  .cl-view-btn {
-    flex: 1;
-    background: var(--blue);
-    color: #fff;
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    font-weight: 700;
-    text-align: center;
-    padding: 9px;
-    text-decoration: none;
-    transition: background .2s;
-    border-top: 1px solid var(--border);
-  }
-  .cl-view-btn:hover { background: var(--blue-dark); color: #fff; }
-  .cl-rl-btn {
-    flex: none; display: inline-flex; align-items: center; gap: 5px;
-    padding: 8px 14px; border-radius: 8px; border: 1.5px solid var(--border);
-    background: #fafafa; font-family: var(--ff-sans); font-size: 1.2rem;
-    cursor: pointer; color: var(--muted); transition: all .18s; white-space: nowrap;
-  }
-  .cl-rl-btn:hover { border-color: var(--blue); color: var(--blue); }
-  .cl-rl-btn.cl-rl-saved { border-color: var(--blue); background: #e8f0fe; color: var(--blue); font-weight: 700; }
+/* Company card */
+.cl-card {
+  background: #fff; border: 1px solid var(--cl-border); border-radius: 16px;
+  overflow: hidden; display: flex; flex-direction: column;
+  transition: border-color .18s, box-shadow .18s;
+}
+.cl-card:hover { border-color: var(--cl-blue); box-shadow: 0 6px 24px rgba(27,94,199,.12); }
+.cl-card-cover { height: 90px; background: linear-gradient(135deg, #1B5EC7 0%, #3b82f6 100%); position: relative; }
+.cl-card-cover img { width: 100%; height: 100%; object-fit: cover; }
+.cl-card-logo {
+  width: 56px; height: 56px; border-radius: 10px; border: 3px solid #fff;
+  background: #eaf0ff; display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: absolute; bottom: -24px; left: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12); flex-shrink: 0;
+}
+.cl-card-logo img { width: 100%; height: 100%; object-fit: cover; }
+.cl-card-logo-ph { color: var(--cl-blue); }
+.cl-card-body { padding: 32px 16px 14px; flex: 1; display: flex; flex-direction: column; }
+.cl-card-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--cl-ink); margin: 0 0 4px; }
+.cl-card-tagline { font-size: 1.2rem; color: var(--cl-muted); margin: 0 0 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; line-height: 1.5; }
+.cl-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+.cl-industry-badge { background: var(--cl-blue-lt); color: var(--cl-blue); font-size: 1.2rem; font-weight: 700; padding: 2px 9px; border-radius: 20px; }
+.cl-follower-meta { font-size: 1.2rem; color: var(--cl-muted); display: flex; align-items: center; gap: 5px; }
 
-  /* Empty state */
-  .cl-empty {
-    text-align: center;
-    padding: 60px 0;
-    color: var(--muted);
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    grid-column: 1 / -1;
-  }
-  .cl-empty i { font-size: 3.4rem; color: #c7d2fe; display: block; margin-bottom: 10px; }
+/* Card action area */
+.cl-card-actions { display: flex; gap: 8px; padding: 12px 14px 14px; border-top: 1px solid var(--cl-border); margin-top: auto; flex-wrap: wrap; }
+.cl-btn {
+  flex: 1; min-width: 80px; padding: 8px 12px; border-radius: 9px; border: none;
+  font-size: 1.2rem; font-weight: 700; font-family: inherit; cursor: pointer;
+  text-align: center; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  transition: background .15s, color .15s; white-space: nowrap;
+}
+.cl-btn--primary { background: var(--cl-blue); color: #fff; }
+.cl-btn--primary:hover { background: var(--cl-blue-dk); color: #fff; }
+.cl-btn--ghost { background: #f3f4f6; color: #374151; border: 1.5px solid transparent; }
+.cl-btn--ghost:hover { background: #e5e7eb; }
+.cl-btn--outline { background: transparent; color: var(--cl-blue); border: 1.5px solid var(--cl-blue-lt); }
+.cl-btn--outline:hover { background: var(--cl-blue-lt); }
+.cl-btn--edit { background: var(--cl-blue-lt); color: var(--cl-blue); border: 1.5px solid transparent; }
+.cl-btn--edit:hover { background: #c3d4ec; }
+.cl-rl-btn { background: #f3f4f6; color: var(--cl-muted); border: 1.5px solid transparent; }
+.cl-rl-btn:hover { border-color: var(--cl-blue); color: var(--cl-blue); }
+.cl-rl-btn.cl-rl-saved { background: var(--cl-blue-lt); color: var(--cl-blue); border-color: var(--cl-blue); }
 
-  /* Result count */
-  .cl-result-count {
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    color: var(--muted);
-    margin-bottom: 16px;
-  }
+/* Filter bar */
+.cl-filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+.cl-filter-select {
+  font-family: inherit; font-size: 1.2rem; color: var(--cl-ink);
+  border: 1.5px solid var(--cl-border); border-radius: 50px; padding: 8px 32px 8px 14px;
+  background: #fff; cursor: pointer; appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+  min-width: 150px; outline: none; transition: border-color .2s;
+}
+.cl-filter-select:focus { border-color: var(--cl-blue); }
+.cl-filter-select.active { border-color: var(--cl-blue); color: var(--cl-blue); font-weight: 700; background-color: var(--cl-blue-lt); }
+.cl-filter-clear {
+  font-size: 1.2rem; font-weight: 700; color: #ef4444;
+  text-decoration: none; padding: 8px 14px; border-radius: 50px;
+  background: #fff1f1; border: 1px solid #fecaca; white-space: nowrap; transition: background .2s;
+}
+.cl-filter-clear:hover { background: #fee2e2; }
 
-  /* Filter bar */
-  .cl-filter-bar {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-    align-items: center;
-  }
-  .cl-filter-select {
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    color: var(--text);
-    border: 1.5px solid var(--border);
-    border-radius: 50px;
-    padding: 8px 14px;
-    background: #fff;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 32px;
-    transition: border-color .2s;
-    min-width: 150px;
-  }
-  .cl-filter-select:focus { outline: none; border-color: var(--blue); }
-  .cl-filter-select.active { border-color: var(--blue); color: var(--blue); font-weight: 700; background-color: #eaf0ff; }
+/* Custom dropdowns */
+.cl-dd { position: relative; display: inline-block; }
+.cl-dd-trigger {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1.5px solid var(--cl-border); border-radius: 50px;
+  padding: 8px 14px 8px 16px; font-family: inherit; font-size: 1.2rem; color: var(--cl-ink);
+  background: #fff; cursor: pointer; white-space: nowrap;
+  transition: border-color .18s, box-shadow .18s; user-select: none;
+}
+.cl-dd-trigger:hover { border-color: #c3d4ec; }
+.cl-dd-trigger.open { border-color: var(--cl-blue); box-shadow: 0 0 0 3px rgba(27,94,199,.1); }
+.cl-dd-trigger.active { border-color: var(--cl-blue); color: var(--cl-blue); font-weight: 700; background: var(--cl-blue-lt); }
+.cl-dd-val { flex: 1; }
+.cl-dd-chevron { width: 14px; height: 14px; flex-shrink: 0; color: #9ca3af; transition: transform .18s; pointer-events: none; }
+.cl-dd-trigger.open .cl-dd-chevron { transform: rotate(180deg); color: var(--cl-blue); }
+.cl-dd-list {
+  display: none; position: absolute; top: calc(100% + 6px); left: 0;
+  min-width: 100%; background: #fff; border: 1.5px solid #e0e6f0;
+  border-radius: 12px; box-shadow: 0 8px 28px rgba(10,22,40,.12);
+  z-index: 300; max-height: 220px; overflow-y: auto; padding: 4px; white-space: nowrap;
+}
+.cl-dd-list.open { display: block; animation: clDdIn .15s ease; }
+@keyframes clDdIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:none; } }
+.cl-dd-option {
+  padding: 9px 14px; border-radius: 8px; font-family: inherit;
+  font-size: 1.2rem; color: #374151; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: background .1s, color .1s;
+}
+.cl-dd-option:hover { background: #f0f5ff; color: var(--cl-blue); }
+.cl-dd-option.selected { background: var(--cl-blue-lt); color: var(--cl-blue); font-weight: 700; }
+.cl-dd-option .cl-dd-check { display: none; color: var(--cl-blue); flex-shrink: 0; }
+.cl-dd-option.selected .cl-dd-check { display: block; }
 
-  /* ── Custom pm-dd dropdowns for filter bars ── */
-  .cl-dd { position: relative; display: inline-block; }
-  .cl-dd-trigger {
-    display: inline-flex; align-items: center; gap: 8px;
-    border: 1.5px solid rgba(0,0,0,0.10); border-radius: 50px;
-    padding: 8px 14px 8px 16px;
-    font-family: var(--ff-sans); font-size: 1.2rem; color: var(--text);
-    background: #fff; cursor: pointer; white-space: nowrap;
-    transition: border-color .18s, box-shadow .18s; user-select: none;
-  }
-  .cl-dd-trigger:hover { border-color: #c3d4ec; }
-  .cl-dd-trigger.open { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,74,173,.1); }
-  .cl-dd-trigger.active { border-color: var(--blue); color: var(--blue); font-weight: 700; background: #eaf0ff; }
-  .cl-dd-val { flex: 1; }
-  .cl-dd-chevron { width: 14px; height: 14px; flex-shrink: 0; color: #9ca3af; transition: transform .18s; pointer-events: none; }
-  .cl-dd-trigger.open .cl-dd-chevron { transform: rotate(180deg); color: var(--blue); }
-  .cl-dd-list {
-    display: none; position: absolute; top: calc(100% + 6px); left: 0;
-    min-width: 100%; background: #fff; border: 1.5px solid #e0e6f0;
-    border-radius: 12px; box-shadow: 0 8px 28px rgba(10,22,40,.12);
-    z-index: 300; max-height: 220px; overflow-y: auto; padding: 4px;
-    white-space: nowrap;
-  }
-  .cl-dd-list.open { display: block; animation: clDdIn .15s ease; }
-  @keyframes clDdIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:none; } }
-  .cl-dd-option {
-    padding: 9px 14px; border-radius: 8px; font-family: var(--ff-sans);
-    font-size: 1.2rem; color: #374151; cursor: pointer;
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    transition: background .1s, color .1s;
-  }
-  .cl-dd-option:hover { background: #f0f5ff; color: var(--blue); }
-  .cl-dd-option.selected { background: #eaf0ff; color: var(--blue); font-weight: 700; }
-  .cl-dd-option .cl-dd-check { display: none; color: var(--blue); flex-shrink: 0; }
-  .cl-dd-option.selected .cl-dd-check { display: block; }
-  .cl-filter-clear {
-    font-family: var(--ff-sans);
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #ef4444;
-    text-decoration: none;
-    padding: 8px 14px;
-    border-radius: 50px;
-    background: #fff1f1;
-    border: 1px solid #fecaca;
-    white-space: nowrap;
-    transition: background .2s;
-  }
-  .cl-filter-clear:hover { background: #fee2e2; }
+/* Tab bar */
+.cl-tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 2px solid var(--cl-border); }
+.cl-tab-btn {
+  padding: 10px 22px; border: none; background: none;
+  font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700;
+  cursor: pointer; color: var(--cl-muted); border-bottom: 3px solid transparent; margin-bottom: -2px;
+  transition: color .15s;
+}
+.cl-tab-btn.active { color: var(--cl-blue); border-bottom-color: var(--cl-blue); }
+.cl-tab-badge { font-size: 1.1rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-left: 6px; }
+.cl-tab-btn.active .cl-tab-badge { background: rgba(27,94,199,.12); color: var(--cl-blue); }
+.cl-tab-btn:not(.active) .cl-tab-badge { background: #f3f4f6; color: var(--cl-muted); }
+
+/* Result count */
+.cl-result-count { font-size: 1.2rem; color: var(--cl-muted); margin-bottom: 16px; }
+
+/* Empty state */
+.cl-empty {
+  text-align: center; padding: 60px 20px; color: var(--cl-muted);
+  font-size: 1.2rem; grid-column: 1 / -1;
+}
+.cl-empty-icon { margin-bottom: 12px; color: #c7d2fe; }
 </style>
 
-<div style="background:#f0f4ff; min-height:100vh;">
 <div class="cl-page">
-
-  <nav class="oc-breadcrumb" style="margin-bottom:16px;">
-    <a href="{% url 'app' %}"><i class="fi fi-rr-home fi-sm"></i> Home</a>
-    <span class="oc-bc-sep">›</span>
-    <span class="oc-bc-current">Companies</span>
-  </nav>
 
   <h1 class="cl-page-title">Companies</h1>
   <p class="cl-page-sub">Discover businesses and organisations on Oduma Corp.</p>
 
   {% if user.is_authenticated and my_companies %}
   <!-- ── Tab bar ── -->
-  <div style="display:flex;gap:0;margin-bottom:28px;border-bottom:2px solid var(--border);">
-    <button id="cl-tab-mine" onclick="clSwitchTab('mine')"
-      style="padding:10px 22px;border:none;background:none;font-family:var(--ff-sans);font-size:1.2rem;font-weight:700;cursor:pointer;color:var(--blue);border-bottom:3px solid var(--blue);margin-bottom:-2px;">
-      My Companies <span style="background:rgba(0,74,173,.12);color:var(--blue);font-size:1.1rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px;">{{ my_companies|length }}</span>
+  <div class="cl-tabs">
+    <button id="cl-tab-mine" class="cl-tab-btn active" onclick="clSwitchTab('mine')">
+      My Companies <span class="cl-tab-badge">{{ my_companies|length }}</span>
     </button>
-    <button id="cl-tab-all" onclick="clSwitchTab('all')"
-      style="padding:10px 22px;border:none;background:none;font-family:var(--ff-sans);font-size:1.2rem;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;">
-      All Companies <span style="background:#f3f4f6;color:var(--muted);font-size:1.1rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px;" id="cl-all-badge">{{ companies|length }}</span>
+    <button id="cl-tab-all" class="cl-tab-btn" onclick="clSwitchTab('all')">
+      All Companies <span class="cl-tab-badge" id="cl-all-badge">{{ companies|length }}</span>
     </button>
   </div>
 
   <!-- ── My Companies panel ── -->
   <div id="cl-panel-mine">
-    <!-- Header row: filters + New Company button -->
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
       <input type="text" id="mine-search" placeholder="Search my companies…" class="cl-search-input" style="flex:1;min-width:180px;" oninput="applyMineFilters()">
       <div class="cl-dd" id="cld-mine-industry">
@@ -438,11 +256,12 @@
           </div>
         </div>
       </div>
-      <a href="{% url 'create_company' %}" class="cl-cta-btn" style="background:var(--blue);color:#fff;border-radius:50px;padding:10px 20px;font-size:1.2rem;font-weight:700;display:inline-flex;align-items:center;gap:7px;text-decoration:none;white-space:nowrap;">
-        <i class="fi fi-rr-plus"></i> New Company
+      <a href="{% url 'create_company' %}" class="cl-btn cl-btn--primary" style="flex:none;border-radius:50px;padding:10px 20px;text-decoration:none;white-space:nowrap;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Company
       </a>
     </div>
-    <p id="mine-count" class="cl-result-count" style="margin-bottom:12px;">{{ my_companies|length }} compan{{ my_companies|length|pluralize:"y,ies" }}</p>
+    <p id="mine-count" class="cl-result-count">{{ my_companies|length }} compan{{ my_companies|length|pluralize:"y,ies" }}</p>
     <div class="cl-grid" id="mine-grid">
       {% for company in my_companies %}
       <div class="cl-card mine-card"
@@ -453,8 +272,11 @@
         <div class="cl-card-cover">
           {% if company.cover_image %}<img src="{{ company.cover_image.url }}" alt="{{ company.name }} cover">{% endif %}
           <div class="cl-card-logo">
-            {% if company.logo %}<img src="{{ company.logo.url }}" alt="{{ company.name }} logo">
-            {% else %}<span class="cl-card-logo-placeholder"><i class="fi fi-rr-building"></i></span>{% endif %}
+            {% if company.logo %}
+              <img src="{{ company.logo.url }}" alt="{{ company.name }} logo">
+            {% else %}
+              <span class="cl-card-logo-ph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span>
+            {% endif %}
           </div>
         </div>
         <div class="cl-card-body">
@@ -462,12 +284,21 @@
           <p class="cl-card-tagline">{{ company.tagline|default:company.description|truncatechars:90 }}</p>
           <div class="cl-card-meta">
             <span class="cl-industry-badge">{{ company.get_industry_display }}</span>
-            <span class="cl-follower-meta"><i class="fi fi-rr-users" style="font-size:1.2rem;"></i> {{ company.followers.count }} follower{{ company.followers.count|pluralize }}</span>
+            <span class="cl-follower-meta">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              {{ company.followers.count }}
+            </span>
           </div>
         </div>
-        <div style="display:flex;gap:0;padding:0;flex-wrap:wrap;">
-          <a href="{% url 'company_profile' company.pk %}" class="cl-view-btn" style="flex:1;"><i class="fi fi-rr-eye"></i> View</a>
-          <a href="{% url 'company_edit' company.pk %}" style="flex:none;display:inline-flex;align-items:center;gap:5px;padding:9px 16px;background:#eaf0ff;color:var(--blue);font-family:var(--ff-sans);font-size:1.2rem;font-weight:700;text-decoration:none;border-top:1px solid var(--border);transition:background .2s;" onmouseenter="this.style.background='#d1e3ff'" onmouseleave="this.style.background='#eaf0ff'"><i class="fi fi-rr-edit"></i> Edit</a>
+        <div class="cl-card-actions">
+          <a href="{% url 'company_profile' company.pk %}" class="cl-btn cl-btn--ghost">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            View
+          </a>
+          <a href="{% url 'company_edit' company.pk %}" class="cl-btn cl-btn--edit">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit
+          </a>
         </div>
       </div>
       {% endfor %}
@@ -477,14 +308,16 @@
   <!-- ── All Companies panel (hidden by default) ── -->
   <div id="cl-panel-all" style="display:none;">
   {% else %}
-  <!-- No owned companies — show CTA then jump straight into all companies -->
   {% if user.is_authenticated %}
-  <div class="cl-cta" style="margin-bottom:32px;">
+  <div class="cl-cta">
     <div class="cl-cta-text">
       <strong>Register Your Business</strong>
       <span>Create a company page to attract talent, investors, and partners.</span>
     </div>
-    <a href="{% url 'create_company' %}" class="cl-cta-btn"><i class="fi fi-rr-building"></i> Create Company Page</a>
+    <a href="{% url 'create_company' %}" class="cl-cta-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      Create Company Page
+    </a>
   </div>
   {% endif %}
   <div id="cl-panel-all">
@@ -492,14 +325,14 @@
 
   <!-- ── Search + Filters ── -->
   <form method="get" action="{% url 'companies_list' %}" id="cl-filter-form">
-    <!-- Search row -->
-    <div class="cl-search-bar" style="margin-bottom:14px;">
+    <div class="cl-search-bar">
       <input type="text" name="q" id="cl-q" value="{{ q }}" placeholder="Search companies by name or tagline…" class="cl-search-input">
-      <button type="submit" class="cl-search-btn"><i class="fi fi-rr-search"></i> Search</button>
+      <button type="submit" class="cl-search-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Search
+      </button>
     </div>
-    <!-- Filter row -->
     <div class="cl-filter-bar">
-      <!-- Date -->
       <div class="cl-dd" id="cld-date-sort">
         <button type="button" class="cl-dd-trigger {% if date_sort == 'oldest' %}active{% endif %}" onclick="clDdToggle('cld-date-sort')">
           <span class="cl-dd-val">{% if date_sort == 'oldest' %}Oldest first{% else %}Newest first{% endif %}</span>
@@ -515,14 +348,12 @@
           </div>
         </div>
       </div>
-      <!-- Industry -->
       <select name="industry" class="cl-filter-select {% if selected_industry %}active{% endif %}" data-combo-filter data-auto-submit data-placeholder="All Industries">
         <option value="">All Industries</option>
         {% for val, label in industry_choices %}
         <option value="{{ val }}" {% if selected_industry == val %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
       </select>
-      <!-- Owner -->
       {% if company_owners %}
       <div class="cl-dd" id="cld-owner">
         <button type="button" class="cl-dd-trigger {% if owner_filter %}active{% endif %}" onclick="clDdToggle('cld-owner')">
@@ -542,17 +373,16 @@
         </div>
       </div>
       {% endif %}
-      <!-- Clear all -->
       {% if q or selected_industry or owner_filter or date_sort == 'oldest' %}
-      <a href="{% url 'companies_list' %}" class="cl-filter-clear"><i class="fi fi-rr-cross-small"></i> Clear all</a>
+      <a href="{% url 'companies_list' %}" class="cl-filter-clear">✕ Clear all</a>
       {% endif %}
     </div>
   </form>
 
   <!-- Industry category cards -->
   <div style="margin-bottom:28px;">
-    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:800;color:#0A1628;margin:0 0 10px;">Browse by Industry</h2>
-    <div class="iv-cats-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;">
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:800;color:var(--cl-ink);margin:0 0 10px;">Browse by Industry</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;">
       <a href="?{% if q %}q={{ q }}&{% endif %}{% if date_sort != 'newest' %}date_sort={{ date_sort }}&{% endif %}{% if owner_filter %}owner_id={{ owner_filter }}&{% endif %}" class="iv-cat-card {% if not selected_industry %}iv-cat-card--active{% endif %}">
         <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
         <span class="iv-cat-name">All</span>
@@ -606,23 +436,19 @@
     {{ companies|length }} compan{{ companies|length|pluralize:"y,ies" }} found
     {% if q %} for "<strong>{{ q }}</strong>"{% endif %}
     {% if selected_industry %} · <strong>{{ selected_industry }}</strong>{% endif %}
-    {% if owner_filter %} · filtered by owner{% endif %}
-    {% if date_sort == 'oldest' %} · oldest first{% endif %}
   </p>
 
   <!-- Grid -->
   <div class="cl-grid" id="company-grid">
     {% for company in companies %}
-    <div class="cl-card" data-name="{{ company.name|lower }}" data-tagline="{{ company.tagline|lower }}">
+    <div class="cl-card" data-name="{{ company.name|lower }}" data-tagline="{{ company.tagline|lower|default:'' }}">
       <div class="cl-card-cover">
-        {% if company.cover_image %}
-          <img src="{{ company.cover_image.url }}" alt="{{ company.name }} cover">
-        {% endif %}
+        {% if company.cover_image %}<img src="{{ company.cover_image.url }}" alt="{{ company.name }} cover">{% endif %}
         <div class="cl-card-logo">
           {% if company.logo %}
             <img src="{{ company.logo.url }}" alt="{{ company.name }} logo">
           {% else %}
-            <span class="cl-card-logo-placeholder"><i class="fi fi-rr-building"></i></span>
+            <span class="cl-card-logo-ph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span>
           {% endif %}
         </div>
       </div>
@@ -631,37 +457,39 @@
         <p class="cl-card-tagline">{{ company.tagline|default:company.description|truncatechars:90 }}</p>
         <div class="cl-card-meta">
           <span class="cl-industry-badge">{{ company.get_industry_display }}</span>
-          <span class="cl-follower-meta"><i class="fi fi-rr-users" style="font-size: 1.2rem;"></i> {{ company.followers.count }} follower{{ company.followers.count|pluralize }}</span>
+          <span class="cl-follower-meta">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            {{ company.followers.count }} follower{{ company.followers.count|pluralize }}
+          </span>
         </div>
       </div>
-      <div style="display:flex;gap:8px;padding:0 16px 14px;flex-wrap:wrap;">
-        <a href="{% url 'company_profile' company.pk %}" class="cl-view-btn"><i class="fi fi-rr-arrow-right"></i> View Page</a>
+      <div class="cl-card-actions">
+        <a href="{% url 'company_profile' company.pk %}" class="cl-btn cl-btn--primary">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          View Page
+        </a>
         {% if user.is_authenticated %}
-        <button class="cl-rl-btn {% if company.pk in rl_company_ids %}cl-rl-saved{% endif %}"
+        <button class="cl-btn cl-rl-btn {% if company.pk in rl_company_ids %}cl-rl-saved{% endif %}"
                 data-type="company" data-id="{{ company.pk }}"
                 onclick="toggleRLBtn(this)">
-          <i class="fi fi-rr-bookmark" style="font-size: 1.2rem;"></i>
-          <span>{% if company.pk in rl_company_ids %}Saved{% else %}Read Later{% endif %}</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          <span>{% if company.pk in rl_company_ids %}Saved{% else %}Save{% endif %}</span>
         </button>
         {% endif %}
       </div>
     </div>
     {% empty %}
     <div class="cl-empty">
-      <i class="fi fi-rr-building"></i>
-      No companies found.
-      {% if user.is_authenticated and not user_company %}
-      <br><br>
-      <a href="{% url 'create_company' %}" style="color:var(--blue); font-weight:700; text-decoration:none;">Be the first — create a company page</a>
-      {% endif %}
+      <div class="cl-empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+      <h3 style="font-family:'Space Grotesk',sans-serif;color:var(--cl-ink);margin:0 0 6px;">No companies found</h3>
+      <p>{% if user.is_authenticated and not user_company %}<a href="{% url 'create_company' %}" style="color:var(--cl-blue);font-weight:700;text-decoration:none;">Be the first — create a company page</a>{% else %}Check back soon.{% endif %}</p>
     </div>
     {% endfor %}
-  </div><!-- /.cl-grid -->
+  </div>
 
   </div><!-- /#cl-panel-all -->
 
 </div><!-- /.cl-page -->
-</div><!-- /background -->
 
 <script>
 /* ── My Companies client-side filter/sort ── */
@@ -673,45 +501,24 @@ function applyMineFilters() {
   if (!grid) return;
 
   var cards = Array.from(grid.querySelectorAll('.mine-card'));
-
-  // Filter
   var visible = cards.filter(function(c) {
     var nameMatch     = !q || (c.dataset.name || '').includes(q) || (c.dataset.tagline || '').includes(q);
     var industryMatch = !industry || c.dataset.industry === industry;
     return nameMatch && industryMatch;
   });
   var hidden = cards.filter(function(c) { return !visible.includes(c); });
-
   hidden.forEach(function(c) { c.style.display = 'none'; });
-
-  // Sort visible cards
   visible.sort(function(a, b) {
     var da = parseInt(a.dataset.created, 10) || 0;
     var db = parseInt(b.dataset.created, 10) || 0;
     return dateSort === 'oldest' ? da - db : db - da;
   });
-  visible.forEach(function(c) {
-    c.style.display = '';
-    grid.appendChild(c);
-  });
-
-  // Update count
+  visible.forEach(function(c) { c.style.display = ''; grid.appendChild(c); });
   var countEl = document.getElementById('mine-count');
-  if (countEl) {
-    var n = visible.length;
-    countEl.textContent = n + ' compan' + (n === 1 ? 'y' : 'ies');
-  }
-
-  // Highlight active selects
-  ['mine-industry', 'mine-date'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    var isDefault = (id === 'mine-date') ? el.value === 'newest' : el.value === '';
-    el.classList.toggle('active', !isDefault);
-  });
+  if (countEl) { var n = visible.length; countEl.textContent = n + ' compan' + (n === 1 ? 'y' : 'ies'); }
 }
 
-/* ── Tab switching (My Companies / All Companies) ── */
+/* ── Tab switching ── */
 function clSwitchTab(tab) {
   var isMine = tab === 'mine';
   var panelMine = document.getElementById('cl-panel-mine');
@@ -720,38 +527,31 @@ function clSwitchTab(tab) {
   var btnAll    = document.getElementById('cl-tab-all');
   if (panelMine) panelMine.style.display = isMine ? '' : 'none';
   if (panelAll)  panelAll.style.display  = isMine ? 'none' : '';
-  if (btnMine) {
-    btnMine.style.color = isMine ? 'var(--blue)' : 'var(--muted)';
-    btnMine.style.borderBottomColor = isMine ? 'var(--blue)' : 'transparent';
-  }
-  if (btnAll) {
-    btnAll.style.color = isMine ? 'var(--muted)' : 'var(--blue)';
-    btnAll.style.borderBottomColor = isMine ? 'transparent' : 'var(--blue)';
-  }
+  if (btnMine) btnMine.classList.toggle('active', isMine);
+  if (btnAll)  btnAll.classList.toggle('active', !isMine);
   try { sessionStorage.setItem('cl_tab', tab); } catch(e) {}
 }
-// Restore last-used tab on page load
 (function() {
   var saved = null;
   try { saved = sessionStorage.getItem('cl_tab'); } catch(e) {}
   if (saved && saved !== 'mine') clSwitchTab(saved);
 })();
 
-  // Client-side name/tagline filter as user types in search box (instant feel)
-  const searchInput = document.querySelector('.cl-search-input');
-  const cards = document.querySelectorAll('.cl-card');
-  if (searchInput) {
-    searchInput.addEventListener('input', function() {
-      const q = this.value.toLowerCase().trim();
-      cards.forEach(card => {
-        const name    = card.dataset.name || '';
-        const tagline = card.dataset.tagline || '';
-        card.style.display = (!q || name.includes(q) || tagline.includes(q)) ? '' : 'none';
-      });
+/* ── Instant client-side search on all companies panel ── */
+(function() {
+  var input = document.getElementById('cl-q');
+  if (!input) return;
+  input.addEventListener('input', function() {
+    var q = this.value.toLowerCase().trim();
+    document.querySelectorAll('#company-grid .cl-card').forEach(function(card) {
+      var name    = card.dataset.name || '';
+      var tagline = card.dataset.tagline || '';
+      card.style.display = (!q || name.includes(q) || tagline.includes(q)) ? '' : 'none';
     });
-  }
+  });
+})();
 
-/* ── Read Later toggle (companies) ── */
+/* ── Read Later toggle ── */
 (function() {
   var _csrf = '{{ csrf_token }}';
   window.toggleRLBtn = function(btn) {
@@ -765,13 +565,8 @@ function clSwitchTab(tab) {
     .then(function(r) { return r.json(); })
     .then(function(d) {
       var span = btn.querySelector('span');
-      if (d.saved) {
-        btn.classList.add('cl-rl-saved');
-        if (span) span.textContent = 'Saved';
-      } else {
-        btn.classList.remove('cl-rl-saved');
-        if (span) span.textContent = 'Read Later';
-      }
+      if (d.saved) { btn.classList.add('cl-rl-saved'); if (span) span.textContent = 'Saved'; }
+      else { btn.classList.remove('cl-rl-saved'); if (span) span.textContent = 'Save'; }
     });
   };
 })();
@@ -793,18 +588,12 @@ function clDdSelect(id, val, label) {
   var dd = document.getElementById(id);
   dd.querySelector('.cl-dd-val').textContent = label;
   dd.querySelector('input[type=hidden]').value = val;
-  dd.querySelectorAll('.cl-dd-option').forEach(function(o){
-    o.classList.toggle('selected', o.dataset.val === val);
-  });
-  var trig = dd.querySelector('.cl-dd-trigger');
-  trig.classList.toggle('active', val !== '');
+  dd.querySelectorAll('.cl-dd-option').forEach(function(o){ o.classList.toggle('selected', o.dataset.val === val); });
+  dd.querySelector('.cl-dd-trigger').classList.toggle('active', val !== '');
   clDdCloseAll();
 }
 document.addEventListener('click', function(e) {
   if (!e.target.closest('.cl-dd')) clDdCloseAll();
 });
 </script>
-
-
-
 {% endblock %}

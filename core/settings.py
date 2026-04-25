@@ -115,6 +115,7 @@ TEMPLATES = [
                 'core.context_processors.unread_message_count',
                 'core.context_processors.unread_notification_count',
                 'core.context_processors.admin_view_mode',
+                'core.context_processors.site_settings',
 
                 'django.template.context_processors.request',  # REQUIRED
 

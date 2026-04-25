@@ -307,7 +307,7 @@
         <a href="{% url 'services' %}"   class="oc-navbar__link">Services</a>
         <a href="{% url 'training_hub' %}"   class="oc-navbar__link">Training</a>
         <a href="{% url 'events_hub' %}"     class="oc-navbar__link">Events</a>
-        <a href="{% url 'subscription_plans' %}" class="oc-navbar__link">Pricing</a>
+        {% if pricing_enabled %}<a href="{% url 'subscription_plans' %}" class="oc-navbar__link">Pricing</a>{% endif %}
       {% endif %}
 
     </div>
@@ -504,7 +504,7 @@
         <a href="{% url 'services' %}"           class="oc-mobile-menu__link">Services</a>
         <a href="{% url 'about' %}"              class="oc-mobile-menu__link">About</a>
         <a href="{% url 'faq' %}"                class="oc-mobile-menu__link">FAQ</a>
-        <a href="{% url 'subscription_plans' %}" class="oc-mobile-menu__link">Pricing</a>
+        {% if pricing_enabled %}<a href="{% url 'subscription_plans' %}" class="oc-mobile-menu__link">Pricing</a>{% endif %}
         <div class="oc-mobile-menu__divider"></div>
         <!-- Account -->
         <a href="{% url 'edit_profile' %}" class="oc-mobile-menu__link">Settings</a>

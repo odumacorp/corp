@@ -1,5 +1,6 @@
 from .models import CustomUser, Company, Project, UserProfile, INDUSTRY_CHOICES, Notification
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import Http404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -194,17 +195,20 @@ from .models import Interest
 
 
 def investors_view(request):
-    from django.db.models import Count
+    from django.db.models import Count, Q
     industry_filter = request.GET.get('industry')
-    base_qs = CustomUser.objects.filter(user_type='investor', is_active=True)
+    search_q = request.GET.get('q', '').strip()
+    base_qs = CustomUser.objects.filter(user_type='investor', is_active=True).select_related('userprofile')
+    investors = base_qs
     if industry_filter:
-        investors = base_qs.filter(userprofile__industry=industry_filter)
-    else:
-        investors = base_qs
+        investors = investors.filter(userprofile__industry=industry_filter)
+    if search_q:
+        investors = investors.filter(
+            Q(first_name__icontains=search_q) | Q(last_name__icontains=search_q) |
+            Q(userprofile__bio__icontains=search_q) | Q(userprofile__company__icontains=search_q)
+        )
 
     industries = UserProfile.INDUSTRY_CHOICES
-
-    # Count per industry for category cards
     counts_qs = base_qs.values('userprofile__industry').annotate(cnt=Count('id'))
     industry_counts = {r['userprofile__industry']: r['cnt'] for r in counts_qs}
 
@@ -381,6 +385,26 @@ def index(request):
         "project_count": project_count,
         "sub_plans": sub_plans,
     })
+def index_v2(request):
+    from .models import Project, CustomUser, SubscriptionPlan
+    featured = Project.objects.filter(is_hidden=False, review_status__in=['approved','featured']).select_related('owner','owner__userprofile').prefetch_related('images').order_by('-created_at')[:6]
+    return render(request, 'index_v2.html', {"hide_navbar": True, "featured_projects": featured, "innovator_count": CustomUser.objects.filter(user_type='innovator').count(), "investor_count": CustomUser.objects.filter(user_type='investor').count(), "project_count": Project.objects.filter(is_hidden=False).exclude(status='draft').count()})
+
+def index_v3(request):
+    from .models import Project, CustomUser
+    featured = Project.objects.filter(is_hidden=False, review_status__in=['approved','featured']).select_related('owner','owner__userprofile').prefetch_related('images').order_by('-created_at')[:3]
+    return render(request, 'index_v3.html', {"hide_navbar": True, "featured_projects": featured, "innovator_count": CustomUser.objects.filter(user_type='innovator').count(), "investor_count": CustomUser.objects.filter(user_type='investor').count(), "project_count": Project.objects.filter(is_hidden=False).exclude(status='draft').count()})
+
+def index_v4(request):
+    from .models import Project, CustomUser
+    featured = Project.objects.filter(is_hidden=False, review_status__in=['approved','featured']).select_related('owner','owner__userprofile').prefetch_related('images').order_by('-created_at')[:3]
+    return render(request, 'index_v4.html', {"hide_navbar": True, "featured_projects": featured, "innovator_count": CustomUser.objects.filter(user_type='innovator').count(), "investor_count": CustomUser.objects.filter(user_type='investor').count(), "project_count": Project.objects.filter(is_hidden=False).exclude(status='draft').count()})
+
+def index_v5(request):
+    from .models import Project, CustomUser
+    featured = Project.objects.filter(is_hidden=False, review_status__in=['approved','featured']).select_related('owner','owner__userprofile').prefetch_related('images').order_by('-created_at')[:3]
+    return render(request, 'index_v5.html', {"hide_navbar": True, "featured_projects": featured, "innovator_count": CustomUser.objects.filter(user_type='innovator').count(), "investor_count": CustomUser.objects.filter(user_type='investor').count(), "project_count": Project.objects.filter(is_hidden=False).exclude(status='draft').count()})
+
 ##about.html
 def about(request):
     context = {"page_title": "About" , "page_name": "About"}
@@ -4079,7 +4103,7 @@ def admin_panel(request):
         NewsItem, Job, JobApplication, ContactSubmission, AttachmentDownload,
         Group, Page, ProjectComment, Comment, ProjectCollaboration, Rating,
         AdminPermissions, StageProgressionRequest, VerificationRequest,
-        UserProfile, AdminTOTPSecret,
+        UserProfile, AdminTOTPSecret, SiteSettings,
     )
 
     now = _tz.now()
@@ -4389,6 +4413,8 @@ def admin_panel(request):
         'total_jobs':                total_jobs,
         'total_notifications':       total_notifications,
         'total_admins':              total_admins,
+        # site settings
+        'site_settings': SiteSettings.get(),
         # pending queues
         'pending_stage_count':        pending_stage_count,
         'pending_verification_count': pending_verification_count,
@@ -4478,6 +4504,24 @@ def admin_add_sub_admin(request):
 @login_required
 def admin_broadcast_notification(request):
     return _admin_post_redirect(request)
+
+@require_POST
+@login_required
+def admin_toggle_feature(request):
+    """Toggle a boolean feature flag in SiteSettings."""
+    from .models import SiteSettings
+    if request.user.user_type != 'admin':
+        return JsonResponse({'error': 'forbidden'}, status=403)
+    flag = request.POST.get('flag')
+    allowed_flags = {'pricing_enabled'}
+    if flag not in allowed_flags:
+        return JsonResponse({'error': 'unknown flag'}, status=400)
+    s = SiteSettings.get()
+    new_val = not getattr(s, flag)
+    setattr(s, flag, new_val)
+    s.updated_by = request.user
+    s.save(update_fields=[flag, 'updated_by', 'updated_at'])
+    return JsonResponse({'flag': flag, 'enabled': new_val})
 
 @login_required
 def admin_change_project_status(request, project_id):
@@ -6966,7 +7010,9 @@ def submit_feedback(request):
 
 def subscription_plans(request):
     """Public pricing page — also shows current plan if logged in."""
-    from .models import SubscriptionPlan, UserSubscription
+    from .models import SubscriptionPlan, UserSubscription, SiteSettings
+    if not SiteSettings.get().pricing_enabled:
+        raise Http404
     plans = SubscriptionPlan.objects.filter(is_active=True).order_by('order')
     current_plan = None
     current_sub = None
