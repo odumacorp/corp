@@ -1,0 +1,525 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Content Management | Admin Panel{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --blue: #1B5EC7;
+    --blue-dark: #154faa;
+    --text: #0A1628;
+    --muted: #6b7280;
+    --border: #e4eaf2;
+    --card-bg: #f9fafb;
+    --ff-sans: 'Space Grotesk', sans-serif;
+  }
+  .adm-layout { display: flex; min-height: calc(100vh - var(--oc-navbar-h, 62px)); background: #f4f6fb; }
+
+  .adm-sidebar {
+    width: 200px; flex-shrink: 0; background: #fff;
+    border-right: 1px solid var(--border);
+    padding: 24px 0 40px; display: flex; flex-direction: column;
+    position: sticky; top: var(--oc-navbar-h, 62px); height: calc(100vh - var(--oc-navbar-h, 62px)); overflow-y: auto;
+  }
+  .adm-sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 0 16px 16px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+  .adm-sidebar-logo-icon { width: 34px; height: 34px; background: var(--blue); border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+  .adm-sidebar-logo-text { font-family: var(--ff-sans); font-size: 1.3rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+  .adm-sidebar-logo-sub { font-family: var(--ff-sans); font-size: 1.1rem; color: var(--blue); letter-spacing: 1px; text-transform: uppercase; }
+  .adm-nav-group { padding: 0 10px; margin-bottom: 4px; }
+  .adm-nav-link {
+    display: flex; align-items: center; gap: 9px; padding: 8px 12px;
+    border-radius: 9px; font-family: var(--ff-sans); font-size: 1.3rem;
+    color: var(--text); text-decoration: none; transition: background 0.15s, color 0.15s; margin-bottom: 2px;
+  }
+  .adm-nav-link:hover, .adm-nav-link.active { background: rgba(27,94,199,0.08); color: var(--blue); text-decoration: none; }
+  .adm-sidebar-bottom { margin-top: auto; padding: 14px 16px 0; border-top: 1px solid var(--border); }
+  .adm-sidebar-back { display: flex; align-items: center; gap: 8px; font-family: var(--ff-sans); font-size: 1.2rem; color: var(--muted); text-decoration: none; }
+  .adm-sidebar-back:hover { color: var(--blue); }
+
+  .adm-main { flex: 1; min-width: 0; padding: 28px 24px 60px; }
+  .adm-page-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  .adm-page-title { font-family: var(--ff-sans); font-size: 1.6rem; font-weight: 700; color: var(--text); margin: 0; }
+
+  /* Tab bar */
+  .cnt-tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 24px; overflow-x: auto; }
+  .cnt-tab-btn {
+    padding: 9px 16px; border: none; background: none; cursor: pointer;
+    font-family: var(--ff-sans); font-size: 1.3rem; color: var(--muted);
+    border-bottom: 2px solid transparent; margin-bottom: -2px;
+    transition: color 0.15s, border-color 0.15s; white-space: nowrap;
+  }
+  .cnt-tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+  .cnt-tab-pane { display: none; }
+  .cnt-tab-pane.active { display: block; }
+
+  /* Cards / forms */
+  .cnt-card { background: #fff; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 22px 24px; margin-bottom: 20px; }
+  .cnt-card-title { font-family: var(--ff-sans); font-weight: 700; font-size: 1.3rem; color: var(--text); margin: 0 0 16px; }
+  .cnt-field { margin-bottom: 14px; }
+  .cnt-label { display: block; font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+  .cnt-input, .cnt-textarea, .cnt-select {
+    width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 9px;
+    font-family: var(--ff-sans); font-size: 1.3rem; color: var(--text); background: #fff;
+    transition: border-color 0.15s; box-sizing: border-box;
+  }
+  .cnt-input:focus, .cnt-textarea:focus, .cnt-select:focus { outline: none; border-color: var(--blue); }
+  .cnt-textarea { resize: vertical; min-height: 100px; }
+  .cnt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width:600px) { .cnt-row { grid-template-columns: 1fr; } }
+
+  /* Buttons */
+  .cnt-btn {
+    padding: 8px 18px; border-radius: 9px; font-family: var(--ff-sans); font-size: 1.3rem;
+    font-weight: 600; cursor: pointer; border: none; transition: opacity 0.15s, transform 0.15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .cnt-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .cnt-btn--primary { background: var(--blue); color: #fff; }
+  .cnt-btn--danger { background: #fee2e2; color: #c0392b; }
+  .cnt-btn--ghost { background: #f1f5f9; color: var(--text); }
+  .cnt-btn--sm { padding: 5px 12px; font-size: 1.2rem; }
+
+  /* List items */
+  .cnt-list { display: flex; flex-direction: column; gap: 10px; }
+  .cnt-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; flex-wrap: wrap; }
+  .cnt-item-info { flex: 1; min-width: 0; }
+  .cnt-item-title { font-family: var(--ff-sans); font-weight: 600; font-size: 1.3rem; color: var(--text); margin: 0 0 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cnt-item-meta { font-family: var(--ff-sans); font-size: 1.1rem; color: var(--muted); }
+  .cnt-item-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+  /* Badge */
+  .cnt-badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-family: var(--ff-sans); font-size: 1.1rem; font-weight: 700; }
+  .cnt-badge--on  { background: rgba(5,150,105,0.12); color: #059669; }
+  .cnt-badge--off { background: rgba(192,57,43,0.12); color: #c0392b; }
+  .cnt-badge--info { background: rgba(27,94,199,0.1); color: var(--blue); }
+  .cnt-badge--warn { background: rgba(217,119,6,0.12); color: #d97706; }
+  .cnt-badge--err  { background: rgba(192,57,43,0.12); color: #c0392b; }
+
+  /* Dialog overlay for add/edit */
+  .cnt-dialog-overlay { position: fixed; inset: 0; background: rgba(10,22,40,0.45); z-index: 500; display: none; align-items: center; justify-content: center; }
+  .cnt-dialog-overlay.open { display: flex; }
+  .cnt-dialog { background: #fff; border-radius: 16px; padding: 28px 24px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.18); }
+  .cnt-dialog-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .cnt-dialog-title { font-family: var(--ff-sans); font-weight: 700; font-size: 1.4rem; color: var(--text); margin: 0; }
+  .cnt-dialog-close { background: none; border: none; cursor: pointer; color: var(--muted); padding: 4px; border-radius: 6px; }
+  .cnt-dialog-close:hover { color: var(--text); background: var(--card-bg); }
+
+  /* Messages */
+  {% if messages %}
+  .cnt-alert { padding: 12px 16px; border-radius: 10px; font-family: var(--ff-sans); font-size: 1.3rem; margin-bottom: 18px; }
+  .cnt-alert--success { background: rgba(5,150,105,0.1); color: #059669; border: 1px solid rgba(5,150,105,0.2); }
+  {% endif %}
+
+  @media(max-width:700px) {
+    .adm-sidebar { display: none; }
+    .adm-main { padding: 16px 14px 60px; }
+  }
+</style>
+
+<div class="adm-layout">
+  <!-- Sidebar -->
+  <aside class="adm-sidebar">
+    <div class="adm-sidebar-logo">
+      <div class="adm-sidebar-logo-icon">
+        <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div>
+        <div class="adm-sidebar-logo-text">Admin</div>
+        <div class="adm-sidebar-logo-sub">Oduma Corp</div>
+      </div>
+    </div>
+    <div class="adm-nav-group">
+      <a href="{% url 'admin_panel' %}" class="adm-nav-link">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="{% url 'admin_content' %}" class="adm-nav-link active">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5"/><path stroke-linecap="round" stroke-linejoin="round" d="M17.5 2.5a2.121 2.121 0 013 3L12 14l-4 1 1-4 7.5-7.5z"/></svg>
+        Content
+      </a>
+      <a href="{% url 'contact_submissions' %}" class="adm-nav-link">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        Contact
+      </a>
+    </div>
+    <div class="adm-sidebar-bottom">
+      <a href="{% url 'index' %}" class="adm-sidebar-back">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Back to site
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="adm-main">
+    <div class="adm-page-header">
+      <h1 class="adm-page-title">Content Management</h1>
+      <a href="{% url 'blog_list' %}" target="_blank" class="cnt-btn cnt-btn--ghost cnt-btn--sm">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View Blog
+      </a>
+    </div>
+
+    {% if messages %}
+    {% for msg in messages %}
+    <div class="cnt-alert cnt-alert--success">{{ msg }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Tab bar -->
+    <div class="cnt-tabs">
+      <button class="cnt-tab-btn active" onclick="cntTab('settings',this)">Site Settings</button>
+      <button class="cnt-tab-btn" onclick="cntTab('announcements',this)">Announcements <span class="cnt-badge cnt-badge--info" style="font-size:1.1rem;">{{ announcements|length }}</span></button>
+      <button class="cnt-tab-btn" onclick="cntTab('blog',this)">Blog Posts <span class="cnt-badge cnt-badge--info" style="font-size:1.1rem;">{{ blogs|length }}</span></button>
+      <button class="cnt-tab-btn" onclick="cntTab('pages',this)">Site Pages <span class="cnt-badge cnt-badge--info" style="font-size:1.1rem;">{{ site_pages|length }}</span></button>
+    </div>
+
+    <!-- ── Settings Tab ── -->
+    <div class="cnt-tab-pane active" id="cnt-pane-settings">
+      <div class="cnt-card">
+        <h2 class="cnt-card-title">Social Media &amp; Contact</h2>
+        <form method="post" action="{% url 'admin_save_site_settings' %}">
+          {% csrf_token %}
+          <div class="cnt-row">
+            <div class="cnt-field">
+              <label class="cnt-label">Twitter / X URL</label>
+              <input type="url" name="twitter_url" class="cnt-input" value="{{ site_settings.twitter_url }}" placeholder="https://twitter.com/…">
+            </div>
+            <div class="cnt-field">
+              <label class="cnt-label">LinkedIn URL</label>
+              <input type="url" name="linkedin_url" class="cnt-input" value="{{ site_settings.linkedin_url }}" placeholder="https://linkedin.com/company/…">
+            </div>
+            <div class="cnt-field">
+              <label class="cnt-label">Instagram URL</label>
+              <input type="url" name="instagram_url" class="cnt-input" value="{{ site_settings.instagram_url }}" placeholder="https://instagram.com/…">
+            </div>
+            <div class="cnt-field">
+              <label class="cnt-label">Facebook URL</label>
+              <input type="url" name="facebook_url" class="cnt-input" value="{{ site_settings.facebook_url }}" placeholder="https://facebook.com/…">
+            </div>
+            <div class="cnt-field">
+              <label class="cnt-label">YouTube URL</label>
+              <input type="url" name="youtube_url" class="cnt-input" value="{{ site_settings.youtube_url }}" placeholder="https://youtube.com/…">
+            </div>
+            <div class="cnt-field">
+              <label class="cnt-label">Contact Email</label>
+              <input type="email" name="contact_email" class="cnt-input" value="{{ site_settings.contact_email }}" placeholder="hello@odumacorp.com">
+            </div>
+            <div class="cnt-field">
+              <label class="cnt-label">Contact Phone</label>
+              <input type="text" name="contact_phone" class="cnt-input" value="{{ site_settings.contact_phone }}" placeholder="+254 700 000 000">
+            </div>
+            <div class="cnt-field">
+              <label class="cnt-label">Footer Tagline</label>
+              <input type="text" name="footer_tagline" class="cnt-input" value="{{ site_settings.footer_tagline }}" placeholder="Connecting Africa's innovators &amp; investors">
+            </div>
+          </div>
+          <button type="submit" class="cnt-btn cnt-btn--primary" style="margin-top:6px;">Save Settings</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Announcements Tab ── -->
+    <div class="cnt-tab-pane" id="cnt-pane-announcements">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <p style="font-family:var(--ff-sans);font-size:1.3rem;color:var(--muted);margin:0;">Banner announcements shown to users across the platform.</p>
+        <button class="cnt-btn cnt-btn--primary cnt-btn--sm" onclick="openAnnDialog()">+ New Announcement</button>
+      </div>
+      <div class="cnt-list">
+        {% for ann in announcements %}
+        <div class="cnt-item">
+          <div class="cnt-item-info">
+            <p class="cnt-item-title">{{ ann.title }}</p>
+            <p class="cnt-item-meta">
+              <span class="cnt-badge {% if ann.type == 'info' %}cnt-badge--info{% elif ann.type == 'success' %}cnt-badge--on{% elif ann.type == 'warning' %}cnt-badge--warn{% else %}cnt-badge--err{% endif %}">{{ ann.type }}</span>
+              &nbsp;
+              {% if ann.is_active %}<span class="cnt-badge cnt-badge--on">Active</span>{% else %}<span class="cnt-badge cnt-badge--off">Inactive</span>{% endif %}
+              {% if ann.show_from %}&nbsp;From {{ ann.show_from }}{% endif %}
+              {% if ann.show_until %}&nbsp;Until {{ ann.show_until }}{% endif %}
+            </p>
+          </div>
+          <div class="cnt-item-actions">
+            <button class="cnt-btn cnt-btn--ghost cnt-btn--sm" onclick="editAnn({{ ann.id }},'{{ ann.title|escapejs }}','{{ ann.body|escapejs }}','{{ ann.type }}','{% if ann.is_active %}1{% else %}0{% endif %}','{{ ann.show_from|default:'' }}','{{ ann.show_until|default:'' }}')">Edit</button>
+            <form method="post" action="{% url 'admin_toggle_announcement' ann.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="cnt-btn cnt-btn--ghost cnt-btn--sm">{% if ann.is_active %}Disable{% else %}Enable{% endif %}</button>
+            </form>
+            <form method="post" action="{% url 'admin_delete_announcement' ann.id %}" style="display:inline;" onsubmit="return confirm('Delete this announcement?')">
+              {% csrf_token %}
+              <button type="submit" class="cnt-btn cnt-btn--danger cnt-btn--sm">Delete</button>
+            </form>
+          </div>
+        </div>
+        {% empty %}
+        <div style="text-align:center;padding:32px;color:var(--muted);font-family:var(--ff-sans);">No announcements yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ── Blog Tab ── -->
+    <div class="cnt-tab-pane" id="cnt-pane-blog">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <p style="font-family:var(--ff-sans);font-size:1.3rem;color:var(--muted);margin:0;">Published posts appear at <a href="{% url 'blog_list' %}" target="_blank">/blog/</a>.</p>
+        <button class="cnt-btn cnt-btn--primary cnt-btn--sm" onclick="openBlogDialog()">+ New Post</button>
+      </div>
+      <div class="cnt-list">
+        {% for blog in blogs %}
+        <div class="cnt-item">
+          <div class="cnt-item-info">
+            <p class="cnt-item-title">{{ blog.title }}</p>
+            <p class="cnt-item-meta">
+              {% if blog.is_published %}<span class="cnt-badge cnt-badge--on">Published</span>{% else %}<span class="cnt-badge cnt-badge--off">Draft</span>{% endif %}
+              {% if blog.published_at %}&nbsp;{{ blog.published_at|date:"M j, Y" }}{% endif %}
+              {% if blog.author %}&nbsp;by {{ blog.author.get_full_name|default:blog.author.username }}{% endif %}
+            </p>
+          </div>
+          <div class="cnt-item-actions">
+            {% if blog.is_published %}
+            <a href="{% url 'blog_detail' blog.slug %}" target="_blank" class="cnt-btn cnt-btn--ghost cnt-btn--sm">View</a>
+            {% endif %}
+            <button class="cnt-btn cnt-btn--ghost cnt-btn--sm" onclick="editBlog({{ blog.id }},'{{ blog.title|escapejs }}','{{ blog.excerpt|escapejs }}','{{ blog.body|escapejs }}','{% if blog.is_published %}1{% else %}0{% endif %}')">Edit</button>
+            <form method="post" action="{% url 'admin_toggle_blog' blog.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="cnt-btn cnt-btn--ghost cnt-btn--sm">{% if blog.is_published %}Unpublish{% else %}Publish{% endif %}</button>
+            </form>
+            <form method="post" action="{% url 'admin_delete_blog' blog.id %}" style="display:inline;" onsubmit="return confirm('Delete this post?')">
+              {% csrf_token %}
+              <button type="submit" class="cnt-btn cnt-btn--danger cnt-btn--sm">Delete</button>
+            </form>
+          </div>
+        </div>
+        {% empty %}
+        <div style="text-align:center;padding:32px;color:var(--muted);font-family:var(--ff-sans);">No blog posts yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ── Site Pages Tab ── -->
+    <div class="cnt-tab-pane" id="cnt-pane-pages">
+      <p style="font-family:var(--ff-sans);font-size:1.3rem;color:var(--muted);margin:0 0 16px;">Toggle platform pages on/off and set a message shown when a page is disabled.</p>
+      <div class="cnt-list">
+        {% for sp in site_pages %}
+        <div class="cnt-item">
+          <div class="cnt-item-info">
+            <p class="cnt-item-title">{{ sp.label }} <code style="font-size:1.1rem;color:var(--muted);">{{ sp.key }}</code></p>
+            {% if sp.disabled_message %}<p class="cnt-item-meta">Disabled msg: {{ sp.disabled_message }}</p>{% endif %}
+          </div>
+          <div class="cnt-item-actions">
+            {% if sp.is_active %}<span class="cnt-badge cnt-badge--on">Active</span>{% else %}<span class="cnt-badge cnt-badge--off">Off</span>{% endif %}
+            <form method="post" action="{% url 'admin_toggle_site_page' sp.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="cnt-btn cnt-btn--ghost cnt-btn--sm">{% if sp.is_active %}Disable{% else %}Enable{% endif %}</button>
+            </form>
+            <button class="cnt-btn cnt-btn--ghost cnt-btn--sm" onclick="editPage({{ sp.id }},'{{ sp.label|escapejs }}','{{ sp.disabled_message|escapejs }}')">Message</button>
+          </div>
+        </div>
+        {% empty %}
+        <div style="text-align:center;padding:32px;color:var(--muted);font-family:var(--ff-sans);">No site pages registered.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ── Announcement Dialog ── -->
+<div class="cnt-dialog-overlay" id="ann-dialog">
+  <div class="cnt-dialog">
+    <div class="cnt-dialog-head">
+      <h3 class="cnt-dialog-title" id="ann-dialog-title">New Announcement</h3>
+      <button class="cnt-dialog-close" onclick="closeAnnDialog()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form method="post" action="{% url 'admin_save_announcement' %}">
+      {% csrf_token %}
+      <input type="hidden" name="id" id="ann-id">
+      <div class="cnt-field">
+        <label class="cnt-label">Title *</label>
+        <input type="text" name="title" id="ann-title" class="cnt-input" required>
+      </div>
+      <div class="cnt-field">
+        <label class="cnt-label">Body</label>
+        <textarea name="body" id="ann-body" class="cnt-textarea" style="min-height:70px;"></textarea>
+      </div>
+      <div class="cnt-row">
+        <div class="cnt-field">
+          <label class="cnt-label">Type</label>
+          <select name="type" id="ann-type" class="cnt-select">
+            <option value="info">Info</option>
+            <option value="success">Success</option>
+            <option value="warning">Warning</option>
+            <option value="error">Error</option>
+          </select>
+        </div>
+        <div class="cnt-field">
+          <label class="cnt-label">Active</label>
+          <select name="is_active" id="ann-active" class="cnt-select">
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+          </select>
+        </div>
+        <div class="cnt-field">
+          <label class="cnt-label">Show From</label>
+          <input type="date" name="show_from" id="ann-from" class="cnt-input">
+        </div>
+        <div class="cnt-field">
+          <label class="cnt-label">Show Until</label>
+          <input type="date" name="show_until" id="ann-until" class="cnt-input">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px;">
+        <button type="button" class="cnt-btn cnt-btn--ghost" onclick="closeAnnDialog()">Cancel</button>
+        <button type="submit" class="cnt-btn cnt-btn--primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Blog Dialog ── -->
+<div class="cnt-dialog-overlay" id="blog-dialog">
+  <div class="cnt-dialog">
+    <div class="cnt-dialog-head">
+      <h3 class="cnt-dialog-title" id="blog-dialog-title">New Blog Post</h3>
+      <button class="cnt-dialog-close" onclick="closeBlogDialog()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form method="post" action="{% url 'admin_save_blog' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="id" id="blog-id">
+      <div class="cnt-field">
+        <label class="cnt-label">Title *</label>
+        <input type="text" name="title" id="blog-title" class="cnt-input" required>
+      </div>
+      <div class="cnt-field">
+        <label class="cnt-label">Excerpt</label>
+        <input type="text" name="excerpt" id="blog-excerpt" class="cnt-input" placeholder="One-line summary…">
+      </div>
+      <div class="cnt-field">
+        <label class="cnt-label">Body *</label>
+        <textarea name="body" id="blog-body" class="cnt-textarea" style="min-height:160px;" required></textarea>
+      </div>
+      <div class="cnt-row">
+        <div class="cnt-field">
+          <label class="cnt-label">Cover Image</label>
+          <input type="file" name="cover_image" class="cnt-input" accept="image/*">
+        </div>
+        <div class="cnt-field">
+          <label class="cnt-label">Published</label>
+          <select name="is_published" id="blog-pub" class="cnt-select">
+            <option value="0">Draft</option>
+            <option value="1">Published</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px;">
+        <button type="button" class="cnt-btn cnt-btn--ghost" onclick="closeBlogDialog()">Cancel</button>
+        <button type="submit" class="cnt-btn cnt-btn--primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Site Page Dialog ── -->
+<div class="cnt-dialog-overlay" id="page-dialog">
+  <div class="cnt-dialog">
+    <div class="cnt-dialog-head">
+      <h3 class="cnt-dialog-title" id="page-dialog-title">Edit Disabled Message</h3>
+      <button class="cnt-dialog-close" onclick="closePageDialog()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form method="post" id="page-dialog-form" action="">
+      {% csrf_token %}
+      <div class="cnt-field">
+        <label class="cnt-label" id="page-dialog-label">Page</label>
+        <textarea name="disabled_message" id="page-msg" class="cnt-textarea" style="min-height:70px;" placeholder="Message shown when this page is disabled…"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px;">
+        <button type="button" class="cnt-btn cnt-btn--ghost" onclick="closePageDialog()">Cancel</button>
+        <button type="submit" class="cnt-btn cnt-btn--primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Tab switching
+function cntTab(name, btn) {
+  document.querySelectorAll('.cnt-tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.cnt-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('cnt-pane-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Announcement dialog
+function openAnnDialog() {
+  document.getElementById('ann-id').value = '';
+  document.getElementById('ann-title').value = '';
+  document.getElementById('ann-body').value = '';
+  document.getElementById('ann-type').value = 'info';
+  document.getElementById('ann-active').value = '1';
+  document.getElementById('ann-from').value = '';
+  document.getElementById('ann-until').value = '';
+  document.getElementById('ann-dialog-title').textContent = 'New Announcement';
+  document.getElementById('ann-dialog').classList.add('open');
+}
+function editAnn(id, title, body, type, active, from, until) {
+  document.getElementById('ann-id').value = id;
+  document.getElementById('ann-title').value = title;
+  document.getElementById('ann-body').value = body;
+  document.getElementById('ann-type').value = type;
+  document.getElementById('ann-active').value = active;
+  document.getElementById('ann-from').value = from;
+  document.getElementById('ann-until').value = until;
+  document.getElementById('ann-dialog-title').textContent = 'Edit Announcement';
+  document.getElementById('ann-dialog').classList.add('open');
+}
+function closeAnnDialog() { document.getElementById('ann-dialog').classList.remove('open'); }
+
+// Blog dialog
+function openBlogDialog() {
+  document.getElementById('blog-id').value = '';
+  document.getElementById('blog-title').value = '';
+  document.getElementById('blog-excerpt').value = '';
+  document.getElementById('blog-body').value = '';
+  document.getElementById('blog-pub').value = '0';
+  document.getElementById('blog-dialog-title').textContent = 'New Blog Post';
+  document.getElementById('blog-dialog').classList.add('open');
+}
+function editBlog(id, title, excerpt, body, pub) {
+  document.getElementById('blog-id').value = id;
+  document.getElementById('blog-title').value = title;
+  document.getElementById('blog-excerpt').value = excerpt;
+  document.getElementById('blog-body').value = body;
+  document.getElementById('blog-pub').value = pub;
+  document.getElementById('blog-dialog-title').textContent = 'Edit Blog Post';
+  document.getElementById('blog-dialog').classList.add('open');
+}
+function closeBlogDialog() { document.getElementById('blog-dialog').classList.remove('open'); }
+
+// Site page dialog
+function editPage(id, label, msg) {
+  document.getElementById('page-dialog-label').textContent = label;
+  document.getElementById('page-msg').value = msg;
+  document.getElementById('page-dialog-form').action = '/admin-panel/content/page/' + id + '/save/';
+  document.getElementById('page-dialog').classList.add('open');
+}
+function closePageDialog() { document.getElementById('page-dialog').classList.remove('open'); }
+
+// Close dialogs on overlay click
+['ann-dialog','blog-dialog','page-dialog'].forEach(function(id) {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+// Restore active tab from hash
+var hash = location.hash.replace('#','');
+if (['settings','announcements','blog','pages'].indexOf(hash) !== -1) {
+  var btn = document.querySelector('.cnt-tab-btn[onclick*="' + hash + '"]');
+  if (btn) cntTab(hash, btn);
+}
+</script>
+{% endblock %}

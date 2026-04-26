@@ -1,0 +1,84 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Blog | Oduma Corp{% endblock %}
+
+{% block content %}
+<style>
+  .bl-wrap { max-width: 900px; margin: 0 auto; padding: 16px 20px 60px; }
+  .bl-hero { margin-bottom: 32px; }
+  .bl-hero-label { font-family: var(--ff-sans, 'Space Grotesk', sans-serif); font-size: 1.1rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--oc-blue, #1B5EC7); margin-bottom: 8px; }
+  .bl-hero-title { font-family: var(--ff-sans, 'Space Grotesk', sans-serif); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; color: #0A1628; margin: 0 0 10px; line-height: 1.2; }
+  .bl-hero-sub { font-family: var(--ff-sans, 'Space Grotesk', sans-serif); font-size: 1.4rem; color: #6b7280; margin: 0; }
+
+  .bl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+
+  .bl-card { background: #fff; border-radius: 16px; border: 1px solid #e4eaf2; box-shadow: 0 2px 10px rgba(0,0,0,0.04); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
+  .bl-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(27,94,199,0.1); }
+  .bl-card-img { width: 100%; height: 180px; object-fit: cover; display: block; }
+  .bl-card-img-ph { width: 100%; height: 180px; background: linear-gradient(135deg, #e0e8f4 0%, #c9d8ee 100%); display: flex; align-items: center; justify-content: center; }
+  .bl-card-body { padding: 18px 18px 20px; flex: 1; display: flex; flex-direction: column; }
+  .bl-card-meta { font-family: var(--ff-sans, 'Space Grotesk', sans-serif); font-size: 1.1rem; color: #9ca3af; margin-bottom: 8px; }
+  .bl-card-title { font-family: var(--ff-sans, 'Space Grotesk', sans-serif); font-weight: 700; font-size: 1.4rem; color: #0A1628; margin: 0 0 8px; line-height: 1.3; }
+  .bl-card-excerpt { font-family: var(--ff-sans, 'Space Grotesk', sans-serif); font-size: 1.3rem; color: #6b7280; line-height: 1.55; margin: 0 0 14px; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .bl-card-link { font-family: var(--ff-sans, 'Space Grotesk', sans-serif); font-size: 1.3rem; font-weight: 600; color: var(--oc-blue, #1B5EC7); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+  .bl-card-link:hover { text-decoration: underline; }
+
+  .bl-empty { text-align: center; padding: 60px 20px; }
+  .bl-empty-title { font-family: var(--ff-sans, 'Space Grotesk', sans-serif); font-size: 1.5rem; font-weight: 600; color: #0A1628; margin: 0 0 8px; }
+  .bl-empty-sub { font-family: var(--ff-sans, 'Space Grotesk', sans-serif); font-size: 1.3rem; color: #9ca3af; margin: 0; }
+</style>
+
+<div class="bl-wrap">
+  <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+    <ol class="oc-breadcrumbs__list">
+      <li class="oc-breadcrumbs__item"><a href="{% url 'index' %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Blog</span></li>
+    </ol>
+  </nav>
+
+  <div class="bl-hero">
+    <p class="bl-hero-label">Oduma Blog</p>
+    <h1 class="bl-hero-title">Insights &amp; Updates</h1>
+    <p class="bl-hero-sub">Stories, guides, and news from Africa's innovation ecosystem.</p>
+  </div>
+
+  {% if blogs %}
+  <div class="bl-grid">
+    {% for blog in blogs %}
+    <article class="bl-card">
+      {% if blog.cover_image %}
+      <img src="{{ blog.cover_image.url }}" alt="{{ blog.title }}" class="bl-card-img">
+      {% else %}
+      <div class="bl-card-img-ph">
+        <svg width="40" height="40" fill="none" stroke="#a0b4cc" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      </div>
+      {% endif %}
+      <div class="bl-card-body">
+        <p class="bl-card-meta">
+          {% if blog.published_at %}{{ blog.published_at|date:"M j, Y" }}{% endif %}
+          {% if blog.author %} · {{ blog.author.get_full_name|default:blog.author.username }}{% endif %}
+        </p>
+        <h2 class="bl-card-title">{{ blog.title }}</h2>
+        {% if blog.excerpt %}
+        <p class="bl-card-excerpt">{{ blog.excerpt }}</p>
+        {% else %}
+        <p class="bl-card-excerpt">{{ blog.body|truncatewords:24 }}</p>
+        {% endif %}
+        <a href="{% url 'blog_detail' blog.slug %}" class="bl-card-link">
+          Read more
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/></svg>
+        </a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="bl-empty">
+    <svg width="48" height="48" fill="none" stroke="#d1d5db" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M9 16h6M6 20h12a2 2 0 002-2V7.414a1 1 0 00-.293-.707l-4.414-4.414A1 1 0 0014.586 2H6a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+    <p class="bl-empty-title">No posts yet</p>
+    <p class="bl-empty-sub">Check back soon — we're working on it.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -385,26 +385,6 @@ def index(request):
         "project_count": project_count,
         "sub_plans": sub_plans,
     })
-def index_v2(request):
-    from .models import Project, CustomUser, SubscriptionPlan
-    featured = Project.objects.filter(is_hidden=False, review_status__in=['approved','featured']).select_related('owner','owner__userprofile').prefetch_related('images').order_by('-created_at')[:6]
-    return render(request, 'index_v2.html', {"hide_navbar": True, "featured_projects": featured, "innovator_count": CustomUser.objects.filter(user_type='innovator').count(), "investor_count": CustomUser.objects.filter(user_type='investor').count(), "project_count": Project.objects.filter(is_hidden=False).exclude(status='draft').count()})
-
-def index_v3(request):
-    from .models import Project, CustomUser
-    featured = Project.objects.filter(is_hidden=False, review_status__in=['approved','featured']).select_related('owner','owner__userprofile').prefetch_related('images').order_by('-created_at')[:3]
-    return render(request, 'index_v3.html', {"hide_navbar": True, "featured_projects": featured, "innovator_count": CustomUser.objects.filter(user_type='innovator').count(), "investor_count": CustomUser.objects.filter(user_type='investor').count(), "project_count": Project.objects.filter(is_hidden=False).exclude(status='draft').count()})
-
-def index_v4(request):
-    from .models import Project, CustomUser
-    featured = Project.objects.filter(is_hidden=False, review_status__in=['approved','featured']).select_related('owner','owner__userprofile').prefetch_related('images').order_by('-created_at')[:3]
-    return render(request, 'index_v4.html', {"hide_navbar": True, "featured_projects": featured, "innovator_count": CustomUser.objects.filter(user_type='innovator').count(), "investor_count": CustomUser.objects.filter(user_type='investor').count(), "project_count": Project.objects.filter(is_hidden=False).exclude(status='draft').count()})
-
-def index_v5(request):
-    from .models import Project, CustomUser
-    featured = Project.objects.filter(is_hidden=False, review_status__in=['approved','featured']).select_related('owner','owner__userprofile').prefetch_related('images').order_by('-created_at')[:3]
-    return render(request, 'index_v5.html', {"hide_navbar": True, "featured_projects": featured, "innovator_count": CustomUser.objects.filter(user_type='innovator').count(), "investor_count": CustomUser.objects.filter(user_type='investor').count(), "project_count": Project.objects.filter(is_hidden=False).exclude(status='draft').count()})
-
 ##about.html
 def about(request):
     context = {"page_title": "About" , "page_name": "About"}
