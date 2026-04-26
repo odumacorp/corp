@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oduma Corp — Loading</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #1B5EC7;
+      --blue-glow: rgba(27, 94, 199, 0.35);
+      --ink: #0A1628;
+      --ink2: #0f1e36;
+      --text: #e8edf5;
+      --muted: rgba(232,237,245,0.45);
+      --border: rgba(232,237,245,0.08);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--ink);
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ── Background ── */
+    .bg {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(27,94,199,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(27,94,199,0.1) 0%, transparent 60%),
+        var(--ink);
+    }
+
+    /* Subtle grid */
+    .bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(27,94,199,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(27,94,199,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 90% 70% at 50% 50%, black 0%, transparent 100%);
+    }
+
+    /* ── Layout ── */
+    .stage {
+      position: relative; z-index: 1;
+      height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px;
+      gap: 0;
+    }
+
+    /* ── Logo ── */
+    .logo-wrap {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 52px;
+      animation: fadeUp 0.7s ease both;
+    }
+    .logo-icon {
+      width: 48px; height: 48px;
+      background: var(--blue);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 28px var(--blue-glow);
+      flex-shrink: 0;
+    }
+    .logo-icon svg { display: block; }
+    .logo-text { line-height: 1; }
+    .logo-name { font-size: 1.9rem; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+    .logo-tag  { font-size: 1.1rem; font-weight: 500; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; }
+
+    /* ── Spinner ── */
+    .spinner-wrap {
+      position: relative;
+      width: 72px; height: 72px;
+      margin-bottom: 36px;
+      animation: fadeUp 0.7s 0.15s ease both;
+    }
+    .spinner-ring {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      border: 2px solid transparent;
+    }
+    .spinner-ring--outer {
+      border-top-color: var(--blue);
+      border-right-color: rgba(27,94,199,0.3);
+      animation: spin 1.4s linear infinite;
+    }
+    .spinner-ring--inner {
+      inset: 10px;
+      border-top-color: transparent;
+      border-bottom-color: rgba(27,94,199,0.5);
+      animation: spin 1.0s linear infinite reverse;
+    }
+    .spinner-dot {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .spinner-dot::after {
+      content: '';
+      width: 8px; height: 8px;
+      background: var(--blue);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--blue-glow);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    /* ── Headline ── */
+    .headline {
+      font-size: clamp(1.6rem, 4vw, 2.1rem);
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      text-align: center;
+      margin-bottom: 10px;
+      animation: fadeUp 0.7s 0.25s ease both;
+    }
+    .subline {
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 44px;
+      animation: fadeUp 0.7s 0.35s ease both;
+    }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      width: 100%; max-width: 320px;
+      margin-bottom: 36px;
+      animation: fadeUp 0.7s 0.45s ease both;
+    }
+    .progress-track {
+      height: 3px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--blue), #4d8ef0);
+      border-radius: 99px;
+      box-shadow: 0 0 10px var(--blue-glow);
+      transition: width 0.4s ease;
+    }
+    .progress-label {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 10px;
+    }
+    .progress-status {
+      font-size: 1.2rem; font-weight: 500; color: var(--muted);
+      transition: opacity 0.3s;
+    }
+    .progress-pct {
+      font-size: 1.2rem; font-weight: 600; color: var(--blue);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Steps log ── */
+    .steps {
+      width: 100%; max-width: 320px;
+      display: flex; flex-direction: column; gap: 8px;
+      animation: fadeUp 0.7s 0.55s ease both;
+    }
+    .step {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1.2rem; font-weight: 500;
+      color: var(--muted);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.4s, transform 0.4s, color 0.3s;
+    }
+    .step.visible { opacity: 1; transform: none; }
+    .step.done { color: rgba(232,237,245,0.65); }
+    .step-dot {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+      background: var(--border);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    .step.visible .step-dot { background: var(--blue); box-shadow: 0 0 6px var(--blue-glow); }
+    .step.done .step-dot { background: rgba(27,94,199,0.35); box-shadow: none; }
+
+    /* ── Bottom ── */
+    .bottom-note {
+      position: absolute; bottom: 36px; left: 0; right: 0;
+      text-align: center;
+      font-size: 1.1rem; color: var(--muted);
+      animation: fadeUp 0.7s 0.8s ease both;
+    }
+    .bottom-note a { color: rgba(27,94,199,0.7); text-decoration: none; }
+
+    /* ── Keyframes ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.75); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 480px) {
+      .logo-name { font-size: 1.6rem; }
+      .spinner-wrap { width: 60px; height: 60px; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg"></div>
+
+<div class="stage">
+
+  <!-- Logo -->
+  <div class="logo-wrap">
+    <div class="logo-icon">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <path d="M13 3L22 8V18L13 23L4 18V8L13 3Z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
+        <circle cx="13" cy="13" r="3.5" fill="white" opacity="0.9"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <div class="logo-name">Oduma Corp</div>
+      <div class="logo-tag">Africa's Innovation Platform</div>
+    </div>
+  </div>
+
+  <!-- Spinner -->
+  <div class="spinner-wrap">
+    <div class="spinner-ring spinner-ring--outer"></div>
+    <div class="spinner-ring spinner-ring--inner"></div>
+    <div class="spinner-dot"></div>
+  </div>
+
+  <!-- Headline -->
+  <h1 class="headline">Getting things ready</h1>
+  <p class="subline">Spinning up your experience&hellip;</p>
+
+  <!-- Progress bar -->
+  <div class="progress-wrap">
+    <div class="progress-track">
+      <div class="progress-fill" id="prog-fill"></div>
+    </div>
+    <div class="progress-label">
+      <span class="progress-status" id="prog-status">Waking up server</span>
+      <span class="progress-pct" id="prog-pct">0%</span>
+    </div>
+  </div>
+
+  <!-- Step log -->
+  <div class="steps" id="steps">
+    <div class="step" data-msg="Incoming request received">
+      <div class="step-dot"></div><span>Incoming request received</span>
+    </div>
+    <div class="step" data-msg="Service waking up">
+      <div class="step-dot"></div><span>Service waking up</span>
+    </div>
+    <div class="step" data-msg="Allocating resources">
+      <div class="step-dot"></div><span>Allocating resources</span>
+    </div>
+    <div class="step" data-msg="Loading application">
+      <div class="step-dot"></div><span>Loading application</span>
+    </div>
+    <div class="step" data-msg="Almost there">
+      <div class="step-dot"></div><span>Almost there</span>
+    </div>
+  </div>
+
+</div>
+
+<p class="bottom-note">This page will refresh automatically &mdash; <a href="javascript:location.reload()">reload now</a></p>
+
+<script>
+  const fill    = document.getElementById('prog-fill');
+  const status  = document.getElementById('prog-status');
+  const pct     = document.getElementById('prog-pct');
+  const steps   = Array.from(document.querySelectorAll('.step'));
+
+  const stages = [
+    { pct: 12, label: 'Waking up server',    delay: 600  },
+    { pct: 28, label: 'Service starting',    delay: 2200 },
+    { pct: 52, label: 'Allocating resources',delay: 4000 },
+    { pct: 74, label: 'Loading application', delay: 6500 },
+    { pct: 91, label: 'Almost there',        delay: 9000 },
+    { pct: 99, label: 'Finalizing…',         delay: 11500},
+  ];
+
+  stages.forEach(({ pct: p, label, delay }, i) => {
+    setTimeout(() => {
+      fill.style.width = p + '%';
+      status.textContent = label;
+      pct.textContent = p + '%';
+      if (i < steps.length) {
+        // Mark previous as done
+        if (i > 0) steps[i - 1].classList.add('done');
+        steps[i].classList.add('visible');
+      }
+    }, delay);
+  });
+
+  // Mark last step done before reload
+  setTimeout(() => {
+    steps[steps.length - 1].classList.add('done');
+    fill.style.width = '100%';
+    pct.textContent = '100%';
+  }, 13500);
+
+  // Auto-reload every 15 seconds (Render cold starts take ~15–30s)
+  let reloadTimer = setTimeout(() => location.reload(), 15000);
+
+  // If the page becomes visible again after a tab switch, reload immediately
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      clearTimeout(reloadTimer);
+      location.reload();
+    }
+  });
+</script>
+</body>
+</html>
