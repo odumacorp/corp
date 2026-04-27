@@ -5784,7 +5784,7 @@ def add_comment(request, post_id):
                     message=f"{actor} commented on your post \"{post.title[:60]}\": {content[:80]}",
                     link=f"/posts/{post.pk}/",
                 )
-    return redirect('post_detail', post_id=post_id)
+    return redirect('post_detail_by_id', post_id=post_id)
 
 @login_required
 def edit_post(request, post_id):
@@ -5803,7 +5803,7 @@ def edit_post(request, post_id):
             post.image = request.FILES['image']
         post.save()
         messages.success(request, "Post updated successfully.")
-        return redirect('post_detail', post_id=post.pk)
+        return redirect('post_detail_by_id', post_id=post.pk)
     return render(request, 'edit_post.html', {
         'post': post,
         'industry_choices': INDUSTRY_CHOICES,
@@ -5818,7 +5818,7 @@ def delete_post(request, post_id):
         post.delete()
         messages.success(request, "Post deleted.")
         return redirect('app')
-    return redirect('post_detail', post_id=post_id)
+    return redirect('post_detail_by_id', post_id=post_id)
 
 
 def post_media(request, post_id):
