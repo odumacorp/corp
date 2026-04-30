@@ -11,6 +11,13 @@ services:
         value: core.settings
 
   - type: cron
+    name: keep-warm
+    runtime: python
+    schedule: "*/14 * * * *"
+    buildCommand: echo "no build needed"
+    startCommand: python -c "import urllib.request; urllib.request.urlopen('https://connect-ihni.onrender.com/')"
+
+  - type: cron
     name: odu-daily-posts
     runtime: python
     schedule: "0 8 * * *"   # 8 AM UTC daily (11 AM EAT)
