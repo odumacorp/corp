@@ -33,8 +33,11 @@ def unread_notification_count(request):
     return {}
 
 def site_settings(request):
-    s = SiteSettings.get()
-    return {'pricing_enabled': s.pricing_enabled}
+    try:
+        s = SiteSettings.get()
+        return {'pricing_enabled': s.pricing_enabled}
+    except Exception:
+        return {'pricing_enabled': False}
 
 def admin_view_mode(request):
     """Exposes admin_view_mode ('admin' or 'user') to every template."""

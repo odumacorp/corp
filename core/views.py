@@ -8323,13 +8323,16 @@ def _get_client_ip(request):
 
 def _record_attempt(request, username, success, stage='password'):
     from .models import AdminLoginAttempt
-    AdminLoginAttempt.objects.create(
-        username=username,
-        ip_address=_get_client_ip(request),
-        user_agent=request.META.get('HTTP_USER_AGENT', '')[:500],
-        success=success,
-        stage=stage,
-    )
+    try:
+        AdminLoginAttempt.objects.create(
+            username=username,
+            ip_address=_get_client_ip(request),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')[:500],
+            success=success,
+            stage=stage,
+        )
+    except Exception:
+        pass
     # Email alert
     from django.core.mail import send_mail
     from django.conf import settings as _s
@@ -8373,7 +8376,7 @@ def admin_login_2fa(request):
                 totp_obj = user.totp_secret
                 if totp_obj.is_active:
                     return redirect('admin_verify_totp')
-            except AdminTOTPSecret.DoesNotExist:
+            except Exception:
                 pass
             return redirect('admin_setup_totp')
         else:
@@ -8448,7 +8451,7 @@ def admin_verify_totp(request):
             else:
                 _record_attempt(request, user.username, False, 'totp')
                 error = 'Invalid code — try again.'
-        except AdminTOTPSecret.DoesNotExist:
+        except Exception:
             return redirect('admin_setup_totp')
 
     return render(request, 'admin_verify_totp.html', {'error': error})
