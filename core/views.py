@@ -8177,13 +8177,14 @@ def trigger_odu_post(request):
                 drafts.append(draft)
 
             except Exception as _e:
-                skip_reasons.append(f'{post_type}: {_e}')
+                import traceback as _tb
+                skip_reasons.append(f'{post_type}: {_e} || {_tb.format_exc()[-500:]}')
                 continue
 
         if not drafts:
             return JsonResponse({
                 'ok': False,
-                'error': 'AI returned no usable posts. Try again.',
+                'error': 'Posts skipped: ' + ' | '.join(skip_reasons),
                 'reasons': skip_reasons,
             }, status=500)
 
