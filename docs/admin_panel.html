@@ -355,6 +355,24 @@
   </div>
 </div>
 
+<!-- Odu Post Preview Modal -->
+<div class="adm-modal-overlay" id="odu-preview-modal">
+  <div class="adm-modal" style="max-width:620px;width:95%;max-height:85vh;overflow-y:auto;">
+    <h3 style="margin-bottom:6px;">Review Odu Posts</h3>
+    <p style="margin-bottom:16px;">Check each post before publishing. You can regenerate if needed.</p>
+    <div id="odu-draft-list" style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px;"></div>
+    <div class="adm-modal-actions">
+      <button class="adm-modal-cancel" onclick="closeOduPreview()">Cancel</button>
+      <button id="odu-regen-btn" class="adm-modal-cancel"
+              style="border-color:#1B5EC7;color:#1B5EC7;"
+              onclick="regenerateOduPosts()">Regenerate</button>
+      <button id="odu-publish-btn" class="adm-modal-confirm"
+              style="background:#1B5EC7;"
+              onclick="publishOduPosts()">Publish All</button>
+    </div>
+  </div>
+</div>
+
 <div class="adm-layout">
 
   <!-- ===== Sidebar (slim: logo + back link only) ===== -->
@@ -4923,7 +4941,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 /* ── Odu Post Trigger ── */
-function triggerOduPost() {
+var _oduCurrentDrafts = [];
+
+function _oduResetBtn() {
+  var btn = document.getElementById('odu-trigger-btn');
+  btn.disabled = false;
+  btn.style.background = '#1B5EC7';
+  btn.style.opacity = '1';
+  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Post Now (Odu)';
+}
+
+function _oduGenerate() {
   var btn = document.getElementById('odu-trigger-btn');
   btn.disabled = true;
   btn.style.opacity = '0.6';
@@ -4932,35 +4960,116 @@ function triggerOduPost() {
   var fd = new FormData();
   fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
-  fetch('{% url "trigger_odu_post" %}', { method: 'POST', body: fd })
-  .then(function(r) {
-    if (!r.ok) return r.text().then(function(t) { throw new Error('HTTP ' + r.status + ': ' + t.slice(0, 200)); });
-    return r.json();
-  })
+  return fetch('{% url "trigger_odu_post" %}', { method: 'POST', body: fd })
+    .then(function(r) {
+      if (!r.ok) return r.text().then(function(t) { throw new Error('HTTP ' + r.status + ': ' + t.slice(0, 200)); });
+      return r.json();
+    });
+}
+
+function triggerOduPost() {
+  _oduGenerate()
   .then(function(data) {
-    if (data.ok) {
-      btn.style.background = '#10B981';
-      btn.style.opacity = '1';
-      btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg> '
-        + data.published + ' post' + (data.published !== 1 ? 's' : '') + ' published!';
-      setTimeout(function() {
-        btn.disabled = false;
-        btn.style.background = '#1B5EC7';
-        btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Post Now (Odu)';
-      }, 4000);
-    } else {
-      btn.style.background = '#DC2626';
-      btn.style.opacity = '1';
-      btn.innerHTML = 'Error: ' + (data.error || 'Unknown');
-      btn.disabled = false;
-    }
+    if (!data.ok) throw new Error(data.error || 'Unknown error');
+    _oduCurrentDrafts = data.drafts || [];
+    _oduShowPreview(_oduCurrentDrafts);
+    _oduResetBtn();
   })
   .catch(function(e) {
+    var btn = document.getElementById('odu-trigger-btn');
     btn.style.background = '#DC2626';
     btn.style.opacity = '1';
     btn.innerHTML = e.message || 'Request failed';
-    btn.disabled = false;
+    setTimeout(_oduResetBtn, 4000);
     console.error('triggerOduPost:', e);
+  });
+}
+
+function regenerateOduPosts() {
+  closeOduPreview();
+  _oduGenerate()
+  .then(function(data) {
+    if (!data.ok) throw new Error(data.error || 'Unknown error');
+    _oduCurrentDrafts = data.drafts || [];
+    _oduShowPreview(_oduCurrentDrafts);
+    _oduResetBtn();
+  })
+  .catch(function(e) {
+    alert('Regeneration failed: ' + (e.message || 'Unknown error'));
+    _oduResetBtn();
+    console.error('regenerateOduPosts:', e);
+  });
+}
+
+function _oduShowPreview(drafts) {
+  var list = document.getElementById('odu-draft-list');
+  list.innerHTML = '';
+  drafts.forEach(function(d, i) {
+    var card = document.createElement('div');
+    card.style.cssText = 'border:1.5px solid #e4eaf2;border-radius:10px;padding:14px 16px;background:#f8fafc;';
+    var meta = '<span style="font-size:1.05rem;color:#64748b;font-family:var(--ff-sans);">'
+      + (d.industry || '') + (d.post_type === 'poll' ? ' · Poll' : '') + '</span>';
+    var title = '<div style="font-family:var(--ff-serif);font-size:1.15rem;font-weight:700;color:#0A1628;margin:4px 0 6px;">'
+      + _oduEsc(d.title || '') + '</div>';
+    var body = '<div style="font-family:var(--ff-sans);font-size:1.1rem;color:#334155;white-space:pre-wrap;">'
+      + _oduEsc(d.content || '') + '</div>';
+    var pollHtml = '';
+    if (d.post_type === 'poll' && d.poll_options && d.poll_options.length) {
+      pollHtml = '<ul style="margin:8px 0 0 0;padding-left:18px;color:#475569;font-size:1.05rem;">'
+        + d.poll_options.map(function(o) { return '<li>' + _oduEsc(o) + '</li>'; }).join('') + '</ul>';
+    }
+    card.innerHTML = meta + title + body + pollHtml;
+    list.appendChild(card);
+  });
+  document.getElementById('odu-preview-modal').classList.add('open');
+}
+
+function closeOduPreview() {
+  document.getElementById('odu-preview-modal').classList.remove('open');
+}
+
+function _oduEsc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function publishOduPosts() {
+  var publishBtn = document.getElementById('odu-publish-btn');
+  var regenBtn   = document.getElementById('odu-regen-btn');
+  publishBtn.disabled = true;
+  regenBtn.disabled   = true;
+  publishBtn.textContent = 'Publishing…';
+
+  fetch('{% url "publish_odu_post" %}', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+    body: JSON.stringify({ drafts: _oduCurrentDrafts })
+  })
+  .then(function(r) {
+    if (!r.ok) return r.text().then(function(t) { throw new Error('HTTP ' + r.status + ': ' + t.slice(0,200)); });
+    return r.json();
+  })
+  .then(function(data) {
+    closeOduPreview();
+    publishBtn.disabled = false;
+    regenBtn.disabled   = false;
+    publishBtn.textContent = 'Publish All';
+    if (data.ok) {
+      var btn = document.getElementById('odu-trigger-btn');
+      btn.style.background = '#10B981';
+      btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg> '
+        + data.published + ' post' + (data.published !== 1 ? 's' : '') + ' published!';
+      setTimeout(_oduResetBtn, 4000);
+    } else {
+      alert('Publish failed: ' + (data.error || 'Unknown'));
+    }
+  })
+  .catch(function(e) {
+    closeOduPreview();
+    publishBtn.disabled = false;
+    regenBtn.disabled   = false;
+    publishBtn.textContent = 'Publish All';
+    alert('Publish failed: ' + (e.message || 'Request error'));
+    console.error('publishOduPosts:', e);
   });
 }
 

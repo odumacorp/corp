@@ -3127,20 +3127,23 @@ def login_view(request):
     if request.method == "POST":
         if form.is_valid():
             user = form.get_user()
-            # Route admin/odu accounts through 2FA if active
+            # Route admin/staff/odu accounts through 2FA (always)
             _needs_2fa = (
                 user.user_type == 'admin' or user.is_staff or user.is_superuser
                 or user.username.lower() == 'odu'
             )
             if _needs_2fa:
+                request.session['_2fa_user_id'] = user.pk
+                request.session['_2fa_backend'] = getattr(user, 'backend', 'django.contrib.auth.backends.ModelBackend')
+                request.session['_2fa_next'] = '/admin-panel/'
                 try:
                     totp_obj = user.totp_secret
                     if totp_obj.is_active:
-                        request.session['_2fa_user_id'] = user.pk
-                        request.session['_2fa_backend'] = 'django.contrib.auth.backends.ModelBackend'
                         return redirect('admin_verify_totp')
                 except Exception:
                     pass
+                # No active TOTP yet — force 2FA setup before they can proceed
+                return redirect('admin_setup_totp')
             login(request, user)
             messages.success(request, "Login successful!")
             return redirect('app')
@@ -8044,7 +8047,7 @@ def return_from_odu(request):
 
 @login_required
 def trigger_odu_post(request):
-    """Manual trigger for Odu bot daily post — admin and Odu bot only."""
+    """Generate Odu bot post drafts for admin preview — does NOT save to DB."""
     from django.http import JsonResponse
     user = request.user
     is_odu = user.username.lower() == 'odu'
@@ -8055,20 +8058,16 @@ def trigger_odu_post(request):
         return JsonResponse({'ok': False, 'error': 'POST required.'}, status=405)
 
     import json, random, traceback
-    from datetime import timedelta
     from django.conf import settings
-    from django.utils import timezone
     from core.management.commands.post_odu_daily import (
-        POST_TYPE_POOL, INDUSTRIES, SYSTEM_PROMPT, _build_prompt, _fetch_image
+        POST_TYPE_POOL, INDUSTRIES, SYSTEM_PROMPT, _build_prompt
     )
-    from core.models import Post, Poll, PollOption
 
     api_key = getattr(settings, 'ANTHROPIC_API_KEY', '')
     if not api_key:
         return JsonResponse({'ok': False, 'error': 'ANTHROPIC_API_KEY not configured.'}, status=500)
 
-    odu = CustomUser.objects.filter(username__iexact='odu').first()
-    if not odu:
+    if not CustomUser.objects.filter(username__iexact='odu').exists():
         return JsonResponse({'ok': False, 'error': 'Odu user not found.'}, status=500)
 
     try:
@@ -8078,7 +8077,7 @@ def trigger_odu_post(request):
         pool = list(set(POST_TYPE_POOL))
         types = random.sample(pool, 2)
 
-        results = []
+        drafts = []
         for post_type in types:
             industry = random.choice(INDUSTRIES)
             prompt = _build_prompt(post_type, industry)
@@ -8109,6 +8108,63 @@ def trigger_odu_post(request):
             if not content:
                 continue
 
+            draft = {
+                'post_type': post_type,
+                'industry':  industry,
+                'title':     title,
+                'content':   content,
+                'image_query': image_query,
+            }
+            if post_type == 'poll':
+                draft['poll_question'] = str(data.get('poll_question', title))[:300]
+                draft['poll_options']  = [str(o)[:150] for o in data.get('poll_options', [])[:6]]
+
+            drafts.append(draft)
+
+        return JsonResponse({'ok': True, 'drafts': drafts})
+
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e), 'trace': traceback.format_exc()}, status=500)
+
+
+def publish_odu_post(request):
+    """Publish admin-approved Odu drafts received from the preview modal."""
+    from django.http import JsonResponse
+    user = request.user
+    is_odu = user.username.lower() == 'odu'
+    if not (user.user_type == 'admin' or user.is_superuser or is_odu):
+        return JsonResponse({'ok': False, 'error': 'Permission denied.'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'POST required.'}, status=405)
+
+    import json, traceback
+    from datetime import timedelta
+    from django.utils import timezone
+    from core.management.commands.post_odu_daily import _fetch_image
+    from core.models import Post, Poll, PollOption
+
+    odu = CustomUser.objects.filter(username__iexact='odu').first()
+    if not odu:
+        return JsonResponse({'ok': False, 'error': 'Odu user not found.'}, status=500)
+
+    try:
+        body   = json.loads(request.body)
+        drafts = body.get('drafts', [])
+        if not drafts:
+            return JsonResponse({'ok': False, 'error': 'No drafts provided.'}, status=400)
+
+        published = []
+        for draft in drafts:
+            post_type   = str(draft.get('post_type', 'text'))[:30]
+            industry    = str(draft.get('industry', ''))[:100]
+            title       = str(draft.get('title', ''))[:255]
+            content     = str(draft.get('content', '')).strip()
+            image_query = str(draft.get('image_query', '')).strip()
+
+            if not content:
+                continue
+
             post = Post.objects.create(
                 user=odu,
                 title=title,
@@ -8123,20 +8179,20 @@ def trigger_odu_post(request):
                     post.image.save(fname, img_file, save=True)
 
             if post_type == 'poll':
-                poll_q  = data.get('poll_question', title)
-                options = data.get('poll_options', [])
+                poll_q  = str(draft.get('poll_question', title))[:300]
+                options = [str(o)[:150] for o in draft.get('poll_options', [])[:6]]
                 if options:
                     poll = Poll.objects.create(
                         post=post,
-                        question=poll_q[:300],
+                        question=poll_q,
                         closes_at=timezone.now() + timedelta(days=5),
                     )
-                    for i, opt_text in enumerate(options[:6]):
-                        PollOption.objects.create(poll=poll, text=opt_text[:150], order=i)
+                    for i, opt_text in enumerate(options):
+                        PollOption.objects.create(poll=poll, text=opt_text, order=i)
 
-            results.append(f'[{post_type}/{industry}] {title[:60]}')
+            published.append(f'[{post_type}/{industry}] {title[:60]}')
 
-        return JsonResponse({'ok': True, 'published': len(results), 'posts': results})
+        return JsonResponse({'ok': True, 'published': len(published), 'posts': published})
 
     except Exception as e:
         return JsonResponse({'ok': False, 'error': str(e), 'trace': traceback.format_exc()}, status=500)

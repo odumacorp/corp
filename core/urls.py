@@ -63,6 +63,7 @@ urlpatterns = _html_redirects + [
     path('admin/login-as-odu/', views.login_as_odu, name='login_as_odu'),
     path('admin/return-from-odu/', views.return_from_odu, name='return_from_odu'),
     path('admin/trigger-odu-post/', views.trigger_odu_post, name='trigger_odu_post'),
+    path('admin/publish-odu-post/', views.publish_odu_post, name='publish_odu_post'),
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path('app/', views.app_view, name='app'),
