@@ -5011,19 +5011,13 @@ function _oduShowPreview(drafts) {
 
     /* ── image section ── */
     var imgSrc = d.preview_image_url || '';
-    var imgSection = '';
-    if (imgSrc) {
-      imgSection = '<div style="position:relative;">'
-        + '<img id="odu-img-' + i + '" src="' + _oduEsc(imgSrc) + '" alt="preview"'
-        + ' style="width:100%;height:180px;object-fit:cover;display:block;"'
-        + ' onerror="this.style.display=\'none\';document.getElementById(\'odu-no-img-' + i + '\').style.display=\'flex\'">'
-        + '<div id="odu-no-img-' + i + '" style="display:none;width:100%;height:80px;align-items:center;'
-        + 'justify-content:center;background:#e4eaf2;color:#94a3b8;font-size:1rem;">No image</div>'
-        + '</div>';
-    } else {
-      imgSection = '<div style="width:100%;height:60px;background:#e4eaf2;display:flex;align-items:center;'
-        + 'justify-content:center;color:#94a3b8;font-size:1rem;">No image query</div>';
-    }
+    var imgSection = '<div style="position:relative;">'
+      + '<img id="odu-img-' + i + '" src="' + (imgSrc ? _oduEsc(imgSrc) : '') + '" alt="preview"'
+      + ' style="width:100%;height:180px;object-fit:cover;display:block;' + (imgSrc ? '' : 'display:none;') + '"'
+      + ' onerror="this.style.display=\'none\';document.getElementById(\'odu-no-img-' + i + '\').style.display=\'flex\'">'
+      + '<div id="odu-no-img-' + i + '" style="' + (imgSrc ? 'display:none;' : 'display:flex;') + 'width:100%;height:80px;align-items:center;'
+      + 'justify-content:center;background:#e4eaf2;color:#94a3b8;font-size:1rem;">Loading image…</div>'
+      + '</div>';
 
     /* ── image query row ── */
     var queryRow = '<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f1f5f9;border-bottom:1px solid #e4eaf2;">'
@@ -5056,6 +5050,10 @@ function _oduShowPreview(drafts) {
     list.appendChild(card);
   });
   document.getElementById('odu-preview-modal').classList.add('open');
+  /* Auto-fetch preview images for any draft that has a query but no URL yet */
+  drafts.forEach(function(d, i) {
+    if (d.image_query && !d.preview_image_url) { _oduRefreshImage(i); }
+  });
 }
 
 function _oduRefreshImage(idx) {

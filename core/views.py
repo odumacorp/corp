@@ -8168,7 +8168,7 @@ def trigger_odu_post(request):
                     'title':       title,
                     'content':     content,
                     'image_query': image_query,
-                    'preview_image_url': _get_preview_image_url(image_query) if image_query else '',
+                    'preview_image_url': '',
                 }
                 if post_type == 'poll':
                     draft['poll_question'] = str(data.get('poll_question', title) or title)[:300]
