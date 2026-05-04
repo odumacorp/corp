@@ -8103,11 +8103,13 @@ def trigger_odu_post(request):
         types = random.sample(pool, 2)
 
         drafts = []
+        skip_reasons = []
         for post_type in types:
             try:
                 industry = random.choice(INDUSTRIES)
                 prompt = _build_prompt(post_type, industry)
                 if not prompt:
+                    skip_reasons.append(f'{post_type}: no prompt')
                     continue
 
                 resp = client.messages.create(
@@ -8117,11 +8119,21 @@ def trigger_odu_post(request):
                     messages=[{'role': 'user', 'content': prompt}],
                 )
                 raw = resp.content[0].text.strip() if resp.content else ''
+
+                # Strip markdown fences
                 if raw.startswith('```'):
                     raw = raw.split('\n', 1)[-1].rsplit('```', 1)[0].strip()
 
+                # Extract JSON object if surrounded by text
+                if not raw.startswith('{'):
+                    start = raw.find('{')
+                    end   = raw.rfind('}')
+                    if start != -1 and end > start:
+                        raw = raw[start:end + 1]
+
                 data = json.loads(raw)
                 if not isinstance(data, dict):
+                    skip_reasons.append(f'{post_type}: AI returned {type(data).__name__} not dict')
                     continue
 
                 title       = str(data.get('title', '') or '').strip()[:255]
@@ -8135,6 +8147,7 @@ def trigger_odu_post(request):
                     content = content.rstrip() + '\n\n' + tags
 
                 if not content:
+                    skip_reasons.append(f'{post_type}: empty content')
                     continue
 
                 draft = {
@@ -8151,11 +8164,16 @@ def trigger_odu_post(request):
 
                 drafts.append(draft)
 
-            except Exception:
-                continue  # skip this post type, try the next
+            except Exception as _e:
+                skip_reasons.append(f'{post_type}: {_e}')
+                continue
 
         if not drafts:
-            return JsonResponse({'ok': False, 'error': 'AI returned no usable posts. Try again.'}, status=500)
+            return JsonResponse({
+                'ok': False,
+                'error': 'AI returned no usable posts. Try again.',
+                'reasons': skip_reasons,
+            }, status=500)
 
         return JsonResponse({'ok': True, 'drafts': drafts})
 
