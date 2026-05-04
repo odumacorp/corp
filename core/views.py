@@ -8075,8 +8075,10 @@ def trigger_odu_post(request):
     """Generate Odu bot post drafts for admin preview — does NOT save to DB."""
     from django.http import JsonResponse
     user = request.user
-    is_odu = user.username.lower() == 'odu'
-    if not (user.user_type == 'admin' or user.is_superuser or is_odu):
+    if not user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'Authentication required.'}, status=401)
+    is_odu = getattr(user, 'username', '').lower() == 'odu'
+    if not (getattr(user, 'user_type', '') == 'admin' or user.is_superuser or is_odu):
         return JsonResponse({'ok': False, 'error': 'Permission denied.'}, status=403)
 
     if request.method != 'POST':
@@ -8100,7 +8102,7 @@ def trigger_odu_post(request):
         client = anthropic.Anthropic(api_key=api_key)
 
         pool = list(set(POST_TYPE_POOL))
-        types = random.sample(pool, 2)
+        types = random.sample(pool, 1)
 
         drafts = []
         skip_reasons = []
@@ -8124,14 +8126,24 @@ def trigger_odu_post(request):
                 if raw.startswith('```'):
                     raw = raw.split('\n', 1)[-1].rsplit('```', 1)[0].strip()
 
-                # Extract JSON object if surrounded by text
-                if not raw.startswith('{'):
+                # Parse: raw_decode stops at end of first JSON object, ignores trailing text
+                decoder = json.JSONDecoder()
+                data = None
+                try:
+                    data, _ = decoder.raw_decode(raw)
+                except json.JSONDecodeError:
+                    # Try starting from first '{' in case there's leading text
                     start = raw.find('{')
-                    end   = raw.rfind('}')
-                    if start != -1 and end > start:
-                        raw = raw[start:end + 1]
+                    if start != -1:
+                        try:
+                            data, _ = decoder.raw_decode(raw[start:])
+                        except json.JSONDecodeError as _je:
+                            skip_reasons.append(f'{post_type}: JSON error — {_je}')
+                            continue
+                    else:
+                        skip_reasons.append(f'{post_type}: no JSON object found in response')
+                        continue
 
-                data = json.loads(raw)
                 if not isinstance(data, dict):
                     skip_reasons.append(f'{post_type}: AI returned {type(data).__name__} not dict')
                     continue
@@ -8185,8 +8197,10 @@ def publish_odu_post(request):
     """Publish admin-approved Odu drafts received from the preview modal."""
     from django.http import JsonResponse
     user = request.user
-    is_odu = user.username.lower() == 'odu'
-    if not (user.user_type == 'admin' or user.is_superuser or is_odu):
+    if not user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'Authentication required.'}, status=401)
+    is_odu = getattr(user, 'username', '').lower() == 'odu'
+    if not (getattr(user, 'user_type', '') == 'admin' or user.is_superuser or is_odu):
         return JsonResponse({'ok': False, 'error': 'Permission denied.'}, status=403)
 
     if request.method != 'POST':
