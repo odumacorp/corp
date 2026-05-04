@@ -8046,6 +8046,30 @@ def return_from_odu(request):
 
 
 @login_required
+def _get_preview_image_url(query):
+    """Return a preview image URL for the query. Tries Pexels (metadata only), falls back to picsum."""
+    import urllib.request, urllib.parse, json as _json
+    from django.conf import settings as _s
+    pexels_key = getattr(_s, 'PEXELS_API_KEY', '')
+    if pexels_key and query:
+        try:
+            q = urllib.parse.quote(query.strip())
+            api_url = f"https://api.pexels.com/v1/search?query={q}&per_page=1&orientation=landscape"
+            req = urllib.request.Request(api_url, headers={
+                'User-Agent': 'OdumaCorp/1.0',
+                'Authorization': pexels_key,
+            })
+            with urllib.request.urlopen(req, timeout=6) as r:
+                result = _json.loads(r.read())
+            photos = result.get('photos', [])
+            if photos:
+                return photos[0]['src']['medium']
+        except Exception:
+            pass
+    seed = abs(hash(query or 'africa')) % 1000
+    return f"https://picsum.photos/seed/{seed}/800/420"
+
+
 def trigger_odu_post(request):
     """Generate Odu bot post drafts for admin preview — does NOT save to DB."""
     from django.http import JsonResponse
@@ -8109,11 +8133,12 @@ def trigger_odu_post(request):
                 continue
 
             draft = {
-                'post_type': post_type,
-                'industry':  industry,
-                'title':     title,
-                'content':   content,
+                'post_type':   post_type,
+                'industry':    industry,
+                'title':       title,
+                'content':     content,
                 'image_query': image_query,
+                'preview_image_url': _get_preview_image_url(image_query) if image_query else '',
             }
             if post_type == 'poll':
                 draft['poll_question'] = str(data.get('poll_question', title))[:300]
@@ -8196,6 +8221,20 @@ def publish_odu_post(request):
 
     except Exception as e:
         return JsonResponse({'ok': False, 'error': str(e), 'trace': traceback.format_exc()}, status=500)
+
+
+@login_required
+def preview_odu_image(request):
+    """Return a preview image URL for an image_query (used when admin changes the query in the modal)."""
+    from django.http import JsonResponse
+    user = request.user
+    if not (user.user_type == 'admin' or user.is_superuser):
+        return JsonResponse({'ok': False, 'error': 'Permission denied.'}, status=403)
+    query = request.GET.get('q', '').strip()
+    if not query:
+        return JsonResponse({'ok': False, 'error': 'No query.'}, status=400)
+    url = _get_preview_image_url(query)
+    return JsonResponse({'ok': True, 'url': url})
 
 
 # ── Analytics API ──────────────────────────────────────────────────────────────
