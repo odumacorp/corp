@@ -133,7 +133,8 @@ ASGI_APPLICATION = 'core.asgi.application'
 
 
 SECRET_KEY = config('SECRET_KEY')
-SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 1800  # 30 minutes; prevents stale 2FA sessions
 
 DEBUG = config('DEBUG', default=False, cast=bool)  # safe default: off in prod
 
