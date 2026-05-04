@@ -250,20 +250,31 @@
 
   /* ---- Tab bar ---- */
   .adm-tab-bar {
-    display: flex; gap: 2px; flex-wrap: nowrap; margin-bottom: 24px;
-    border-bottom: 2px solid var(--border); padding-bottom: 0;
-    overflow-x: auto; scrollbar-width: none;
+    display: flex; flex-direction: column; gap: 5px; margin-bottom: 20px;
   }
-  .adm-tab-bar::-webkit-scrollbar { display: none; }
+  .adm-tab-row {
+    display: flex; flex-wrap: wrap; gap: 2px;
+    background: #dce3ee; border-radius: 12px; padding: 4px;
+  }
   .adm-tab-btn {
-    padding: 9px 13px; background: none; border: none; border-bottom: 2.5px solid transparent;
-    font-family: var(--ff-sans); font-size: 1.15rem; color: var(--muted); cursor: pointer;
-    white-space: nowrap; display: flex; align-items: center; gap: 5px; margin-bottom: -2px;
-    transition: color 0.15s, border-color 0.15s, background 0.15s;
-    border-radius: 8px 8px 0 0; flex-shrink: 0;
+    padding: 6px 10px; background: transparent; border: none; border-radius: 8px;
+    font-family: var(--ff-sans); font-size: 0.92rem; color: #4a5568; cursor: pointer;
+    white-space: nowrap; display: flex; align-items: center; gap: 4px; font-weight: 500;
+    transition: color 0.12s, background 0.12s, box-shadow 0.12s;
   }
-  .adm-tab-btn:hover { color: var(--blue); background: rgba(0,74,173,0.06); }
-  .adm-tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 700; background: rgba(0,74,173,0.08); }
+  .adm-tab-btn i { opacity: 0.65; font-size: 0.85rem; }
+  .adm-tab-btn:hover { color: var(--blue); background: rgba(255,255,255,0.6); }
+  .adm-tab-btn:hover i { opacity: 0.9; }
+  .adm-tab-btn.active {
+    color: var(--blue); font-weight: 700;
+    background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.13), 0 0 0 1px rgba(27,94,199,0.1);
+  }
+  .adm-tab-btn.active i { opacity: 1; }
+  /* compact inline badge inside tabs — overrides the global adm-nav-count for tab context */
+  .adm-tab-row .adm-nav-count {
+    margin-left: 1px; padding: 0 5px; font-size: 0.76rem; font-weight: 700;
+    border-radius: 4px; line-height: 1.7; min-width: 0;
+  }
 
   /* ---- Filter buttons ---- */
   .adm-filter-btn {
@@ -307,7 +318,9 @@
   }
   @media (max-width: 420px) {
     .adm-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .adm-nav-link .nav-icon + span { display: none; }
+    .adm-nav-link { flex-direction: column; align-items: center; padding: 5px 8px; gap: 2px; white-space: normal; }
+    .adm-nav-link .nav-icon { width: auto; font-size: 1.3rem; }
+    .adm-nav-link .nav-icon + span { display: block; font-size: 0.95rem; line-height: 1.2; text-align: center; }
     .adm-nav-count { display: none; }
   }
 </style>
@@ -390,7 +403,7 @@
         <span>Contact Submissions</span>
       </a>
       <a href="{% url 'admin_stage_approvals' %}" class="adm-nav-link">
-        <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg></span>
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 22 22 7 12 2"/></svg></span>
         <span>Stage Approvals</span>
         {% if pending_stage_count %}<span class="adm-nav-count">{{ pending_stage_count }}</span>{% endif %}
       </a>
@@ -400,12 +413,12 @@
         {% if pending_verification_count %}<span class="adm-nav-count">{{ pending_verification_count }}</span>{% endif %}
       </a>
       <a href="{% url 'admin_project_review_queue' %}" class="adm-nav-link">
-        <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
         <span>Project Reviews</span>
         {% if pending_review_count %}<span class="adm-nav-count">{{ pending_review_count }}</span>{% endif %}
       </a>
       <a href="#section-features" class="adm-nav-link" onclick="showTab('features');return false;">
-        <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
         <span>Feature Flags</span>
       </a>
     </div>
@@ -425,31 +438,37 @@
 
     <!-- ===== Tab Bar ===== -->
     <div class="adm-tab-bar">
-      <button class="adm-tab-btn active" data-tab="stats" onclick="showTab('stats')"><i class="fi fi-rr-stats fi-sm"></i> Dashboard</button>
-      <button class="adm-tab-btn" data-tab="users" onclick="showTab('users')"><i class="fi fi-rr-users fi-sm"></i> Users <span class="adm-nav-count">{{ total_users }}</span></button>
-      <button class="adm-tab-btn" data-tab="projects" onclick="showTab('projects')"><i class="fi fi-rr-folder fi-sm"></i> Projects <span class="adm-nav-count">{{ total_projects }}</span></button>
-      <button class="adm-tab-btn" data-tab="posts" onclick="showTab('posts')"><i class="fi fi-rr-pencil fi-sm"></i> Posts <span class="adm-nav-count">{{ total_posts }}</span></button>
-      <button class="adm-tab-btn" data-tab="messages" onclick="showTab('messages')"><i class="fi fi-rr-envelope fi-sm"></i> Messages</button>
-      <button class="adm-tab-btn" data-tab="flagged" onclick="showTab('flagged')"><i class="fi fi-rr-flag fi-sm"></i> Flagged {% if flagged_messages %}<span class="adm-nav-count" style="background:rgba(192,57,43,0.15);color:#c0392b;">{{ flagged_messages|length }}</span>{% endif %}</button>
-      <button class="adm-tab-btn" data-tab="events" onclick="showTab('events')"><i class="fi fi-rr-calendar fi-sm"></i> Events</button>
-      <button class="adm-tab-btn" data-tab="news" onclick="showTab('news')"><i class="fi fi-rr-newspaper fi-sm"></i> News</button>
-      <button class="adm-tab-btn" data-tab="jobs" onclick="showTab('jobs')"><i class="fi fi-rr-briefcase fi-sm"></i> Jobs</button>
-      <button class="adm-tab-btn" data-tab="notify" onclick="showTab('notify')"><i class="fi fi-rr-bell fi-sm"></i> Notifications</button>
-      <button class="adm-tab-btn" data-tab="connections" onclick="showTab('connections')"><i class="fi fi-rr-link fi-sm"></i> Connections <span class="adm-nav-count">{{ total_connections }}</span></button>
-      <button class="adm-tab-btn" data-tab="comments" onclick="showTab('comments')"><i class="fi fi-rr-comment fi-sm"></i> Comments <span class="adm-nav-count">{{ total_comments }}</span></button>
-      <button class="adm-tab-btn" data-tab="collabs" onclick="showTab('collabs')"><i class="fi fi-rr-handshake fi-sm"></i> Collabs <span class="adm-nav-count">{{ total_collaborations }}</span></button>
-      <button class="adm-tab-btn" data-tab="ratings" onclick="showTab('ratings')"><i class="fi fi-rr-star fi-sm"></i> Ratings <span class="adm-nav-count">{{ total_ratings }}</span></button>
-      <button class="adm-tab-btn" data-tab="applications" onclick="showTab('applications')"><i class="fi fi-rr-clipboard fi-sm"></i> Applications <span class="adm-nav-count">{{ total_job_applications }}</span></button>
-      <button class="adm-tab-btn" data-tab="contact" onclick="showTab('contact')"><i class="fi fi-rr-paper-plane fi-sm"></i> Contact <span class="adm-nav-count">{{ total_contact_submissions }}</span></button>
-      <button class="adm-tab-btn" data-tab="downloads" onclick="showTab('downloads')"><i class="fi fi-rr-download fi-sm"></i> Downloads <span class="adm-nav-count">{{ total_downloads }}</span></button>
-      <button class="adm-tab-btn" data-tab="groups" onclick="showTab('groups')"><i class="fi fi-rr-users-alt fi-sm"></i> Groups <span class="adm-nav-count">{{ total_groups }}</span></button>
-      <button class="adm-tab-btn" data-tab="pages" onclick="showTab('pages')"><i class="fi fi-rr-file fi-sm"></i> Pages <span class="adm-nav-count">{{ total_pages }}</span></button>
-      <button class="adm-tab-btn" data-tab="admins" onclick="showTab('admins')"><i class="fi fi-rr-shield-check fi-sm"></i> Sub-Admins</button>
-      <button class="adm-tab-btn" data-tab="analytics" onclick="showTab('analytics')"><i class="fi fi-rr-chart-histogram fi-sm"></i> Analytics</button>
-      <button class="adm-tab-btn" data-tab="survey" onclick="showTab('survey')"><i class="fi fi-rr-star fi-sm"></i> Survey <span class="adm-nav-count">{{ survey.total }}</span></button>
-      <button class="adm-tab-btn" data-tab="shares" onclick="showTab('shares')"><i class="fi fi-rr-share fi-sm"></i> Shares <span class="adm-nav-count">{{ shares.total }}</span></button>
-      <button class="adm-tab-btn" data-tab="locations" onclick="showTab('locations')"><i class="fi fi-rr-map-marker fi-sm"></i> Locations <span class="adm-nav-count">{{ total_with_location }}</span></button>
-      <button class="adm-tab-btn" data-tab="features" onclick="showTab('features')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Features</button>
+      <!-- Row 1: Core content -->
+      <div class="adm-tab-row">
+        <button class="adm-tab-btn active" data-tab="stats" onclick="showTab('stats')"><i class="fi fi-rr-stats fi-sm"></i> Dashboard</button>
+        <button class="adm-tab-btn" data-tab="users" onclick="showTab('users')"><i class="fi fi-rr-users fi-sm"></i> Users <span class="adm-nav-count">{{ total_users }}</span></button>
+        <button class="adm-tab-btn" data-tab="projects" onclick="showTab('projects')"><i class="fi fi-rr-folder fi-sm"></i> Projects <span class="adm-nav-count">{{ total_projects }}</span></button>
+        <button class="adm-tab-btn" data-tab="posts" onclick="showTab('posts')"><i class="fi fi-rr-pencil fi-sm"></i> Posts <span class="adm-nav-count">{{ total_posts }}</span></button>
+        <button class="adm-tab-btn" data-tab="messages" onclick="showTab('messages')"><i class="fi fi-rr-envelope fi-sm"></i> Messages</button>
+        <button class="adm-tab-btn" data-tab="flagged" onclick="showTab('flagged')"><i class="fi fi-rr-flag fi-sm"></i> Flagged {% if flagged_messages %}<span class="adm-nav-count" style="background:rgba(192,57,43,0.15);color:#c0392b;">{{ flagged_messages|length }}</span>{% endif %}</button>
+        <button class="adm-tab-btn" data-tab="events" onclick="showTab('events')"><i class="fi fi-rr-calendar fi-sm"></i> Events</button>
+        <button class="adm-tab-btn" data-tab="news" onclick="showTab('news')"><i class="fi fi-rr-newspaper fi-sm"></i> News</button>
+        <button class="adm-tab-btn" data-tab="jobs" onclick="showTab('jobs')"><i class="fi fi-rr-briefcase fi-sm"></i> Jobs</button>
+        <button class="adm-tab-btn" data-tab="notify" onclick="showTab('notify')"><i class="fi fi-rr-bell fi-sm"></i> Notifications</button>
+        <button class="adm-tab-btn" data-tab="connections" onclick="showTab('connections')"><i class="fi fi-rr-link fi-sm"></i> Connections <span class="adm-nav-count">{{ total_connections }}</span></button>
+        <button class="adm-tab-btn" data-tab="comments" onclick="showTab('comments')"><i class="fi fi-rr-comment fi-sm"></i> Comments <span class="adm-nav-count">{{ total_comments }}</span></button>
+        <button class="adm-tab-btn" data-tab="collabs" onclick="showTab('collabs')"><i class="fi fi-rr-handshake fi-sm"></i> Collabs <span class="adm-nav-count">{{ total_collaborations }}</span></button>
+      </div>
+      <!-- Row 2: Management & analytics -->
+      <div class="adm-tab-row">
+        <button class="adm-tab-btn" data-tab="ratings" onclick="showTab('ratings')"><i class="fi fi-rr-star fi-sm"></i> Ratings <span class="adm-nav-count">{{ total_ratings }}</span></button>
+        <button class="adm-tab-btn" data-tab="applications" onclick="showTab('applications')"><i class="fi fi-rr-clipboard fi-sm"></i> Applications <span class="adm-nav-count">{{ total_job_applications }}</span></button>
+        <button class="adm-tab-btn" data-tab="contact" onclick="showTab('contact')"><i class="fi fi-rr-paper-plane fi-sm"></i> Contact <span class="adm-nav-count">{{ total_contact_submissions }}</span></button>
+        <button class="adm-tab-btn" data-tab="downloads" onclick="showTab('downloads')"><i class="fi fi-rr-download fi-sm"></i> Downloads <span class="adm-nav-count">{{ total_downloads }}</span></button>
+        <button class="adm-tab-btn" data-tab="groups" onclick="showTab('groups')"><i class="fi fi-rr-users-alt fi-sm"></i> Groups <span class="adm-nav-count">{{ total_groups }}</span></button>
+        <button class="adm-tab-btn" data-tab="pages" onclick="showTab('pages')"><i class="fi fi-rr-file fi-sm"></i> Pages <span class="adm-nav-count">{{ total_pages }}</span></button>
+        <button class="adm-tab-btn" data-tab="admins" onclick="showTab('admins')"><i class="fi fi-rr-shield-check fi-sm"></i> Sub-Admins</button>
+        <button class="adm-tab-btn" data-tab="analytics" onclick="showTab('analytics')"><i class="fi fi-rr-chart-histogram fi-sm"></i> Analytics</button>
+        <button class="adm-tab-btn" data-tab="survey" onclick="showTab('survey')"><i class="fi fi-rr-star fi-sm"></i> Survey <span class="adm-nav-count">{{ survey.total }}</span></button>
+        <button class="adm-tab-btn" data-tab="shares" onclick="showTab('shares')"><i class="fi fi-rr-share fi-sm"></i> Shares <span class="adm-nav-count">{{ shares.total }}</span></button>
+        <button class="adm-tab-btn" data-tab="locations" onclick="showTab('locations')"><i class="fi fi-rr-map-marker fi-sm"></i> Locations <span class="adm-nav-count">{{ total_with_location }}</span></button>
+        <button class="adm-tab-btn" data-tab="features" onclick="showTab('features')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Features</button>
+      </div>
     </div>
 
     <!-- ===== Dashboard / Stats ===== -->

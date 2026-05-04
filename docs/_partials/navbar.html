@@ -423,6 +423,14 @@
                 {% endif %}
               {% endif %}
 
+              {% if request.session.impersonate_return_id %}
+                <div class="oc-profile-dropdown__divider"></div>
+                <a href="{% url 'return_from_odu' %}" role="menuitem" style="color:#7c3aed;font-weight:600;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                  Return to Admin
+                </a>
+              {% endif %}
+
               <div class="oc-profile-dropdown__divider"></div>
               <a href="{% url 'logout' %}" role="menuitem" class="oc-dd-danger">
                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
@@ -518,6 +526,14 @@
         {% else %}
           <a href="{% url 'toggle_admin_view' %}" class="oc-mobile-menu__link" style="color:#F5C842;font-weight:600;display:flex;align-items:center;gap:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Switch to Admin View</a>
         {% endif %}
+      {% endif %}
+
+      {% if request.session.impersonate_return_id %}
+        <div class="oc-mobile-menu__divider"></div>
+        <a href="{% url 'return_from_odu' %}" class="oc-mobile-menu__link" style="color:#a78bfa;font-weight:600;display:flex;align-items:center;gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Return to Admin
+        </a>
       {% endif %}
 
       <div class="oc-mobile-menu__divider"></div>

@@ -8027,9 +8027,12 @@ def login_as_odu(request):
         from django.contrib import messages as _msgs
         _msgs.error(request, "Odu bot account not found.")
         return redirect('admin_panel')
-    request.session['impersonate_return_id'] = request.user.pk
+    original_pk = request.user.pk
     from django.contrib.auth import login as _login
     _login(request, odu, backend='django.contrib.auth.backends.ModelBackend')
+    # Set AFTER login() — Django flushes the session when switching users,
+    # so anything written before login() is lost.
+    request.session['impersonate_return_id'] = original_pk
     return redirect('app')
 
 
