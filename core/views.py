@@ -8047,27 +8047,28 @@ def return_from_odu(request):
 
 @login_required
 def _get_preview_image_url(query):
-    """Return a preview image URL for the query. Tries Pexels (metadata only), falls back to picsum."""
-    import urllib.request, urllib.parse, json as _json
-    from django.conf import settings as _s
-    pexels_key = getattr(_s, 'PEXELS_API_KEY', '')
-    if pexels_key and query:
-        try:
-            q = urllib.parse.quote(query.strip())
-            api_url = f"https://api.pexels.com/v1/search?query={q}&per_page=1&orientation=landscape"
-            req = urllib.request.Request(api_url, headers={
-                'User-Agent': 'OdumaCorp/1.0',
-                'Authorization': pexels_key,
-            })
-            with urllib.request.urlopen(req, timeout=6) as r:
-                result = _json.loads(r.read())
-            photos = result.get('photos', [])
+    """Return a preview image URL. Tries Pexels if key is configured, falls back to picsum."""
+    try:
+        from django.conf import settings as _s
+        import requests as _requests
+        pexels_key = getattr(_s, 'PEXELS_API_KEY', '')
+        if pexels_key and query:
+            resp = _requests.get(
+                'https://api.pexels.com/v1/search',
+                params={'query': query, 'per_page': 1, 'orientation': 'landscape'},
+                headers={'Authorization': pexels_key},
+                timeout=6,
+            )
+            photos = resp.json().get('photos', [])
             if photos:
                 return photos[0]['src']['medium']
-        except Exception:
-            pass
-    seed = abs(hash(query or 'africa')) % 1000
-    return f"https://picsum.photos/seed/{seed}/800/420"
+    except Exception:
+        pass
+    try:
+        seed = abs(hash(str(query) or 'africa')) % 1000
+        return f"https://picsum.photos/seed/{seed}/800/420"
+    except Exception:
+        return "https://picsum.photos/seed/1/800/420"
 
 
 def trigger_odu_post(request):
@@ -8103,48 +8104,58 @@ def trigger_odu_post(request):
 
         drafts = []
         for post_type in types:
-            industry = random.choice(INDUSTRIES)
-            prompt = _build_prompt(post_type, industry)
-            if not prompt:
-                continue
+            try:
+                industry = random.choice(INDUSTRIES)
+                prompt = _build_prompt(post_type, industry)
+                if not prompt:
+                    continue
 
-            resp = client.messages.create(
-                model='claude-haiku-4-5-20251001',
-                max_tokens=900,
-                system=SYSTEM_PROMPT,
-                messages=[{'role': 'user', 'content': prompt}],
-            )
-            raw = resp.content[0].text.strip() if resp.content else ''
-            if raw.startswith('```'):
-                raw = raw.split('\n', 1)[-1].rsplit('```', 1)[0].strip()
+                resp = client.messages.create(
+                    model='claude-haiku-4-5-20251001',
+                    max_tokens=900,
+                    system=SYSTEM_PROMPT,
+                    messages=[{'role': 'user', 'content': prompt}],
+                )
+                raw = resp.content[0].text.strip() if resp.content else ''
+                if raw.startswith('```'):
+                    raw = raw.split('\n', 1)[-1].rsplit('```', 1)[0].strip()
 
-            data = json.loads(raw)
-            title       = data.get('title', '').strip()[:255]
-            content     = data.get('content', '').strip()
-            raw_tags    = data.get('hashtags', '').strip()
-            image_query = data.get('image_query', '').strip()
+                data = json.loads(raw)
+                if not isinstance(data, dict):
+                    continue
 
-            if raw_tags:
-                tokens = raw_tags.split()
-                tags = ' '.join(t if t.startswith('#') else '#' + t for t in tokens)
-                content = content.rstrip() + '\n\n' + tags
+                title       = str(data.get('title', '') or '').strip()[:255]
+                content     = str(data.get('content', '') or '').strip()
+                raw_tags    = str(data.get('hashtags', '') or '').strip()
+                image_query = str(data.get('image_query', '') or '').strip()
 
-            if not content:
-                continue
+                if raw_tags:
+                    tokens = raw_tags.split()
+                    tags = ' '.join(t if t.startswith('#') else '#' + t for t in tokens)
+                    content = content.rstrip() + '\n\n' + tags
 
-            draft = {
-                'post_type':   post_type,
-                'industry':    industry,
-                'title':       title,
-                'content':     content,
-                'image_query': image_query,
-                'preview_image_url': _get_preview_image_url(image_query) if image_query else '',
-            }
-            if post_type == 'poll':
-                draft['poll_question'] = str(data.get('poll_question', title))[:300]
-                draft['poll_options']  = [str(o)[:150] for o in data.get('poll_options', [])[:6]]
+                if not content:
+                    continue
 
-            drafts.append(draft)
+                draft = {
+                    'post_type':   post_type,
+                    'industry':    industry,
+                    'title':       title,
+                    'content':     content,
+                    'image_query': image_query,
+                    'preview_image_url': _get_preview_image_url(image_query) if image_query else '',
+                }
+                if post_type == 'poll':
+                    draft['poll_question'] = str(data.get('poll_question', title) or title)[:300]
+                    draft['poll_options']  = [str(o)[:150] for o in (data.get('poll_options') or [])[:6]]
+
+                drafts.append(draft)
+
+            except Exception:
+                continue  # skip this post type, try the next
+
+        if not drafts:
+            return JsonResponse({'ok': False, 'error': 'AI returned no usable posts. Try again.'}, status=500)
 
         return JsonResponse({'ok': True, 'drafts': drafts})
 
