@@ -8428,28 +8428,28 @@ def _record_attempt(request, username, success, stage='password'):
         )
     except Exception:
         pass
-    # Email alert
-    from django.core.mail import send_mail
+    # Email alert — only when EMAIL_HOST is configured
     from django.conf import settings as _s
-    status = 'SUCCESS' if success else 'FAILED'
-    try:
-        send_mail(
-            subject=f'[Oduma Admin] Login attempt {status} — {username}',
-            message=(
-                f"Admin login attempt details:\n\n"
-                f"Username : {username}\n"
-                f"Status   : {status}\n"
-                f"Stage    : {stage}\n"
-                f"IP       : {_get_client_ip(request)}\n"
-                f"Browser  : {request.META.get('HTTP_USER_AGENT', '')[:200]}\n"
-                f"Time     : {__import__('django.utils.timezone', fromlist=['now']).now()}\n"
-            ),
-            from_email=_s.DEFAULT_FROM_EMAIL,
-            recipient_list=['odumacorp@gmail.com'],
-            fail_silently=True,
-        )
-    except Exception:
-        pass
+    if getattr(_s, 'EMAIL_HOST', ''):
+        from django.core.mail import send_mail
+        status = 'SUCCESS' if success else 'FAILED'
+        try:
+            send_mail(
+                subject=f'[Oduma Admin] Login attempt {status} — {username}',
+                message=(
+                    f"Admin login attempt details:\n\n"
+                    f"Username : {username}\n"
+                    f"Status   : {status}\n"
+                    f"Stage    : {stage}\n"
+                    f"IP       : {_get_client_ip(request)}\n"
+                    f"Browser  : {request.META.get('HTTP_USER_AGENT', '')[:200]}\n"
+                ),
+                from_email=getattr(_s, 'DEFAULT_FROM_EMAIL', _s.EMAIL_HOST_USER or 'noreply@odumacorp.com'),
+                recipient_list=['odumacorp@gmail.com'],
+                fail_silently=True,
+            )
+        except Exception:
+            pass
 
 
 @never_cache
