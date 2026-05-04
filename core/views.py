@@ -8242,7 +8242,32 @@ def publish_odu_post(request):
                 industry=industry,
             )
 
-            if image_query:
+            uploaded_data = str(draft.get('uploaded_image_data', '')).strip()
+            preview_url   = str(draft.get('preview_image_url', '')).strip()
+
+            if uploaded_data.startswith('data:image/'):
+                # User uploaded a local file — decode base64
+                import base64
+                from django.core.files.base import ContentFile
+                try:
+                    header, b64 = uploaded_data.split(',', 1)
+                    mime = header.split(';')[0].split(':')[1]
+                    ext  = mime.split('/')[-1].split('+')[0]  # e.g. jpeg, png, webp
+                    img_bytes = base64.b64decode(b64)
+                    post.image.save(f'odu_upload.{ext}', ContentFile(img_bytes), save=True)
+                except Exception:
+                    pass
+            elif 'pollinations.ai' in preview_url:
+                # AI-generated image — download from Pollinations
+                try:
+                    import urllib.request as _ur
+                    from django.core.files.base import ContentFile
+                    with _ur.urlopen(preview_url, timeout=15) as r:
+                        img_bytes = r.read()
+                    post.image.save('odu_ai.jpg', ContentFile(img_bytes), save=True)
+                except Exception:
+                    pass
+            elif image_query:
                 fname, img_file = _fetch_image(image_query)
                 if fname and img_file:
                     post.image.save(fname, img_file, save=True)

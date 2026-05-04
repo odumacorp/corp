@@ -5021,13 +5021,18 @@ function _oduShowPreview(drafts) {
     /* ── image action buttons ── */
     var imgActions = '<div style="display:flex;gap:8px;padding:8px 14px;background:#f1f5f9;border-bottom:1px solid #e4eaf2;">'
       + '<button onclick="_oduToggleEditImage(' + i + ')"'
-      + ' style="display:flex;align-items:center;gap:6px;padding:5px 13px;background:#fff;color:#334155;border:1px solid #cbd5e1;border-radius:7px;font-size:1rem;font-family:var(--ff-sans);cursor:pointer;">'
+      + ' style="display:flex;align-items:center;gap:6px;padding:5px 11px;background:#fff;color:#334155;border:1px solid #cbd5e1;border-radius:7px;font-size:.95rem;font-family:var(--ff-sans);cursor:pointer;">'
       + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>'
       + 'Edit Image</button>'
       + '<button onclick="_oduGenerateImage(' + i + ')"'
-      + ' style="display:flex;align-items:center;gap:6px;padding:5px 13px;background:#1B5EC7;color:#fff;border:none;border-radius:7px;font-size:1rem;font-family:var(--ff-sans);cursor:pointer;">'
+      + ' style="display:flex;align-items:center;gap:6px;padding:5px 11px;background:#1B5EC7;color:#fff;border:none;border-radius:7px;font-size:.95rem;font-family:var(--ff-sans);cursor:pointer;">'
       + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
       + 'Generate AI</button>'
+      + '<button onclick="document.getElementById(\'odu-file-' + i + '\').click()"'
+      + ' style="display:flex;align-items:center;gap:6px;padding:5px 11px;background:#fff;color:#334155;border:1px solid #cbd5e1;border-radius:7px;font-size:.95rem;font-family:var(--ff-sans);cursor:pointer;">'
+      + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'
+      + 'Upload</button>'
+      + '<input type="file" id="odu-file-' + i + '" accept="image/*" style="display:none;" onchange="_oduUploadImage(' + i + ')">'
       + '</div>';
 
     /* ── collapsible edit row (hidden by default) ── */
@@ -5093,6 +5098,30 @@ function _oduRefreshImage(idx) {
   .finally(function() {
     if (btn) { btn.disabled = false; btn.textContent = 'Search'; }
   });
+}
+
+function _oduUploadImage(idx) {
+  var fileInput = document.getElementById('odu-file-' + idx);
+  if (!fileInput || !fileInput.files[0]) return;
+  var file = fileInput.files[0];
+  if (file.size > 8 * 1024 * 1024) {
+    alert('Image must be under 8 MB.');
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var dataUrl = e.target.result;
+    var img = document.getElementById('odu-img-' + idx);
+    var noImg = document.getElementById('odu-no-img-' + idx);
+    if (img) {
+      img.src = dataUrl;
+      img.style.display = 'block';
+      if (noImg) noImg.style.display = 'none';
+    }
+    _oduCurrentDrafts[idx].preview_image_url = dataUrl;
+    _oduCurrentDrafts[idx].uploaded_image_data = dataUrl;
+  };
+  reader.readAsDataURL(file);
 }
 
 function _oduToggleEditImage(idx) {
