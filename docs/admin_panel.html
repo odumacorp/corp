@@ -922,6 +922,14 @@
                     {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
                   </button>
 
+                  <!-- Resend verification email -->
+                  {% if u.email %}
+                  <form method="post" action="{% url 'admin_resend_verification_email' u.id %}" style="display:inline">
+                    {% csrf_token %}
+                    <button type="submit" class="adm-act-btn" style="border-color:#0891b2;color:#0891b2;">Resend Email</button>
+                  </form>
+                  {% endif %}
+
                   <!-- Delete user -->
                   <button type="button" class="adm-act-btn adm-btn-danger"
                     onclick="openConfirm('Delete user {{ u.get_full_name|default:u.username|escapejs }}?', 'This will permanently remove the account and all associated data.', '{% url "admin_delete_user" u.id %}')">

@@ -4482,6 +4482,26 @@ def admin_add_news(request):
 
 @require_POST
 @login_required
+def admin_resend_verification_email(request, user_id):
+    if not _is_admin(request.user):
+        return redirect('app')
+    target = get_object_or_404(CustomUser, pk=user_id)
+    try:
+        from allauth.account.models import EmailAddress
+        from allauth.account.internal.flows.email_verification import send_verification_email_for_user
+        EmailAddress.objects.get_or_create(
+            user=target,
+            defaults={'email': target.email, 'primary': True, 'verified': False},
+        )
+        send_verification_email_for_user(request, target)
+        messages.success(request, f"Verification email resent to {target.email}.")
+    except Exception as e:
+        messages.error(request, f"Failed to resend email: {e}")
+    return redirect('admin_panel')
+
+
+@require_POST
+@login_required
 def admin_add_sub_admin(request):
     from .models import AdminPermissions
     if not _is_admin(request.user):
@@ -8666,20 +8686,52 @@ def _record_attempt(request, username, success, stage='password'):
     from django.conf import settings as _s
     if getattr(_s, 'EMAIL_HOST', ''):
         from django.core.mail import send_mail
+        from django.utils.timezone import now as _now
         status = 'SUCCESS' if success else 'FAILED'
+        ip = _get_client_ip(request)
+        ua = request.META.get('HTTP_USER_AGENT', '')[:200]
+        ts = _now().strftime('%Y-%m-%d %H:%M:%S UTC')
+
+        # Collect every admin user's email for successful logins.
+        recipients = ['odumacorp@gmail.com']
+        if success and stage == 'totp':
+            try:
+                admin_emails = list(
+                    CustomUser.objects.filter(
+                        user_type='admin', is_active=True
+                    ).exclude(email='').values_list('email', flat=True)
+                )
+                recipients = list({*recipients, *admin_emails})
+            except Exception:
+                pass
+
+        subject = (
+            f'[Oduma Corp] Admin login — {username}'
+            if success and stage == 'totp'
+            else f'[Oduma Admin] Login attempt {status} — {username}'
+        )
+        body = (
+            f"An admin account just signed in.\n\n"
+            f"Username  : {username}\n"
+            f"Time      : {ts}\n"
+            f"IP address: {ip}\n"
+            f"Browser   : {ua}\n\n"
+            f"If this wasn't you, secure your account immediately at "
+            f"{getattr(_s, 'SITE_URL', 'https://odumacorp.com')}/admin-panel/\n"
+        ) if (success and stage == 'totp') else (
+            f"Admin login attempt details:\n\n"
+            f"Username : {username}\n"
+            f"Status   : {status}\n"
+            f"Stage    : {stage}\n"
+            f"IP       : {ip}\n"
+            f"Browser  : {ua}\n"
+        )
         try:
             send_mail(
-                subject=f'[Oduma Admin] Login attempt {status} — {username}',
-                message=(
-                    f"Admin login attempt details:\n\n"
-                    f"Username : {username}\n"
-                    f"Status   : {status}\n"
-                    f"Stage    : {stage}\n"
-                    f"IP       : {_get_client_ip(request)}\n"
-                    f"Browser  : {request.META.get('HTTP_USER_AGENT', '')[:200]}\n"
-                ),
+                subject=subject,
+                message=body,
                 from_email=getattr(_s, 'DEFAULT_FROM_EMAIL', _s.EMAIL_HOST_USER or 'noreply@odumacorp.com'),
-                recipient_list=['odumacorp@gmail.com'],
+                recipient_list=recipients,
                 fail_silently=True,
             )
         except Exception:
@@ -8785,7 +8837,7 @@ def admin_verify_totp(request):
 
     return render(request, 'admin_verify_totp.html', {
         'error': error,
-        'back_url': '/admin-login/',
+        'back_url': '/admin-panel/login/',
         'back_label': 'Back to login',
     })
 

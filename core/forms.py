@@ -458,6 +458,38 @@ class ProfileEditForm(SanitizeMixin, forms.ModelForm):
         return profile
 
 
+## Google / social signup — only asks for role + gender, skips email/username
+def _make_social_signup_form():
+    from allauth.socialaccount.forms import SignupForm as _AllAuthSocialSignupForm
+
+    class SocialSignupExtraForm(_AllAuthSocialSignupForm):
+        USER_TYPE_CHOICES = [('innovator', 'Innovator'), ('investor', 'Investor')]
+        GENDER_CHOICES = [('', 'Prefer not to say'), ('male', 'Male'), ('female', 'Female'), ('other', 'Other')]
+
+        user_type = forms.ChoiceField(choices=USER_TYPE_CHOICES, widget=forms.RadioSelect)
+        gender = forms.ChoiceField(choices=GENDER_CHOICES, required=False)
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            # These are handled by the adapter — remove from the form entirely.
+            for f in ('email', 'username', 'password1', 'password2'):
+                self.fields.pop(f, None)
+
+        def signup(self, request, user):
+            user.user_type = self.cleaned_data.get('user_type', 'innovator')
+            user.save(update_fields=['user_type'])
+            try:
+                profile = user.userprofile
+                profile.gender = self.cleaned_data.get('gender', '')
+                profile.save(update_fields=['gender'])
+            except Exception:
+                pass
+
+    return SocialSignupExtraForm
+
+SocialSignupExtraForm = _make_social_signup_form()
+
+
 ##Message form
 from .models import Message
 class MessageForm(SanitizeMixin, forms.ModelForm):

@@ -325,7 +325,7 @@ AUTHENTICATION_BACKENDS = (
 )
 SITE_ID = 1
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/app/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 
 # ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
@@ -342,6 +342,14 @@ ACCOUNT_SIGNUP_FIELDS = [
     "password2*"
 ]
 
+
+ACCOUNT_ADAPTER = 'core.allauth_adapter.CoreAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'core.allauth_adapter.CoreSocialAccountAdapter'
+SOCIALACCOUNT_FORMS = {'signup': 'core.forms.SocialSignupExtraForm'}
+
+# Used to rewrite email links so they always point to production, even when the
+# server is running on localhost during development/testing.
+SITE_URL = config('SITE_URL', default='https://odumacorp.com')
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {

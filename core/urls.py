@@ -246,6 +246,7 @@ urlpatterns = _html_redirects + [
     path('admin-panel/login/', views.admin_login_2fa, name='admin_login_2fa'),
     path('admin-panel/login/setup-totp/', views.admin_setup_totp, name='admin_setup_totp'),
     path('admin-panel/login/verify-totp/', views.admin_verify_totp, name='admin_verify_totp'),
+    path('admin-panel/user/<int:user_id>/resend-email/', views.admin_resend_verification_email, name='admin_resend_verification_email'),
     path('admin-panel/2fa/disable/<int:user_id>/', views.admin_disable_2fa, name='admin_disable_2fa'),
     path('admin-panel/2fa/setup/<int:user_id>/', views.admin_setup_2fa_for, name='admin_setup_2fa_for'),
     path('admin-panel/stats/range/', views.admin_stats_range, name='admin_stats_range'),

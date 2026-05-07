@@ -48,7 +48,7 @@ input:focus{border-color:#1B5EC7}
     <input type="text" id="code" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="one-time-code" required autofocus>
     <button type="submit" class="btn">{{ submit_label|default:"Sign In →" }}</button>
   </form>
-  <a href="{{ back_url|default:'#' }}" class="back">← {{ back_label|default:"Back to login" }}</a>
+  <a href="/login/" class="back">← Back to login</a>
 </div>
 </body>
 </html>
