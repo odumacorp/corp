@@ -240,6 +240,11 @@ MEDIA_URL = "/media/"
 # MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Allow admin Odu image uploads up to 15 MB (user-facing file inputs cap at 8 MB;
+# raising this avoids RequestDataTooBig when base64 or multipart payloads are larger
+# than Django's 2.5 MB default).
+DATA_UPLOAD_MAX_MEMORY_SIZE = 15 * 1024 * 1024  # 15 MB
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 

@@ -381,7 +381,7 @@
               onclick="regenerateOduPosts()">Regenerate</button>
       <button id="odu-publish-btn" class="adm-modal-confirm"
               style="background:#1B5EC7;"
-              onclick="publishOduPosts()">Publish All</button>
+              onclick="publishOduPosts()">Save as Draft</button>
     </div>
   </div>
 </div>
@@ -1087,6 +1087,7 @@
                   <div style="color:#6b7280;font-size:1.15rem;">{{ p.created_at|timesince }} ago · {{ p.get_post_type_display }}</div>
                 </div>
                 <span class="adm-inactive-badge" style="margin-left:auto;background:rgba(245,158,11,.1);color:#b45309;">Pending</span>
+                {% if p.user.username == 'odu' %}<span class="adm-inactive-badge" style="background:#ede9fe;color:#7c3aed;margin-left:4px;">Odu Draft</span>{% endif %}
               </div>
               {% if p.title %}<div style="font-family:var(--ff-serif);font-weight:700;color:#0a1628;font-size:1.2rem;margin-bottom:4px;">{{ p.title }}</div>{% endif %}
               <div style="color:#374151;font-size:1.2rem;line-height:1.6;">{{ p.content|truncatewords:40 }}</div>
@@ -5123,24 +5124,36 @@ function _oduUploadImage(idx) {
   var fileInput = document.getElementById('odu-file-' + idx);
   if (!fileInput || !fileInput.files[0]) return;
   var file = fileInput.files[0];
-  if (file.size > 8 * 1024 * 1024) {
-    alert('Image must be under 8 MB.');
-    return;
-  }
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var dataUrl = e.target.result;
-    var img = document.getElementById('odu-img-' + idx);
-    var noImg = document.getElementById('odu-no-img-' + idx);
-    if (img) {
-      img.src = dataUrl;
-      img.style.display = 'block';
-      if (noImg) noImg.style.display = 'none';
+  if (file.size > 8 * 1024 * 1024) { alert('Image must be under 8 MB.'); return; }
+
+  // Show local preview immediately so the user sees something while uploading
+  var localUrl = URL.createObjectURL(file);
+  var img   = document.getElementById('odu-img-' + idx);
+  var noImg = document.getElementById('odu-no-img-' + idx);
+  if (img)   { img.src = localUrl; img.style.display = 'block'; }
+  if (noImg) { noImg.textContent = 'Uploading…'; noImg.style.display = 'none'; }
+
+  var form = new FormData();
+  form.append('image', file);
+  fetch('{% url "upload_odu_image" %}', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+    body: form
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.ok) {
+      // Store the server URL — no base64 blob in publish payload
+      _oduCurrentDrafts[idx].preview_image_url   = data.url;
+      _oduCurrentDrafts[idx].uploaded_image_data  = '';
+    } else {
+      alert('Upload failed: ' + (data.error || 'Unknown error'));
     }
-    _oduCurrentDrafts[idx].preview_image_url = dataUrl;
-    _oduCurrentDrafts[idx].uploaded_image_data = dataUrl;
-  };
-  reader.readAsDataURL(file);
+  })
+  .catch(function(e) {
+    alert('Upload error: ' + e.message);
+    console.error('_oduUploadImage:', e);
+  });
 }
 
 function _oduToggleEditImage(idx) {
@@ -5205,13 +5218,13 @@ function publishOduPosts() {
     closeOduPreview();
     publishBtn.disabled = false;
     regenBtn.disabled   = false;
-    publishBtn.textContent = 'Publish All';
+    publishBtn.textContent = 'Save as Draft';
     if (data.ok) {
       var btn = document.getElementById('odu-trigger-btn');
       btn.style.background = '#10B981';
       btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg> '
-        + data.published + ' post' + (data.published !== 1 ? 's' : '') + ' published!';
-      setTimeout(_oduResetBtn, 4000);
+        + data.saved + ' draft' + (data.saved !== 1 ? 's' : '') + ' saved — review in Posts tab';
+      setTimeout(_oduResetBtn, 5000);
     } else {
       alert('Publish failed: ' + (data.error || 'Unknown'));
     }
@@ -5220,8 +5233,8 @@ function publishOduPosts() {
     closeOduPreview();
     publishBtn.disabled = false;
     regenBtn.disabled   = false;
-    publishBtn.textContent = 'Publish All';
-    alert('Publish failed: ' + (e.message || 'Request error'));
+    publishBtn.textContent = 'Save as Draft';
+    alert('Save failed: ' + (e.message || 'Request error'));
     console.error('publishOduPosts:', e);
   });
 }

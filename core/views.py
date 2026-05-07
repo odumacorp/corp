@@ -8249,25 +8249,27 @@ def publish_odu_post(request):
             preview_url   = str(draft.get('preview_image_url', '')).strip()
 
             if uploaded_data.startswith('data:image/'):
-                # User uploaded a local file — decode base64
                 import base64
                 from django.core.files.base import ContentFile
                 try:
                     header, b64 = uploaded_data.split(',', 1)
                     mime = header.split(';')[0].split(':')[1]
-                    ext  = mime.split('/')[-1].split('+')[0]  # e.g. jpeg, png, webp
+                    ext  = mime.split('/')[-1].split('+')[0]
                     img_bytes = base64.b64decode(b64)
                     post.image.save(f'odu_upload.{ext}', ContentFile(img_bytes), save=True)
                 except Exception:
                     pass
-            elif 'pollinations.ai' in preview_url:
-                # AI-generated image — download from Pollinations
+            elif preview_url.startswith('https://'):
+                # Download whatever preview URL is already loaded (Pexels CDN, Pollinations, etc.)
                 try:
                     import urllib.request as _ur
                     from django.core.files.base import ContentFile
-                    with _ur.urlopen(preview_url, timeout=15) as r:
+                    req = _ur.Request(preview_url, headers={'User-Agent': 'OdumaCorp/1.0'})
+                    with _ur.urlopen(req, timeout=12) as r:
                         img_bytes = r.read()
-                    post.image.save('odu_ai.jpg', ContentFile(img_bytes), save=True)
+                    if len(img_bytes) > 5000:
+                        ext = preview_url.split('?')[0].rsplit('.', 1)[-1][:4] or 'jpg'
+                        post.image.save(f'odu_draft.{ext}', ContentFile(img_bytes), save=True)
                 except Exception:
                     pass
             elif image_query:
@@ -8289,7 +8291,7 @@ def publish_odu_post(request):
 
             published.append(f'[{post_type}/{industry}] {title[:60]}')
 
-        return JsonResponse({'ok': True, 'published': len(published), 'posts': published})
+        return JsonResponse({'ok': True, 'saved': len(published), 'posts': published})
 
     except Exception as e:
         return JsonResponse({'ok': False, 'error': str(e), 'trace': traceback.format_exc()}, status=500)
@@ -8306,6 +8308,36 @@ def preview_odu_image(request):
     if not query:
         return JsonResponse({'ok': False, 'error': 'No query.'}, status=400)
     url = _get_preview_image_url(query)
+    return JsonResponse({'ok': True, 'url': url})
+
+
+@login_required
+def upload_odu_image(request):
+    """Accept a multipart image upload for an Odu draft and return its stored URL.
+
+    Called immediately when an admin picks a file in the Odu post modal so that
+    the subsequent publish_odu_post JSON body contains only a URL (no base64 blob).
+    """
+    from django.http import JsonResponse
+    from django.core.files.storage import default_storage
+
+    user = request.user
+    if not (getattr(user, 'user_type', '') == 'admin' or user.is_superuser):
+        return JsonResponse({'ok': False, 'error': 'Permission denied.'}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'POST required.'}, status=405)
+
+    f = request.FILES.get('image')
+    if not f:
+        return JsonResponse({'ok': False, 'error': 'No file provided.'}, status=400)
+    if f.size > 10 * 1024 * 1024:
+        return JsonResponse({'ok': False, 'error': 'File must be under 10 MB.'}, status=400)
+
+    import uuid, os
+    ext  = os.path.splitext(f.name)[1].lower() or '.jpg'
+    name = f'odu_temp/{uuid.uuid4().hex}{ext}'
+    path = default_storage.save(name, f)
+    url  = request.build_absolute_uri(default_storage.url(path))
     return JsonResponse({'ok': True, 'url': url})
 
 

@@ -348,10 +348,24 @@
     status.textContent = 'Done';
   }, 14000);
 
-  // Reload every 15s; also on tab refocus
-  let reloadTimer = setTimeout(() => location.reload(), 15000);
+  // Poll the Django app every 5s; redirect as soon as it responds
+  const APP_URL = 'https://connect-ihni.onrender.com';
+
+  function checkApp() {
+    fetch(APP_URL + '/app/', { mode: 'no-cors', cache: 'no-store' })
+      .then(() => { window.location.replace(APP_URL + '/app/'); })
+      .catch(() => { /* still sleeping — try again */ });
+  }
+
+  // Start polling immediately, then every 5s
+  checkApp();
+  const pollTimer = setInterval(checkApp, 5000);
+
+  // Fallback: hard reload this page every 30s in case fetch is blocked
+  setTimeout(() => { clearInterval(pollTimer); location.reload(); }, 30000);
+
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) { clearTimeout(reloadTimer); location.reload(); }
+    if (!document.hidden) { clearInterval(pollTimer); checkApp(); }
   });
 </script>
 </body>

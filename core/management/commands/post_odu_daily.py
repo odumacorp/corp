@@ -44,6 +44,10 @@ Tone rules:
 - Second-person ("you") or first-person plural ("we") where natural.
 - Full sentences throughout.
 
+BRAND RULE — STRICTLY ENFORCED:
+- Always refer to the platform as "Oduma Corp" — never "Oduma", "Oduma Platform", "the platform", or any other shortening.
+- In titles and content, use "Oduma Corp" in full every time the brand is mentioned.
+
 Every post must follow this structure internally (Motivation → Insight → Action) even when formatted as a continuous piece.
 
 IMPORTANT: Every response must include an "image_query" field — 3-5 comma-separated English keywords describing a relevant professional stock photo. Think visually: "African founder pitching investors", "startup whiteboard strategy session", "entrepreneur laptop café Nairobi", "product launch team Africa"."""
@@ -159,14 +163,14 @@ Return JSON only:
     if post_type == 'milestone':
         return f"""{context}
 
-Write a milestone post for the Oduma Corp community that connects platform growth to the mission of empowering African innovators.
+Write a milestone post for the Oduma Corp community that connects Oduma Corp's growth to the mission of empowering African innovators. Always use "Oduma Corp" in full — never "Oduma" or "Oduma Platform".
 
 {structure_note}
 
 Return JSON only:
 {{
-  "title": "milestone headline (max 12 words)",
-  "content": "Motivation: powerful statement about what the milestone means.\\n\\nInsight: 2-3 sentences on what it signals for innovators and investors on the platform.\\n\\nAction: one thing community members can do to build on this momentum.",
+  "title": "milestone headline (max 12 words, use 'Oduma Corp' not 'Oduma' or 'Oduma Platform')",
+  "content": "Motivation: powerful statement about what the milestone means.\\n\\nInsight: 2-3 sentences on what it signals for innovators and investors on Oduma Corp.\\n\\nAction: one thing community members can do to build on this momentum.",
   {hashtag_rule},
   {image_field}
 }}"""
@@ -174,14 +178,14 @@ Return JSON only:
     if post_type == 'announcement':
         return f"""{context}
 
-Write a platform announcement for the {industry} community that connects the update to helping innovators build or attract investment.
+Write an Oduma Corp announcement for the {industry} community that connects the update to helping innovators build or attract investment. Always use "Oduma Corp" in full — never "Oduma" or "the platform".
 
 {structure_note}
 
 Return JSON only:
 {{
-  "title": "announcement headline (max 12 words)",
-  "content": "Motivation: why this update matters to innovators.\\n\\nInsight: what it enables — for building, validation, or investor readiness.\\n\\nAction: what to do with it right now.",
+  "title": "announcement headline (max 12 words, use 'Oduma Corp' not 'Oduma' or 'the platform')",
+  "content": "Motivation: why this Oduma Corp update matters to innovators.\\n\\nInsight: what it enables — for building, validation, or investor readiness.\\n\\nAction: what to do with it right now.",
   {hashtag_rule},
   {image_field}
 }}"""
