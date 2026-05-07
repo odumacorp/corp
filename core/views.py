@@ -4554,32 +4554,36 @@ def admin_edit_news(request, news_id):
 def admin_edit_page(request, page_id):
     return _admin_post_redirect(request)
 
-@login_required
 def admin_edit_post(request, post_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'login required'}, status=401)
     if request.user.user_type != 'admin' and not request.user.is_superuser:
         return JsonResponse({'ok': False, 'error': 'forbidden'}, status=403)
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'POST required'}, status=405)
-    post = get_object_or_404(Post, pk=post_id)
-    title    = request.POST.get('title',    '').strip()
-    content  = request.POST.get('content',  '').strip()
-    industry = request.POST.get('industry', '').strip()
-    fields   = []
-    if title:
-        post.title   = title
-        fields.append('title')
-    if content:
-        post.content = content
-        fields.append('content')
-    if industry:
-        post.industry = industry
-        fields.append('industry')
-    if request.FILES.get('image'):
-        post.image = request.FILES['image']
-        fields.append('image')
-    if fields:
-        post.save(update_fields=fields)
-    return JsonResponse({'ok': True})
+    try:
+        post = get_object_or_404(Post, pk=post_id)
+        title    = request.POST.get('title',    '').strip()
+        content  = request.POST.get('content',  '').strip()
+        industry = request.POST.get('industry', '').strip()
+        fields   = []
+        if title:
+            post.title   = title
+            fields.append('title')
+        if content:
+            post.content = content
+            fields.append('content')
+        if industry:
+            post.industry = industry
+            fields.append('industry')
+        if request.FILES.get('image'):
+            post.image = request.FILES['image']
+            fields.append('image')
+        if fields:
+            post.save(update_fields=fields)
+        return JsonResponse({'ok': True})
+    except Exception as exc:
+        return JsonResponse({'ok': False, 'error': str(exc)}, status=500)
 
 @login_required
 def admin_edit_project(request, project_id):

@@ -1140,7 +1140,7 @@
                   <input type="file" id="ppr-edit-img-{{ p.id }}" accept="image/*" style="font-size:1.1rem;">
                 </div>
                 <div style="display:flex;gap:8px;">
-                  <button type="button" class="adm-act-btn adm-btn-success" onclick="pprSaveEdit({{ p.id }}, '{% url 'admin_edit_post' p.id %}')">Save Changes</button>
+                  <button type="button" class="adm-act-btn adm-btn-success" onclick="pprSaveEdit({{ p.id }}, '{% url 'admin_edit_post' p.id %}', this)">Save Changes</button>
                   <button type="button" class="adm-act-btn" style="background:#f3f4f6;color:#374151;" onclick="pprToggleEdit({{ p.id }})">Cancel</button>
                 </div>
               </div>
@@ -4091,7 +4091,7 @@ function pprToggleEdit(postId) {
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
 }
 
-function pprSaveEdit(postId, url) {
+function pprSaveEdit(postId, url, btn) {
   var title   = (document.getElementById('ppr-edit-title-' + postId)   || {}).value || '';
   var content = (document.getElementById('ppr-edit-content-' + postId) || {}).value || '';
   var imgInput = document.getElementById('ppr-edit-img-' + postId);
@@ -4099,7 +4099,6 @@ function pprSaveEdit(postId, url) {
   if (title.trim())   form.append('title',   title.trim());
   if (content.trim()) form.append('content', content.trim());
   if (imgInput && imgInput.files[0]) form.append('image', imgInput.files[0]);
-  var btn = event.target;
   btn.disabled = true;
   btn.textContent = 'Saving…';
   fetch(url, {
