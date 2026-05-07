@@ -176,7 +176,7 @@ The app is configured as a Progressive Web App:
 
 ### Deployment
 
-Deployed on **Render** (`connect-ihni.onrender.com`). Production uses PostgreSQL via `DATABASE_URL`; local dev defaults to SQLite.
+Deployed on **Render** (`corp-jmny.onrender.com`). Production uses PostgreSQL via `DATABASE_URL`; local dev defaults to SQLite.
 
 ## UI / Design System
 

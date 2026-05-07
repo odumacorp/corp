@@ -14,4 +14,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Django app (wakes Render service)
-        run: curl -s https://connect-ihni.onrender.com > /dev/null
+        run: curl -s https://corp-jmny.onrender.com > /dev/null
