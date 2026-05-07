@@ -232,6 +232,22 @@
   .adm-broadcast-textarea:focus { border-color: var(--blue); background: #fff; }
   .adm-broadcast-select { padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 9px; font-family: var(--ff-sans); font-size: 1.2rem; color: var(--text); background: var(--card-bg); outline: none; cursor: pointer; width: 100%; box-sizing: border-box; }
   .adm-broadcast-select:focus { border-color: var(--blue); }
+  /* ---- Edit-post custom dropdown ---- */
+  .epo-dd { position:relative; width:100%; }
+  .epo-dd-trigger { display:flex; align-items:center; justify-content:space-between; padding:9px 12px; border:1.5px solid var(--border); border-radius:9px; background:#fff; color:var(--text); font-family:var(--ff-sans); font-size:1.2rem; cursor:pointer; transition:border-color .2s; user-select:none; }
+  .epo-dd-trigger:hover,.epo-dd.open .epo-dd-trigger { border-color:var(--blue); }
+  .epo-dd-list { display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:#fff; border:1.5px solid var(--blue); border-radius:9px; box-shadow:0 8px 24px rgba(27,94,199,.12); z-index:200; overflow:hidden; }
+  .epo-dd.open .epo-dd-list { display:block; }
+  .epo-dd-opt { padding:9px 14px; font-family:var(--ff-sans); font-size:1.2rem; color:var(--text); cursor:pointer; transition:background .12s; }
+  .epo-dd-opt:hover { background:#f0f5ff; }
+  .epo-dd-opt.selected { background:#e8f0fe; color:var(--blue); font-weight:600; }
+  /* ---- Edit-post image preview ---- */
+  .epo-img-wrap { position:relative; width:100%; border:1.5px dashed var(--border); border-radius:10px; overflow:hidden; background:#f8fafd; cursor:pointer; transition:border-color .2s; }
+  .epo-img-wrap:hover { border-color:var(--blue); }
+  .epo-img-current { width:100%; max-height:160px; object-fit:cover; display:block; }
+  .epo-img-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(10,22,40,.45); opacity:0; transition:opacity .2s; flex-direction:column; gap:6px; color:#fff; font-family:var(--ff-sans); font-size:1.15rem; font-weight:600; }
+  .epo-img-wrap:hover .epo-img-overlay { opacity:1; }
+  .epo-img-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:24px; color:var(--muted); font-family:var(--ff-sans); font-size:1.15rem; }
   .adm-broadcast-btn { padding: 9px 22px; background: var(--blue); color: #fff; border: none; border-radius: 9px; font-family: var(--ff-sans); font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: background 0.2s, transform 0.2s; white-space: nowrap; }
   .adm-broadcast-btn:hover { background: var(--blue-dark); transform: translateY(-1px); }
 
@@ -1103,6 +1119,31 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 Reject
               </button>
+              <button type="button" class="adm-act-btn" style="background:#f0f4ff;color:#1b5ec7;border:1px solid #c7d8f8;" onclick="pprToggleEdit({{ p.id }})">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </button>
+            </div>
+            <div id="ppr-edit-{{ p.id }}" style="display:none;padding:14px 18px;border-top:1px solid #e9eef6;background:#f8fafd;">
+              <div style="font-weight:700;color:#0a1628;font-size:1.1rem;margin-bottom:10px;">Edit Post</div>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div>
+                  <label style="font-size:1.1rem;font-weight:600;color:#374151;margin-bottom:4px;display:block;">Title</label>
+                  <input type="text" id="ppr-edit-title-{{ p.id }}" value="{{ p.title|default:'' }}" placeholder="Post title…" style="width:100%;padding:8px 12px;border:1.5px solid #e4eaf2;border-radius:8px;font-size:1.15rem;outline:none;">
+                </div>
+                <div>
+                  <label style="font-size:1.1rem;font-weight:600;color:#374151;margin-bottom:4px;display:block;">Content</label>
+                  <textarea id="ppr-edit-content-{{ p.id }}" rows="4" placeholder="Post content…" style="width:100%;padding:8px 12px;border:1.5px solid #e4eaf2;border-radius:8px;font-size:1.15rem;resize:vertical;outline:none;">{{ p.content }}</textarea>
+                </div>
+                <div>
+                  <label style="font-size:1.1rem;font-weight:600;color:#374151;margin-bottom:4px;display:block;">Replace Image (optional)</label>
+                  <input type="file" id="ppr-edit-img-{{ p.id }}" accept="image/*" style="font-size:1.1rem;">
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <button type="button" class="adm-act-btn adm-btn-success" onclick="pprSaveEdit({{ p.id }}, '{% url 'admin_edit_post' p.id %}')">Save Changes</button>
+                  <button type="button" class="adm-act-btn" style="background:#f3f4f6;color:#374151;" onclick="pprToggleEdit({{ p.id }})">Cancel</button>
+                </div>
+              </div>
             </div>
           </div>
           {% endfor %}
@@ -1163,7 +1204,7 @@
           <tbody>
             {% for p in posts %}
             <tr data-search="{{ p.title|lower }} {{ p.user.username|lower }}" data-industry="{{ p.industry }}" data-date="{{ p.created_at|date:'U' }}">
-              <td style="font-family:var(--ff-serif);">{{ p.title|truncatechars:55 }}</td>
+              <td style="font-family:var(--ff-serif);"><span id="post-title-{{ p.id }}">{{ p.title|truncatechars:55 }}</span></td>
               <td>
                 <a href="{% url 'profile_view' username=p.user.username %}" style="color:var(--blue);text-decoration:none;">
                   {{ p.user.get_full_name|default:p.user.username }}
@@ -1184,7 +1225,7 @@
                 <div class="adm-actions">
                   <span id="post-content-{{ p.id }}" style="display:none;">{{ p.content }}</span>
                   <button type="button" class="adm-act-btn adm-btn-primary"
-                    onclick="openEditPost({{ p.id }},'{{ p.title|escapejs }}','{{ p.industry }}')">
+                    onclick="openEditPost({{ p.id }},'{{ p.title|escapejs }}','{{ p.industry }}','{% if p.image %}{{ p.image.url }}{% endif %}')">
                     <i class="fi fi-rr-pencil"></i> Edit
                   </button>
                   <form method="post" action="{% url 'admin_toggle_hide_post' p.id %}" style="display:inline">
@@ -4044,6 +4085,56 @@ function pprReject(postId, url) {
   });
 }
 
+function pprToggleEdit(postId) {
+  var panel = document.getElementById('ppr-edit-' + postId);
+  if (!panel) return;
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+function pprSaveEdit(postId, url) {
+  var title   = (document.getElementById('ppr-edit-title-' + postId)   || {}).value || '';
+  var content = (document.getElementById('ppr-edit-content-' + postId) || {}).value || '';
+  var imgInput = document.getElementById('ppr-edit-img-' + postId);
+  var form = new FormData();
+  if (title.trim())   form.append('title',   title.trim());
+  if (content.trim()) form.append('content', content.trim());
+  if (imgInput && imgInput.files[0]) form.append('image', imgInput.files[0]);
+  var btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  fetch(url, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': _getCsrf(), 'X-Requested-With': 'XMLHttpRequest' },
+    body: form
+  })
+  .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(function(data) {
+    if (data.ok) {
+      btn.textContent = 'Saved!';
+      setTimeout(function() { pprToggleEdit(postId); btn.disabled = false; btn.textContent = 'Save Changes'; }, 900);
+      // Update visible title/content in card without page reload
+      var body = document.querySelector('#ppr-' + postId + ' .ppr-card-body');
+      if (body && title.trim()) {
+        var titleEl = body.querySelector('[style*="ff-serif"]');
+        if (titleEl) titleEl.textContent = title.trim();
+      }
+      if (body && content.trim()) {
+        var contentEl = body.querySelector('[style*="374151"]');
+        if (contentEl) contentEl.textContent = content.trim().slice(0, 200) + (content.length > 200 ? '…' : '');
+      }
+    } else {
+      alert('Save failed: ' + (data.error || 'Unknown error'));
+      btn.disabled = false;
+      btn.textContent = 'Save Changes';
+    }
+  })
+  .catch(function(e) {
+    alert('Save error: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = 'Save Changes';
+  });
+}
+
 function _pprUpdateCount(delta) {
   var badge = document.querySelector('#section-posts .adm-section-head [style*="b45309"]');
   if (!badge) return;
@@ -4193,30 +4284,57 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="adm-modal-overlay" id="edit-post-modal">
   <div class="adm-modal" style="max-width:560px;width:100%;max-height:90vh;overflow-y:auto;">
     <h3>Edit Post</h3>
-    <form method="post" id="edit-post-form">
-      {% csrf_token %}
-      <div class="adm-broadcast-field" style="margin-bottom:12px;">
-        <label>Title</label>
-        <input type="text" name="title" id="epo-title" class="adm-broadcast-textarea" style="resize:none;height:38px;padding:8px 12px;">
+    <div class="adm-broadcast-field" style="margin-bottom:12px;">
+      <label>Title</label>
+      <input type="text" id="epo-title" class="adm-broadcast-textarea" style="resize:none;height:38px;padding:8px 12px;">
+    </div>
+    <div class="adm-broadcast-field" style="margin-bottom:12px;">
+      <label>Industry</label>
+      <div class="epo-dd" id="epo-dd">
+        <div class="epo-dd-trigger" onclick="epoToggleDd()">
+          <span id="epo-dd-label">— Select —</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="epo-dd-list" id="epo-dd-list">
+          <div class="epo-dd-opt" data-val="">— Select —</div>
+          <div class="epo-dd-opt" data-val="tech">Technology</div>
+          <div class="epo-dd-opt" data-val="health">Healthcare</div>
+          <div class="epo-dd-opt" data-val="finance">Finance</div>
+          <div class="epo-dd-opt" data-val="education">Education</div>
+          <div class="epo-dd-opt" data-val="agriculture">Agriculture</div>
+          <div class="epo-dd-opt" data-val="energy">Energy</div>
+          <div class="epo-dd-opt" data-val="manufacturing">Manufacturing</div>
+          <div class="epo-dd-opt" data-val="retail">Retail</div>
+          <div class="epo-dd-opt" data-val="other">Other</div>
+        </div>
+        <input type="hidden" id="epo-industry-val">
       </div>
-      <div class="adm-broadcast-field" style="margin-bottom:12px;">
-        <label>Industry</label>
-        <select name="industry" id="epo-industry" class="adm-broadcast-select">
-          <option value="">— Select —</option>
-          <option>Technology</option><option>Healthcare</option><option>Finance</option>
-          <option>Education</option><option>Agriculture</option><option>Energy</option>
-          <option>Manufacturing</option><option>Retail</option><option>Other</option>
-        </select>
+    </div>
+    <div class="adm-broadcast-field" style="margin-bottom:12px;">
+      <label>Content</label>
+      <textarea id="epo-content" class="adm-broadcast-textarea" rows="5"></textarea>
+    </div>
+    <div class="adm-broadcast-field" style="margin-bottom:14px;">
+      <label>Image</label>
+      <div class="epo-img-wrap" onclick="document.getElementById('epo-img-input').click()">
+        <img id="epo-img-preview" class="epo-img-current" style="display:none;" alt="">
+        <div id="epo-img-placeholder" class="epo-img-placeholder">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span>Click to upload an image</span>
+        </div>
+        <div class="epo-img-overlay">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Change Image
+        </div>
       </div>
-      <div class="adm-broadcast-field" style="margin-bottom:14px;">
-        <label>Content *</label>
-        <textarea name="content" id="epo-content" class="adm-broadcast-textarea" rows="5" required></textarea>
-      </div>
-      <div class="adm-modal-actions">
-        <button type="button" class="adm-modal-cancel" onclick="closeEditPost()">Cancel</button>
-        <button type="submit" class="adm-broadcast-btn" style="margin:0;padding:9px 22px;"><i class="fi fi-rr-check"></i> Save Changes</button>
-      </div>
-    </form>
+      <input type="file" id="epo-img-input" accept="image/*" style="display:none;" onchange="epoPreviewImg(this)">
+    </div>
+    <div class="adm-modal-actions">
+      <button type="button" class="adm-modal-cancel" onclick="closeEditPost()">Cancel</button>
+      <button type="button" class="adm-broadcast-btn" id="epo-save-btn" style="margin:0;padding:9px 22px;" onclick="epoSave()">
+        <i class="fi fi-rr-check"></i> Save Changes
+      </button>
+    </div>
   </div>
 </div>
 
@@ -4834,17 +4952,96 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ---- Edit Post modal ----
   var EPO_BASE = "{% url 'admin_edit_post' post_id=0 %}".replace('/0/edit/', '/');
-  window.openEditPost = function(id, title, industry) {
-    document.getElementById('edit-post-form').action = EPO_BASE + id + '/edit/';
-    document.getElementById('epo-title').value = title;
-    var indSel = document.getElementById('epo-industry');
-    for (var i = 0; i < indSel.options.length; i++) {
-      if (indSel.options[i].value === industry || indSel.options[i].text === industry) {
-        indSel.selectedIndex = i; break;
+  var _epoPostId = null;
+
+  // Custom industry dropdown
+  function epoToggleDd() {
+    document.getElementById('epo-dd').classList.toggle('open');
+  }
+  function epoPickIndustry(val, label) {
+    document.getElementById('epo-industry-val').value = val;
+    document.getElementById('epo-dd-label').textContent = label;
+    document.querySelectorAll('#epo-dd-list .epo-dd-opt').forEach(function(o) {
+      o.classList.toggle('selected', o.dataset.val === val);
+    });
+    document.getElementById('epo-dd').classList.remove('open');
+  }
+  document.querySelectorAll('#epo-dd-list .epo-dd-opt').forEach(function(o) {
+    o.addEventListener('click', function() { epoPickIndustry(o.dataset.val, o.textContent); });
+  });
+  document.addEventListener('click', function(e) {
+    var dd = document.getElementById('epo-dd');
+    if (dd && !dd.contains(e.target)) dd.classList.remove('open');
+  });
+
+  // Image preview
+  window.epoPreviewImg = function(input) {
+    if (!input.files[0]) return;
+    var url = URL.createObjectURL(input.files[0]);
+    var img = document.getElementById('epo-img-preview');
+    var ph  = document.getElementById('epo-img-placeholder');
+    img.src = url; img.style.display = 'block';
+    if (ph) ph.style.display = 'none';
+  };
+
+  // Save via fetch (FormData supports file upload)
+  window.epoSave = function() {
+    var btn = document.getElementById('epo-save-btn');
+    var form = new FormData();
+    var title   = document.getElementById('epo-title').value.trim();
+    var content = document.getElementById('epo-content').value.trim();
+    var industry = document.getElementById('epo-industry-val').value;
+    var imgInput = document.getElementById('epo-img-input');
+    if (title)    form.append('title', title);
+    if (content)  form.append('content', content);
+    if (industry) form.append('industry', industry);
+    if (imgInput && imgInput.files[0]) form.append('image', imgInput.files[0]);
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Saving…';
+    fetch(EPO_BASE + _epoPostId + '/edit/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': _getCsrf(), 'X-Requested-With': 'XMLHttpRequest' },
+      body: form
+    })
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data) {
+      if (data.ok) {
+        closeEditPost();
+        // Update visible row values without reload
+        var titleEl = document.getElementById('post-title-' + _epoPostId);
+        if (titleEl && title) titleEl.textContent = title;
+      } else {
+        alert('Save failed: ' + (data.error || 'Unknown'));
       }
-    }
+    })
+    .catch(function(e) { alert('Error: ' + e.message); })
+    .finally(function() {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fi fi-rr-check"></i> Save Changes';
+    });
+  };
+
+  window.openEditPost = function(id, title, industry, imgUrl) {
+    _epoPostId = id;
+    document.getElementById('epo-title').value = title;
+    // Populate custom dropdown
+    var opts = document.querySelectorAll('#epo-dd-list .epo-dd-opt');
+    var matched = false;
+    opts.forEach(function(o) {
+      var match = o.dataset.val === industry || o.textContent.trim().toLowerCase() === (industry || '').toLowerCase();
+      o.classList.toggle('selected', match);
+      if (match) { document.getElementById('epo-dd-label').textContent = o.textContent.trim(); document.getElementById('epo-industry-val').value = o.dataset.val; matched = true; }
+    });
+    if (!matched) { document.getElementById('epo-dd-label').textContent = '— Select —'; document.getElementById('epo-industry-val').value = ''; }
     var contentEl = document.getElementById('post-content-' + id);
-    document.getElementById('epo-content').value = contentEl ? contentEl.textContent : '';
+    document.getElementById('epo-content').value = contentEl ? contentEl.textContent.trim() : '';
+    // Image preview
+    var img = document.getElementById('epo-img-preview');
+    var ph  = document.getElementById('epo-img-placeholder');
+    var fileInput = document.getElementById('epo-img-input');
+    fileInput.value = '';
+    if (imgUrl) { img.src = imgUrl; img.style.display = 'block'; if (ph) ph.style.display = 'none'; }
+    else { img.src = ''; img.style.display = 'none'; if (ph) ph.style.display = 'flex'; }
     document.getElementById('edit-post-modal').classList.add('open');
   };
   window.closeEditPost = function() { document.getElementById('edit-post-modal').classList.remove('open'); };
@@ -5100,7 +5297,7 @@ function _oduRefreshImage(idx) {
   if (btn) { btn.disabled = true; btn.textContent = '…'; }
 
   fetch('{% url "preview_odu_image" %}?q=' + encodeURIComponent(query), { credentials: 'same-origin' })
-  .then(function(r) { return r.json(); })
+  .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
   .then(function(data) {
     if (data.ok) {
       var img = document.getElementById('odu-img-' + idx);
@@ -5144,7 +5341,8 @@ function _oduUploadImage(idx) {
   .then(function(data) {
     if (data.ok) {
       // Store the server URL — no base64 blob in publish payload
-      _oduCurrentDrafts[idx].preview_image_url   = data.url;
+      _oduCurrentDrafts[idx].uploaded_url         = data.url;  // explicit upload — highest priority
+      _oduCurrentDrafts[idx].preview_image_url    = data.url;
       _oduCurrentDrafts[idx].uploaded_image_data  = '';
     } else {
       alert('Upload failed: ' + (data.error || 'Unknown error'));

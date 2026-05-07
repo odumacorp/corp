@@ -221,7 +221,7 @@ The UI follows a premium fintech/VC aesthetic:
 
 ## Deployment
 
-Hosted on **Render** at `connect-ihni.onrender.com`.
+Hosted on **Render** at `corp-jmny.onrender.com`.
 
 - **Database:** PostgreSQL via `DATABASE_URL` environment variable
 - **Static files:** Whitenoise (no separate CDN required)

@@ -3312,6 +3312,7 @@ function regenerateOduPosts() {
   .catch(function(e) {
     alert('Regeneration failed: ' + (e.message || 'Unknown error'));
     _oduResetBtn();
+    console.error('regenerateOduPosts:', e);
   });
 }
 
@@ -3380,7 +3381,7 @@ function _oduRefreshImage(idx) {
   var btn = input ? input.nextElementSibling : null;
   if (btn) { btn.disabled = true; btn.textContent = '…'; }
   fetch('{% url "preview_odu_image" %}?q=' + encodeURIComponent(query), { credentials: 'same-origin' })
-  .then(function(r) { return r.json(); })
+  .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
   .then(function(data) {
     if (data.ok) {
       var img = document.getElementById('odu-img-' + idx);
@@ -3403,7 +3404,7 @@ function _oduUploadImage(idx) {
   var img = document.getElementById('odu-img-' + idx);
   var noImg = document.getElementById('odu-no-img-' + idx);
   if (img) { img.src = localUrl; img.style.display = 'block'; }
-  if (noImg) noImg.style.display = 'none';
+  if (noImg) { noImg.textContent = 'Uploading…'; noImg.style.display = 'none'; }
   var form = new FormData();
   form.append('image', file);
   fetch('{% url "upload_odu_image" %}', {
@@ -3414,7 +3415,8 @@ function _oduUploadImage(idx) {
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if (data.ok) {
-      _oduCurrentDrafts[idx].preview_image_url = data.url;
+      _oduCurrentDrafts[idx].uploaded_url        = data.url;  // explicit upload — highest priority
+      _oduCurrentDrafts[idx].preview_image_url   = data.url;
       _oduCurrentDrafts[idx].uploaded_image_data = '';
     } else {
       alert('Upload failed: ' + (data.error || 'Unknown error'));

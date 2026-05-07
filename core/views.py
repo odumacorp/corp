@@ -4556,7 +4556,30 @@ def admin_edit_page(request, page_id):
 
 @login_required
 def admin_edit_post(request, post_id):
-    return _admin_post_redirect(request)
+    if request.user.user_type != 'admin' and not request.user.is_superuser:
+        return JsonResponse({'ok': False, 'error': 'forbidden'}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'POST required'}, status=405)
+    post = get_object_or_404(Post, pk=post_id)
+    title    = request.POST.get('title',    '').strip()
+    content  = request.POST.get('content',  '').strip()
+    industry = request.POST.get('industry', '').strip()
+    fields   = []
+    if title:
+        post.title   = title
+        fields.append('title')
+    if content:
+        post.content = content
+        fields.append('content')
+    if industry:
+        post.industry = industry
+        fields.append('industry')
+    if request.FILES.get('image'):
+        post.image = request.FILES['image']
+        fields.append('image')
+    if fields:
+        post.save(update_fields=fields)
+    return JsonResponse({'ok': True})
 
 @login_required
 def admin_edit_project(request, project_id):
@@ -8246,9 +8269,23 @@ def publish_odu_post(request):
             )
 
             uploaded_data = str(draft.get('uploaded_image_data', '')).strip()
+            uploaded_url  = str(draft.get('uploaded_url', '')).strip()   # explicit user upload (highest priority)
             preview_url   = str(draft.get('preview_image_url', '')).strip()
 
+            def _dl(url, fname):
+                try:
+                    import urllib.request as _ur
+                    from django.core.files.base import ContentFile
+                    req = _ur.Request(url, headers={'User-Agent': 'OdumaCorp/1.0'})
+                    with _ur.urlopen(req, timeout=12) as r:
+                        data = r.read()
+                    if len(data) > 5000:
+                        post.image.save(fname, ContentFile(data), save=True)
+                except Exception:
+                    pass
+
             if uploaded_data.startswith('data:image/'):
+                # Legacy base64 path (kept for backwards compat)
                 import base64
                 from django.core.files.base import ContentFile
                 try:
@@ -8259,19 +8296,14 @@ def publish_odu_post(request):
                     post.image.save(f'odu_upload.{ext}', ContentFile(img_bytes), save=True)
                 except Exception:
                     pass
+            elif uploaded_url.startswith('https://'):
+                # User explicitly uploaded a file — always takes priority over AI/Pexels
+                ext = uploaded_url.split('?')[0].rsplit('.', 1)[-1][:4] or 'jpg'
+                _dl(uploaded_url, f'odu_upload.{ext}')
             elif preview_url.startswith('https://'):
-                # Download whatever preview URL is already loaded (Pexels CDN, Pollinations, etc.)
-                try:
-                    import urllib.request as _ur
-                    from django.core.files.base import ContentFile
-                    req = _ur.Request(preview_url, headers={'User-Agent': 'OdumaCorp/1.0'})
-                    with _ur.urlopen(req, timeout=12) as r:
-                        img_bytes = r.read()
-                    if len(img_bytes) > 5000:
-                        ext = preview_url.split('?')[0].rsplit('.', 1)[-1][:4] or 'jpg'
-                        post.image.save(f'odu_draft.{ext}', ContentFile(img_bytes), save=True)
-                except Exception:
-                    pass
+                # AI-generated (Pollinations) or Pexels preview
+                ext = preview_url.split('?')[0].rsplit('.', 1)[-1][:4] or 'jpg'
+                _dl(preview_url, f'odu_draft.{ext}')
             elif image_query:
                 fname, img_file = _fetch_image(image_query)
                 if fname and img_file:
@@ -8311,6 +8343,7 @@ def preview_odu_image(request):
     return JsonResponse({'ok': True, 'url': url})
 
 
+@login_required
 @login_required
 def upload_odu_image(request):
     """Accept a multipart image upload for an Odu draft and return its stored URL.
