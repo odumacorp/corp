@@ -345,13 +345,16 @@ ACCOUNT_SIGNUP_FIELDS = [
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
-        'APP': {
-            'client_id': config('GOOGLE_CLIENT_ID', default=''),
-            'secret': config('GOOGLE_CLIENT_SECRET', default=''),
-            'key': ''
-        }
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
     }
 }
+
+# Google OAuth credentials live in the DB SocialApp record.
+# core/apps.py _sync_social_apps() creates/updates that record on post_migrate
+# using GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET from the environment.
+_GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
+_GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
 
 ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')
 PEXELS_API_KEY    = config('PEXELS_API_KEY',    default='')

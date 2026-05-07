@@ -3,11 +3,12 @@ from django.db.models.signals import post_migrate
 
 
 def _sync_social_apps(sender, **kwargs):
-    """Sync SocialApp DB records from SOCIALACCOUNT_PROVIDERS settings.
+    """Keep the Google SocialApp DB record in sync with env-var credentials.
 
-    allauth 65.x uses the database SocialApp record over the settings APP config
-    when a record exists. This keeps the DB record in sync with env-var credentials
-    so a stale/empty DB record never blocks OAuth.
+    allauth 65.x merges both DB records AND settings APP configs into one list,
+    so we must NOT put credentials in SOCIALACCOUNT_PROVIDERS['APP'] — only the
+    DB record should exist. This handler runs after every migrate so the record
+    always reflects the current GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET env vars.
     """
     from django.conf import settings
     try:
@@ -15,26 +16,25 @@ def _sync_social_apps(sender, **kwargs):
     except Exception:
         return
 
-    providers = getattr(settings, 'SOCIALACCOUNT_PROVIDERS', {})
-    for provider_id, cfg in providers.items():
-        app_cfg = cfg.get('APP', {})
-        client_id = app_cfg.get('client_id', '')
-        secret = app_cfg.get('secret', '')
-        if not client_id:
-            continue
-        # Delete duplicates first so update_or_create won't raise MultipleObjectsReturned.
-        qs = SocialApp.objects.filter(provider=provider_id)
-        if qs.count() > 1:
-            qs.delete()
-        SocialApp.objects.update_or_create(
-            provider=provider_id,
-            defaults={
-                'name': provider_id.capitalize(),
-                'client_id': client_id,
-                'secret': secret,
-                'key': app_cfg.get('key', ''),
-            },
-        )
+    client_id = getattr(settings, '_GOOGLE_CLIENT_ID', '')
+    secret = getattr(settings, '_GOOGLE_CLIENT_SECRET', '')
+    if not client_id:
+        return
+
+    # Remove duplicates if any exist, then upsert a single clean record.
+    qs = SocialApp.objects.filter(provider='google')
+    if qs.count() > 1:
+        qs.delete()
+        qs = SocialApp.objects.none()
+    SocialApp.objects.update_or_create(
+        provider='google',
+        defaults={
+            'name': 'Google',
+            'client_id': client_id,
+            'secret': secret,
+            'key': '',
+        },
+    )
 
 
 class CoreConfig(AppConfig):
