@@ -451,6 +451,7 @@ function cntTab(name, btn) {
   document.querySelectorAll('.cnt-tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('cnt-pane-' + name).classList.add('active');
   btn.classList.add('active');
+  history.replaceState(null, '', '#' + name);
 }
 
 // Announcement dialog

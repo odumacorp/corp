@@ -61,6 +61,7 @@ urlpatterns = _html_redirects + [
     path('admin/contact-submissions/<int:sub_id>/reply/', views.reply_contact_submission, name='reply_contact_submission'),
     path('admin/login/', views.admin_login_2fa, name='django_admin_login'),  # intercept before admin.site.urls
     path('admin/login-as-odu/', views.login_as_odu, name='login_as_odu'),
+    path('admin/login-as-odu/verify/', views.verify_totp_odu_login, name='verify_totp_odu_login'),
     path('admin/return-from-odu/', views.return_from_odu, name='return_from_odu'),
     path('admin/trigger-odu-post/', views.trigger_odu_post, name='trigger_odu_post'),
     path('admin/publish-odu-post/', views.publish_odu_post, name='publish_odu_post'),

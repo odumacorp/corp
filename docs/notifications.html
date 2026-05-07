@@ -264,7 +264,16 @@ function switchTab(id, btn) {
   document.querySelectorAll('.nf-tab').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + id).classList.add('active');
   btn.classList.add('active');
+  try { sessionStorage.setItem('nf_tab', id); } catch(e) {}
 }
+(function() {
+  var saved = null;
+  try { saved = sessionStorage.getItem('nf_tab'); } catch(e) {}
+  if (saved && saved !== 'all') {
+    var btn = document.querySelector('.nf-tab[onclick*="\'' + saved + '\'"]');
+    if (btn) switchTab(saved, btn);
+  }
+})();
 
 var _nfCsrf = () => (document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '');
 

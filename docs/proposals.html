@@ -304,7 +304,13 @@ function switchTab(name) {
     document.getElementById('pane-' + t).style.display = t === name ? '' : 'none';
     document.getElementById('tab-' + t).classList.toggle('active', t === name);
   });
+  try { sessionStorage.setItem('prp_tab', name); } catch(e) {}
 }
+(function() {
+  var saved = null;
+  try { saved = sessionStorage.getItem('prp_tab'); } catch(e) {}
+  if (saved === 'sent') switchTab('sent');
+})();
 
 var _prpActionProposalId = null;
 var _prpActionType = null;

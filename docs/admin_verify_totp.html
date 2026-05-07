@@ -35,8 +35,8 @@ input:focus{border-color:#1B5EC7}
     <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
   </div>
 
-  <h1>Enter Authentication Code</h1>
-  <p class="sub">Open your authenticator app and enter the current 6-digit code for Oduma Corp Admin.</p>
+  <h1>{{ page_title|default:"Enter Authentication Code" }}</h1>
+  <p class="sub">{{ page_subtitle|default:"Open your authenticator app and enter the current 6-digit code for Oduma Corp Admin." }}</p>
 
   {% if error %}
   <div class="err">{{ error }}</div>
@@ -46,9 +46,9 @@ input:focus{border-color:#1B5EC7}
     {% csrf_token %}
     <label for="code">6-digit code</label>
     <input type="text" id="code" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="one-time-code" required autofocus>
-    <button type="submit" class="btn">Sign In →</button>
+    <button type="submit" class="btn">{{ submit_label|default:"Sign In →" }}</button>
   </form>
-  <a href="{% url 'admin_login_2fa' %}" class="back">← Back to login</a>
+  <a href="{{ back_url|default:'#' }}" class="back">← {{ back_label|default:"Back to login" }}</a>
 </div>
 </body>
 </html>

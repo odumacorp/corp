@@ -235,12 +235,15 @@
   /* ---- Edit-post custom dropdown ---- */
   .epo-dd { position:relative; width:100%; }
   .epo-dd-trigger { display:flex; align-items:center; justify-content:space-between; padding:9px 12px; border:1.5px solid var(--border); border-radius:9px; background:#fff; color:var(--text); font-family:var(--ff-sans); font-size:1.2rem; cursor:pointer; transition:border-color .2s; user-select:none; }
-  .epo-dd-trigger:hover,.epo-dd.open .epo-dd-trigger { border-color:var(--blue); }
-  .epo-dd-list { display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:#fff; border:1.5px solid var(--blue); border-radius:9px; box-shadow:0 8px 24px rgba(27,94,199,.12); z-index:200; overflow:hidden; }
+  .epo-dd-trigger:hover, .epo-dd.open .epo-dd-trigger { border-color:var(--blue); }
+  .epo-dd.open .epo-dd-trigger svg { transform:rotate(180deg); }
+  .epo-dd-list { display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:#fff; border:1.5px solid var(--blue); border-radius:9px; box-shadow:0 8px 24px rgba(27,94,199,.12); z-index:400; overflow:hidden; }
   .epo-dd.open .epo-dd-list { display:block; }
-  .epo-dd-opt { padding:9px 14px; font-family:var(--ff-sans); font-size:1.2rem; color:var(--text); cursor:pointer; transition:background .12s; }
-  .epo-dd-opt:hover { background:#f0f5ff; }
+  .epo-dd-opt { padding:9px 14px; font-family:var(--ff-sans); font-size:1.2rem; color:var(--text); cursor:pointer; transition:background .12s; display:flex; align-items:center; justify-content:space-between; }
+  .epo-dd-opt:hover { background:#f0f5ff; color:var(--blue); }
   .epo-dd-opt.selected { background:#e8f0fe; color:var(--blue); font-weight:600; }
+  .epo-dd-opt .epo-dd-check { opacity:0; flex-shrink:0; }
+  .epo-dd-opt.selected .epo-dd-check { opacity:1; }
   /* ---- Edit-post image preview ---- */
   .epo-img-wrap { position:relative; width:100%; border:1.5px dashed var(--border); border-radius:10px; overflow:hidden; background:#f8fafd; cursor:pointer; transition:border-color .2s; }
   .epo-img-wrap:hover { border-color:var(--blue); }
@@ -681,6 +684,18 @@
       .ds-totals-row strong { color:#1a1a1a; }
 
       /* ── Per-section date filter bar ── */
+      /* ── Filter dropdown (fdd) ── */
+      .fdd { position:relative; display:inline-block; }
+      .fdd-trigger { display:flex; align-items:center; gap:7px; padding:7px 12px; border:1.5px solid var(--border); border-radius:9px; background:var(--card-bg); color:var(--text); font-family:var(--ff-sans); font-size:1.2rem; cursor:pointer; white-space:nowrap; transition:border-color .2s,box-shadow .2s; user-select:none; }
+      .fdd-trigger:hover { border-color:var(--blue); color:var(--blue); }
+      .fdd.open .fdd-trigger { border-color:var(--blue); background:#fff; box-shadow:0 0 0 3px rgba(27,94,199,.09); color:var(--blue); }
+      .fdd-list { display:none; position:absolute; top:calc(100% + 5px); left:0; min-width:100%; background:#fff; border:1.5px solid var(--blue); border-radius:9px; box-shadow:0 8px 24px rgba(27,94,199,.12); z-index:300; overflow:hidden; }
+      .fdd.open .fdd-list { display:block; }
+      .fdd-opt { padding:8px 14px; font-family:var(--ff-sans); font-size:1.2rem; color:var(--text); cursor:pointer; white-space:nowrap; transition:background .12s; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+      .fdd-opt:hover { background:#f0f5ff; color:var(--blue); }
+      .fdd-opt.selected { background:#e8f0fe; color:var(--blue); font-weight:600; }
+      .fdd-opt .fdd-check { flex-shrink:0; opacity:0; }
+      .fdd-opt.selected .fdd-check { opacity:1; }
       .sec-fb-bar { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:10px; }
       .sec-fb {
         padding:4px 12px; border-radius:16px; border:1px solid #e5e7eb;
@@ -1152,19 +1167,37 @@
       {% endif %}
 
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
-        <select id="post-industry-filter" onchange="filterPosts()" class="adm-role-select" style="padding:6px 10px;">
-          <option value="">All Industries</option>
-          <option value="tech">Technology</option>
-          <option value="health">Healthcare</option>
-          <option value="finance">Finance</option>
-          <option value="education">Education</option>
-          <option value="energy">Energy</option>
-          <option value="engineering">Engineering</option>
-        </select>
-        <select id="post-sort" onchange="sortPosts()" class="adm-role-select" style="padding:6px 10px;">
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-        </select>
+        <input type="hidden" id="post-industry-filter" value="">
+        <div class="fdd" id="fdd-post-ind">
+          <button type="button" class="fdd-trigger" onclick="fddToggle('fdd-post-ind')">
+            <span id="fdd-post-ind-lbl">All Industries</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="fdd-list">
+            <div class="fdd-opt selected" data-val="" onclick="fddPick('fdd-post-ind','post-industry-filter','','All Industries');filterPosts()">All Industries<svg class="fdd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fdd-opt" data-val="tech" onclick="fddPick('fdd-post-ind','post-industry-filter','tech','Technology');filterPosts()">Technology<svg class="fdd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fdd-opt" data-val="health" onclick="fddPick('fdd-post-ind','post-industry-filter','health','Healthcare');filterPosts()">Healthcare<svg class="fdd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fdd-opt" data-val="finance" onclick="fddPick('fdd-post-ind','post-industry-filter','finance','Finance');filterPosts()">Finance<svg class="fdd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fdd-opt" data-val="education" onclick="fddPick('fdd-post-ind','post-industry-filter','education','Education');filterPosts()">Education<svg class="fdd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fdd-opt" data-val="energy" onclick="fddPick('fdd-post-ind','post-industry-filter','energy','Energy');filterPosts()">Energy<svg class="fdd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fdd-opt" data-val="engineering" onclick="fddPick('fdd-post-ind','post-industry-filter','engineering','Engineering');filterPosts()">Engineering<svg class="fdd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fdd-opt" data-val="agriculture" onclick="fddPick('fdd-post-ind','post-industry-filter','agriculture','Agriculture');filterPosts()">Agriculture<svg class="fdd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fdd-opt" data-val="retail" onclick="fddPick('fdd-post-ind','post-industry-filter','retail','Retail');filterPosts()">Retail<svg class="fdd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fdd-opt" data-val="manufacturing" onclick="fddPick('fdd-post-ind','post-industry-filter','manufacturing','Manufacturing');filterPosts()">Manufacturing<svg class="fdd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fdd-opt" data-val="other" onclick="fddPick('fdd-post-ind','post-industry-filter','other','Other');filterPosts()">Other<svg class="fdd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+        </div>
+        <input type="hidden" id="post-sort" value="newest">
+        <div class="fdd" id="fdd-post-sort">
+          <button type="button" class="fdd-trigger" onclick="fddToggle('fdd-post-sort')">
+            <span id="fdd-post-sort-lbl">Newest First</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="fdd-list">
+            <div class="fdd-opt selected" data-val="newest" onclick="fddPick('fdd-post-sort','post-sort','newest','Newest First');sortPosts()">Newest First<svg class="fdd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="fdd-opt" data-val="oldest" onclick="fddPick('fdd-post-sort','post-sort','oldest','Oldest First');sortPosts()">Oldest First<svg class="fdd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+        </div>
         <div class="adm-search-bar">
           <span class="adm-search-icon"><i class="fi fi-rr-search"></i></span>
           <input type="text" class="adm-search-input" id="post-owner-search" placeholder="Filter by author…" oninput="filterPosts()">
@@ -2541,6 +2574,26 @@
                 Revoke
               </button>
             </div>
+          </div>
+          <!-- Granted privilege badges -->
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;min-height:24px;">
+            {% if perms %}
+              {% if perms.is_superadmin %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:700;font-family:var(--ff-sans);background:rgba(27,94,199,0.12);color:var(--blue);">Super Admin</span>{% endif %}
+              {% if perms.can_manage_users %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:600;font-family:var(--ff-sans);background:#f0fdf4;color:#166534;">Users</span>{% endif %}
+              {% if perms.can_manage_projects %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:600;font-family:var(--ff-sans);background:#f0fdf4;color:#166534;">Projects</span>{% endif %}
+              {% if perms.can_manage_posts %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:600;font-family:var(--ff-sans);background:#f0fdf4;color:#166534;">Posts</span>{% endif %}
+              {% if perms.can_manage_messages %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:600;font-family:var(--ff-sans);background:#f0fdf4;color:#166534;">Messages</span>{% endif %}
+              {% if perms.can_manage_events %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:600;font-family:var(--ff-sans);background:#f0fdf4;color:#166534;">Events</span>{% endif %}
+              {% if perms.can_manage_jobs %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:600;font-family:var(--ff-sans);background:#f0fdf4;color:#166534;">Jobs</span>{% endif %}
+              {% if perms.can_manage_comments %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:600;font-family:var(--ff-sans);background:#f0fdf4;color:#166534;">Comments</span>{% endif %}
+              {% if perms.can_manage_connections %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:600;font-family:var(--ff-sans);background:#f0fdf4;color:#166534;">Connections</span>{% endif %}
+              {% if perms.can_view_reports %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:600;font-family:var(--ff-sans);background:#f0fdf4;color:#166534;">Reports</span>{% endif %}
+              {% if not perms.is_superadmin and not perms.can_manage_users and not perms.can_manage_projects and not perms.can_manage_posts and not perms.can_manage_messages and not perms.can_manage_events and not perms.can_manage_jobs and not perms.can_manage_comments and not perms.can_manage_connections and not perms.can_view_reports %}
+                <span style="font-size:1.1rem;font-family:var(--ff-sans);color:var(--muted);">No privileges granted</span>
+              {% endif %}
+            {% else %}
+              <span style="font-size:1.1rem;font-family:var(--ff-sans);color:var(--muted);">No privileges granted</span>
+            {% endif %}
           </div>
           <form method="post" action="{% url 'admin_manage_sub_admin' sa.id %}">
             {% csrf_token %}
@@ -4281,13 +4334,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- ── Edit Post Modal ── -->
 <div class="adm-modal-overlay" id="edit-post-modal">
-  <div class="adm-modal" style="max-width:560px;width:100%;max-height:90vh;overflow-y:auto;">
-    <h3>Edit Post</h3>
-    <div class="adm-broadcast-field" style="margin-bottom:12px;">
+  <div class="adm-modal" style="max-width:560px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:visible;padding-bottom:0;">
+    <h3 style="margin-bottom:16px;flex-shrink:0;">Edit Post</h3>
+    <!-- Title + Industry sit outside the scroll wrapper so the dropdown can overflow freely -->
+    <div class="adm-broadcast-field" style="margin-bottom:12px;flex-shrink:0;">
       <label>Title</label>
       <input type="text" id="epo-title" class="adm-broadcast-textarea" style="resize:none;height:38px;padding:8px 12px;">
     </div>
-    <div class="adm-broadcast-field" style="margin-bottom:12px;">
+    <div class="adm-broadcast-field" style="margin-bottom:12px;flex-shrink:0;position:relative;">
       <label>Industry</label>
       <div class="epo-dd" id="epo-dd">
         <div class="epo-dd-trigger" onclick="epoToggleDd()">
@@ -4295,40 +4349,44 @@ document.addEventListener('DOMContentLoaded', function() {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="epo-dd-list" id="epo-dd-list">
-          <div class="epo-dd-opt" data-val="">— Select —</div>
-          <div class="epo-dd-opt" data-val="tech">Technology</div>
-          <div class="epo-dd-opt" data-val="health">Healthcare</div>
-          <div class="epo-dd-opt" data-val="finance">Finance</div>
-          <div class="epo-dd-opt" data-val="education">Education</div>
-          <div class="epo-dd-opt" data-val="agriculture">Agriculture</div>
-          <div class="epo-dd-opt" data-val="energy">Energy</div>
-          <div class="epo-dd-opt" data-val="manufacturing">Manufacturing</div>
-          <div class="epo-dd-opt" data-val="retail">Retail</div>
-          <div class="epo-dd-opt" data-val="other">Other</div>
+          <div class="epo-dd-opt" data-val="">— Select —<svg class="epo-dd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="epo-dd-opt" data-val="tech">Technology<svg class="epo-dd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="epo-dd-opt" data-val="health">Healthcare<svg class="epo-dd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="epo-dd-opt" data-val="finance">Finance<svg class="epo-dd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="epo-dd-opt" data-val="education">Education<svg class="epo-dd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="epo-dd-opt" data-val="agriculture">Agriculture<svg class="epo-dd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="epo-dd-opt" data-val="energy">Energy<svg class="epo-dd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="epo-dd-opt" data-val="manufacturing">Manufacturing<svg class="epo-dd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="epo-dd-opt" data-val="retail">Retail<svg class="epo-dd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="epo-dd-opt" data-val="other">Other<svg class="epo-dd-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
         </div>
         <input type="hidden" id="epo-industry-val">
       </div>
     </div>
-    <div class="adm-broadcast-field" style="margin-bottom:12px;">
-      <label>Content</label>
-      <textarea id="epo-content" class="adm-broadcast-textarea" rows="5"></textarea>
-    </div>
-    <div class="adm-broadcast-field" style="margin-bottom:14px;">
-      <label>Image</label>
-      <div class="epo-img-wrap" onclick="document.getElementById('epo-img-input').click()">
-        <img id="epo-img-preview" class="epo-img-current" style="display:none;" alt="">
-        <div id="epo-img-placeholder" class="epo-img-placeholder">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          <span>Click to upload an image</span>
-        </div>
-        <div class="epo-img-overlay">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          Change Image
-        </div>
+    <!-- Scrollable area: content + image -->
+    <div style="overflow-y:auto;flex:1;min-height:0;">
+      <div class="adm-broadcast-field" style="margin-bottom:12px;">
+        <label>Content</label>
+        <textarea id="epo-content" class="adm-broadcast-textarea" rows="5"></textarea>
       </div>
-      <input type="file" id="epo-img-input" accept="image/*" style="display:none;" onchange="epoPreviewImg(this)">
+      <div class="adm-broadcast-field" style="margin-bottom:14px;">
+        <label>Image</label>
+        <div class="epo-img-wrap" onclick="document.getElementById('epo-img-input').click()">
+          <img id="epo-img-preview" class="epo-img-current" style="display:none;" alt="">
+          <div id="epo-img-placeholder" class="epo-img-placeholder">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Click to upload an image</span>
+          </div>
+          <div class="epo-img-overlay">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Change Image
+          </div>
+        </div>
+        <input type="file" id="epo-img-input" accept="image/*" style="display:none;" onchange="epoPreviewImg(this)">
+      </div>
     </div>
-    <div class="adm-modal-actions">
+    <!-- Buttons always visible at bottom -->
+    <div class="adm-modal-actions" style="padding-top:14px;border-top:1px solid var(--border);margin-top:4px;flex-shrink:0;">
       <button type="button" class="adm-modal-cancel" onclick="closeEditPost()">Cancel</button>
       <button type="button" class="adm-broadcast-btn" id="epo-save-btn" style="margin:0;padding:9px 22px;" onclick="epoSave()">
         <i class="fi fi-rr-check"></i> Save Changes
@@ -4612,9 +4670,14 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(function(){ window._locMap.invalidateSize(); }, 80);
       }
     }
+    try { localStorage.setItem('adm_tab', tabId); } catch(e) {}
   };
-  // Show dashboard by default
-  showTab('stats');
+  // Restore last tab, default to stats
+  (function() {
+    var saved = null;
+    try { saved = localStorage.getItem('adm_tab'); } catch(e) {}
+    showTab(saved && document.querySelector('[data-tab="' + saved + '"]') ? saved : 'stats');
+  })();
 
   // ---- Live search for each table ----
   function wireSearch(inputId, tableId) {
@@ -4659,6 +4722,27 @@ document.addEventListener('DOMContentLoaded', function() {
       row.style.display = (matchInd && matchSt && matchOwn) ? '' : 'none';
     });
   };
+
+  // ---- fdd (filter dropdown) helpers ----
+  window.fddToggle = function(id) {
+    var el = document.getElementById(id);
+    var wasOpen = el.classList.contains('open');
+    document.querySelectorAll('.fdd.open').forEach(function(d){ d.classList.remove('open'); });
+    if (!wasOpen) el.classList.add('open');
+  };
+  window.fddPick = function(ddId, inputId, val, label) {
+    document.getElementById(inputId).value = val;
+    document.getElementById(ddId + '-lbl').textContent = label;
+    document.querySelectorAll('#' + ddId + ' .fdd-opt').forEach(function(o){
+      o.classList.toggle('selected', o.dataset.val === val);
+    });
+    document.getElementById(ddId).classList.remove('open');
+  };
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.fdd')) {
+      document.querySelectorAll('.fdd.open').forEach(function(d){ d.classList.remove('open'); });
+    }
+  });
 
   // ---- Post filters ----
   window.filterPosts = function() {
@@ -4953,25 +5037,26 @@ document.addEventListener('DOMContentLoaded', function() {
   var EPO_BASE = "{% url 'admin_edit_post' post_id=0 %}".replace('/0/edit/', '/');
   var _epoPostId = null;
 
-  // Custom industry dropdown
-  function epoToggleDd() {
+  window.epoToggleDd = function() {
     document.getElementById('epo-dd').classList.toggle('open');
-  }
-  function epoPickIndustry(val, label) {
-    document.getElementById('epo-industry-val').value = val;
-    document.getElementById('epo-dd-label').textContent = label;
+  };
+  (function() {
     document.querySelectorAll('#epo-dd-list .epo-dd-opt').forEach(function(o) {
-      o.classList.toggle('selected', o.dataset.val === val);
+      o.addEventListener('click', function() {
+        var val = o.dataset.val, label = o.textContent.trim();
+        document.getElementById('epo-industry-val').value = val;
+        document.getElementById('epo-dd-label').textContent = label;
+        document.querySelectorAll('#epo-dd-list .epo-dd-opt').forEach(function(x) {
+          x.classList.toggle('selected', x.dataset.val === val);
+        });
+        document.getElementById('epo-dd').classList.remove('open');
+      });
     });
-    document.getElementById('epo-dd').classList.remove('open');
-  }
-  document.querySelectorAll('#epo-dd-list .epo-dd-opt').forEach(function(o) {
-    o.addEventListener('click', function() { epoPickIndustry(o.dataset.val, o.textContent); });
-  });
-  document.addEventListener('click', function(e) {
-    var dd = document.getElementById('epo-dd');
-    if (dd && !dd.contains(e.target)) dd.classList.remove('open');
-  });
+    document.addEventListener('click', function(e) {
+      var dd = document.getElementById('epo-dd');
+      if (dd && !dd.contains(e.target)) dd.classList.remove('open');
+    });
+  })();
 
   // Image preview
   window.epoPreviewImg = function(input) {
@@ -5024,14 +5109,20 @@ document.addEventListener('DOMContentLoaded', function() {
     _epoPostId = id;
     document.getElementById('epo-title').value = title;
     // Populate custom dropdown
-    var opts = document.querySelectorAll('#epo-dd-list .epo-dd-opt');
     var matched = false;
-    opts.forEach(function(o) {
-      var match = o.dataset.val === industry || o.textContent.trim().toLowerCase() === (industry || '').toLowerCase();
+    document.querySelectorAll('#epo-dd-list .epo-dd-opt').forEach(function(o) {
+      var match = o.dataset.val === industry || o.dataset.val === (industry || '').toLowerCase();
       o.classList.toggle('selected', match);
-      if (match) { document.getElementById('epo-dd-label').textContent = o.textContent.trim(); document.getElementById('epo-industry-val').value = o.dataset.val; matched = true; }
+      if (match) {
+        document.getElementById('epo-dd-label').textContent = o.textContent.trim();
+        document.getElementById('epo-industry-val').value = o.dataset.val;
+        matched = true;
+      }
     });
-    if (!matched) { document.getElementById('epo-dd-label').textContent = '— Select —'; document.getElementById('epo-industry-val').value = ''; }
+    if (!matched) {
+      document.getElementById('epo-dd-label').textContent = '— Select —';
+      document.getElementById('epo-industry-val').value = '';
+    }
     var contentEl = document.getElementById('post-content-' + id);
     document.getElementById('epo-content').value = contentEl ? contentEl.textContent.trim() : '';
     // Image preview

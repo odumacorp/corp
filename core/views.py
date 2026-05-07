@@ -4480,9 +4480,35 @@ def admin_add_job(request):
 def admin_add_news(request):
     return _admin_post_redirect(request)
 
+@require_POST
 @login_required
 def admin_add_sub_admin(request):
-    return _admin_post_redirect(request)
+    from .models import AdminPermissions
+    if not _is_admin(request.user):
+        return redirect('app')
+    user_id = request.POST.get('user_id')
+    if not user_id:
+        return _admin_post_redirect(request)
+    user_obj = get_object_or_404(CustomUser, pk=user_id)
+    user_obj.user_type = 'admin'
+    user_obj.save(update_fields=['user_type'])
+    perms, _ = AdminPermissions.objects.get_or_create(
+        admin_user=user_obj,
+        defaults={'granted_by': request.user},
+    )
+    perms.granted_by = request.user
+    perms.is_superadmin       = bool(request.POST.get('is_superadmin'))
+    perms.can_manage_users    = bool(request.POST.get('can_manage_users'))
+    perms.can_manage_projects = bool(request.POST.get('can_manage_projects'))
+    perms.can_manage_posts    = bool(request.POST.get('can_manage_posts'))
+    perms.can_manage_messages = bool(request.POST.get('can_manage_messages'))
+    perms.can_manage_events   = bool(request.POST.get('can_manage_events'))
+    perms.can_manage_jobs     = bool(request.POST.get('can_manage_jobs'))
+    perms.can_manage_comments = bool(request.POST.get('can_manage_comments'))
+    perms.can_manage_connections = bool(request.POST.get('can_manage_connections'))
+    perms.can_view_reports    = bool(request.POST.get('can_view_reports'))
+    perms.save()
+    return redirect('admin_panel')
 
 @login_required
 def admin_broadcast_notification(request):
@@ -4597,9 +4623,29 @@ def admin_event_attendees(request, event_id):
 def admin_flag_message(request, message_id):
     return _admin_post_redirect(request)
 
+@require_POST
 @login_required
 def admin_manage_sub_admin(request, user_id):
-    return _admin_post_redirect(request)
+    from .models import AdminPermissions
+    if not _is_admin(request.user):
+        return redirect('app')
+    user_obj = get_object_or_404(CustomUser, pk=user_id)
+    perms, _ = AdminPermissions.objects.get_or_create(
+        admin_user=user_obj,
+        defaults={'granted_by': request.user},
+    )
+    perms.is_superadmin       = bool(request.POST.get('is_superadmin'))
+    perms.can_manage_users    = bool(request.POST.get('can_manage_users'))
+    perms.can_manage_projects = bool(request.POST.get('can_manage_projects'))
+    perms.can_manage_posts    = bool(request.POST.get('can_manage_posts'))
+    perms.can_manage_messages = bool(request.POST.get('can_manage_messages'))
+    perms.can_manage_events   = bool(request.POST.get('can_manage_events'))
+    perms.can_manage_jobs     = bool(request.POST.get('can_manage_jobs'))
+    perms.can_manage_comments = bool(request.POST.get('can_manage_comments'))
+    perms.can_manage_connections = bool(request.POST.get('can_manage_connections'))
+    perms.can_view_reports    = bool(request.POST.get('can_view_reports'))
+    perms.save()
+    return redirect('admin_panel')
 
 @login_required
 def admin_reset_user_password(request, user_id):
@@ -8046,21 +8092,68 @@ def popular_hashtags(request):
 @require_POST
 @login_required
 def login_as_odu(request):
-    """Allow admin to impersonate the Odu bot account."""
+    """Allow admin to impersonate the Odu bot account — requires TOTP confirmation."""
     if request.user.user_type != 'admin' and not request.user.is_superuser:
         return redirect('app')
-    odu = CustomUser.objects.filter(username__iexact='odu').first()
-    if not odu:
+    # Require the admin to have 2FA set up before impersonating
+    try:
+        totp_obj = request.user.totp_secret
+        has_totp = totp_obj.is_active
+    except Exception:
+        has_totp = False
+    if not has_totp:
         from django.contrib import messages as _msgs
-        _msgs.error(request, "Odu bot account not found.")
+        _msgs.error(request, "You must enable Two-Factor Authentication before accessing the Odu Bot account.")
         return redirect('admin_panel')
-    original_pk = request.user.pk
-    from django.contrib.auth import login as _login
-    _login(request, odu, backend='django.contrib.auth.backends.ModelBackend')
-    # Set AFTER login() — Django flushes the session when switching users,
-    # so anything written before login() is lost.
-    request.session['impersonate_return_id'] = original_pk
-    return redirect('app')
+    # Store impersonation intent in session; redirect to TOTP confirmation
+    request.session['_odu_impersonate_pending'] = True
+    request.session['_odu_original_pk'] = request.user.pk
+    return redirect('verify_totp_odu_login')
+
+
+@login_required
+def verify_totp_odu_login(request):
+    """TOTP gate before allowing admin to impersonate Odu Bot."""
+    import pyotp
+    if request.user.user_type != 'admin' and not request.user.is_superuser:
+        return redirect('app')
+    if not request.session.get('_odu_impersonate_pending'):
+        return redirect('admin_panel')
+
+    error = ''
+    if request.method == 'POST':
+        code = request.POST.get('code', '').strip()
+        try:
+            totp_obj = request.user.totp_secret
+            totp = pyotp.TOTP(totp_obj.secret)
+            if totp.verify(code, valid_window=1):
+                # TOTP passed — execute impersonation
+                original_pk = request.session.pop('_odu_original_pk', request.user.pk)
+                request.session.pop('_odu_impersonate_pending', None)
+                odu = CustomUser.objects.filter(username__iexact='odu').first()
+                if not odu:
+                    from django.contrib import messages as _msgs
+                    _msgs.error(request, "Odu bot account not found.")
+                    return redirect('admin_panel')
+                from django.contrib.auth import login as _login
+                _login(request, odu, backend='django.contrib.auth.backends.ModelBackend')
+                # Set AFTER login() — Django flushes the session on user switch
+                request.session['impersonate_return_id'] = original_pk
+                return redirect('app')
+            else:
+                error = 'Invalid code — try again.'
+        except Exception:
+            error = 'Authentication error — please try again.'
+
+    from django.urls import reverse
+    return render(request, 'admin_verify_totp.html', {
+        'error': error,
+        'page_title': 'Confirm Your Identity',
+        'page_subtitle': 'Enter your authenticator code to log in as Odu Bot.',
+        'submit_label': 'Confirm & Switch →',
+        'back_url': reverse('admin_panel'),
+        'back_label': 'Cancel',
+    })
 
 
 @login_required
@@ -8690,7 +8783,11 @@ def admin_verify_totp(request):
         except Exception:
             return redirect('admin_setup_totp')
 
-    return render(request, 'admin_verify_totp.html', {'error': error})
+    return render(request, 'admin_verify_totp.html', {
+        'error': error,
+        'back_url': '/admin-login/',
+        'back_label': 'Back to login',
+    })
 
 
 @login_required
