@@ -373,6 +373,12 @@ def robots_txt(request):
 HOMEPAGE_PINNED_PROJECT_IDS = [2]
 
 
+def profile_is_public(user):
+    """Admin/staff profiles are only shown to other admins (see profile_view), so
+    public pages must not link to them."""
+    return not (user.user_type == 'admin' or user.is_staff or user.is_superuser)
+
+
 def homepage_card_text(text):
     """Plain text for homepage cards: markdown headings become sentences ("# Title" -> "Title.")."""
     import re
@@ -401,6 +407,7 @@ def homepage_projects(limit=6):
             .order_by('_pinned', '-created_at')[:limit])
     for p in projects:
         p.card_description = homepage_card_text(p.description)
+        p.owner_profile_public = profile_is_public(p.owner)
     return projects
 
 
@@ -8099,6 +8106,7 @@ def public_stats(request):
             'image': p.get_main_image_url(),
             'owner_name': p.owner.get_full_name() or p.owner.username,
             'owner_username': p.owner.username,
+            'owner_profile_public': p.owner_profile_public,
             'owner_initials': ((p.owner.first_name[:1] + p.owner.last_name[:1]) or p.owner.username[:1]).upper(),
             'owner_avatar': prof.profile_pics.url if prof and prof.profile_pics else None,
         })

@@ -207,9 +207,14 @@ script = """<script>
       '</div><h3><a href="' + url + '" class="lp-proj-title">' + esc(p.title) + '</a></h3>' +
       '<p class="lp-proj-desc">' + esc(p.description) + '</p>' +
       (p.funding ? '<p class="lp-proj-ask">Seeking: ' + esc(p.funding) + '</p>' : '') +
-      '</div><div class="lp-proj-footer"><a href="' + APP + '/profile/' + encodeURIComponent(p.owner_username) + '/" class="lp-proj-owner">' + av +
-      '<span class="lp-proj-owner-name">' + esc(p.owner_name) + '</span></a>' +
+      '</div><div class="lp-proj-footer">' + owner(p, av) +
       '<a href="' + url + '" class="lp-proj-arrow">View pitch &rarr;</a></div></article>';
+  }
+  function owner(p, av) {
+    /* Admin profiles are private in the app, so only link profiles visitors can open. */
+    var inner = av + '<span class="lp-proj-owner-name">' + esc(p.owner_name) + '</span>';
+    return p.owner_profile_public === false ? '<span class="lp-proj-owner">' + inner + '</span>'
+      : '<a href="' + APP + '/profile/' + encodeURIComponent(p.owner_username) + '/" class="lp-proj-owner">' + inner + '</a>';
   }
   function text(id, v) { var el = $(id); if (el) { el.textContent = v || ''; el.hidden = !v; } }
   function hero(p) {

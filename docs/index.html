@@ -550,10 +550,10 @@ a.lp-proj-title:hover{color:var(--lp-blue);text-decoration:underline;}
           {% if project.funding_requirement %}<p class="lp-proj-ask">Seeking: {{ project.funding_requirement }}</p>{% endif %}
         </div>
         <div class="lp-proj-footer">
-          <a href="{% url 'profile_view' username=project.owner.username %}" class="lp-proj-owner">
+          {% if project.owner_profile_public %}<a href="{% url 'profile_view' username=project.owner.username %}" class="lp-proj-owner">{% else %}<span class="lp-proj-owner">{% endif %}
             {% if project.owner.userprofile.profile_pics %}<img src="{{ project.owner.userprofile.profile_pics.url }}" class="lp-proj-owner-av" alt="" width="28" height="28" loading="lazy">{% else %}<span class="lp-proj-owner-av" aria-hidden="true">{{ project.owner.first_name|first|upper }}{{ project.owner.last_name|first|upper }}</span>{% endif %}
             <span class="lp-proj-owner-name">{{ project.owner.get_full_name|default:project.owner.username }}</span>
-          </a>
+          {% if project.owner_profile_public %}</a>{% else %}</span>{% endif %}
           <a href="{% url 'project_detail' project.pk %}" class="lp-proj-arrow">View pitch &rarr;</a>
         </div>
       </article>
