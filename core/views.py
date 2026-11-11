@@ -3045,6 +3045,11 @@ def register(request):
     if request.user.is_authenticated:
         return render(request, 'register.html', {'already_logged_in': True})
     context = {"page_title": "App Center"}
+    # Where to go after signing up (e.g. ?next=/projects/create/ from "Create Project"). Same-site paths only.
+    from django.utils.http import url_has_allowed_host_and_scheme
+    next_url = request.POST.get('next') or request.GET.get('next') or ''
+    if not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        next_url = ''
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
@@ -3108,15 +3113,18 @@ def register(request):
 
             # Success message
             messages.success(request, "Registration successful!")
+            if next_url:
+                return redirect(next_url)
             return redirect('/app/?welcome=1')
         else:
             # Error message for invalid form
             messages.error(request, "Registration failed. Please check your details.")
     else:
-        # Empty form for GET request
-        form = CustomUserCreationForm()
+        # Empty form for GET request. ?role=investor|innovator pre-selects the role card.
+        role = request.GET.get('role')
+        form = CustomUserCreationForm(initial={'user_type': role} if role in ('innovator', 'investor') else None)
 
-    return render(request, "register.html", {"form": form})
+    return render(request, "register.html", {"form": form, "next": next_url})
 
 # User login
 def login_view(request):

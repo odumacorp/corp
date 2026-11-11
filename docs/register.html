@@ -239,6 +239,7 @@
     {% endif %}
 
     <form method="POST" action="{% url 'register' %}" id="reg-form" novalidate>
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
       {% csrf_token %}
 
       <!-- Name row -->
