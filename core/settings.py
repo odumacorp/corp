@@ -35,6 +35,7 @@ if hasattr(sys.stderr, "reconfigure"):
 ##
 CSRF_TRUSTED_ORIGINS = [
     "https://corp-jmny.onrender.com",
+    "https://app.odumacorp.com",
     "https://odumacorp.com",
     "https://www.odumacorp.com",
     "http://127.0.0.1:8000",
@@ -140,6 +141,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)  # safe default: off in prod
 
 ALLOWED_HOSTS = [
     "corp-jmny.onrender.com",
+    "app.odumacorp.com",
     "www.odumacorp.com",
     "odumacorp.com",
     "localhost",

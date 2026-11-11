@@ -3150,7 +3150,12 @@ def login_view(request):
         else:
             messages.error(request, "Invalid credentials, try again.")
 
-    return render(request, 'login.html', {'form': form})
+    return render(request, 'login.html', {
+        'form': form,
+        'innovator_count': CustomUser.objects.filter(user_type='innovator').count(),
+        'investor_count': CustomUser.objects.filter(user_type='investor').count(),
+        'project_count': Project.objects.filter(is_hidden=False).exclude(status='draft').count(),
+    })
 
 # User Logout
 @login_required
@@ -8013,6 +8018,51 @@ def get_counts(request):
     notif_count = Notification.objects.filter(user=request.user, is_read=False).count()
     msg_count   = Message.objects.filter(recipient=request.user, is_read=False).count()
     return JsonResponse({'notifications': notif_count, 'messages': msg_count})
+
+
+# Origins allowed to read public_stats cross-origin (the static homepage).
+PUBLIC_STATS_ORIGINS = {
+    'https://odumacorp.com',
+    'https://www.odumacorp.com',
+    'https://loading-page-f27a.onrender.com',
+}
+
+def public_stats(request):
+    """Public JSON for the static homepage: live counts + featured projects.
+    Also doubles as the wake-up ping that spins the app up from Render's free-tier sleep."""
+    from django.utils.text import Truncator
+    from .models import Project, CustomUser
+    featured = Project.objects.filter(
+        is_hidden=False, review_status__in=['approved', 'featured']
+    ).select_related('owner', 'owner__userprofile').prefetch_related('images').order_by('-created_at')[:6]
+    projects = []
+    for p in featured:
+        prof = getattr(p.owner, 'userprofile', None)
+        projects.append({
+            'id': p.pk,
+            'title': p.title,
+            'industry': p.industry or '',
+            'stage': p.get_pipeline_stage_display() if p.pipeline_stage else '',
+            'description': Truncator(p.description or '').words(22),
+            'funding': p.funding_requirement or '',
+            'image': p.get_main_image_url(),
+            'owner_name': p.owner.get_full_name() or p.owner.username,
+            'owner_username': p.owner.username,
+            'owner_initials': ((p.owner.first_name[:1] + p.owner.last_name[:1]) or p.owner.username[:1]).upper(),
+            'owner_avatar': prof.profile_pics.url if prof and prof.profile_pics else None,
+        })
+    resp = JsonResponse({
+        'innovators': CustomUser.objects.filter(user_type='innovator').count(),
+        'investors': CustomUser.objects.filter(user_type='investor').count(),
+        'projects': Project.objects.filter(is_hidden=False).exclude(status='draft').count(),
+        'featured': projects,
+    })
+    origin = request.headers.get('Origin')
+    if origin in PUBLIC_STATS_ORIGINS:
+        resp['Access-Control-Allow-Origin'] = origin
+        resp['Vary'] = 'Origin'
+    resp['Cache-Control'] = 'public, max-age=300'
+    return resp
 
 
 @login_required

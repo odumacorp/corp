@@ -178,6 +178,11 @@ The app is configured as a Progressive Web App:
 
 Deployed on **Render** (`corp-jmny.onrender.com`). Production uses PostgreSQL via `DATABASE_URL`; local dev defaults to SQLite.
 
+The public homepage at `odumacorp.com` is a separate Render **static site** (`Loading-Page`) served from `loading/`, so it loads instantly while the free-tier Django app sleeps. The app itself lives at `app.odumacorp.com`.
+- `loading/index.html` is **generated** from `docs/index.html` by `python loading/build.py`. Edit the template, then re-run the script.
+- It loads live counts and featured projects from `/api/public-stats/` (CORS-allowed origins: `PUBLIC_STATS_ORIGINS` in `views.py`). The same request also wakes the app.
+- `loading/404.html` forwards any unknown path to the same path on `app.odumacorp.com`.
+
 ## UI / Design System
 
 ### Brand tokens (defined in `core/static/css/design-system.css`)

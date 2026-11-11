@@ -332,8 +332,8 @@
           <div class="lp-av">+</div>
         </div>
         <div class="lp-hero__trust-text">
-          Joined by <strong>{{ innovator_count|default:"500" }}+ innovators</strong><br>
-          and <strong>{{ investor_count|default:"200" }}+ investors</strong> across Africa
+          Joined by <strong>{{ innovator_count }}+ innovators</strong><br>
+          and <strong>{{ investor_count }}+ investors</strong> across Africa
         </div>
       </div>
     </div>
@@ -341,7 +341,7 @@
     <div class="lp-hero__card-stack">
       <div class="lp-hero__card">
         <div class="lp-hero__card-label">Active Projects</div>
-        <div class="lp-hero__card-stat">{{ project_count|default:"120" }}+</div>
+        <div class="lp-hero__card-stat">{{ project_count }}+</div>
         <div class="lp-hero__card-meta" style="margin-top:4px;">Across tech, health, agriculture, energy &amp; more</div>
         <span class="lp-hero__card-badge lp-hero__card-badge--green">
           <span class="lp-live-dot"></span> Live deal flow
@@ -350,12 +350,12 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <div class="lp-hero__card">
           <div class="lp-hero__card-label">Innovators</div>
-          <div class="lp-hero__card-stat">{{ innovator_count|default:"500" }}</div>
+          <div class="lp-hero__card-stat">{{ innovator_count }}</div>
           <div class="lp-hero__card-meta" style="margin-top:4px;">Verified builders</div>
         </div>
         <div class="lp-hero__card">
           <div class="lp-hero__card-label">Investors</div>
-          <div class="lp-hero__card-stat">{{ investor_count|default:"200" }}</div>
+          <div class="lp-hero__card-stat">{{ investor_count }}</div>
           <div class="lp-hero__card-meta" style="margin-top:4px;">Ready to deploy</div>
         </div>
       </div>
@@ -374,15 +374,15 @@
 <div class="lp-stats">
   <div class="lp-stats__inner">
     <div class="lp-stats__item">
-      <div class="lp-stats__val" data-count="{{ innovator_count|default:500 }}">{{ innovator_count|default:"500" }}+</div>
+      <div class="lp-stats__val" data-count="{{ innovator_count }}">{{ innovator_count }}+</div>
       <div class="lp-stats__label">Innovators</div>
     </div>
     <div class="lp-stats__item">
-      <div class="lp-stats__val" data-count="{{ investor_count|default:200 }}">{{ investor_count|default:"200" }}+</div>
+      <div class="lp-stats__val" data-count="{{ investor_count }}">{{ investor_count }}+</div>
       <div class="lp-stats__label">Investors</div>
     </div>
     <div class="lp-stats__item">
-      <div class="lp-stats__val" data-count="{{ project_count|default:120 }}">{{ project_count|default:"120" }}+</div>
+      <div class="lp-stats__val" data-count="{{ project_count }}">{{ project_count }}+</div>
       <div class="lp-stats__label">Projects Listed</div>
     </div>
     <div class="lp-stats__item">
