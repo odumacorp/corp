@@ -217,12 +217,9 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
 .lp-proj-owner-name{font-size:14px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .lp-proj-arrow{display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:600;color:var(--blue);white-space:nowrap;}
 .lp-proj-arrow:hover{text-decoration:underline;}
-.lp-proj-card--example{border-style:dashed;border-color:#B7C2D1;}
-.lp-example-flag{padding:8px 16px;background:#FFF4D6;color:#5A4100;font-size:13px;font-weight:600;border-bottom:1px solid #F0E0B0;}
-.lp-empty{align-self:center;}
-.lp-empty h3{font-size:20px;}
-.lp-empty p{margin-top:8px;}
-.lp-projects__more{margin-top:28px;}
+.lp-projects__more{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;margin-top:28px;}
+.lp [hidden]{display:none!important;}
+.lp-mock__row[data-pending]{visibility:hidden;}
 
 /* Services */
 .lp-svc-list{margin-top:28px;border-top:1px solid var(--line);}
@@ -238,8 +235,6 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
 .lp-plain p{margin-top:14px;font-size:17px;}
 .lp-plain h2 + p{margin-top:18px;}
 
-/* Placeholders that still need a real fact */
-.lp-ph{display:inline;background:#FFE9A8;color:#3D2E00;font-family:ui-monospace,Menlo,monospace;font-size:.85em;padding:1px 4px;border-radius:3px;}
 
 /* Final CTA + footer */
 .lp-dark{background:var(--navy);color:var(--on-navy);}
@@ -323,17 +318,17 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
         <span class="lp-cohort__n" id="lp-cohort-n"></span></p>
     </div>
 
-    <figure class="lp-mock" aria-label="What a project listing looks like">
+    <figure class="lp-mock" aria-label="A project on Oduma Corp">
       <div class="lp-mock__bar">
         <span>Project listing</span>
-        <span class="lp-mock__tag" id="lp-latest-label">Example listing</span>
+        <span class="lp-mock__tag" id="lp-latest-label">Featured project</span>
       </div>
       <div class="lp-mock__body">
-        <div class="lp-mock__title" id="lp-latest-title">Solar cold rooms for fresh-produce traders</div>
-        <div class="lp-mock__meta" id="lp-latest-meta">Agriculture &middot; Nairobi, Kenya</div>
-        <div class="lp-mock__row" id="lp-latest-extra">
-          <div class="lp-mock__cell"><div class="lp-mock__k">Stage</div><div class="lp-mock__v">Prototype</div></div>
-          <div class="lp-mock__cell"><div class="lp-mock__k">Raising</div><div class="lp-mock__v">KSh 2.5M</div></div>
+        <div class="lp-mock__title" id="lp-latest-title">Remote Phonebook</div>
+        <div class="lp-mock__meta" id="lp-latest-meta">by Austin Oduma</div>
+        <div class="lp-mock__row" id="lp-latest-extra" data-pending>
+          <div class="lp-mock__cell"><div class="lp-mock__k">Stage</div><div class="lp-mock__v" id="lp-latest-stage"></div></div>
+          <div class="lp-mock__cell"><div class="lp-mock__k">Raising</div><div class="lp-mock__v" id="lp-latest-ask"></div></div>
         </div>
         <div class="lp-mock__btns" aria-hidden="true">
           <span class="lp-mock__btn lp-mock__btn--p">Send proposal</span>
@@ -417,7 +412,7 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
           <li>Send proposals and schedule meetings in the app.</li>
         </ul>
         <a href="https://app.odumacorp.com/register/?role=investor" class="lp-btn lp-btn--primary">Join as Investor</a>
-        <p class="lp-note"><strong>Before you invest:</strong> <span class="lp-ph">[PLACEHOLDER: legal review of whether Oduma Corp needs a Capital Markets Authority crowdfunding licence and what we may say about holding funds, investment advice and risk.]</span></p>
+        <p class="lp-note"><strong>Before you invest:</strong> early-stage companies often fail, and you could lose all the money you put in. Check each project yourself and get independent advice if you need it.</p>
       </div>
       <figure class="lp-split__media lp-mock" aria-label="What an investor's filtered project list looks like">
         <div class="lp-mock__bar"><span>Projects &middot; filtered</span><span class="lp-mock__tag">Example</span></div>
@@ -443,21 +438,13 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
 
     <div class="lp-projects" id="lp-projects">
     
-      <div class="lp-empty">
-        <h3>No projects are open to investors yet.</h3>
-        <p>When founders publish a project and we approve it, it appears here. Yours could be one of the first.</p>
-      </div>
-      <article class="lp-proj-card lp-proj-card--example" aria-label="Example listing, not a real project">
-        <div class="lp-example-flag">Example listing. Not a real project.</div>
+      <article class="lp-proj-card">
         <div class="lp-proj-body">
-          <div class="lp-proj-tags"><span class="lp-proj-industry">Agriculture</span><span class="lp-proj-stage">Prototype</span></div>
-          <h3 class="lp-proj-title">Solar cold rooms for fresh-produce traders</h3>
-          <p class="lp-proj-desc">Pay-as-you-go cold storage so market traders lose less stock to spoilage.</p>
-          <p class="lp-proj-ask">Seeking: KSh 2.5M</p>
+          <h3><a href="https://app.odumacorp.com/projects/?q=Remote+Phonebook" class="lp-proj-title">Remote Phonebook</a></h3>
         </div>
         <div class="lp-proj-footer">
-          <span class="lp-proj-owner-name">How your listing could look</span>
-          <a href="https://app.odumacorp.com/register/" class="lp-proj-arrow">Join to view &rarr;</a>
+          <span class="lp-proj-owner"><span class="lp-proj-owner-av" aria-hidden="true">AO</span><span class="lp-proj-owner-name">Austin Oduma</span></span>
+          <a href="https://app.odumacorp.com/projects/?q=Remote+Phonebook" class="lp-proj-arrow">View project &rarr;</a>
         </div>
       </article>
     
@@ -465,6 +452,7 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
 
     <div class="lp-projects__more">
       <a href="https://app.odumacorp.com/projects/" class="lp-btn lp-btn--ghost">Browse all projects &rarr;</a>
+      <p>Raising money? <a class="lp-link" href="https://app.odumacorp.com/register/?next=/projects/create/">List your project</a> and it can appear here too.</p>
     </div>
   </div>
 </section>
@@ -501,9 +489,9 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
 <section class="lp-sec lp-sec--paper" id="about-us" aria-labelledby="lp-today">
   <div class="lp-wrap"><div class="lp-plain">
     <h2 id="lp-today">Where we are today</h2>
-    <p>Oduma Corp is a young company based in Nairobi, Kenya. We opened the platform in <span class="lp-ph">[PLACEHOLDER: launch month and year]</span> and are building our founding cohort of founders and investors now.</p>
-    <p>Oduma Corp introduces founders and investors and gives you the tools to talk and agree terms. <span class="lp-ph">[PLACEHOLDER: confirm whether to state the platform equity share described in the Platform Agreement section of the Privacy Policy]</span></p>
-    <p>The team: <span class="lp-ph">[PLACEHOLDER: founder names and roles]</span>. <a class="lp-link" href="https://app.odumacorp.com/about/">More about us</a></p>
+    <p>Oduma Corp is a young company based in Nairobi, Kenya. We're building our founding cohort of founders and investors now.</p>
+    <p>We introduce founders and investors and give you the tools to talk and agree terms. Before you accept a proposal, read the Platform Agreement in our <a class="lp-link" href="https://app.odumacorp.com/privacy/">Privacy Policy</a>.</p>
+    <p><a class="lp-link" href="https://app.odumacorp.com/about/">More about us</a></p>
   </div></div>
 </section>
 
@@ -535,7 +523,6 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
           <h2>Contact</h2>
           <ul>
             <li><a href="mailto:info@odumacorp.com">info@odumacorp.com</a></li>
-            <li><span class="lp-ph">[PLACEHOLDER: phone or WhatsApp number]</span></li>
             <li><a href="https://app.odumacorp.com/contact/">Contact form</a></li>
           </ul>
         </div>
@@ -675,10 +662,11 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
       if (d.featured && d.featured.length) {
         $('lp-projects').innerHTML = d.featured.map(card).join('');
         var p = d.featured[0];
-        $('lp-latest-label').textContent = 'Latest listing';
         $('lp-latest-title').textContent = p.title.length > 60 ? p.title.slice(0, 59) + '\u2026' : p.title;
-        $('lp-latest-meta').textContent = p.industry || '';
-        $('lp-latest-extra').hidden = true;
+        $('lp-latest-meta').textContent = (p.industry || 'Project') + ' \u00b7 by ' + p.owner_name;
+        $('lp-latest-stage').textContent = p.stage || 'Not stated';
+        $('lp-latest-ask').textContent = p.funding || 'Not stated';
+        $('lp-latest-extra').removeAttribute('data-pending');
       }
     })
     .catch(function () { /* app still asleep or unreachable: the page already reads complete without numbers */ });

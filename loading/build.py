@@ -209,10 +209,11 @@ script = """<script>
       if (d.featured && d.featured.length) {
         $('lp-projects').innerHTML = d.featured.map(card).join('');
         var p = d.featured[0];
-        $('lp-latest-label').textContent = 'Latest listing';
         $('lp-latest-title').textContent = p.title.length > 60 ? p.title.slice(0, 59) + '\\u2026' : p.title;
-        $('lp-latest-meta').textContent = p.industry || '';
-        $('lp-latest-extra').hidden = true;
+        $('lp-latest-meta').textContent = (p.industry || 'Project') + ' \\u00b7 by ' + p.owner_name;
+        $('lp-latest-stage').textContent = p.stage || 'Not stated';
+        $('lp-latest-ask').textContent = p.funding || 'Not stated';
+        $('lp-latest-extra').removeAttribute('data-pending');
       }
     })
     .catch(function () { /* app still asleep or unreachable: the page already reads complete without numbers */ });
