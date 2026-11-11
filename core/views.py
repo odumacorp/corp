@@ -368,23 +368,40 @@ def robots_txt(request):
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 
-# Projects the owner has asked to show on the homepage even before review,
-# matched by title + owner name: (title contains, owner first name, owner last name).
-HOMEPAGE_PINNED_PROJECTS = [('Remote Phonebook', 'Austin', 'Oduma')]
+# Projects the owner has asked to show on the homepage even before review (by pk).
+# 2 = UniversalContacts by Austin Oduma.
+HOMEPAGE_PINNED_PROJECT_IDS = [2]
+
+
+def homepage_card_text(text):
+    """Plain text for homepage cards: markdown headings become sentences ("# Title" -> "Title.")."""
+    import re
+    lines = []
+    for line in (text or '').splitlines():
+        line = line.strip()
+        if line.startswith('#'):
+            line = line.lstrip('#').strip()
+            if line and line[-1] not in '.!?:':
+                line += '.'
+        if line:
+            lines.append(line)
+    return re.sub(r'\s+', ' ', ' '.join(lines)).strip()
+
 
 def homepage_projects(limit=6):
     """Projects for the homepage (app.odumacorp.com/ and the static site via public_stats):
     pinned projects first, then approved/featured ones, newest first."""
     from django.db.models import Case, IntegerField, Q, Value, When
     from .models import Project
-    pinned = Q(pk__in=[])
-    for title, first, last in HOMEPAGE_PINNED_PROJECTS:
-        pinned |= Q(title__icontains=title, owner__first_name__iexact=first, owner__last_name__iexact=last)
-    return (Project.objects.filter(is_hidden=False)
+    pinned = Q(pk__in=HOMEPAGE_PINNED_PROJECT_IDS)
+    projects = list(Project.objects.filter(is_hidden=False)
             .filter(pinned | Q(review_status__in=['approved', 'featured']))
             .annotate(_pinned=Case(When(pinned, then=Value(0)), default=Value(1), output_field=IntegerField()))
             .select_related('owner', 'owner__userprofile').prefetch_related('images')
             .order_by('_pinned', '-created_at')[:limit])
+    for p in projects:
+        p.card_description = homepage_card_text(p.description)
+    return projects
 
 
 def index(request):
@@ -8065,7 +8082,7 @@ def public_stats(request):
             'title': p.title,
             'industry': p.industry or '',
             'stage': p.get_pipeline_stage_display() if p.pipeline_stage else '',
-            'description': Truncator(p.description or '').words(22),
+            'description': Truncator(p.card_description).words(22),
             'funding': p.funding_requirement or '',
             'image': p.get_main_image_url(),
             'owner_name': p.owner.get_full_name() or p.owner.username,
