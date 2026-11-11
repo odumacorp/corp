@@ -349,6 +349,14 @@ ACCOUNT_ADAPTER = 'core.allauth_adapter.CoreAccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'core.allauth_adapter.CoreSocialAccountAdapter'
 SOCIALACCOUNT_FORMS = {'signup': 'core.forms.SocialSignupExtraForm'}
 
+# One-click social sign-in: skip allauth's "Continue to Google?" interstitial,
+# and log Google users straight into an existing account with the same (verified)
+# email instead of showing a signup form.
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
 # Used to rewrite email links so they always point to production, even when the
 # server is running on localhost during development/testing.
 SITE_URL = config('SITE_URL', default='https://odumacorp.com')
