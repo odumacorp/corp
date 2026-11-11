@@ -368,11 +368,28 @@ def robots_txt(request):
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 
+# Projects the owner has asked to show on the homepage even before review,
+# matched by title + owner name: (title contains, owner first name, owner last name).
+HOMEPAGE_PINNED_PROJECTS = [('Remote Phonebook', 'Austin', 'Oduma')]
+
+def homepage_projects(limit=6):
+    """Projects for the homepage (app.odumacorp.com/ and the static site via public_stats):
+    pinned projects first, then approved/featured ones, newest first."""
+    from django.db.models import Case, IntegerField, Q, Value, When
+    from .models import Project
+    pinned = Q(pk__in=[])
+    for title, first, last in HOMEPAGE_PINNED_PROJECTS:
+        pinned |= Q(title__icontains=title, owner__first_name__iexact=first, owner__last_name__iexact=last)
+    return (Project.objects.filter(is_hidden=False)
+            .filter(pinned | Q(review_status__in=['approved', 'featured']))
+            .annotate(_pinned=Case(When(pinned, then=Value(0)), default=Value(1), output_field=IntegerField()))
+            .select_related('owner', 'owner__userprofile').prefetch_related('images')
+            .order_by('_pinned', '-created_at')[:limit])
+
+
 def index(request):
     from .models import Project, CustomUser, UserProfile, SubscriptionPlan
-    featured = Project.objects.filter(
-        is_hidden=False, review_status__in=['approved', 'featured']
-    ).select_related('owner', 'owner__userprofile').prefetch_related('images').order_by('-created_at')[:6]
+    featured = homepage_projects()
     innovator_count = CustomUser.objects.filter(user_type='innovator').count()
     investor_count  = CustomUser.objects.filter(user_type='investor').count()
     project_count   = Project.objects.filter(is_hidden=False).exclude(status='draft').count()
@@ -8039,9 +8056,7 @@ def public_stats(request):
     Also doubles as the wake-up ping that spins the app up from Render's free-tier sleep."""
     from django.utils.text import Truncator
     from .models import Project, CustomUser
-    featured = Project.objects.filter(
-        is_hidden=False, review_status__in=['approved', 'featured']
-    ).select_related('owner', 'owner__userprofile').prefetch_related('images').order_by('-created_at')[:6]
+    featured = homepage_projects()
     projects = []
     for p in featured:
         prof = getattr(p.owner, 'userprofile', None)
