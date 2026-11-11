@@ -8823,7 +8823,7 @@ def _record_attempt(request, username, success, stage='password'):
             f"IP address: {ip}\n"
             f"Browser   : {ua}\n\n"
             f"If this wasn't you, secure your account immediately at "
-            f"{getattr(_s, 'SITE_URL', 'https://odumacorp.com')}/admin-panel/\n"
+            f"{getattr(_s, 'SITE_URL', 'https://app.odumacorp.com')}/admin-panel/\n"
         ) if (success and stage == 'totp') else (
             f"Admin login attempt details:\n\n"
             f"Username : {username}\n"

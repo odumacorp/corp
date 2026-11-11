@@ -359,7 +359,7 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
 # Used to rewrite email links so they always point to production, even when the
 # server is running on localhost during development/testing.
-SITE_URL = config('SITE_URL', default='https://odumacorp.com')
+SITE_URL = config('SITE_URL', default='https://app.odumacorp.com')
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
