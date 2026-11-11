@@ -404,6 +404,14 @@ def homepage_projects(limit=6):
     return projects
 
 
+def homepage_industry_counts():
+    """{industry_key: count} for non-hidden projects, the same numbers /projects/ shows on its tiles."""
+    from django.db.models import Count
+    from .models import Project
+    rows = Project.objects.filter(is_hidden=False).values('industry').annotate(cnt=Count('id'))
+    return {r['industry']: r['cnt'] for r in rows if r['industry']}
+
+
 def index(request):
     from .models import Project, CustomUser, UserProfile, SubscriptionPlan
     featured = homepage_projects()
@@ -411,12 +419,15 @@ def index(request):
     investor_count  = CustomUser.objects.filter(user_type='investor').count()
     project_count   = Project.objects.filter(is_hidden=False).exclude(status='draft').count()
     sub_plans       = list(SubscriptionPlan.objects.filter(is_active=True).order_by('order'))
+    industry_counts = homepage_industry_counts()
     return render(request, 'index.html', {
         "hide_navbar": True,
         "featured_projects": featured,
         "innovator_count": innovator_count,
         "investor_count": investor_count,
         "project_count": project_count,
+        "industry_counts": industry_counts,
+        "all_projects_count": Project.objects.filter(is_hidden=False).count(),
         "sub_plans": sub_plans,
     })
 ##about.html
@@ -8081,6 +8092,7 @@ def public_stats(request):
             'id': p.pk,
             'title': p.title,
             'industry': p.industry or '',
+            'industry_label': p.get_industry_display() if p.industry else '',
             'stage': p.get_pipeline_stage_display() if p.pipeline_stage else '',
             'description': Truncator(p.card_description).words(22),
             'funding': p.funding_requirement or '',
@@ -8095,6 +8107,8 @@ def public_stats(request):
         'investors': CustomUser.objects.filter(user_type='investor').count(),
         'projects': Project.objects.filter(is_hidden=False).exclude(status='draft').count(),
         'featured': projects,
+        'all_projects': Project.objects.filter(is_hidden=False).count(),
+        'industry_counts': homepage_industry_counts(),
     })
     origin = request.headers.get('Origin')
     if origin in PUBLIC_STATS_ORIGINS:
