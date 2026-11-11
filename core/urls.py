@@ -186,6 +186,7 @@ urlpatterns = _html_redirects + [
     path('api/hashtags/popular/', views.popular_hashtags, name='popular_hashtags'),
     path('api/counts/', views.get_counts, name='get_counts'),
     path('api/public-stats/', views.public_stats, name='public_stats'),
+    path('api/public-feedback/', views.public_feedback, name='public_feedback'),
 
     path('hashtags/<slug:tag>/', views.hashtag_feed, name='hashtag_feed'),
 

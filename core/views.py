@@ -7074,14 +7074,13 @@ Tone: warm, concise, helpful. Use bullet points and markdown for clarity. Keep r
     return JsonResponse({'reply': reply})
 
 
-@login_required
 def submit_feedback(request):
-    """Save a quick feedback from the floating button."""
+    """Save a quick feedback from the floating button (logged in or not; CSRF-protected)."""
     from django.http import JsonResponse
     from .models import SurveyResponse
-    if request.method == 'POST':
+    if request.method == 'POST' and (request.POST.get('feedback_text') or '').strip():
         SurveyResponse.objects.create(
-            submitted_by=request.user,
+            submitted_by=request.user if request.user.is_authenticated else None,
             feedback_type=request.POST.get('feedback_type', 'other'),
             feedback_text=request.POST.get('feedback_text', ''),
             page=request.POST.get('page', ''),
@@ -8064,6 +8063,52 @@ def public_stats(request):
     resp['Cache-Control'] = 'public, max-age=300'
     return resp
 
+
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def public_feedback(request):
+    """Feedback form on the static homepage (odumacorp.com). Cross-origin, logged out.
+    CSRF is not usable from another origin, so this only accepts the homepage origins,
+    uses a honeypot field and a per-IP rate limit, and stores nothing but the feedback."""
+    from django.core.cache import cache
+    from .models import SurveyResponse
+    origin = request.headers.get('Origin')
+
+    def reply(data, status=200):
+        resp = JsonResponse(data, status=status)
+        if origin in PUBLIC_STATS_ORIGINS:
+            resp['Access-Control-Allow-Origin'] = origin
+            resp['Vary'] = 'Origin'
+        return resp
+
+    if request.method != 'POST':
+        return reply({'ok': False, 'error': 'POST only.'}, 405)
+    if origin not in PUBLIC_STATS_ORIGINS:
+        return reply({'ok': False, 'error': 'Not allowed.'}, 403)
+    if request.POST.get('website'):          # honeypot: bots fill every field
+        return reply({'ok': True})
+    text = (request.POST.get('feedback_text') or '').strip()
+    if not text:
+        return reply({'ok': False, 'error': 'Please write a message first.'}, 400)
+    ip = (request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('REMOTE_ADDR') or '').split(',')[0].strip()
+    key = 'public_feedback:' + ip
+    count = cache.get(key, 0)
+    if count >= 5:
+        return reply({'ok': False, 'error': 'Too many messages in a short time. Please try again later.'}, 429)
+    cache.set(key, count + 1, 3600)
+    ftype = request.POST.get('feedback_type', 'other')
+    if ftype not in dict(SurveyResponse.FEEDBACK_TYPE_CHOICES):
+        ftype = 'other'
+    SurveyResponse.objects.create(
+        submitted_by=None,
+        feedback_type=ftype,
+        feedback_text=text[:5000],
+        page=('odumacorp.com ' + (request.POST.get('page') or '/'))[:100],
+        section=(request.POST.get('section') or '')[:100],
+    )
+    return reply({'ok': True})
 
 @login_required
 @require_POST
