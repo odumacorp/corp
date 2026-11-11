@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://odumacorp.com/sitemap.xml

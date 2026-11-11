@@ -1,748 +1,557 @@
 {% extends '_partials/base.html' %}
 {% load static %}
 
-{% block title %}Oduma Corp — Africa's Innovation & Investment Platform{% endblock %}
-{% block meta_description %}Where Africa's boldest innovators meet the investors who back them. Deal flow, collaboration, and capital — structured for serious players.{% endblock %}
+{% block title %}Oduma Corp: connect African founders with investors{% endblock %}
+{% block meta_description %}Publish your project and get proposals from angel investors, or browse early-stage African projects to back. Free to join. Based in Nairobi, Kenya.{% endblock %}
 
 {% block extra_head %}
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --navy:#0A1628;--blue:#1B5EC7;--blue-d:#144FA8;--gold:#C9A44A;
-  --muted:#6b7280;--border:rgba(255,255,255,0.09);--ff:'Space Grotesk',sans-serif;
+/* Homepage. Rendered by Django at app.odumacorp.com/ and built into loading/index.html
+   by loading/build.py. Sizes are in px so the app's 0.7em root font size and
+   Bootstrap's reboot don't change the layout. */
+.lp{
+  --navy:#0A1628;--navy-2:#13233D;--paper:#F6F7F9;--white:#fff;--ink:#0A1628;
+  --text:#334155;--muted:#526075;--line:#DCE2EA;--blue:#1B5EC7;--blue-d:#164FA8;
+  --on-navy:#E8EDF5;--on-navy-2:#B4C0D3;--focus:#7FB0FF;
+  --ff-h:'Space Grotesk',system-ui,sans-serif;--ff-b:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  font-family:var(--ff-b);font-size:16px;line-height:1.6;color:var(--text);background:var(--white);
+  -webkit-font-smoothing:antialiased;text-align:left;
 }
+/* Resets use :where() so they never outrank the component classes below. */
+:where(.lp) *,:where(.lp) *::before,:where(.lp) *::after{box-sizing:border-box;}
+:where(.lp) :where(h1,h2,h3,p,ul,ol,figure){margin:0;padding:0;}
+:where(.lp) :where(ul,ol){list-style:none;}
+:where(.lp) :where(h1,h2,h3){font-family:var(--ff-h);font-weight:700;color:var(--ink);letter-spacing:-.015em;line-height:1.2;}
+:where(.lp) a{color:inherit;text-decoration:none;}
+:where(.lp) img{max-width:100%;height:auto;display:block;}
+.lp :focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:4px;}
+.lp-dark :focus-visible,.lp-hdr :focus-visible{outline-color:var(--focus);}
+.lp-wrap{max-width:1160px;margin:0 auto;padding:0 16px;}
+@media(min-width:768px){.lp-wrap{padding:0 32px;}}
+.lp section[id]{scroll-margin-top:72px;}
+@media(prefers-reduced-motion:no-preference){html:has(.lp){scroll-behavior:smooth;}}
 
-/* ── Animations ── */
-@keyframes ocFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-@keyframes ocPulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.15)}}
-@keyframes ocGlow{0%,100%{box-shadow:0 0 8px rgba(59,130,246,.4)}50%{box-shadow:0 0 20px rgba(59,130,246,.8)}}
-@keyframes ocFadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
-@keyframes ocSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes ocShimmer{0%{background-position:200% center}100%{background-position:-200% center}}
-@keyframes ocBlink{0%,100%{opacity:1}50%{opacity:.3}}
-
-/* ── Sticky Nav ── */
-.lp-nav{position:fixed;top:0;left:0;right:0;z-index:900;background:rgba(8,16,32,0.88);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border-bottom:1px solid rgba(255,255,255,0.06);height:fit-content;padding:20px 0; display:flex;align-items:center;transition:box-shadow .3s;}
-.lp-nav__inner{width:100%;max-width:1320px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
-.lp-nav__logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
-.lp-nav__logo img{width:52px;height:52px;border-radius:7px;}
-.lp-nav__logo-name{font-family:var(--ff);font-size: 2.6rem;font-weight:800;color:#fff;letter-spacing:-.01em;}
-.lp-nav__links{display:flex;align-items:center;gap:2px;list-style:none;}
-.lp-nav__links a{font-family:var(--ff);font-size: 2.0rem;font-weight:600;color:rgba(255,255,255,0.55);text-decoration:none;padding:6px 14px;border-radius:7px;transition:background .15s,color .15s;}
-.lp-nav__links a:hover{background:rgba(255,255,255,0.07);color:#fff;}
-.lp-nav__actions{display:flex;align-items:center;gap:10px;}
-.lp-nav__login{font-family:var(--ff);font-size: 1.2rem;font-weight:700;color:rgba(255,255,255,0.65);text-decoration:none;padding:7px 16px;border-radius:8px;transition:color .15s;}
-.lp-nav__login:hover{color:#fff;}
-.lp-nav__cta{font-family:var(--ff);font-size: 1.2rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--blue),#3b82f6);text-decoration:none;padding:8px 20px;border-radius:8px;transition:opacity .18s,transform .18s;white-space:nowrap;box-shadow:0 2px 12px rgba(27,94,199,.35);}
-.lp-nav__cta:hover{opacity:.9;color:#fff;transform:translateY(-1px);}
-.lp-nav__hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;}
-.lp-nav__hamburger span{display:block;width:22px;height:2px;background:rgba(255,255,255,0.8);border-radius:2px;transition:all .2s;}
-.lp-mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;background:rgba(8,16,32,0.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:16px 24px 20px;z-index:899;flex-direction:column;gap:4px;}
-.lp-mobile-menu.open{display:flex;}
-.lp-mobile-menu a{font-family:var(--ff);font-size: 1.2rem;font-weight:600;color:rgba(255,255,255,0.75);text-decoration:none;padding:10px 12px;border-radius:8px;transition:background .15s,color .15s;}
-.lp-mobile-menu a:hover{background:rgba(255,255,255,0.07);color:#fff;}
-.lp-mobile-menu__divider{height:1px;background:var(--border);margin:8px 0;}
-.lp-mobile-menu a.primary{background:linear-gradient(135deg,var(--blue),#3b82f6);color:#fff;text-align:center;margin-top:4px;}
-
-/* ── Hero ── */
-.lp-hero{position:relative;background:#060c1a;min-height:100vh;display:flex;align-items:center;overflow:hidden;padding-top:60px;}
-/* Grid layer */
-.lp-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.028) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black 40%,transparent 100%);}
-/* Main glow */
-.lp-hero__glow-main{position:absolute;top:-5%;right:-8%;width:800px;height:800px;background:radial-gradient(circle,rgba(27,94,199,.18) 0%,transparent 65%);pointer-events:none;}
-.lp-hero__glow-accent{position:absolute;bottom:10%;left:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(99,102,241,.12) 0%,transparent 65%);pointer-events:none;}
-/* Floating particles */
-.lp-hero__dot{position:absolute;border-radius:50%;pointer-events:none;}
-
-.lp-hero__inner{position:relative;z-index:1;width:100%;max-width:1320px;margin:0 auto;padding:100px 32px 90px;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;}
-
-/* Badge */
-.lp-hero__badge{display:inline-flex;align-items:center;gap:8px;background:rgba(27,94,199,.12);border:1px solid rgba(27,94,199,.35);border-radius:100px;padding:6px 14px 6px 8px;margin-bottom:28px;animation:ocFadeUp .6s ease both;}
-.lp-hero__badge-dot{width:7px;height:7px;border-radius:50%;background:#3b82f6;box-shadow:0 0 8px #3b82f6;flex-shrink:0;animation:ocPulse 2s ease-in-out infinite;}
-.lp-hero__badge span{font-family:var(--ff);font-size: 1.2rem;font-weight:700;color:#93c5fd;letter-spacing:.06em;text-transform:uppercase;}
-
-/* Headline */
-.lp-hero__headline{font-family:var(--ff);font-size:clamp(2.3rem,5vw,3.8rem);font-weight:800;color:#fff;line-height:1.08;letter-spacing:-.03em;margin-bottom:22px;animation:ocFadeUp .65s .08s ease both;}
-.lp-hero__headline em{font-style:normal;background:linear-gradient(90deg,#3b82f6 0%,#818cf8 50%,#60a5fa 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:ocShimmer 4s linear infinite;}
-
-.lp-hero__sub{font-size: 2.0rem;color:rgba(255,255,255,0.5);line-height:1.75;max-width:480px;margin-bottom:38px;animation:ocFadeUp .7s .15s ease both;}
-.lp-hero__actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:48px;animation:ocFadeUp .7s .22s ease both;}
+.lp-skip{position:absolute;left:8px;top:-60px;z-index:1000;background:var(--white);color:var(--ink);padding:10px 16px;border-radius:6px;font-weight:600;}
+.lp-skip:focus{top:8px;}
 
 /* Buttons */
-.lp-btn-primary{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--blue),#3b82f6);color:#fff;font-family:var(--ff);font-size: 1.2rem;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none;transition:opacity .18s,transform .18s,box-shadow .18s;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(27,94,199,.4);}
-.lp-btn-primary:hover{opacity:.9;color:#fff;transform:translateY(-2px);box-shadow:0 8px 28px rgba(27,94,199,.55);}
-.lp-btn-ghost{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.8);font-family:var(--ff);font-size: 1.2rem;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.12);transition:background .18s,border-color .18s,color .18s;}
-.lp-btn-ghost:hover{background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.22);}
+.lp-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 22px;border-radius:8px;font-family:var(--ff-h);font-size:16px;font-weight:700;line-height:1.2;border:2px solid transparent;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s;}
+.lp-btn--primary{background:var(--blue);color:#fff;}
+.lp-btn--primary:hover{background:var(--blue-d);color:#fff;}
+.lp-btn--ghost-dark{border-color:#5C6F8C;color:var(--on-navy);}
+.lp-btn--ghost-dark:hover{border-color:var(--on-navy);color:#fff;}
+.lp-btn--ghost{border-color:#9AA8BB;color:var(--ink);}
+.lp-btn--ghost:hover{border-color:var(--ink);}
+.lp-btn.is-busy{opacity:.75;cursor:progress;}
+.lp-link{color:var(--blue);font-weight:600;text-decoration:underline;text-underline-offset:3px;}
+.lp-link:hover{color:var(--blue-d);}
 
-/* Trust row */
-.lp-hero__trust{display:flex;align-items:center;gap:20px;flex-wrap:wrap;animation:ocFadeUp .7s .3s ease both;}
-.lp-hero__avatars{display:flex;}
-.lp-av{width:34px;height:34px;border-radius:50%;border:2px solid #060c1a;object-fit:cover;margin-left:-10px;background:linear-gradient(135deg,#1B5EC7,#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-size: 1.2rem;font-weight:800;flex-shrink:0;}
-.lp-av:first-child{margin-left:0;}
-.lp-hero__trust-text{font-size: 2.0rem;color:rgba(255,255,255,0.4);line-height:1.4;}
-.lp-hero__trust-text strong{color:rgba(255,255,255,0.8);}
+/* Header */
+.lp-hdr{position:sticky;top:0;z-index:900;background:var(--navy);border-bottom:1px solid #22334F;}
+.lp-hdr__in{display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px;}
+.lp-logo{display:flex;align-items:center;gap:10px;min-height:44px;color:#fff;font-family:var(--ff-h);font-weight:700;font-size:19px;}
+.lp-logo img{width:36px;height:36px;border-radius:6px;}
+.lp-nav{display:none;align-items:center;gap:4px;}
+.lp-nav a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:6px;color:var(--on-navy);font-size:15px;font-weight:500;}
+.lp-nav a:hover{color:#fff;background:#1A2C48;}
+.lp-hdr__act{display:flex;align-items:center;gap:8px;}
+.lp-hdr__login{display:none;align-items:center;min-height:44px;padding:0 12px;color:var(--on-navy);font-weight:600;font-size:15px;}
+.lp-hdr__login:hover{color:#fff;}
+.lp-hdr__cta{display:none;min-height:44px;padding:10px 16px;font-size:15px;}
+.lp-menu-btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:44px;padding:0 12px;background:transparent;border:1px solid #3A4D6B;border-radius:8px;color:#fff;font:600 15px var(--ff-b);cursor:pointer;}
+.lp-menu-btn svg{flex-shrink:0;}
+.lp-mobile-menu{display:none;position:absolute;top:64px;left:0;right:0;background:var(--navy);border-bottom:1px solid #22334F;padding:8px 16px 20px;flex-direction:column;}
+.lp-mobile-menu.open{display:flex;}
+.lp-mobile-menu a{display:flex;align-items:center;min-height:48px;padding:0 8px;color:var(--on-navy);font-size:17px;font-weight:500;border-bottom:1px solid #1C2E4A;}
+.lp-mobile-menu a:hover{color:#fff;}
+.lp-mobile-menu a.primary{justify-content:center;margin-top:16px;border:0;border-radius:8px;background:var(--blue);color:#fff;font-family:var(--ff-h);font-weight:700;}
+@media(min-width:640px){.lp-hdr__cta{display:inline-flex;}}
+@media(min-width:1024px){.lp-nav,.lp-hdr__login{display:flex;}.lp-menu-btn{display:none;}.lp-mobile-menu.open{display:none;}}
 
-/* Hero card stack */
-.lp-hero__card-stack{position:relative;display:flex;flex-direction:column;gap:14px;animation:ocFadeUp .8s .1s ease both;}
-.lp-hero__card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:20px 22px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:border-color .2s,box-shadow .2s;}
-.lp-hero__card:hover{border-color:rgba(59,130,246,.3);box-shadow:0 8px 32px rgba(27,94,199,.15);}
-.lp-hero__card-label{font-size: 1.2rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:10px;}
-.lp-hero__card-title{font-family:var(--ff);font-size: 2.0rem;font-weight:700;color:#fff;margin-bottom:6px;}
-.lp-hero__card-meta{font-size: 1.2rem;color:rgba(255,255,255,0.4);}
-.lp-hero__card-stat{font-family:var(--ff);font-size: 3.7rem;font-weight:800;color:#fff;letter-spacing:-.02em;}
-.lp-hero__card-badge{display:inline-flex;align-items:center;gap:5px;font-size: 1.2rem;font-weight:700;padding:3px 10px;border-radius:100px;margin-top:10px;}
-.lp-hero__card-badge--green{background:rgba(5,150,105,0.18);color:#34d399;border:1px solid rgba(5,150,105,.25);}
-.lp-hero__card-badge--blue{background:rgba(59,130,246,0.18);color:#93c5fd;border:1px solid rgba(59,130,246,.25);}
-.lp-live-dot{width:6px;height:6px;border-radius:50%;background:#34d399;animation:ocBlink 1.5s ease-in-out infinite;}
+/* Hero */
+.lp-hero{background:var(--navy);color:var(--on-navy);padding:40px 0 56px;}
+.lp-hero__grid{display:grid;gap:40px;align-items:center;}
+.lp-hero h1{color:#fff;font-size:36px;line-height:1.1;max-width:14ch;}
+.lp-hero__sub{margin-top:18px;font-size:17px;line-height:1.6;color:var(--on-navy);max-width:34em;}
+.lp-hero__act{display:flex;flex-direction:column;gap:12px;margin-top:28px;}
+.lp-cohort{margin-top:28px;padding-top:20px;border-top:1px solid #22334F;font-size:15px;color:var(--on-navy-2);max-width:34em;}
+.lp-cohort strong{color:#fff;font-weight:600;}
+.lp-cohort__n{display:block;min-height:1.6em;}
+@media(min-width:480px){.lp-hero__act{flex-direction:row;flex-wrap:wrap;}}
+@media(min-width:768px){.lp-hero{padding:64px 0 80px;}.lp-hero h1{font-size:48px;}}
+@media(min-width:1024px){.lp-hero__grid{grid-template-columns:1.1fr .9fr;gap:64px;}.lp-hero h1{font-size:56px;}}
 
-/* ── Stats ── */
-.lp-stats{background:#0a1220;border-bottom:1px solid rgba(255,255,255,.06);}
-.lp-stats__inner{max-width:1320px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:repeat(4,1fr);}
-.lp-stats__item{padding:32px 24px;border-right:1px solid rgba(255,255,255,.06);text-align:center;position:relative;}
-.lp-stats__item:last-child{border-right:none;}
-.lp-stats__item::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:2px;background:linear-gradient(90deg,#1B5EC7,#3b82f6);border-radius:1px;transition:width .3s;}
-.lp-stats__item:hover::after{width:48px;}
-.lp-stats__val{font-family:var(--ff);font-size: 3.0rem;font-weight:800;line-height:1;margin-bottom:6px;background:linear-gradient(135deg,#fff 30%,rgba(255,255,255,.6) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.lp-stats__label{font-size: 1.2rem;color:rgba(255,255,255,.35);font-weight:700;text-transform:uppercase;letter-spacing:.08em;}
+/* Product mockups (HTML/CSS, no images) */
+.lp-mock{background:var(--white);color:var(--text);border-radius:12px;border:1px solid var(--line);box-shadow:0 1px 2px rgba(10,22,40,.06),0 12px 32px rgba(10,22,40,.12);overflow:hidden;font-size:14px;}
+.lp-mock__bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--paper);font-size:12px;color:var(--muted);}
+.lp-mock__tag{display:inline-block;padding:2px 8px;border-radius:4px;background:#FFF4D6;color:#6B4E00;font-size:12px;font-weight:600;}
+.lp-mock__body{padding:16px;}
+.lp-mock__title{font-family:var(--ff-h);font-weight:700;font-size:19px;line-height:1.25;color:var(--ink);}
+.lp-mock__meta{margin-top:4px;color:var(--muted);font-size:14px;}
+.lp-mock__row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.lp-mock__cell{border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
+.lp-mock__k{font-size:12px;color:var(--muted);}
+.lp-mock__v{font-weight:600;color:var(--ink);}
+.lp-mock__btns{display:flex;gap:8px;margin-top:14px;}
+.lp-mock__btn{flex:1;text-align:center;padding:9px 8px;border-radius:6px;font-weight:600;font-size:13px;border:1px solid var(--line);color:var(--ink);}
+.lp-mock__btn--p{background:var(--blue);border-color:var(--blue);color:#fff;}
+.lp-mock__list li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);}
+.lp-mock__list li:first-child{border-top:0;padding-top:0;}
+.lp-mock__score{flex-shrink:0;font-weight:600;font-size:13px;color:#0B6B3A;background:#E3F5EA;border-radius:4px;padding:2px 8px;}
+.lp-mock__chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.lp-mock__chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:100px;background:#E8EFFA;color:#16418A;}
+.lp-mock__msg{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:10px;}
+.lp-mock__msg:first-child{margin-top:0;}
+.lp-mock__msg--me{background:#F0F5FD;border-color:#D3E0F5;margin-left:24px;}
+.lp-mock__who{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:2px;}
 
-/* ── Section shell ── */
-.lp-section{padding:100px 0;}
-.lp-section--alt{background:#f7f9fc;}
-.lp-section--dark{background:#060c1a;}
-.lp-inner{max-width:1320px;margin:0 auto;padding:0 32px;}
-.lp-label{display:inline-flex;align-items:center;gap:6px;font-size: 1.2rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);background:rgba(27,94,199,0.08);padding:4px 12px;border-radius:100px;margin-bottom:14px;border:1px solid rgba(27,94,199,.15);}
-.lp-label--light{color:#93c5fd;background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,.2);}
-.lp-h2{font-family:var(--ff);font-size:clamp(1.9rem,3.5vw,2.7rem);font-weight:800;color:#0A1628;letter-spacing:-.03em;line-height:1.12;margin-bottom:16px;}
-.lp-h2--light{color:#fff;}
-.lp-lead{font-size: 1.2rem;color: rgba(255, 255, 255, 0.564);line-height:1.75;max-width:560px;}
-.lp-lead--light{ color: rgba(255, 255, 255, 0.564);}
-.lp-section-head{margin-bottom:60px;display:flex;flex-direction:column;}
-.lp-section-head--center{align-items:center;text-align:center;}
-.lp-section-head--center .lp-lead{margin:0 auto;}
+/* Sections */
+.lp-sec{padding:56px 0;}
+.lp-sec--paper{background:var(--paper);}
+.lp-sec h2{font-size:28px;line-height:1.15;}
+.lp-sec__lead{margin-top:12px;font-size:17px;max-width:38em;}
+@media(min-width:768px){.lp-sec{padding:80px 0;}.lp-sec h2{font-size:36px;}}
 
-/* ── How it works ── */
-.lp-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-.lp-step{background:#fff;border:1px solid #e8eef6;border-radius:20px;padding:32px 28px;transition:box-shadow .25s,transform .25s,border-color .25s;position:relative;overflow:hidden;}
-.lp-step::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(27,94,199,.03) 0%,transparent 60%);opacity:0;transition:opacity .25s;}
-.lp-step:hover::before{opacity:1;}
-.lp-step:hover{box-shadow:0 12px 40px rgba(27,94,199,.1);transform:translateY(-4px);border-color:#d0dff5;}
-.lp-step__num{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#0d2147,#1B5EC7);color:#fff;font-family:var(--ff);font-size: 1.2rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:20px;box-shadow:0 4px 16px rgba(27,94,199,.3);}
-.lp-step__title{font-family:var(--ff);font-size: 1.2rem;font-weight:800;color:#0A1628;margin-bottom:10px;}
-.lp-step__desc{font-size: 1.2rem;color:#6b7280;line-height:1.65;}
-/* Step connector line */
-.lp-steps-wrap{position:relative;}
-.lp-steps-wrap::before{content:'';position:absolute;top:78px;left:calc(33.33% - 12px);right:calc(33.33% - 12px);height:1px;background:linear-gradient(90deg,transparent,rgba(27,94,199,.3) 30%,rgba(27,94,199,.3) 70%,transparent);pointer-events:none;}
+/* How it works */
+.lp-tracks{display:grid;gap:32px;margin-top:32px;}
+.lp-track h3{font-size:20px;padding-bottom:12px;border-bottom:2px solid var(--ink);}
+.lp-steps{counter-reset:s;}
+.lp-steps li{counter-increment:s;display:grid;grid-template-columns:40px 1fr;gap:12px;padding:16px 0;border-bottom:1px solid var(--line);}
+.lp-steps li::before{content:counter(s);font-family:var(--ff-h);font-weight:700;font-size:22px;line-height:1.2;color:var(--blue);}
+.lp-steps strong{display:block;color:var(--ink);font-weight:600;}
+@media(min-width:768px){.lp-tracks{grid-template-columns:1fr 1fr;gap:48px;}}
 
-/* ── Split panels ── */
-.lp-split{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
-.lp-panel{border-radius:24px;padding:48px 44px;display:flex;flex-direction:column;gap:28px;position:relative;overflow:hidden;}
-.lp-panel--blue{background:linear-gradient(145deg,#0a1d3d 0%,#1B5EC7 100%);}
-.lp-panel--blue::before{content:'';position:absolute;top:-40%;right:-20%;width:300px;height:300px;background:radial-gradient(circle,rgba(59,130,246,.25) 0%,transparent 65%);pointer-events:none;}
-.lp-panel--dark{background:linear-gradient(145deg,#07111f 0%,#0e2040 100%);border:1px solid rgba(255,255,255,0.07);}
-.lp-panel--dark::before{content:'';position:absolute;bottom:-30%;left:-10%;width:280px;height:280px;background:radial-gradient(circle,rgba(99,102,241,.15) 0%,transparent 65%);pointer-events:none;}
-.lp-panel__icon{width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.9);}
-.lp-panel__title{font-family:var(--ff);font-size: 2.2rem;font-weight:800;color:#fff;letter-spacing:-.025em;line-height:1.2;}
-.lp-panel__desc{font-size: 2.3rem;color:rgba(255,255,255,0.5);line-height:1.75;}
-.lp-panel__features{
- 
-  display:flex;flex-direction:column;gap:10px;}
-.lp-panel__feature{display:flex;align-items:flex-start;gap:10px;font-size: 2.0rem;color:rgba(255,255,255,0.7);line-height:1.5;}
-.lp-panel__feature-dot{width:20px;height:20px;border-radius:50%;background:rgba(59,130,246,0.18);border:1px solid rgba(59,130,246,0.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size: 1.2rem;color:#93c5fd;}
-.lp-panel__cta{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);color:#fff;font-family:var(--ff);font-size: 1.2rem;font-weight:700;padding:13px 24px;border-radius:10px;text-decoration:none;transition:background .18s,transform .18s;align-self:flex-start;margin-top:auto;border:1px solid rgba(255,255,255,.15);}
-.lp-panel__cta:hover{background:rgba(255,255,255,.2);color:#fff;transform:translateY(-1px);}
-.lp-panel__cta--blue{background:linear-gradient(135deg,rgba(255,255,255,.15),rgba(255,255,255,.08));border-color:rgba(255,255,255,.18);}
+/* For you: split rows */
+.lp-split{display:grid;gap:32px;align-items:center;}
+.lp-split + .lp-split{margin-top:64px;}
+.lp-split h3{font-size:26px;line-height:1.2;}
+.lp-split__lead{margin-top:10px;font-size:17px;}
+.lp-ticks{margin-top:18px;}
+.lp-ticks li{position:relative;padding:7px 0 7px 26px;}
+.lp-ticks li::before{content:'';position:absolute;left:2px;top:15px;width:12px;height:7px;border-left:2px solid var(--blue);border-bottom:2px solid var(--blue);transform:rotate(-45deg);}
+.lp-split .lp-btn{margin-top:22px;}
+.lp-note{margin-top:20px;padding:14px 16px;border-left:3px solid #B7791F;background:#FFF8E8;font-size:14px;color:#4A3A12;}
+.lp-note strong{color:#2E2408;}
+@media(min-width:900px){.lp-split{grid-template-columns:1fr 1fr;gap:64px;}.lp-split--rev .lp-split__media{order:-1;}}
 
-/* ── Projects ── */
-.lp-projects{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-.lp-proj-card{background:#fff;border:1px solid #eaeff8;border-radius:18px;overflow:hidden;transition:box-shadow .25s,transform .25s,border-color .25s;display:flex;flex-direction:column;}
-.lp-proj-card:hover{box-shadow:0 12px 40px rgba(27,94,199,.1);transform:translateY(-4px);border-color:#d0dff5;}
-.lp-proj-img{height:168px;object-fit:cover;width:100%;display:block;}
-.lp-proj-img-placeholder{height:168px;background:linear-gradient(135deg,#0a1d3d 0%,#1B5EC7 100%);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);}
-.lp-proj-body{padding:20px;flex:1;display:flex;flex-direction:column;gap:8px;}
-.lp-proj-industry{font-size: 1.2rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);background:rgba(27,94,199,0.07);padding:3px 10px;border-radius:100px;display:inline-block;align-self:flex-start;border:1px solid rgba(27,94,199,.12);}
-.lp-proj-title{font-family:var(--ff);font-size: 1.2rem;font-weight:700;color:#0A1628;text-decoration:none;line-height:1.3;}
-.lp-proj-title:hover{color:var(--blue);}
-.lp-proj-desc{font-size: 1.2rem;color:rgba(255, 255, 255, 0.564);line-height:1.55;flex:1;}
-.lp-proj-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid #f0f4fa;}
-.lp-proj-owner{display:flex;align-items:center;gap:8px;text-decoration:none;}
-.lp-proj-owner-av{width:28px;height:28px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,var(--blue),#3b82f6);color:#fff;display:flex;align-items:center;justify-content:center;font-size: 1.2rem;font-weight:800;flex-shrink:0;}
-.lp-proj-owner-name{font-size: 1.2rem;font-weight:600;color:#374151;}
-.lp-proj-arrow{font-size: 1.2rem;color:var(--blue);font-weight:700;text-decoration:none;}
-.lp-proj-arrow:hover{color:var(--blue-d);}
+/* Projects */
+.lp-sec-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;}
+.lp-sec-head .lp-link{display:inline-flex;align-items:center;min-height:44px;}
+.lp-projects{display:grid;gap:20px;margin-top:28px;}
+@media(min-width:640px){.lp-projects{grid-template-columns:repeat(2,1fr);}}
+@media(min-width:1024px){.lp-projects{grid-template-columns:repeat(3,1fr);}}
+.lp-proj-card{display:flex;flex-direction:column;background:var(--white);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.lp-proj-img{width:100%;aspect-ratio:16/9;object-fit:cover;background:#E6EBF2;}
+.lp-proj-body{flex:1;display:flex;flex-direction:column;gap:8px;padding:16px;}
+.lp-proj-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.lp-proj-industry,.lp-proj-stage{font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px;background:#E8EFFA;color:#16418A;}
+.lp-proj-stage{background:#F1F3F6;color:#3D4A5C;}
+.lp-proj-title{font-family:var(--ff-h);font-size:18px;font-weight:700;line-height:1.3;color:var(--ink);}
+a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
+.lp-proj-desc{font-size:15px;color:var(--text);flex:1;}
+.lp-proj-ask{font-size:14px;font-weight:600;color:#0B6B3A;}
+.lp-proj-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 16px;border-top:1px solid var(--line);}
+.lp-proj-owner{display:flex;align-items:center;gap:8px;min-height:44px;min-width:0;}
+.lp-proj-owner-av{width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#DCE5F3;color:#16418A;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+.lp-proj-owner-name{font-size:14px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lp-proj-arrow{display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:600;color:var(--blue);white-space:nowrap;}
+.lp-proj-arrow:hover{text-decoration:underline;}
+.lp-proj-card--example{border-style:dashed;border-color:#B7C2D1;}
+.lp-example-flag{padding:8px 16px;background:#FFF4D6;color:#5A4100;font-size:13px;font-weight:600;border-bottom:1px solid #F0E0B0;}
+.lp-empty{align-self:center;}
+.lp-empty h3{font-size:20px;}
+.lp-empty p{margin-top:8px;}
+.lp-projects__more{margin-top:28px;}
 
-/* ── Services ── */
-.lp-services{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
-.lp-svc{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:32px 24px;transition:background .2s,border-color .2s,transform .2s,box-shadow .2s;text-decoration:none;display:block;position:relative;overflow:hidden;}
-.lp-svc::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(27,94,199,.08) 0%,transparent 60%);opacity:0;transition:opacity .2s;}
-.lp-svc:hover::before{opacity:1;}
-.lp-svc:hover{background:rgba(255,255,255,.05);border-color:rgba(27,94,199,.35);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.25);}
-.lp-svc__icon{display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,rgba(27,94,199,.25),rgba(59,130,246,.15));border:1px solid rgba(59,130,246,.2);margin-bottom:18px;color:#93c5fd;transition:background .2s;}
-.lp-svc:hover .lp-svc__icon{background:linear-gradient(135deg,rgba(27,94,199,.4),rgba(59,130,246,.25));}
-.lp-svc__title{font-family:var(--ff);font-size: 1.2rem;font-weight:700;color:#fff;margin-bottom:8px;}
-.lp-svc__desc{font-size: 1.2rem;color:rgba(255, 255, 255, 0.564);line-height:1.6;}
+/* Services */
+.lp-svc-list{margin-top:28px;border-top:1px solid var(--line);}
+.lp-svc{display:grid;grid-template-columns:1fr auto;gap:4px 16px;align-items:center;padding:18px 4px;border-bottom:1px solid var(--line);min-height:44px;}
+.lp-svc:hover .lp-svc__title{color:var(--blue);text-decoration:underline;}
+.lp-svc__title{font-family:var(--ff-h);font-size:19px;font-weight:700;color:var(--ink);}
+.lp-svc__desc{grid-column:1;font-size:15px;color:var(--text);}
+.lp-svc__arrow{grid-column:2;grid-row:1 / span 2;color:var(--blue);font-size:20px;}
+@media(min-width:768px){.lp-svc{grid-template-columns:260px 1fr auto;}.lp-svc__desc{grid-column:2;}.lp-svc__arrow{grid-column:3;grid-row:1;}}
 
-/* ── Testimonials ── */
-.lp-testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-.lp-testi{background:#fff;border:1px solid #eaeff8;border-radius:20px;padding:32px 28px;display:flex;flex-direction:column;gap:18px;transition:box-shadow .25s,transform .25s,border-color .25s;position:relative;overflow:hidden;}
-.lp-testi::before{content:'"';position:absolute;top:16px;right:24px;font-size: 6.8rem;font-family:Georgia,serif;color:rgba(27,94,199,.06);line-height:1;pointer-events:none;}
-.lp-testi:hover{box-shadow:0 12px 36px rgba(27,94,199,.08);transform:translateY(-3px);border-color:#d0dff5;}
-.lp-testi__stars{display:flex;gap:3px;}
-.lp-testi__star{width:14px;height:14px;color:#f59e0b;}
-.lp-testi__quote{font-size: 1.2rem;color:#374151;line-height:1.7;font-style:italic;flex:1;}
-.lp-testi__author{display:flex;align-items:center;gap:12px;}
-.lp-testi__av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--ff);font-size: 1.2rem;font-weight:800;flex-shrink:0;}
-.lp-testi__name{font-family:var(--ff);font-size: 1.2rem;font-weight:700;color:#0A1628;}
-.lp-testi__role{font-size: 1.2rem;color:#6b7280;margin-top:2px;}
+/* Where we are */
+.lp-plain{max-width:42em;}
+.lp-plain p{margin-top:14px;font-size:17px;}
+.lp-plain h2 + p{margin-top:18px;}
 
-/* ── CTA section ── */
-.lp-cta-section{background:#060c1a;padding:120px 32px;text-align:center;position:relative;overflow:hidden;}
-.lp-cta-section::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;}
-.lp-cta-glow-1{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(27,94,199,.22) 0%,transparent 65%);pointer-events:none;}
-.lp-cta-glow-2{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:400px;height:400px;background:radial-gradient(circle,rgba(99,102,241,.12) 0%,transparent 65%);pointer-events:none;}
-.lp-cta-section__inner{position:relative;z-index:1;max-width:640px;margin:0 auto;}
-.lp-cta-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(27,94,199,.12);border:1px solid rgba(27,94,199,.3);border-radius:100px;padding:5px 14px 5px 8px;margin-bottom:24px;}
-.lp-cta-badge span{font-family:var(--ff);font-size: 1.2rem;font-weight:700;color:#93c5fd;letter-spacing:.06em;text-transform:uppercase;}
-.lp-cta-section__title{font-family:var(--ff);font-size:clamp(1.9rem,4vw,3rem);font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1.1;margin-bottom:16px;}
-.lp-cta-section__title em{font-style:normal;background:linear-gradient(90deg,#3b82f6,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.lp-cta-section__sub{font-size: 1.2rem;color:rgba(255,255,255,.45);line-height:1.75;margin-bottom:40px;}
-.lp-cta-section__actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-.lp-btn-white{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#0A1628;font-family:var(--ff);font-size: 1.2rem;font-weight:700;padding:15px 32px;border-radius:10px;text-decoration:none;transition:opacity .18s,transform .18s;box-shadow:0 4px 20px rgba(0,0,0,.2);}
-.lp-btn-white:hover{opacity:.92;color:#0A1628;transform:translateY(-2px);}
-.lp-btn-outline-white{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,.75);font-family:var(--ff);font-size: 1.2rem;font-weight:700;padding:15px 32px;border-radius:10px;border:1px solid rgba(255,255,255,0.14);text-decoration:none;transition:background .18s,color .18s;}
-.lp-btn-outline-white:hover{background:rgba(255,255,255,.12);color:#fff;}
+/* Placeholders that still need a real fact */
+.lp-ph{display:inline;background:#FFE9A8;color:#3D2E00;font-family:ui-monospace,Menlo,monospace;font-size:.85em;padding:1px 4px;border-radius:3px;}
 
-/* ── Responsive ── */
-@media(max-width:1024px){.lp-services{grid-template-columns:repeat(2,1fr);}.lp-projects{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:900px){.lp-nav__links{display:none;}.lp-nav__login{display:none;}.lp-nav__hamburger{display:flex;}.lp-hero__inner{grid-template-columns:1fr;gap:52px;}.lp-hero__card-stack{display:none;}.lp-stats__inner{grid-template-columns:repeat(2,1fr);}.lp-steps{grid-template-columns:1fr;}.lp-steps-wrap::before{display:none;}.lp-split{grid-template-columns:1fr;}.lp-testimonials{grid-template-columns:1fr;}}
-@media(max-width:640px){
-  .lp-nav__inner{padding:0 16px;gap:8px;}
-  .lp-nav__cta{display:none;}
-  .lp-nav__logo-name{font-size:1.8rem;}
-  .lp-hero{align-items:start;min-height:fit-content;}
-  .lp-hero__inner{padding:80px 20px 64px;}
-  .lp-hero__sub{font-size:1.5rem;max-width:100%;}
-  .lp-hero__trust-text{font-size:1.5rem;}
-  .lp-hero__actions{flex-direction:column;gap:10px;}
-  .lp-btn-primary,.lp-btn-ghost{width:100%;justify-content:center;}
-  .lp-section{padding:72px 0;}
-  .lp-inner{padding:0 20px;}
-  .lp-stats__inner{padding:0 20px;}
-  .lp-projects{grid-template-columns:1fr;}
-  .lp-services{grid-template-columns:repeat(2,1fr);}
-  .lp-panel{padding:36px 20px;}
-  .lp-panel__desc{font-size:1.5rem;}
-  .lp-panel__feature{font-size:1.5rem;}
-  .lp-cta-section{padding:80px 20px;}
-}
-@media(max-width:400px){
-  .lp-nav__logo-name{font-size:1.5rem;}
-  .lp-hero__headline{font-size:2.2rem;}
-  .lp-services{grid-template-columns:1fr;}
-}
+/* Final CTA + footer */
+.lp-dark{background:var(--navy);color:var(--on-navy);}
+.lp-cta{padding:56px 0;}
+.lp-cta h2{color:#fff;font-size:28px;line-height:1.15;max-width:18em;}
+.lp-cta p{margin-top:12px;font-size:17px;max-width:36em;}
+.lp-cta__act{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px;}
+.lp-cta .lp-data{margin-top:28px;font-size:14px;color:var(--on-navy-2);max-width:44em;}
+.lp-cta .lp-data a,.lp-ftr a{text-decoration:underline;text-underline-offset:3px;}
+@media(min-width:768px){.lp-cta{padding:80px 0;}.lp-cta h2{font-size:36px;}}
+.lp-ftr{border-top:1px solid #22334F;padding:40px 0 32px;font-size:15px;color:var(--on-navy-2);}
+.lp-ftr__grid{display:grid;gap:28px;}
+.lp-ftr__name{font-family:var(--ff-h);font-weight:700;font-size:18px;color:#fff;}
+.lp-ftr h2{font-family:var(--ff-b);font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--on-navy-2);margin-bottom:6px;}
+.lp-ftr ul a,.lp-ftr__btn{display:inline-flex;align-items:center;min-height:44px;color:var(--on-navy);}
+.lp-ftr ul a:hover,.lp-ftr__btn:hover{color:#fff;}
+.lp-ftr__btn{background:none;border:0;padding:0;font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+.lp-ftr__copy{margin-top:28px;padding-top:20px;border-top:1px solid #22334F;font-size:14px;}
+@media(min-width:768px){.lp-ftr__grid{grid-template-columns:1.4fr 1fr 1fr 1fr;}}
+
+@media(prefers-reduced-motion:reduce){.lp *{transition:none!important;}}
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="lp">
+<a class="lp-skip" href="#main">Skip to content</a>
 
-<!-- ── Sticky Nav ── -->
-<nav class="lp-nav" role="navigation" aria-label="Main navigation">
-  <div class="lp-nav__inner">
-    <a href="{% url 'index' %}" class="lp-nav__logo">
-      <img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="Oduma Corp">
-      <span class="lp-nav__logo-name">Oduma Corp</span>
+<header class="lp-hdr">
+  <div class="lp-wrap lp-hdr__in">
+    <a href="{% url 'index' %}" class="lp-logo">
+      <img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="" width="36" height="36">
+      <span>Oduma Corp</span>
     </a>
-    <ul class="lp-nav__links">
-      <li><a href="#how-it-works">How it works</a></li>
-      <li><a href="#for-you">For you</a></li>
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#services">Services</a></li>
-      <li><a href="{% url 'about' %}">About</a></li>
-    </ul>
-    <div class="lp-nav__actions">
+    <nav class="lp-nav" aria-label="Main">
+      <a href="#how-it-works">How it works</a>
+      <a href="#for-you">For you</a>
+      <a href="#projects">Projects</a>
+      <a href="#services">Services</a>
+      <a href="{% url 'about' %}">About</a>
+    </nav>
+    <div class="lp-hdr__act">
       {% if user.is_authenticated %}
-        <a href="{% url 'app' %}" class="lp-nav__login">Feed</a>
-        <a href="{% url 'create_project' %}" class="lp-nav__cta">+ Create Project</a>
+        <a href="{% url 'app' %}" class="lp-hdr__login">Feed</a>
+        <a href="{% url 'create_project' %}" class="lp-btn lp-btn--primary lp-hdr__cta">+ Create Project</a>
       {% else %}
-        <a href="{% url 'login' %}" class="lp-nav__login">Log in</a>
-        <a href="{% url 'register' %}?next=/projects/create/" class="lp-nav__cta">+ Create Project</a>
+        <a href="{% url 'login' %}" class="lp-hdr__login">Log in</a>
+        <a href="{% url 'register' %}?next=/projects/create/" class="lp-btn lp-btn--primary lp-hdr__cta">+ Create Project</a>
       {% endif %}
+      <button type="button" class="lp-menu-btn" id="lp-menu-btn" aria-expanded="false" aria-controls="lp-mob">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        Menu
+      </button>
     </div>
-    <button class="lp-nav__hamburger" onclick="document.getElementById('lp-mob').classList.toggle('open')" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
   </div>
-</nav>
-<div class="lp-mobile-menu" id="lp-mob">
-  <a href="#how-it-works" onclick="document.getElementById('lp-mob').classList.remove('open')">How it works</a>
-  <a href="#for-you" onclick="document.getElementById('lp-mob').classList.remove('open')">For you</a>
-  <a href="#projects" onclick="document.getElementById('lp-mob').classList.remove('open')">Projects</a>
-  <a href="#services" onclick="document.getElementById('lp-mob').classList.remove('open')">Services</a>
-  <a href="{% url 'about' %}">About</a>
-  <div class="lp-mobile-menu__divider"></div>
-  {% if user.is_authenticated %}
-    <a href="{% url 'app' %}">Feed</a>
-    <a href="{% url 'create_project' %}" class="primary">+ Create Project</a>
-  {% else %}
-    <a href="{% url 'login' %}">Log in</a>
-    <a href="{% url 'register' %}?next=/projects/create/" class="primary">+ Create Project</a>
-  {% endif %}
-</div>
+  <nav class="lp-mobile-menu" id="lp-mob" aria-label="Menu">
+    <a href="#how-it-works">How it works</a>
+    <a href="#for-you">For you</a>
+    <a href="#projects">Projects</a>
+    <a href="#services">Services</a>
+    <a href="{% url 'about' %}">About</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'app' %}">Feed</a>
+      <a href="{% url 'create_project' %}" class="primary">+ Create Project</a>
+    {% else %}
+      <a href="{% url 'login' %}">Log in</a>
+      <a href="{% url 'register' %}?next=/projects/create/" class="primary">+ Create Project</a>
+    {% endif %}
+  </nav>
+</header>
 
+<div class="lp-main" id="main" tabindex="-1">
 
-<!-- ── Hero ── -->
-<section class="lp-hero" id="hero">
-  <div class="lp-hero__glow-main"></div>
-  <div class="lp-hero__glow-accent"></div>
-  <!-- Floating particles -->
-  <div class="lp-hero__dot" style="width:5px;height:5px;background:#F5C842;top:18%;left:12%;opacity:.6;animation:ocFloat 4s ease-in-out infinite;"></div>
-  <div class="lp-hero__dot" style="width:3px;height:3px;background:#3b82f6;top:35%;left:6%;opacity:.5;animation:ocFloat 5s ease-in-out infinite .6s;"></div>
-  <div class="lp-hero__dot" style="width:6px;height:6px;background:#10b981;top:65%;left:16%;opacity:.45;animation:ocFloat 3.5s ease-in-out infinite 1.2s;"></div>
-  <div class="lp-hero__dot" style="width:4px;height:4px;background:#e879f9;top:25%;right:14%;opacity:.5;animation:ocFloat 4.5s ease-in-out infinite .3s;"></div>
-  <div class="lp-hero__dot" style="width:5px;height:5px;background:#60a5fa;top:75%;right:10%;opacity:.4;animation:ocFloat 3.8s ease-in-out infinite .9s;"></div>
-  <div class="lp-hero__dot" style="width:3px;height:3px;background:#F5C842;bottom:20%;left:40%;opacity:.35;animation:ocFloat 5.2s ease-in-out infinite 1.8s;"></div>
-
-  <div class="lp-hero__inner">
+<section class="lp-hero" id="hero" aria-labelledby="lp-h1">
+  <div class="lp-wrap lp-hero__grid">
     <div>
-      <div class="lp-hero__badge">
-        <span class="lp-hero__badge-dot"></span>
-        <span>Africa's #1 Innovation Platform</span>
-      </div>
-      <h1 class="lp-hero__headline">Where you Showcase Ideas.<br><em>Discover Opportunities.</em><br>Fund the Future.</h1>
-      <!-- <p class="lp-hero__sub">Oduma Corp is a unified platform where innovators showcase ideas and businesses, and investors discover, fund, and collaborate on high-potential opportunities.</p> -->
-      <p class="lp-hero__sub">Driving entrepreneurship forward by giving innovators access to capital, exposure, and strategic partnerships.</p>
-      <div class="lp-hero__actions">
+      <h1 id="lp-h1">Put your project in front of investors.</h1>
+      <p class="lp-hero__sub">Publish your project, get proposals and book meetings with angel investors in Africa. Investing? Browse projects and contact founders directly.</p>
+      <div class="lp-hero__act">
         {% if user.is_authenticated %}
-          <a href="{% url 'create_project' %}" class="lp-btn-primary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Create Project
-          </a>
-          <a href="{% url 'project_list' %}" class="lp-btn-ghost">Browse Projects</a>
+          <a href="{% url 'create_project' %}" class="lp-btn lp-btn--primary">Create Project</a>
+          <a href="{% url 'project_list' %}" class="lp-btn lp-btn--ghost-dark">Browse projects</a>
         {% else %}
-          <a href="{% url 'register' %}?next=/projects/create/" class="lp-btn-primary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Create Project
-          </a>
-          <a href="{% url 'register' %}" class="lp-btn-ghost">Get Started Free</a>
+          <a href="{% url 'register' %}?next=/projects/create/" class="lp-btn lp-btn--primary">Create Project</a>
+          <a href="{% url 'register' %}?role=investor" class="lp-btn lp-btn--ghost-dark">I'm investing</a>
         {% endif %}
       </div>
-      <div class="lp-hero__trust">
-        <div class="lp-hero__avatars">
-          <div class="lp-av">AI</div><div class="lp-av">KO</div>
-          <div class="lp-av">TM</div><div class="lp-av">BF</div>
-          <div class="lp-av">+</div>
-        </div>
-        <div class="lp-hero__trust-text">
-          Joined by <strong>{{ innovator_count }}+ innovators</strong><br>
-          and <strong>{{ investor_count }}+ investors</strong> across Africa
-        </div>
-      </div>
+      <p class="lp-cohort"><strong>We're building our founding cohort.</strong>
+        <span class="lp-cohort__n" id="lp-cohort-n">{% if innovator_count or investor_count %}{{ innovator_count }} innovator{{ innovator_count|pluralize }} and {{ investor_count }} investor{{ investor_count|pluralize }} so far.{% endif %}</span></p>
     </div>
 
-    <div class="lp-hero__card-stack">
-      <div class="lp-hero__card">
-        <div class="lp-hero__card-label">Active Projects</div>
-        <div class="lp-hero__card-stat">{{ project_count }}+</div>
-        <div class="lp-hero__card-meta" style="margin-top:4px;">Across tech, health, agriculture, energy &amp; more</div>
-        <span class="lp-hero__card-badge lp-hero__card-badge--green">
-          <span class="lp-live-dot"></span> Live deal flow
-        </span>
+    <figure class="lp-mock" aria-label="What a project listing looks like">
+      <div class="lp-mock__bar">
+        <span>Project listing</span>
+        <span class="lp-mock__tag" id="lp-latest-label">{% if featured_projects %}Latest listing{% else %}Example listing{% endif %}</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-        <div class="lp-hero__card">
-          <div class="lp-hero__card-label">Innovators</div>
-          <div class="lp-hero__card-stat">{{ innovator_count }}</div>
-          <div class="lp-hero__card-meta" style="margin-top:4px;">Verified builders</div>
+      <div class="lp-mock__body">
+        <div class="lp-mock__title" id="lp-latest-title">{% if featured_projects %}{{ featured_projects.0.title|truncatechars:60 }}{% else %}Solar cold rooms for fresh-produce traders{% endif %}</div>
+        <div class="lp-mock__meta" id="lp-latest-meta">{% if featured_projects %}{{ featured_projects.0.industry }}{% else %}Agriculture &middot; Nairobi, Kenya{% endif %}</div>
+        <div class="lp-mock__row" id="lp-latest-extra">
+          <div class="lp-mock__cell"><div class="lp-mock__k">Stage</div><div class="lp-mock__v">Prototype</div></div>
+          <div class="lp-mock__cell"><div class="lp-mock__k">Raising</div><div class="lp-mock__v">KSh 2.5M</div></div>
         </div>
-        <div class="lp-hero__card">
-          <div class="lp-hero__card-label">Investors</div>
-          <div class="lp-hero__card-stat">{{ investor_count }}</div>
-          <div class="lp-hero__card-meta" style="margin-top:4px;">Ready to deploy</div>
+        <div class="lp-mock__btns" aria-hidden="true">
+          <span class="lp-mock__btn lp-mock__btn--p">Send proposal</span>
+          <span class="lp-mock__btn">Book a meeting</span>
         </div>
       </div>
-      <div class="lp-hero__card">
-        <div class="lp-hero__card-label">Latest Opportunity</div>
-        <div class="lp-hero__card-title">{% if featured_projects %}{{ featured_projects.0.title|truncatechars:40 }}{% else %}AgriTech Smart Irrigation System{% endif %}</div>
-        <div class="lp-hero__card-meta">{% if featured_projects %}{{ featured_projects.0.industry }}{% else %}Agriculture &middot; Kenya{% endif %}</div>
-        <span class="lp-hero__card-badge lp-hero__card-badge--blue">Seeking investment</span>
+    </figure>
+  </div>
+</section>
+
+<section class="lp-sec lp-sec--paper" id="how-it-works" aria-labelledby="lp-how">
+  <div class="lp-wrap">
+    <h2 id="lp-how">How it works</h2>
+    <p class="lp-sec__lead">Both sides use the same app. Founders list projects. Investors find them and get in touch.</p>
+    <div class="lp-tracks">
+      <div class="lp-track">
+        <h3>If you're raising money</h3>
+        <ol class="lp-steps">
+          <li><div><strong>Create a free account</strong>Choose "Innovator" when you sign up.</div></li>
+          <li><div><strong>Publish your project</strong>Say what it does, what stage it's at and how much you're raising.</div></li>
+          <li><div><strong>Talk to interested investors</strong>Reply to proposals and book meetings in the app.</div></li>
+        </ol>
+      </div>
+      <div class="lp-track">
+        <h3>If you're investing</h3>
+        <ol class="lp-steps">
+          <li><div><strong>Create a free account</strong>Choose "Investor" when you sign up.</div></li>
+          <li><div><strong>Browse projects</strong>Filter by industry and stage, and see how well each one matches you.</div></li>
+          <li><div><strong>Contact the founder</strong>Send a proposal or book a meeting.</div></li>
+        </ol>
       </div>
     </div>
   </div>
 </section>
 
+<section class="lp-sec" id="for-you" aria-labelledby="lp-for">
+  <div class="lp-wrap">
+    <h2 id="lp-for" style="margin-bottom:40px;">What you can do here</h2>
 
-<!-- ── Stats bar ── -->
-<div class="lp-stats">
-  <div class="lp-stats__inner">
-    <div class="lp-stats__item">
-      <div class="lp-stats__val" data-count="{{ innovator_count }}">{{ innovator_count }}+</div>
-      <div class="lp-stats__label">Innovators</div>
-    </div>
-    <div class="lp-stats__item">
-      <div class="lp-stats__val" data-count="{{ investor_count }}">{{ investor_count }}+</div>
-      <div class="lp-stats__label">Investors</div>
-    </div>
-    <div class="lp-stats__item">
-      <div class="lp-stats__val" data-count="{{ project_count }}">{{ project_count }}+</div>
-      <div class="lp-stats__label">Projects Listed</div>
-    </div>
-    <div class="lp-stats__item">
-      <div class="lp-stats__val">54</div>
-      <div class="lp-stats__label">African Countries</div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ── How it works ── -->
-<section class="lp-section" id="how-it-works">
-  <div class="lp-inner">
-    <div class="lp-section-head lp-section-head--center">
-      <span class="lp-label">How it works</span>
-      <h2 class="lp-h2">Simple. Structured. Effective.</h2>
-      <p class="lp-lead">From first idea to funded venture &mdash; Oduma Corp guides you every step of the way.</p>
-    </div>
-    <div class="lp-steps-wrap">
-      <div class="lp-steps">
-        <div class="lp-step">
-          <div class="lp-step__num">01</div>
-          <div class="lp-step__title">Create your profile</div>
-          <p class="lp-step__desc">Sign up as an innovator or investor. Build a rich profile that showcases your work, thesis, or track record in minutes.</p>
-        </div>
-        <div class="lp-step">
-          <div class="lp-step__num">02</div>
-          <div class="lp-step__title">Connect &amp; discover</div>
-          <p class="lp-step__desc">Our intelligent matching surfaces the right projects to investors and the right capital to innovators &mdash; based on industry, stage, and geography.</p>
-        </div>
-        <div class="lp-step">
-          <div class="lp-step__num">03</div>
-          <div class="lp-step__title">Collaborate &amp; close</div>
-          <p class="lp-step__desc">Use built-in messaging, proposals, and meeting scheduling to move from interest to agreement without leaving the platform.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ── For Innovators / Investors ── -->
-<section class="lp-section lp-section--alt" id="for-you">
-  <div class="lp-inner">
-    <div class="lp-section-head lp-section-head--center">
-      <span class="lp-label">Built for both sides</span>
-      <h2 class="lp-h2">Everything you need to succeed</h2>
-      <p class="lp-lead">Whether you're building the next big thing or backing it, Oduma Corp is your unfair advantage.</p>
-    </div>
     <div class="lp-split">
-      <div class="lp-panel lp-panel--blue">
-        <div class="lp-panel__icon">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-        </div>
-        <div>
-          <div class="lp-panel__title">For Innovators</div>
-          <p class="lp-panel__desc">Showcase your project, attract investors, and access the tools and mentorship to take your idea from concept to scale.</p>
-        </div>
-        <div class="lp-panel__features">
-          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Publish projects with rich media and detailed pitches</div>
-          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Get verified to build trust with investors</div>
-          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Receive and respond to investment proposals</div>
-          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Access mentorship, training, and consulting services</div>
-          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Track investor interest and engagement analytics</div>
-        </div>
-        {% if user.is_authenticated %}<a href="{% url 'app' %}" class="lp-panel__cta">Go to Feed &rarr;</a>{% else %}<a href="{% url 'register' %}" class="lp-panel__cta">Join as Innovator &rarr;</a>{% endif %}
+      <div>
+        <h3>I'm raising money</h3>
+        <p class="lp-split__lead">Show investors what you're building, in one place they can come back to.</p>
+        <ul class="lp-ticks">
+          <li>Publish your project with images, documents and your funding ask.</li>
+          <li>Apply for a verified badge so investors know who you are.</li>
+          <li>Receive proposals and reply to them.</li>
+          <li>See how many people have viewed your project.</li>
+          <li>Take courses, ask for a mentor or request consulting.</li>
+        </ul>
+        {% if user.is_authenticated %}<a href="{% url 'app' %}" class="lp-btn lp-btn--primary">Go to Feed</a>{% else %}<a href="{% url 'register' %}?role=innovator" class="lp-btn lp-btn--primary">Join as Innovator</a>{% endif %}
       </div>
-      <div class="lp-panel lp-panel--dark">
-        <div class="lp-panel__icon">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <figure class="lp-split__media lp-mock" aria-label="What a proposal thread looks like">
+        <div class="lp-mock__bar"><span>Proposal</span><span class="lp-mock__tag">Example</span></div>
+        <div class="lp-mock__body">
+          <div class="lp-mock__msg">
+            <div class="lp-mock__who">Investor</div>
+            KSh 1M for 8% equity, paid in two parts. Can we meet on Thursday?
+          </div>
+          <div class="lp-mock__msg lp-mock__msg--me">
+            <div class="lp-mock__who">You</div>
+            Thanks. Thursday at 10:00 works. I'll share our latest numbers before then.
+          </div>
+          <div class="lp-mock__btns" aria-hidden="true">
+            <span class="lp-mock__btn lp-mock__btn--p">Accept</span>
+            <span class="lp-mock__btn">Reply</span>
+            <span class="lp-mock__btn">Decline</span>
+          </div>
         </div>
-        <div>
-          <div class="lp-panel__title">For Investors</div>
-          <p class="lp-panel__desc">Access curated deal flow, run due diligence, and build a portfolio of Africa's most promising ventures &mdash; all from one platform.</p>
-        </div>
-        <div class="lp-panel__features">
-          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>AI-matched project recommendations by thesis</div>
-          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Filter by industry, stage, funding range, and geography</div>
-          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Send proposals and schedule meetings in-platform</div>
-          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Save projects and manage your pipeline</div>
-          <div class="lp-panel__feature"><span class="lp-panel__feature-dot">&#10003;</span>Connect with verified, credible innovators</div>
-        </div>
-        {% if user.is_authenticated %}<a href="{% url 'app' %}" class="lp-panel__cta lp-panel__cta--blue">Go to Feed &rarr;</a>{% else %}<a href="{% url 'register' %}" class="lp-panel__cta lp-panel__cta--blue">Join as Investor &rarr;</a>{% endif %}
+      </figure>
+    </div>
+
+    <div class="lp-split lp-split--rev">
+      <div>
+        <h3>I'm investing</h3>
+        <p class="lp-split__lead">Find early-stage projects and talk to the founders directly.</p>
+        <ul class="lp-ticks">
+          <li>Filter projects by industry and stage.</li>
+          <li>See a match score based on your industries, stage, funding range and location.</li>
+          <li>Save projects to come back to later.</li>
+          <li>Send proposals and schedule meetings in the app.</li>
+        </ul>
+        {% if user.is_authenticated %}<a href="{% url 'app' %}" class="lp-btn lp-btn--primary">Go to Feed</a>{% else %}<a href="{% url 'register' %}?role=investor" class="lp-btn lp-btn--primary">Join as Investor</a>{% endif %}
+        <p class="lp-note"><strong>Before you invest:</strong> <span class="lp-ph">[PLACEHOLDER: legal review of whether Oduma Corp needs a Capital Markets Authority crowdfunding licence and what we may say about holding funds, investment advice and risk.]</span></p>
       </div>
+      <figure class="lp-split__media lp-mock" aria-label="What an investor's filtered project list looks like">
+        <div class="lp-mock__bar"><span>Projects &middot; filtered</span><span class="lp-mock__tag">Example</span></div>
+        <div class="lp-mock__body">
+          <div class="lp-mock__chips"><span class="lp-mock__chip">Agriculture</span><span class="lp-mock__chip">Prototype</span></div>
+          <ul class="lp-mock__list">
+            <li><div><div class="lp-mock__v">Solar cold rooms for traders</div><div class="lp-mock__k">Raising KSh 2.5M</div></div><span class="lp-mock__score">82 match</span></li>
+            <li><div><div class="lp-mock__v">Soil test kit for small farms</div><div class="lp-mock__k">Raising KSh 900K</div></div><span class="lp-mock__score">74 match</span></li>
+            <li><div><div class="lp-mock__v">Dairy collection app</div><div class="lp-mock__k">Raising KSh 1.2M</div></div><span class="lp-mock__score">61 match</span></li>
+          </ul>
+        </div>
+      </figure>
     </div>
   </div>
 </section>
 
-
-<!-- ── Featured Projects ── -->
-<section class="lp-section" id="projects">
-  <div class="lp-inner">
-    <div class="lp-section-head" style="flex-direction:row;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:44px;">
-      <div>
-        <span class="lp-label">Live deal flow</span>
-        <h2 class="lp-h2" style="margin-bottom:0;">Featured Projects</h2>
-      </div>
-      <a href="{% url 'project_list' %}" style="font-family:var(--ff);font-size: 1.2rem;font-weight:700;color:var(--blue);text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:4px;">View all projects &rarr;</a>
+<section class="lp-sec lp-sec--paper" id="projects" aria-labelledby="lp-proj">
+  <div class="lp-wrap">
+    <div class="lp-sec-head">
+      <h2 id="lp-proj">Projects open to investors</h2>
+      <a href="{% url 'project_list' %}" class="lp-link">View all projects &rarr;</a>
     </div>
 
+    <div class="lp-projects" id="lp-projects">
     {% if featured_projects %}
-    <div class="lp-projects">
       {% for project in featured_projects %}
-      <div class="lp-proj-card">
-        {% with img=project.get_main_image_url %}
-          {% if img %}<img src="{{ img }}" alt="{{ project.title }}" class="lp-proj-img">
-          {% else %}<div class="lp-proj-img-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>{% endif %}
-        {% endwith %}
+      <article class="lp-proj-card">
+        {% with img=project.get_main_image_url %}{% if img %}<img src="{{ img }}" alt="" class="lp-proj-img" width="640" height="360" loading="lazy" decoding="async">{% endif %}{% endwith %}
         <div class="lp-proj-body">
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+          <div class="lp-proj-tags">
             {% if project.industry %}<span class="lp-proj-industry">{{ project.industry }}</span>{% endif %}
-            {% if project.pipeline_stage %}<span style="font-size: 1.2rem;font-weight:700;padding:3px 9px;border-radius:100px;background:#fef3c7;color:#92400e;border:1px solid rgba(234,179,8,.15);">{{ project.get_pipeline_stage_display }}</span>{% endif %}
+            {% if project.pipeline_stage %}<span class="lp-proj-stage">{{ project.get_pipeline_stage_display }}</span>{% endif %}
           </div>
-          <a href="{% url 'project_detail' project.pk %}" class="lp-proj-title">{{ project.title }}</a>
+          <h3><a href="{% url 'project_detail' project.pk %}" class="lp-proj-title">{{ project.title }}</a></h3>
           <p class="lp-proj-desc">{{ project.description|truncatewords:22 }}</p>
-          {% if project.funding_requirement %}
-          <div style="display:flex;align-items:center;gap:6px;margin-top:auto;padding-top:8px;">
-            <span style="font-size: 1.2rem;font-weight:700;color:#059669;background:#d1fae5;padding:3px 10px;border-radius:100px;border:1px solid rgba(5,150,105,.15);">Seeking: {{ project.funding_requirement }}</span>
-          </div>
-          {% endif %}
+          {% if project.funding_requirement %}<p class="lp-proj-ask">Seeking: {{ project.funding_requirement }}</p>{% endif %}
         </div>
         <div class="lp-proj-footer">
           <a href="{% url 'profile_view' username=project.owner.username %}" class="lp-proj-owner">
-            {% if project.owner.userprofile.profile_pics %}
-              <img src="{{ project.owner.userprofile.profile_pics.url }}" class="lp-proj-owner-av" alt="">
-            {% else %}
-              <div class="lp-proj-owner-av">{{ project.owner.first_name|first|upper }}{{ project.owner.last_name|first|upper }}</div>
-            {% endif %}
+            {% if project.owner.userprofile.profile_pics %}<img src="{{ project.owner.userprofile.profile_pics.url }}" class="lp-proj-owner-av" alt="" width="28" height="28" loading="lazy">{% else %}<span class="lp-proj-owner-av" aria-hidden="true">{{ project.owner.first_name|first|upper }}{{ project.owner.last_name|first|upper }}</span>{% endif %}
             <span class="lp-proj-owner-name">{{ project.owner.get_full_name|default:project.owner.username }}</span>
           </a>
           <a href="{% url 'project_detail' project.pk %}" class="lp-proj-arrow">View pitch &rarr;</a>
         </div>
-      </div>
+      </article>
       {% endfor %}
-    </div>
-    {% else %}
-    <div class="lp-projects">
-      <div class="lp-proj-card">
-        <div class="lp-proj-img-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M5 3a7 7 0 0 0 7 7 7 7 0 0 0-7-7"/><path d="M19 3a7 7 0 0 1-7 7 7 7 0 0 1 7-7"/></svg></div>
+    {% else %}<!-- empty -->
+      <div class="lp-empty">
+        <h3>No projects are open to investors yet.</h3>
+        <p>When founders publish a project and we approve it, it appears here. Yours could be one of the first.</p>
+      </div>
+      <article class="lp-proj-card lp-proj-card--example" aria-label="Example listing, not a real project">
+        <div class="lp-example-flag">Example listing. Not a real project.</div>
         <div class="lp-proj-body">
-          <span class="lp-proj-industry">Agriculture</span>
-          <span class="lp-proj-title">AgriTech Smart Irrigation</span>
-          <p class="lp-proj-desc">IoT-powered irrigation and crop monitoring for smallholder farmers across sub-Saharan Africa.</p>
+          <div class="lp-proj-tags"><span class="lp-proj-industry">Agriculture</span><span class="lp-proj-stage">Prototype</span></div>
+          <h3 class="lp-proj-title">Solar cold rooms for fresh-produce traders</h3>
+          <p class="lp-proj-desc">Pay-as-you-go cold storage so market traders lose less stock to spoilage.</p>
+          <p class="lp-proj-ask">Seeking: KSh 2.5M</p>
         </div>
         <div class="lp-proj-footer">
-          <span style="font-size: 1.2rem;color:#6b7280;">Sample project</span>
+          <span class="lp-proj-owner-name">How your listing could look</span>
           {% if user.is_authenticated %}<a href="{% url 'project_list' %}" class="lp-proj-arrow">Browse projects &rarr;</a>{% else %}<a href="{% url 'register' %}" class="lp-proj-arrow">Join to view &rarr;</a>{% endif %}
         </div>
-      </div>
-      <div class="lp-proj-card">
-        <div class="lp-proj-img-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
-        <div class="lp-proj-body">
-          <span class="lp-proj-industry">Healthcare</span>
-          <span class="lp-proj-title">HealthTech AI Diagnostics</span>
-          <p class="lp-proj-desc">AI-powered diagnostic tool for rural clinics with limited specialist access in West Africa.</p>
-        </div>
-        <div class="lp-proj-footer">
-          <span style="font-size: 1.2rem;color:#6b7280;">Sample project</span>
-          {% if user.is_authenticated %}<a href="{% url 'project_list' %}" class="lp-proj-arrow">Browse projects &rarr;</a>{% else %}<a href="{% url 'register' %}" class="lp-proj-arrow">Join to view &rarr;</a>{% endif %}
-        </div>
-      </div>
-      <div class="lp-proj-card">
-        <div class="lp-proj-img-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
-        <div class="lp-proj-body">
-          <span class="lp-proj-industry">Finance</span>
-          <span class="lp-proj-title">Mobile Payment Wallet</span>
-          <p class="lp-proj-desc">Mobile-first payment solution built for the unbanked across East and West Africa.</p>
-        </div>
-        <div class="lp-proj-footer">
-          <span style="font-size: 1.2rem;color:#6b7280;">Sample project</span>
-          {% if user.is_authenticated %}<a href="{% url 'project_list' %}" class="lp-proj-arrow">Browse projects &rarr;</a>{% else %}<a href="{% url 'register' %}" class="lp-proj-arrow">Join to view &rarr;</a>{% endif %}
-        </div>
-      </div>
+      </article>
+    <!-- /empty -->{% endif %}
     </div>
-    <div style="text-align:center;margin-top:36px;">
-      <a href="{% url 'project_list' %}" class="lp-btn-primary" style="display:inline-flex;">Browse all projects &rarr;</a>
+
+    <div class="lp-projects__more">
+      <a href="{% url 'project_list' %}" class="lp-btn lp-btn--ghost">Browse all projects &rarr;</a>
     </div>
-    {% endif %}
   </div>
 </section>
 
-
-<!-- ── Oduma Corp Services ── -->
-<section class="lp-section lp-section--dark" id="services">
-  <div class="lp-inner">
-    <div class="lp-section-head lp-section-head--center">
-      <span class="lp-label lp-label--light">Oduma Corp Services</span>
-      <h2 class="lp-h2 lp-h2--light">More than a marketplace</h2>
-      <p class="lp-lead lp-lead--light">We invest in your growth with an ecosystem of services designed to make innovators investable and investors informed.</p>
-    </div>
-    <div class="lp-services">
+<section class="lp-sec" id="services" aria-labelledby="lp-svc">
+  <div class="lp-wrap">
+    <h2 id="lp-svc">Help beyond the listing</h2>
+    <p class="lp-sec__lead">Members can also learn, get advice and meet people inside the app.</p>
+    <div class="lp-svc-list">
       <a href="{% if user.is_authenticated %}{% url 'training_hub' %}{% else %}{% url 'register' %}{% endif %}" class="lp-svc">
-        <span class="lp-svc__icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-        </span>
-        <div class="lp-svc__title">Training &amp; Courses</div>
-        <p class="lp-svc__desc">Structured learning paths on pitching, finance, legal, and product &mdash; built for African founders.</p>
+        <span class="lp-svc__title">Training &amp; Courses</span>
+        <span class="lp-svc__desc">Courses for founders that you take at your own pace and track in the app.</span>
+        <span class="lp-svc__arrow" aria-hidden="true">&rarr;</span>
       </a>
       <a href="{% if user.is_authenticated %}{% url 'mentorship_hub' %}{% else %}{% url 'register' %}{% endif %}" class="lp-svc">
-        <span class="lp-svc__icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </span>
-        <div class="lp-svc__title">Mentorship</div>
-        <p class="lp-svc__desc">Get matched with experienced mentors who've built and funded startups across the continent.</p>
+        <span class="lp-svc__title">Mentorship</span>
+        <span class="lp-svc__desc">Ask for a mentor through the app and we'll pair you with one.</span>
+        <span class="lp-svc__arrow" aria-hidden="true">&rarr;</span>
       </a>
       <a href="{% if user.is_authenticated %}{% url 'request_consulting' %}{% else %}{% url 'register' %}{% endif %}" class="lp-svc">
-        <span class="lp-svc__icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><path d="M12 22v-4M4.22 4.22l2.83 2.83M18.95 4.22l-2.83 2.83M2 12h4M18 12h4M6.34 17.66l-2.83 2.83M19.78 17.66l-2.83 2.83"/><circle cx="12" cy="12" r="4"/></svg>
-        </span>
-        <div class="lp-svc__title">Innovation Consulting</div>
-        <p class="lp-svc__desc">Expert support for strategy, go-to-market, investor readiness, and due diligence preparation.</p>
+        <span class="lp-svc__title">Innovation Consulting</span>
+        <span class="lp-svc__desc">Request help with strategy, going to market or getting ready for investors.</span>
+        <span class="lp-svc__arrow" aria-hidden="true">&rarr;</span>
       </a>
       <a href="{% if user.is_authenticated %}{% url 'events_hub' %}{% else %}{% url 'register' %}{% endif %}" class="lp-svc">
-        <span class="lp-svc__icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        </span>
-        <div class="lp-svc__title">Events &amp; Demo Days</div>
-        <p class="lp-svc__desc">Pitch competitions, investor meetups, and demo days connecting the ecosystem in real time.</p>
+        <span class="lp-svc__title">Events &amp; Demo Days</span>
+        <span class="lp-svc__desc">See upcoming pitch events and meetups, and register for them in the app.</span>
+        <span class="lp-svc__arrow" aria-hidden="true">&rarr;</span>
       </a>
     </div>
   </div>
 </section>
 
-
-<!-- ── Testimonials ── -->
-<section class="lp-section lp-section--alt">
-  <div class="lp-inner">
-    <div class="lp-section-head lp-section-head--center">
-      <span class="lp-label">What members say</span>
-      <h2 class="lp-h2">Trusted by builders and backers</h2>
-    </div>
-    <div class="lp-testimonials">
-      <div class="lp-testi">
-        <div class="lp-testi__stars">
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-        </div>
-        <p class="lp-testi__quote">"Within two weeks of listing my project, I had three investor conversations. The platform made it easy to present my idea professionally and connect with the right people."</p>
-        <div class="lp-testi__author">
-          <div class="lp-testi__av">AK</div>
-          <div>
-            <div class="lp-testi__name">Amara K.</div>
-            <div class="lp-testi__role">Founder, AgriTech Startup &middot; Ghana</div>
-          </div>
-        </div>
-      </div>
-      <div class="lp-testi">
-        <div class="lp-testi__stars">
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-        </div>
-        <p class="lp-testi__quote">"As an investor, deal sourcing used to be scattered across WhatsApp groups and cold emails. Oduma Corp gives me structured, filtered deal flow I can actually act on."</p>
-        <div class="lp-testi__author">
-          <div class="lp-testi__av">TO</div>
-          <div>
-            <div class="lp-testi__name">Tunde O.</div>
-            <div class="lp-testi__role">Angel Investor &middot; Kenya</div>
-          </div>
-        </div>
-      </div>
-      <div class="lp-testi">
-        <div class="lp-testi__stars">
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-          <svg class="lp-testi__star" viewBox="0 0 20 20" fill="#f59e0b"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-        </div>
-        <p class="lp-testi__quote">"The mentorship programme alone was worth it. My mentor helped me restructure my pitch and I raised my seed round three months later. Highly recommend."</p>
-        <div class="lp-testi__author">
-          <div class="lp-testi__av">NM</div>
-          <div>
-            <div class="lp-testi__name">Naledi M.</div>
-            <div class="lp-testi__role">Co-Founder, HealthTech &middot; South Africa</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<section class="lp-sec lp-sec--paper" id="about-us" aria-labelledby="lp-today">
+  <div class="lp-wrap"><div class="lp-plain">
+    <h2 id="lp-today">Where we are today</h2>
+    <p>Oduma Corp is a young company based in Nairobi, Kenya. We opened the platform in <span class="lp-ph">[PLACEHOLDER: launch month and year]</span> and are building our founding cohort of founders and investors now.</p>
+    <p>Oduma Corp introduces founders and investors and gives you the tools to talk and agree terms. <span class="lp-ph">[PLACEHOLDER: confirm whether to state the platform equity share described in the Platform Agreement section of the Privacy Policy]</span></p>
+    <p>The team: <span class="lp-ph">[PLACEHOLDER: founder names and roles]</span>. <a class="lp-link" href="{% url 'about' %}">More about us</a></p>
+  </div></div>
 </section>
 
-<!-- ── Final CTA ── -->
-<section class="lp-cta-section">
-  <div class="lp-cta-glow-1"></div>
-  <div class="lp-cta-glow-2"></div>
-  <!-- Floating particles -->
-  <div style="position:absolute;width:5px;height:5px;border-radius:50%;background:#F5C842;top:22%;left:14%;opacity:.5;animation:ocFloat 4s ease-in-out infinite;pointer-events:none;"></div>
-  <div style="position:absolute;width:3px;height:3px;border-radius:50%;background:#3b82f6;top:60%;left:8%;opacity:.4;animation:ocFloat 5s ease-in-out infinite .7s;pointer-events:none;"></div>
-  <div style="position:absolute;width:4px;height:4px;border-radius:50%;background:#10b981;top:30%;right:12%;opacity:.45;animation:ocFloat 3.5s ease-in-out infinite 1.3s;pointer-events:none;"></div>
-  <div style="position:absolute;width:5px;height:5px;border-radius:50%;background:#e879f9;bottom:25%;right:16%;opacity:.4;animation:ocFloat 4.5s ease-in-out infinite .4s;pointer-events:none;"></div>
+</div><!-- /lp-main -->
 
-  <div class="lp-cta-section__inner">
-    <div class="lp-cta-badge">
-      <span class="lp-hero__badge-dot"></span>
-      <span>Join the network</span>
+<div class="lp-dark">
+  <section class="lp-cta" aria-labelledby="lp-cta">
+    <div class="lp-wrap">
+      <h2 id="lp-cta">List your project or start browsing.</h2>
+      <p>Creating an account is free and takes a few minutes.</p>
+      <div class="lp-cta__act">
+        {% if user.is_authenticated %}
+          <a href="{% url 'app' %}" class="lp-btn lp-btn--primary">Go to your feed &rarr;</a>
+          <a href="{% url 'project_list' %}" class="lp-btn lp-btn--ghost-dark">Browse projects</a>
+        {% else %}
+          <a href="{% url 'register' %}" class="lp-btn lp-btn--primary">Create free account &rarr;</a>
+          <a href="{% url 'login' %}" class="lp-btn lp-btn--ghost-dark">Log in</a>
+        {% endif %}
+      </div>
+      <p class="lp-data"><strong>How we use your data:</strong> when you join, we store your account, profile and project details to run your account, match innovators with investors and send you notifications. We don't sell your data. Read our <a href="{% url 'privacy_policy' %}">Privacy Policy</a>.</p>
     </div>
-    <h2 class="lp-cta-section__title">Africa's next big idea<br><em>starts here</em></h2>
-    <p class="lp-cta-section__sub">Join thousands of innovators and investors already building the future together. It's free to get started.</p>
-    <div class="lp-cta-section__actions">
-      {% if user.is_authenticated %}
-        <a href="{% url 'app' %}" class="lp-btn-white">Go to your feed &rarr;</a>
-        <a href="{% url 'project_list' %}" class="lp-btn-outline-white">Browse projects</a>
-      {% else %}
-        <a href="{% url 'register' %}" class="lp-btn-white">Create free account &rarr;</a>
-        <a href="{% url 'login' %}" class="lp-btn-outline-white">Log in</a>
-      {% endif %}
+  </section>
+
+  <footer class="lp-ftr">
+    <div class="lp-wrap">
+      <div class="lp-ftr__grid">
+        <div>
+          <div class="lp-ftr__name">Oduma Corp</div>
+          <p>Nairobi, Kenya</p>
+        </div>
+        <div>
+          <h2>Contact</h2>
+          <ul>
+            <li><a href="mailto:info@odumacorp.com">info@odumacorp.com</a></li>
+            <li><span class="lp-ph">[PLACEHOLDER: phone or WhatsApp number]</span></li>
+            <li><a href="{% url 'contact' %}">Contact form</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Follow us</h2>
+          <ul>
+            <li><a href="https://www.linkedin.com/company/oduma-corp/" rel="noopener">LinkedIn</a></li>
+            <li><a href="https://www.instagram.com/odumacorpltd" rel="noopener">Instagram</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Company</h2>
+          <ul>
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+            <li><a href="{% url 'terms' %}">Terms</a></li>
+            <li><button type="button" class="lp-ftr__btn" id="lp-cookie-settings" hidden>Cookie settings</button></li>
+          </ul>
+        </div>
+      </div>
+      <p class="lp-ftr__copy">&copy; <span id="lp-year">{% now "Y" %}</span> Oduma Corp</p>
     </div>
-  </div>
-</section>
+  </footer>
+</div>
+</div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  /* Animated stat counters */
-  document.querySelectorAll('.lp-stats__val[data-count]').forEach(function (el) {
-    var target = parseInt(el.dataset.count, 10) || 0;
-    if (!target) return;
-    var cur = 0, step = Math.max(1, Math.ceil(target / 40));
-    var t = setInterval(function () {
-      cur = Math.min(cur + step, target);
-      el.textContent = cur + '+';
-      if (cur >= target) clearInterval(t);
-    }, 30);
+<script data-keep>
+(function () {
+  var btn = document.getElementById('lp-menu-btn'), mob = document.getElementById('lp-mob');
+  if (!btn || !mob) return;
+  function set(open) {
+    mob.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  btn.addEventListener('click', function () {
+    var open = !mob.classList.contains('open');
+    set(open);
+    if (open) { var a = mob.querySelector('a'); if (a) a.focus(); }
   });
-  /* Smooth scroll */
-  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
-    a.addEventListener('click', function (e) {
-      var id = this.getAttribute('href').slice(1);
-      var el = document.getElementById(id);
-      if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); document.getElementById('lp-mob').classList.remove('open'); }
-    });
+  mob.addEventListener('click', function (e) { if (e.target.closest('a')) set(false); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && mob.classList.contains('open')) { set(false); btn.focus(); }
   });
-  /* Nav shadow on scroll */
-  var nav = document.querySelector('.lp-nav');
-  window.addEventListener('scroll', function () {
-    nav.style.boxShadow = window.scrollY > 10 ? '0 2px 24px rgba(0,0,0,.4)' : 'none';
-  }, { passive: true });
-
-  /* Fade-up on scroll for sections */
-  var observer = new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){
-        entry.target.style.opacity='1';
-        entry.target.style.transform='translateY(0)';
-        observer.unobserve(entry.target);
-      }
-    });
-  },{threshold:0.1});
-  document.querySelectorAll('.lp-step,.lp-testi,.lp-proj-card,.lp-svc').forEach(function(el){
-    el.style.opacity='0';
-    el.style.transform='translateY(24px)';
-    el.style.transition='opacity .5s ease, transform .5s ease';
-    observer.observe(el);
-  });
-});
+  window.matchMedia('(min-width:1024px)').addEventListener('change', function (m) { if (m.matches) set(false); });
+})();
 </script>
-
 {% endblock %}
