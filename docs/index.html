@@ -7,194 +7,283 @@
 {% block extra_head %}
 <style>
 /* Homepage. Rendered by Django at app.odumacorp.com/ and built into loading/index.html
-   by loading/build.py. Sizes are in px so the app's 0.7em root font size and
-   Bootstrap's reboot don't change the layout. */
+   by loading/build.py. Colours come from the app's design-system.css tokens (--oc-*);
+   build.py copies that :root block into the static page. Sizes are px because the
+   app's root font size is 0.7em. Resets use :where() so app CSS can't outrank them. */
 .lp{
-  --navy:#0A1628;--navy-2:#13233D;--paper:#F6F7F9;--white:#fff;--ink:#0A1628;
-  --text:#334155;--muted:#526075;--line:#DCE2EA;--blue:#1B5EC7;--blue-d:#164FA8;
-  --on-navy:#E8EDF5;--on-navy-2:#B4C0D3;--focus:#7FB0FF;
+  --lp-ink:var(--oc-text-primary,#0A1628);--lp-text:var(--oc-text-secondary,#2D3F58);--lp-muted:#566A8A;
+  --lp-line:#E4EAF2;--lp-line-soft:#F0F4FA;--lp-blue:var(--oc-blue,#1B5EC7);--lp-blue-d:var(--oc-blue-dark,#144FA8);
+  --lp-pill-bg:#DBEAFE;--lp-pill:#1E40AF;--lp-green:#047857;--lp-green-bg:#ECFDF5;
+  --lp-card-shadow:0 1px 4px rgba(10,22,40,.04);--lp-r:14px;
   --ff-h:'Space Grotesk',system-ui,sans-serif;--ff-b:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
-  font-family:var(--ff-b);font-size:16px;line-height:1.6;color:var(--text);background:var(--white);
+  font-family:var(--ff-b);font-size:16px;line-height:1.6;color:var(--lp-text);background:var(--oc-bg,#F4F7FB);
   -webkit-font-smoothing:antialiased;text-align:left;
 }
-/* Resets use :where() so they never outrank the component classes below. */
 :where(.lp) *,:where(.lp) *::before,:where(.lp) *::after{box-sizing:border-box;}
 :where(.lp) :where(h1,h2,h3,p,ul,ol,figure){margin:0;padding:0;}
 :where(.lp) :where(ul,ol){list-style:none;}
-:where(.lp) :where(h1,h2,h3){font-family:var(--ff-h);font-weight:700;color:var(--ink);letter-spacing:-.015em;line-height:1.2;}
+:where(.lp) :where(h1,h2,h3){font-family:var(--ff-h);font-weight:700;color:var(--lp-ink);letter-spacing:-.015em;line-height:1.2;}
 :where(.lp) a{color:inherit;text-decoration:none;}
 :where(.lp) img{max-width:100%;height:auto;display:block;}
-.lp :focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:4px;}
-.lp-dark :focus-visible,.lp-hdr :focus-visible{outline-color:var(--focus);}
+:where(.lp) button{font:inherit;}
+.lp :focus-visible{outline:3px solid var(--lp-blue);outline-offset:2px;border-radius:6px;}
+.lp-banner :focus-visible{outline-color:#fff;}
+.lp [hidden]{display:none!important;}
 .lp-wrap{max-width:1160px;margin:0 auto;padding:0 16px;}
 @media(min-width:768px){.lp-wrap{padding:0 32px;}}
-.lp section[id]{scroll-margin-top:72px;}
-@media(prefers-reduced-motion:no-preference){html:has(.lp){scroll-behavior:smooth;}}
-
-.lp-skip{position:absolute;left:8px;top:-60px;z-index:1000;background:var(--white);color:var(--ink);padding:10px 16px;border-radius:6px;font-weight:600;}
+.lp section[id]{scroll-margin-top:76px;}
+.lp-sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+.lp-skip{position:absolute;left:8px;top:-60px;z-index:1000;background:#fff;color:var(--lp-ink);padding:10px 16px;border-radius:8px;font-weight:600;box-shadow:var(--oc-shadow-md);}
 .lp-skip:focus{top:8px;}
 
-/* Buttons */
-.lp-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 22px;border-radius:8px;font-family:var(--ff-h);font-size:16px;font-weight:700;line-height:1.2;border:2px solid transparent;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s;}
-.lp-btn--primary{background:var(--blue);color:#fff;}
-.lp-btn--primary:hover{background:var(--blue-d);color:#fff;}
-.lp-btn--ghost-dark{border-color:#5C6F8C;color:var(--on-navy);}
-.lp-btn--ghost-dark:hover{border-color:var(--on-navy);color:#fff;}
-.lp-btn--ghost{border-color:#9AA8BB;color:var(--ink);}
-.lp-btn--ghost:hover{border-color:var(--ink);}
+/* Buttons (app: ap-composer-btn) */
+.lp-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 22px;border-radius:8px;font-family:var(--ff-h);font-size:16px;font-weight:700;line-height:1.2;border:1.5px solid transparent;cursor:pointer;transition:transform .12s ease;}
+.lp-btn:active{transform:translateY(1px) scale(.98);}
+.lp-btn--primary{background:var(--lp-blue);color:#fff;}
+.lp-btn--primary:hover{background:var(--lp-blue-d);color:#fff;}
+.lp-btn--outline{background:#fff;border-color:#C9D3E1;color:var(--lp-ink);}
+.lp-btn--outline:hover{border-color:var(--lp-blue);color:var(--lp-blue);}
+.lp-btn--white{background:#fff;color:var(--lp-blue-d);}
+.lp-btn--white:hover{background:#EAF0FF;color:var(--lp-blue-d);}
+.lp-btn--on-blue{border-color:rgba(255,255,255,.75);color:#fff;}
+.lp-btn--on-blue:hover{background:rgba(255,255,255,.12);color:#fff;}
 .lp-btn.is-busy{opacity:.75;cursor:progress;}
-.lp-link{color:var(--blue);font-weight:600;text-decoration:underline;text-underline-offset:3px;}
-.lp-link:hover{color:var(--blue-d);}
+.lp-link{color:var(--lp-blue);font-weight:600;text-decoration:underline;text-underline-offset:3px;}
+.lp-link:hover{color:var(--lp-blue-d);}
+
+/* Pills (app: ap-type-badge / pl-tag) */
+.lp-pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;line-height:1.5;padding:2px 10px;border-radius:100px;white-space:nowrap;background:var(--lp-pill-bg);color:var(--lp-pill);}
+.lp-pill--stage{background:#FEF3C7;color:#92400E;}
+.lp-pill--green{background:var(--lp-green-bg);color:var(--lp-green);}
+.lp-pill--gold{background:var(--oc-gold,#C9A44A);color:#0A1628;}
+.lp-pill--example{background:#FFF4D6;color:#6B4E00;}
+
+/* Cards (app: ap-card). Hover shadow is a pseudo-element so only opacity/transform animate. */
+.lp-card{position:relative;background:var(--oc-surface,#fff);border:1px solid var(--lp-line);border-radius:var(--lp-r);box-shadow:var(--lp-card-shadow);}
+.lp-card--hover{transition:transform .2s ease;}
+.lp-card--hover::after{content:'';position:absolute;inset:-1px;border-radius:inherit;box-shadow:var(--oc-shadow-md,0 4px 16px rgba(27,94,199,.10));opacity:0;transition:opacity .2s ease;pointer-events:none;}
+.lp-card--hover:hover{transform:translateY(-2px);}
+.lp-card--hover:hover::after{opacity:1;}
 
 /* Header */
-.lp-hdr{position:sticky;top:0;z-index:900;background:var(--navy);border-bottom:1px solid #22334F;}
+.lp-hdr{position:sticky;top:0;z-index:900;background:#fff;border-bottom:1px solid var(--lp-line);}
 .lp-hdr__in{display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px;}
-.lp-logo{display:flex;align-items:center;gap:10px;min-height:44px;color:#fff;font-family:var(--ff-h);font-weight:700;font-size:19px;}
+.lp-logo{display:flex;align-items:center;gap:10px;min-height:44px;color:var(--lp-ink);font-family:var(--ff-h);font-weight:700;font-size:19px;}
 .lp-logo img{width:36px;height:36px;border-radius:6px;}
-.lp-nav{display:none;align-items:center;gap:4px;}
-.lp-nav a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:6px;color:var(--on-navy);font-size:15px;font-weight:500;}
-.lp-nav a:hover{color:#fff;background:#1A2C48;}
+.lp-nav{display:none;align-items:center;gap:2px;}
+.lp-nav a{display:flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:0 12px;border-radius:8px;color:var(--lp-text);font-size:15px;font-weight:600;}
+.lp-nav a:hover{color:var(--lp-blue);background:#F3F6FB;}
 .lp-hdr__act{display:flex;align-items:center;gap:8px;}
-.lp-hdr__login{display:none;align-items:center;min-height:44px;padding:0 12px;color:var(--on-navy);font-weight:600;font-size:15px;}
-.lp-hdr__login:hover{color:#fff;}
+.lp-hdr__login{display:none;align-items:center;min-height:44px;padding:0 12px;color:var(--lp-text);font-weight:600;font-size:15px;border-radius:8px;}
+.lp-hdr__login:hover{color:var(--lp-blue);}
 .lp-hdr__cta{display:none;min-height:44px;padding:10px 16px;font-size:15px;}
-.lp-menu-btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:44px;padding:0 12px;background:transparent;border:1px solid #3A4D6B;border-radius:8px;color:#fff;font:600 15px var(--ff-b);cursor:pointer;}
-.lp-menu-btn svg{flex-shrink:0;}
-.lp-mobile-menu{display:none;position:absolute;top:64px;left:0;right:0;background:var(--navy);border-bottom:1px solid #22334F;padding:8px 16px 20px;flex-direction:column;}
+.lp-menu-btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;min-width:44px;padding:0 12px;background:#fff;border:1.5px solid #C9D3E1;border-radius:8px;color:var(--lp-ink);font-weight:600;font-size:15px;cursor:pointer;}
+.lp-mobile-menu{display:none;position:absolute;top:64px;left:0;right:0;background:#fff;border-bottom:1px solid var(--lp-line);box-shadow:0 12px 24px rgba(10,22,40,.08);padding:8px 16px 20px;flex-direction:column;}
 .lp-mobile-menu.open{display:flex;}
-.lp-mobile-menu a{display:flex;align-items:center;min-height:48px;padding:0 8px;color:var(--on-navy);font-size:17px;font-weight:500;border-bottom:1px solid #1C2E4A;}
-.lp-mobile-menu a:hover{color:#fff;}
-.lp-mobile-menu a.primary{justify-content:center;margin-top:16px;border:0;border-radius:8px;background:var(--blue);color:#fff;font-family:var(--ff-h);font-weight:700;}
+.lp-mobile-menu a{display:flex;align-items:center;min-height:48px;padding:0 8px;color:var(--lp-ink);font-size:17px;font-weight:600;border-bottom:1px solid var(--lp-line-soft);}
+.lp-mobile-menu a:hover{color:var(--lp-blue);}
+.lp-mobile-menu a.primary{justify-content:center;margin-top:16px;border:0;border-radius:8px;background:var(--lp-blue);color:#fff;font-family:var(--ff-h);font-weight:700;}
 @media(min-width:640px){.lp-hdr__cta{display:inline-flex;}}
 @media(min-width:1024px){.lp-nav,.lp-hdr__login{display:flex;}.lp-menu-btn{display:none;}.lp-mobile-menu.open{display:none;}}
 
 /* Hero */
-.lp-hero{background:var(--navy);color:var(--on-navy);padding:40px 0 56px;}
+.lp-hero{background:var(--oc-gradient-subtle,linear-gradient(135deg,#EBF0F8 0%,#F4F7FB 100%));padding:40px 0 56px;border-bottom:1px solid var(--lp-line);}
 .lp-hero__grid{display:grid;gap:40px;align-items:center;}
-.lp-hero h1{color:#fff;font-size:36px;line-height:1.1;max-width:14ch;}
-.lp-hero__sub{margin-top:18px;font-size:17px;line-height:1.6;color:var(--on-navy);max-width:34em;}
+.lp-hero h1{font-size:36px;line-height:1.1;max-width:14ch;}
+.lp-hero__sub{margin-top:18px;font-size:17px;max-width:34em;}
 .lp-hero__act{display:flex;flex-direction:column;gap:12px;margin-top:28px;}
-.lp-cohort{margin-top:28px;padding-top:20px;border-top:1px solid #22334F;font-size:15px;color:var(--on-navy-2);max-width:34em;}
-.lp-cohort strong{color:#fff;font-weight:600;}
+.lp-cohort{margin-top:28px;padding-top:20px;border-top:1px solid #D7E0EC;font-size:15px;color:var(--lp-muted);max-width:34em;}
+.lp-cohort strong{color:var(--lp-ink);font-weight:600;}
 .lp-cohort__n{display:block;min-height:1.6em;}
 @media(min-width:480px){.lp-hero__act{flex-direction:row;flex-wrap:wrap;}}
 @media(min-width:768px){.lp-hero{padding:64px 0 80px;}.lp-hero h1{font-size:48px;}}
-@media(min-width:1024px){.lp-hero__grid{grid-template-columns:1.1fr .9fr;gap:64px;}.lp-hero h1{font-size:56px;}}
+@media(min-width:1024px){.lp-hero__grid{grid-template-columns:1.05fr .95fr;gap:56px;}.lp-hero h1{font-size:56px;}}
 
-/* Product mockups (HTML/CSS, no images) */
-.lp-mock{background:var(--white);color:var(--text);border-radius:12px;border:1px solid var(--line);box-shadow:0 1px 2px rgba(10,22,40,.06),0 12px 32px rgba(10,22,40,.12);overflow:hidden;font-size:14px;}
-.lp-mock__bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--paper);font-size:12px;color:var(--muted);}
-.lp-mock__tag{display:inline-block;padding:2px 8px;border-radius:4px;background:#FFF4D6;color:#6B4E00;font-size:12px;font-weight:600;}
-.lp-mock__body{padding:16px;}
-.lp-mock__title{font-family:var(--ff-h);font-weight:700;font-size:19px;line-height:1.25;color:var(--ink);}
-.lp-mock__meta{margin-top:4px;color:var(--muted);font-size:14px;}
-.lp-mock__row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
-.lp-mock__cell{border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
-.lp-mock__k{font-size:12px;color:var(--muted);}
-.lp-mock__v{font-weight:600;color:var(--ink);}
-.lp-mock__btns{display:flex;gap:8px;margin-top:14px;}
-.lp-mock__btn{flex:1;text-align:center;padding:9px 8px;border-radius:6px;font-weight:600;font-size:13px;border:1px solid var(--line);color:var(--ink);}
-.lp-mock__btn--p{background:var(--blue);border-color:var(--blue);color:#fff;}
-.lp-mock__list li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);}
-.lp-mock__list li:first-child{border-top:0;padding-top:0;}
-.lp-mock__score{flex-shrink:0;font-weight:600;font-size:13px;color:#0B6B3A;background:#E3F5EA;border-radius:4px;padding:2px 8px;}
-.lp-mock__chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
-.lp-mock__chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:100px;background:#E8EFFA;color:#16418A;}
-.lp-mock__msg{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:10px;}
-.lp-mock__msg:first-child{margin-top:0;}
-.lp-mock__msg--me{background:#F0F5FD;border-color:#D3E0F5;margin-left:24px;}
-.lp-mock__who{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:2px;}
+/* Hero product preview: project card + feed post + proposal notification */
+.lp-stack{position:relative;max-width:460px;width:100%;margin:0 auto;}
+@media(prefers-reduced-motion:no-preference){.lp-stack__float{animation:lpFloat 7s ease-in-out infinite;}}
+@keyframes lpFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.lp-post{margin:0 0 -28px 24px;padding:14px 16px 40px;font-size:14px;opacity:.97;}
+.lp-post__head{display:flex;align-items:center;gap:10px;}
+.lp-av{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--lp-blue),#0A1628);color:#fff;font-size:12px;font-weight:800;object-fit:cover;}
+.lp-post__name{font-weight:700;color:var(--lp-ink);display:flex;align-items:center;gap:6px;}
+.lp-tick{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--lp-blue);color:#fff;font-size:10px;}
+.lp-post__sub{font-size:12px;color:var(--lp-muted);}
+.lp-post__head .lp-pill{margin-left:auto;}
+.lp-post p{margin-top:10px;color:var(--lp-text);}
+.lp-pcard{position:relative;z-index:1;overflow:hidden;}
+.lp-pcard__thumb{height:120px;background:linear-gradient(135deg,#E0E8F4,#C3D4EC);display:flex;align-items:center;justify-content:center;color:#5D7FB3;overflow:hidden;}
+.lp-pcard__thumb img{width:100%;height:100%;object-fit:cover;}
+.lp-pcard__body{padding:14px 16px 0;}
+.lp-pcard__tags{display:flex;gap:6px;min-height:22px;flex-wrap:nowrap;overflow:hidden;}
+.lp-pcard__top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;}
+.lp-pcard__title{font-family:var(--ff-h);font-weight:700;font-size:18px;line-height:1.3;color:var(--lp-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lp-pcard__desc{margin-top:4px;font-size:14px;line-height:1.5;color:var(--lp-text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:3em;}
+.lp-pcard__owner{display:flex;align-items:center;gap:8px;margin-top:12px;padding:12px 16px;border-top:1px solid var(--lp-line-soft);font-size:14px;font-weight:600;color:var(--lp-ink);min-height:57px;}
+.lp-pcard__owner .lp-av{width:28px;height:28px;}
+.lp-pcard__ask{margin-left:auto;}
+.lp-notif{position:absolute;z-index:2;top:auto;bottom:196px;left:0;right:auto;display:flex;align-items:center;gap:10px;max-width:280px;padding:10px 14px;font-size:13px;line-height:1.4;box-shadow:0 10px 30px rgba(10,22,40,.14);}
+.lp-notif__dot{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:var(--lp-green-bg);color:var(--lp-green);display:flex;align-items:center;justify-content:center;}
+.lp-notif strong{display:block;color:var(--lp-ink);font-size:13px;}
+.lp-notif span{color:var(--lp-muted);}
+.lp-notif.lp-wait{opacity:0;transform:translateY(-10px);}
+.lp-notif.lp-wait.is-in{opacity:1;transform:none;transition:opacity .45s ease,transform .45s cubic-bezier(.2,.8,.3,1.2);}
+@media(min-width:1024px){.lp-notif{left:-36px;}}
 
-/* Sections */
+/* Section shell */
 .lp-sec{padding:56px 0;}
-.lp-sec--paper{background:var(--paper);}
+.lp-sec--alt{background:var(--oc-surface-alt,#F8FAFD);border-top:1px solid var(--lp-line);border-bottom:1px solid var(--lp-line);}
+.lp-sec--white{background:#fff;}
 .lp-sec h2{font-size:28px;line-height:1.15;}
-.lp-sec__lead{margin-top:12px;font-size:17px;max-width:38em;}
+.lp-sec__lead{margin-top:10px;font-size:17px;max-width:38em;}
+.lp-sec-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;}
+.lp-sec-head .lp-link{display:inline-flex;align-items:center;min-height:44px;}
 @media(min-width:768px){.lp-sec{padding:80px 0;}.lp-sec h2{font-size:36px;}}
 
 /* How it works */
-.lp-tracks{display:grid;gap:32px;margin-top:32px;}
-.lp-track h3{font-size:20px;padding-bottom:12px;border-bottom:2px solid var(--ink);}
+.lp-tracks{display:grid;gap:20px;margin-top:28px;}
+.lp-track{padding:22px;}
+.lp-track h3{display:flex;align-items:center;gap:10px;font-size:19px;padding-bottom:14px;border-bottom:1px solid var(--lp-line);}
+.lp-track__ic{width:36px;height:36px;border-radius:10px;background:var(--oc-primary-xlight,#E8F0FB);color:var(--lp-blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .lp-steps{counter-reset:s;}
-.lp-steps li{counter-increment:s;display:grid;grid-template-columns:40px 1fr;gap:12px;padding:16px 0;border-bottom:1px solid var(--line);}
-.lp-steps li::before{content:counter(s);font-family:var(--ff-h);font-weight:700;font-size:22px;line-height:1.2;color:var(--blue);}
-.lp-steps strong{display:block;color:var(--ink);font-weight:600;}
-@media(min-width:768px){.lp-tracks{grid-template-columns:1fr 1fr;gap:48px;}}
+.lp-steps li{counter-increment:s;display:grid;grid-template-columns:36px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid var(--lp-line-soft);}
+.lp-steps li:last-child{border-bottom:0;padding-bottom:0;}
+.lp-steps li::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--lp-pill-bg);color:var(--lp-pill);font-family:var(--ff-h);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;margin-top:2px;}
+.lp-steps strong{display:block;color:var(--lp-ink);font-weight:600;}
+@media(min-width:768px){.lp-tracks{grid-template-columns:1fr 1fr;gap:24px;}.lp-track{padding:28px;}}
 
-/* For you: split rows */
-.lp-split{display:grid;gap:32px;align-items:center;}
-.lp-split + .lp-split{margin-top:64px;}
-.lp-split h3{font-size:26px;line-height:1.2;}
-.lp-split__lead{margin-top:10px;font-size:17px;}
-.lp-ticks{margin-top:18px;}
-.lp-ticks li{position:relative;padding:7px 0 7px 26px;}
-.lp-ticks li::before{content:'';position:absolute;left:2px;top:15px;width:12px;height:7px;border-left:2px solid var(--blue);border-bottom:2px solid var(--blue);transform:rotate(-45deg);}
-.lp-split .lp-btn{margin-top:22px;}
-.lp-note{margin-top:20px;padding:14px 16px;border-left:3px solid #B7791F;background:#FFF8E8;font-size:14px;color:#4A3A12;}
+/* Tabs (app: ap-tab-btn) */
+.lp-tabs{display:flex;gap:6px;margin-top:24px;padding:6px;background:#fff;border:1px solid var(--lp-line);border-radius:var(--lp-r);}
+.lp-tab{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:8px 10px;border:0;border-radius:10px;font-family:var(--ff-h);font-size:14px;line-height:1.2;font-weight:600;text-align:center;color:var(--lp-muted);background:transparent;cursor:pointer;}
+@media(min-width:640px){.lp-tab{font-size:15px;padding:10px 16px;}}
+.lp-tab:hover{background:#F3F6FB;color:var(--lp-ink);}
+.lp-tab[aria-selected="true"]{background:var(--lp-blue);color:#fff;}
+.lp-panels{margin-top:28px;}
+.lp-panel + .lp-panel{margin-top:56px;}
+.lp-js .lp-panel + .lp-panel{margin-top:0;}
+@media(prefers-reduced-motion:no-preference){.lp-js .lp-panel:not([hidden]){animation:lpFade .28s ease;}}
+@keyframes lpFade{from{opacity:0}to{opacity:1}}
+.lp-split{display:grid;gap:28px;align-items:center;}
+.lp-split h3{font-size:24px;line-height:1.25;}
+.lp-ticks{margin-top:16px;}
+.lp-ticks li{position:relative;padding:7px 0 7px 28px;}
+.lp-ticks li::before{content:'';position:absolute;left:3px;top:15px;width:12px;height:7px;border-left:2px solid var(--lp-blue);border-bottom:2px solid var(--lp-blue);transform:rotate(-45deg);}
+.lp-split .lp-btn{margin-top:20px;}
+.lp-note{margin-top:20px;padding:14px 16px;border-radius:10px;border:1px solid #F0DDA8;background:#FFFBEB;font-size:14px;color:#4A3A12;}
 .lp-note strong{color:#2E2408;}
-@media(min-width:900px){.lp-split{grid-template-columns:1fr 1fr;gap:64px;}.lp-split--rev .lp-split__media{order:-1;}}
+.lp-browse-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px;}
+.lp-browse-links .lp-btn{margin-top:0;}
+.lp-small{margin-top:12px;font-size:14px;color:var(--lp-muted);}
+@media(min-width:900px){.lp-split{grid-template-columns:1fr 1fr;gap:56px;}}
 
-/* Projects */
-.lp-sec-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;}
-.lp-sec-head .lp-link{display:inline-flex;align-items:center;min-height:44px;}
+/* Example mockups */
+.lp-mock{overflow:hidden;font-size:14px;}
+.lp-mock__bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;border-bottom:1px solid var(--lp-line-soft);font-size:13px;font-weight:600;color:var(--lp-muted);}
+.lp-mock__body{padding:16px;}
+.lp-mock__msg{border:1px solid var(--lp-line);border-radius:12px;padding:10px 12px;}
+.lp-mock__msg + .lp-mock__msg{margin-top:10px;}
+.lp-mock__msg--me{background:#F0F5FD;border-color:#D3E0F5;margin-left:28px;}
+.lp-mock__who{font-size:12px;font-weight:700;color:var(--lp-muted);margin-bottom:2px;}
+.lp-mock__btns{display:flex;gap:8px;margin-top:14px;}
+.lp-mock__btn{flex:1;text-align:center;padding:9px 8px;border-radius:8px;font-weight:700;font-size:13px;border:1.5px solid #D1D9E6;color:var(--lp-ink);}
+.lp-mock__btn--p{background:var(--lp-blue);border-color:var(--lp-blue);color:#fff;}
+.lp-mock__chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.lp-mock__list li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--lp-line-soft);}
+.lp-mock__list li:first-child{border-top:0;padding-top:0;}
+.lp-mock__v{font-weight:600;color:var(--lp-ink);}
+.lp-mock__k{font-size:12px;color:var(--lp-muted);}
+
+/* Photos */
+.lp-photo{overflow:hidden;border-radius:var(--lp-r);border:1px solid var(--lp-line);background:#E6EBF2;}
+.lp-photo img{width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;}
+.lp-photo figcaption{padding:8px 12px;font-size:12px;color:var(--lp-muted);background:#fff;}
+.lp-photo figcaption a{text-decoration:underline;}
+
+/* Industry tiles (app: pl-cat-card) */
+.lp-ind{display:grid;gap:28px;align-items:start;margin-top:28px;}
+.lp-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.lp-tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:104px;padding:16px 14px;background:#fff;border:1.5px solid var(--lp-line);border-radius:var(--lp-r);overflow:hidden;transition:transform .18s ease;}
+.lp-tile::before{content:'';position:absolute;inset:0;background:var(--lp-blue);opacity:0;transition:opacity .18s ease;}
+.lp-tile > *{position:relative;}
+.lp-tile:hover{transform:translateY(-2px);}
+.lp-tile:hover::before{opacity:1;}
+.lp-tile__ic{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#3B5FA8;}
+.lp-tile__name{font-family:var(--ff-h);font-size:15px;font-weight:700;color:var(--lp-ink);line-height:1.25;}
+.lp-tile__n{font-size:13px;font-weight:600;color:var(--lp-muted);}
+.lp-tile:hover .lp-tile__ic,.lp-tile:hover .lp-tile__name,.lp-tile:hover .lp-tile__n{color:#fff;}
+@media(min-width:640px){.lp-tiles{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:1024px){.lp-ind{grid-template-columns:1.5fr 1fr;gap:40px;}}
+
+/* Projects (app: pl-card) */
 .lp-projects{display:grid;gap:20px;margin-top:28px;}
 @media(min-width:640px){.lp-projects{grid-template-columns:repeat(2,1fr);}}
 @media(min-width:1024px){.lp-projects{grid-template-columns:repeat(3,1fr);}}
-.lp-proj-card{display:flex;flex-direction:column;background:var(--white);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
-.lp-proj-img{width:100%;aspect-ratio:16/9;object-fit:cover;background:#E6EBF2;}
-.lp-proj-body{flex:1;display:flex;flex-direction:column;gap:8px;padding:16px;}
+.lp-proj-card{display:flex;flex-direction:column;overflow:hidden;border-radius:16px;}
+.lp-proj-media{overflow:hidden;aspect-ratio:16/9;background:linear-gradient(135deg,#E0E8F4,#C3D4EC);color:#5D7FB3;display:flex;align-items:center;justify-content:center;}
+.lp-proj-img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;}
+.lp-proj-card:hover .lp-proj-img{transform:scale(1.03);}
+.lp-proj-body{flex:1;display:flex;flex-direction:column;gap:8px;padding:16px 18px;}
 .lp-proj-tags{display:flex;flex-wrap:wrap;gap:6px;}
-.lp-proj-industry,.lp-proj-stage{font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px;background:#E8EFFA;color:#16418A;}
-.lp-proj-stage{background:#F1F3F6;color:#3D4A5C;}
-.lp-proj-title{font-family:var(--ff-h);font-size:18px;font-weight:700;line-height:1.3;color:var(--ink);}
-a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
-.lp-proj-desc{font-size:15px;color:var(--text);flex:1;}
-.lp-proj-ask{font-size:14px;font-weight:600;color:#0B6B3A;}
-.lp-proj-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 16px;border-top:1px solid var(--line);}
+.lp-proj-title{display:inline-block;padding:10.5px 0;margin:-10.5px 0;font-family:var(--ff-h);font-size:18px;font-weight:700;line-height:1.3;color:var(--lp-ink);}
+a.lp-proj-title:hover{color:var(--lp-blue);text-decoration:underline;}
+.lp-proj-desc{font-size:15px;line-height:1.55;color:var(--lp-text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.lp-proj-ask{font-size:14px;font-weight:600;color:var(--lp-green);}
+.lp-proj-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 18px;border-top:1px solid var(--lp-line-soft);}
 .lp-proj-owner{display:flex;align-items:center;gap:8px;min-height:44px;min-width:0;}
-.lp-proj-owner-av{width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#DCE5F3;color:#16418A;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
-.lp-proj-owner-name{font-size:14px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.lp-proj-arrow{display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:600;color:var(--blue);white-space:nowrap;}
+.lp-proj-owner-av{width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;background:linear-gradient(135deg,var(--lp-blue),#0A1628);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;}
+.lp-proj-owner-name{font-size:14px;font-weight:600;color:var(--lp-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lp-proj-arrow{display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:700;color:var(--lp-blue);white-space:nowrap;}
 .lp-proj-arrow:hover{text-decoration:underline;}
 .lp-projects__more{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;margin-top:28px;}
-.lp [hidden]{display:none!important;}
-.lp-mock__row[data-pending]{visibility:hidden;}
 
 /* Services */
-.lp-svc-list{margin-top:28px;border-top:1px solid var(--line);}
-.lp-svc{display:grid;grid-template-columns:1fr auto;gap:4px 16px;align-items:center;padding:18px 4px;border-bottom:1px solid var(--line);min-height:44px;}
-.lp-svc:hover .lp-svc__title{color:var(--blue);text-decoration:underline;}
-.lp-svc__title{font-family:var(--ff-h);font-size:19px;font-weight:700;color:var(--ink);}
-.lp-svc__desc{grid-column:1;font-size:15px;color:var(--text);}
-.lp-svc__arrow{grid-column:2;grid-row:1 / span 2;color:var(--blue);font-size:20px;}
-@media(min-width:768px){.lp-svc{grid-template-columns:260px 1fr auto;}.lp-svc__desc{grid-column:2;}.lp-svc__arrow{grid-column:3;grid-row:1;}}
+.lp-svcs{display:grid;gap:16px;margin-top:28px;}
+.lp-svc{display:flex;flex-direction:column;gap:8px;padding:22px;min-height:44px;}
+.lp-svc__ic{width:44px;height:44px;border-radius:12px;background:var(--oc-primary-xlight,#E8F0FB);color:var(--lp-blue);display:flex;align-items:center;justify-content:center;margin-bottom:6px;}
+.lp-svc__title{font-family:var(--ff-h);font-size:18px;font-weight:700;color:var(--lp-ink);}
+.lp-svc:hover .lp-svc__title{color:var(--lp-blue);}
+.lp-svc__desc{font-size:15px;color:var(--lp-text);flex:1;}
+.lp-svc__go{font-size:14px;font-weight:700;color:var(--lp-blue);}
+@media(min-width:640px){.lp-svcs{grid-template-columns:repeat(2,1fr);}}
+@media(min-width:1024px){.lp-svcs{grid-template-columns:repeat(4,1fr);}}
 
-/* Where we are */
-.lp-plain{max-width:42em;}
-.lp-plain p{margin-top:14px;font-size:17px;}
-.lp-plain h2 + p{margin-top:18px;}
+/* Where we are today */
+.lp-today{display:grid;gap:28px;align-items:center;}
+.lp-today p{margin-top:14px;font-size:17px;max-width:38em;}
+.lp-today h2 + p{margin-top:16px;}
+@media(min-width:900px){.lp-today{grid-template-columns:1.1fr 1fr;gap:56px;}}
 
+/* Final call to action (app: "Share Your Innovation" banner) */
+.lp-cta{padding:0 0 56px;}
+.lp-banner{border-radius:20px;padding:32px 24px;background:var(--oc-gradient-primary,linear-gradient(135deg,#1B5EC7 0%,#3D78D8 100%));color:#fff;display:grid;gap:20px;align-items:center;}
+.lp-banner h2{color:#fff;font-size:28px;line-height:1.15;}
+.lp-banner p{margin-top:8px;font-size:17px;color:#fff;}
+.lp-banner__act{display:flex;flex-wrap:wrap;gap:12px;}
+.lp-data{margin-top:20px;font-size:14px;color:var(--lp-muted);max-width:52em;}
+.lp-data a{color:var(--lp-blue);text-decoration:underline;}
+@media(min-width:900px){.lp-cta{padding-bottom:80px;}.lp-banner{grid-template-columns:1fr auto;padding:40px 44px;}.lp-banner h2{font-size:32px;}}
 
-/* Final CTA + footer */
-.lp-dark{background:var(--navy);color:var(--on-navy);}
-.lp-cta{padding:56px 0;}
-.lp-cta h2{color:#fff;font-size:28px;line-height:1.15;max-width:18em;}
-.lp-cta p{margin-top:12px;font-size:17px;max-width:36em;}
-.lp-cta__act{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px;}
-.lp-cta .lp-data{margin-top:28px;font-size:14px;color:var(--on-navy-2);max-width:44em;}
-.lp-cta .lp-data a,.lp-ftr a{text-decoration:underline;text-underline-offset:3px;}
-@media(min-width:768px){.lp-cta{padding:80px 0;}.lp-cta h2{font-size:36px;}}
-.lp-ftr{border-top:1px solid #22334F;padding:40px 0 32px;font-size:15px;color:var(--on-navy-2);}
-.lp-ftr__grid{display:grid;gap:28px;}
-.lp-ftr__name{font-family:var(--ff-h);font-weight:700;font-size:18px;color:#fff;}
-.lp-ftr h2{font-family:var(--ff-b);font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--on-navy-2);margin-bottom:6px;}
-.lp-ftr ul a,.lp-ftr__btn{display:inline-flex;align-items:center;min-height:44px;color:var(--on-navy);}
-.lp-ftr ul a:hover,.lp-ftr__btn:hover{color:#fff;}
-.lp-ftr__btn{background:none;border:0;padding:0;font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
-.lp-ftr__copy{margin-top:28px;padding-top:20px;border-top:1px solid #22334F;font-size:14px;}
+/* Footer */
+.lp-ftr{background:#fff;border-top:1px solid var(--lp-line);font-size:15px;color:var(--lp-text);}
+.lp-ftr__grid{display:grid;gap:24px;padding-top:40px;padding-bottom:28px;}
+.lp-ftr__brand{display:flex;align-items:center;gap:10px;font-family:var(--ff-h);font-weight:700;font-size:18px;color:var(--lp-ink);}
+.lp-ftr__brand img{width:32px;height:32px;border-radius:6px;}
+.lp-ftr__brand + p{margin-top:6px;color:var(--lp-muted);}
+.lp-ftr h2{font-family:var(--ff-b);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--lp-muted);margin-bottom:4px;}
+.lp-ftr ul a,.lp-ftr__btn{display:inline-flex;align-items:center;min-height:44px;min-width:44px;color:var(--lp-text);text-decoration:underline;text-underline-offset:3px;text-decoration-color:#B8C6D8;}
+.lp-ftr ul a:hover,.lp-ftr__btn:hover{color:var(--lp-blue);text-decoration-color:currentColor;}
+.lp-ftr__btn{background:none;border:0;padding:0;font:inherit;cursor:pointer;}
+.lp-ftr__strip{background:var(--oc-navy,#092147);color:#EBF0F8;font-size:14px;padding:12px 0;}
 @media(min-width:768px){.lp-ftr__grid{grid-template-columns:1.4fr 1fr 1fr 1fr;}}
 
-@media(prefers-reduced-motion:reduce){.lp *{transition:none!important;}}
+/* Scroll reveal: the script adds .lp-reveal (hidden) and then .is-in. Without JS nothing is hidden. */
+.lp-reveal{opacity:0;transform:translateY(14px);}
+.lp-reveal.is-in{opacity:1;transform:none;transition:opacity .45s ease,transform .45s ease;transition-delay:var(--lp-d,0ms);}
+
+@media(prefers-reduced-motion:reduce){
+  .lp *,.lp *::before,.lp *::after{transition:none!important;animation:none!important;}
+  .lp-reveal,.lp-notif.lp-wait{opacity:1!important;transform:none!important;}
+}
 </style>
 {% endblock %}
 
@@ -255,52 +344,69 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
       <div class="lp-hero__act">
         {% if user.is_authenticated %}
           <a href="{% url 'create_project' %}" class="lp-btn lp-btn--primary">Create Project</a>
-          <a href="{% url 'project_list' %}" class="lp-btn lp-btn--ghost-dark">Browse projects</a>
+          <a href="{% url 'project_list' %}" class="lp-btn lp-btn--outline">Browse projects</a>
         {% else %}
           <a href="{% url 'register' %}?next=/projects/create/" class="lp-btn lp-btn--primary">Create Project</a>
-          <a href="{% url 'register' %}?role=investor" class="lp-btn lp-btn--ghost-dark">I'm investing</a>
+          <a href="{% url 'register' %}?role=investor" class="lp-btn lp-btn--outline">I'm investing</a>
         {% endif %}
       </div>
       <p class="lp-cohort"><strong>We're building our founding cohort.</strong>
         <span class="lp-cohort__n" id="lp-cohort-n">{% if innovator_count or investor_count %}{{ innovator_count }} innovator{{ innovator_count|pluralize }} and {{ investor_count }} investor{{ investor_count|pluralize }} so far.{% endif %}</span></p>
     </div>
 
-    <figure class="lp-mock" aria-label="A project on Oduma Corp">
-      <div class="lp-mock__bar">
-        <span>Project listing</span>
-        <span class="lp-mock__tag" id="lp-latest-label">Featured project</span>
+    <div class="lp-stack" role="group" aria-label="Preview of the Oduma Corp app">
+      <div class="lp-card lp-notif lp-js-notif" aria-hidden="true">
+        <span class="lp-notif__dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></span>
+        <div><strong>New proposal <span class="lp-pill lp-pill--example">Example</span></strong><span>KSh 1M for 8% equity &middot; reply in the app</span></div>
       </div>
-      <div class="lp-mock__body">
-        <div class="lp-mock__title" id="lp-latest-title">{% if featured_projects %}{{ featured_projects.0.title|truncatechars:60 }}{% else %}UniversalContacts{% endif %}</div>
-        <div class="lp-mock__meta" id="lp-latest-meta">{% if featured_projects %}{{ featured_projects.0.industry|default:"Project" }} &middot; by {{ featured_projects.0.owner.get_full_name|default:featured_projects.0.owner.username }}{% else %}Telecom &middot; by Austin Oduma{% endif %}</div>
-        <div class="lp-mock__row" id="lp-latest-extra"{% if featured_projects %}{% else %} data-pending{% endif %}>
-          <div class="lp-mock__cell"><div class="lp-mock__k">Stage</div><div class="lp-mock__v" id="lp-latest-stage">{% if featured_projects %}{{ featured_projects.0.get_pipeline_stage_display|default:"Not stated" }}{% else %}{% endif %}</div></div>
-          <div class="lp-mock__cell"><div class="lp-mock__k">Raising</div><div class="lp-mock__v" id="lp-latest-ask">{% if featured_projects %}{{ featured_projects.0.funding_requirement|default:"Not stated" }}{% else %}{% endif %}</div></div>
+      <div class="lp-stack__float">
+        <div class="lp-card lp-post" aria-hidden="true">
+          <div class="lp-post__head">
+            <span class="lp-av">EF</span>
+            <div><div class="lp-post__name">Example founder <span class="lp-tick">&#10003;</span></div><div class="lp-post__sub">Innovator &middot; 2h</div></div>
+            <span class="lp-pill lp-pill--example">Example</span>
+          </div>
+          <p><span class="lp-pill lp-pill--green">Update</span> We finished testing with our first 40 users this month. Thanks to everyone who sent feedback.</p>
         </div>
-        <div class="lp-mock__btns" aria-hidden="true">
-          <span class="lp-mock__btn lp-mock__btn--p">Send proposal</span>
-          <span class="lp-mock__btn">Book a meeting</span>
-        </div>
+        <article class="lp-card lp-pcard" aria-labelledby="lp-latest-title">
+          <div class="lp-pcard__thumb" id="lp-latest-thumb">{% if featured_projects.0.get_main_image_url %}<img src="{{ featured_projects.0.get_main_image_url }}" alt="" width="460" height="120">{% else %}<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>{% endif %}</div>
+          <div class="lp-pcard__body">
+            <div class="lp-pcard__top">
+              <div class="lp-pcard__tags">
+                <span class="lp-pill" id="lp-latest-ind">{% if featured_projects %}{{ featured_projects.0.get_industry_display|default:"Project" }}{% else %}Telecommunications{% endif %}</span>
+                <span class="lp-pill lp-pill--stage" id="lp-latest-stage"{% if featured_projects.0.pipeline_stage %}{% else %} hidden{% endif %}>{% if featured_projects.0.pipeline_stage %}{{ featured_projects.0.get_pipeline_stage_display }}{% else %}{% endif %}</span>
+              </div>
+              <span class="lp-pill lp-pill--gold">Featured</span>
+            </div>
+            <p class="lp-pcard__title" id="lp-latest-title">{% if featured_projects %}{{ featured_projects.0.title }}{% else %}UniversalContacts{% endif %}</p>
+            <p class="lp-pcard__desc" id="lp-latest-desc">{% if featured_projects %}{{ featured_projects.0.card_description|truncatewords:30 }}{% else %}Lost your phone? Dial a short USSD code on any phone to get your saved contacts back. No smartphone or internet needed.{% endif %}</p>
+          </div>
+          <div class="lp-pcard__owner">
+            <span class="lp-av" id="lp-latest-av" aria-hidden="true">{% if featured_projects %}{{ featured_projects.0.owner.first_name|first|upper }}{{ featured_projects.0.owner.last_name|first|upper }}{% else %}AO{% endif %}</span>
+            <span id="lp-latest-meta">{% if featured_projects %}{{ featured_projects.0.owner.get_full_name|default:featured_projects.0.owner.username }}{% else %}Austin Oduma{% endif %}</span>
+            <span class="lp-pill lp-pill--green lp-pcard__ask" id="lp-latest-ask"{% if featured_projects.0.funding_requirement %}{% else %} hidden{% endif %}>{% if featured_projects.0.funding_requirement %}Seeking {{ featured_projects.0.funding_requirement }}{% else %}{% endif %}</span>
+          </div>
+        </article>
       </div>
-    </figure>
+    </div>
   </div>
 </section>
 
-<section class="lp-sec lp-sec--paper" id="how-it-works" aria-labelledby="lp-how">
+<section class="lp-sec" id="how-it-works" aria-labelledby="lp-how">
   <div class="lp-wrap">
     <h2 id="lp-how">How it works</h2>
     <p class="lp-sec__lead">Both sides use the same app. Founders list projects. Investors find them and get in touch.</p>
-    <div class="lp-tracks">
-      <div class="lp-track">
-        <h3>If you're raising money</h3>
+    <div class="lp-tracks" data-reveal-group>
+      <div class="lp-card lp-track">
+        <h3><span class="lp-track__ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>If you're raising money</h3>
         <ol class="lp-steps">
           <li><div><strong>Create a free account</strong>Choose "Innovator" when you sign up.</div></li>
           <li><div><strong>Publish your project</strong>Say what it does, what stage it's at and how much you're raising.</div></li>
           <li><div><strong>Talk to interested investors</strong>Reply to proposals and book meetings in the app.</div></li>
         </ol>
       </div>
-      <div class="lp-track">
-        <h3>If you're investing</h3>
+      <div class="lp-card lp-track">
+        <h3><span class="lp-track__ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>If you're investing</h3>
         <ol class="lp-steps">
           <li><div><strong>Create a free account</strong>Choose "Investor" when you sign up.</div></li>
           <li><div><strong>Browse projects</strong>Filter by industry and stage, and see how well each one matches you.</div></li>
@@ -311,90 +417,136 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
   </div>
 </section>
 
-<section class="lp-sec" id="for-you" aria-labelledby="lp-for">
+<section class="lp-sec lp-sec--white" id="for-you" aria-labelledby="lp-for">
   <div class="lp-wrap">
-    <h2 id="lp-for" style="margin-bottom:40px;">What you can do here</h2>
-
-    <div class="lp-split">
-      <div>
-        <h3>I'm raising money</h3>
-        <p class="lp-split__lead">Show investors what you're building, in one place they can come back to.</p>
-        <ul class="lp-ticks">
-          <li>Publish your project with images, documents and your funding ask.</li>
-          <li>Apply for a verified badge so investors know who you are.</li>
-          <li>Receive proposals and reply to them.</li>
-          <li>See how many people have viewed your project.</li>
-          <li>Take courses, ask for a mentor or request consulting.</li>
-        </ul>
-        {% if user.is_authenticated %}<a href="{% url 'app' %}" class="lp-btn lp-btn--primary">Go to Feed</a>{% else %}<a href="{% url 'register' %}?role=innovator" class="lp-btn lp-btn--primary">Join as Innovator</a>{% endif %}
-      </div>
-      <figure class="lp-split__media lp-mock" aria-label="What a proposal thread looks like">
-        <div class="lp-mock__bar"><span>Proposal</span><span class="lp-mock__tag">Example</span></div>
-        <div class="lp-mock__body">
-          <div class="lp-mock__msg">
-            <div class="lp-mock__who">Investor</div>
-            KSh 1M for 8% equity, paid in two parts. Can we meet on Thursday?
-          </div>
-          <div class="lp-mock__msg lp-mock__msg--me">
-            <div class="lp-mock__who">You</div>
-            Thanks. Thursday at 10:00 works. I'll share our latest numbers before then.
-          </div>
-          <div class="lp-mock__btns" aria-hidden="true">
-            <span class="lp-mock__btn lp-mock__btn--p">Accept</span>
-            <span class="lp-mock__btn">Reply</span>
-            <span class="lp-mock__btn">Decline</span>
-          </div>
-        </div>
-      </figure>
+    <h2 id="lp-for">What you can do here</h2>
+    <div class="lp-tabs" role="tablist" aria-label="Who you are" hidden>
+      <button type="button" class="lp-tab" role="tab" id="lp-tab-raise" aria-controls="lp-panel-raise" aria-selected="true">I'm raising money</button>
+      <button type="button" class="lp-tab" role="tab" id="lp-tab-invest" aria-controls="lp-panel-invest" aria-selected="false" tabindex="-1">I'm investing</button>
+      <button type="button" class="lp-tab" role="tab" id="lp-tab-browse" aria-controls="lp-panel-browse" aria-selected="false" tabindex="-1">Just browsing</button>
     </div>
-
-    <div class="lp-split lp-split--rev">
-      <div>
-        <h3>I'm investing</h3>
-        <p class="lp-split__lead">Find early-stage projects and talk to the founders directly.</p>
-        <ul class="lp-ticks">
-          <li>Filter projects by industry and stage.</li>
-          <li>See a match score based on your industries, stage, funding range and location.</li>
-          <li>Save projects to come back to later.</li>
-          <li>Send proposals and schedule meetings in the app.</li>
-        </ul>
-        {% if user.is_authenticated %}<a href="{% url 'app' %}" class="lp-btn lp-btn--primary">Go to Feed</a>{% else %}<a href="{% url 'register' %}?role=investor" class="lp-btn lp-btn--primary">Join as Investor</a>{% endif %}
-        <p class="lp-note"><strong>Before you invest:</strong> early-stage companies often fail, and you could lose all the money you put in. Check each project yourself and get independent advice if you need it.</p>
-      </div>
-      <figure class="lp-split__media lp-mock" aria-label="What an investor's filtered project list looks like">
-        <div class="lp-mock__bar"><span>Projects &middot; filtered</span><span class="lp-mock__tag">Example</span></div>
-        <div class="lp-mock__body">
-          <div class="lp-mock__chips"><span class="lp-mock__chip">Agriculture</span><span class="lp-mock__chip">Prototype</span></div>
-          <ul class="lp-mock__list">
-            <li><div><div class="lp-mock__v">Solar cold rooms for traders</div><div class="lp-mock__k">Raising KSh 2.5M</div></div><span class="lp-mock__score">82 match</span></li>
-            <li><div><div class="lp-mock__v">Soil test kit for small farms</div><div class="lp-mock__k">Raising KSh 900K</div></div><span class="lp-mock__score">74 match</span></li>
-            <li><div><div class="lp-mock__v">Dairy collection app</div><div class="lp-mock__k">Raising KSh 1.2M</div></div><span class="lp-mock__score">61 match</span></li>
+    <div class="lp-panels">
+      <div class="lp-panel lp-split" id="lp-panel-raise" role="tabpanel" aria-labelledby="lp-tab-raise">
+        <div>
+          <h3>Show investors what you're building, in one place they can come back to.</h3>
+          <ul class="lp-ticks">
+            <li>Publish your project with images, documents and your funding ask.</li>
+            <li>Apply for a verified badge so investors know who you are.</li>
+            <li>Receive proposals and reply to them.</li>
+            <li>See how many people have viewed your project.</li>
+            <li>Take courses, ask for a mentor or request consulting.</li>
           </ul>
+          {% if user.is_authenticated %}<a href="{% url 'app' %}" class="lp-btn lp-btn--primary">Go to Feed</a>{% else %}<a href="{% url 'register' %}?role=innovator" class="lp-btn lp-btn--primary">Join as Innovator</a>{% endif %}
         </div>
+        <figure class="lp-card lp-mock" aria-label="Example of a proposal thread">
+          <div class="lp-mock__bar"><span>Proposal</span><span class="lp-pill lp-pill--example">Example</span></div>
+          <div class="lp-mock__body">
+            <div class="lp-mock__msg"><div class="lp-mock__who">Investor</div>KSh 1M for 8% equity, paid in two parts. Can we meet on Thursday?</div>
+            <div class="lp-mock__msg lp-mock__msg--me"><div class="lp-mock__who">You</div>Thanks. Thursday at 10:00 works. I'll share our latest numbers before then.</div>
+            <div class="lp-mock__btns" aria-hidden="true"><span class="lp-mock__btn lp-mock__btn--p">Accept</span><span class="lp-mock__btn">Reply</span><span class="lp-mock__btn">Decline</span></div>
+          </div>
+        </figure>
+      </div>
+
+      <div class="lp-panel lp-split" id="lp-panel-invest" role="tabpanel" aria-labelledby="lp-tab-invest">
+        <div>
+          <h3>Find early-stage projects and talk to the founders directly.</h3>
+          <ul class="lp-ticks">
+            <li>Filter projects by industry and stage.</li>
+            <li>See a match score based on your industries, stage, funding range and location.</li>
+            <li>Save projects to come back to later.</li>
+            <li>Send proposals and schedule meetings in the app.</li>
+          </ul>
+          {% if user.is_authenticated %}<a href="{% url 'app' %}" class="lp-btn lp-btn--primary">Go to Feed</a>{% else %}<a href="{% url 'register' %}?role=investor" class="lp-btn lp-btn--primary">Join as Investor</a>{% endif %}
+          <p class="lp-note"><strong>Before you invest:</strong> early-stage companies often fail, and you could lose all the money you put in. Check each project yourself and get independent advice if you need it.</p>
+        </div>
+        <figure class="lp-card lp-mock" aria-label="Example of an investor's filtered project list">
+          <div class="lp-mock__bar"><span>Projects &middot; filtered</span><span class="lp-pill lp-pill--example">Example</span></div>
+          <div class="lp-mock__body">
+            <div class="lp-mock__chips"><span class="lp-pill">Agriculture</span><span class="lp-pill lp-pill--stage">Prototype</span></div>
+            <ul class="lp-mock__list">
+              <li><div><div class="lp-mock__v">Solar cold rooms for traders</div><div class="lp-mock__k">Raising KSh 2.5M</div></div><span class="lp-pill lp-pill--green">82 match</span></li>
+              <li><div><div class="lp-mock__v">Soil test kit for small farms</div><div class="lp-mock__k">Raising KSh 900K</div></div><span class="lp-pill lp-pill--green">74 match</span></li>
+              <li><div><div class="lp-mock__v">Dairy collection app</div><div class="lp-mock__k">Raising KSh 1.2M</div></div><span class="lp-pill lp-pill--green">61 match</span></li>
+            </ul>
+          </div>
+        </figure>
+      </div>
+
+      <div class="lp-panel lp-split" id="lp-panel-browse" role="tabpanel" aria-labelledby="lp-tab-browse">
+        <div>
+          <h3>Not ready to join? Look around first.</h3>
+          <ul class="lp-ticks">
+            <li>See which projects founders have listed and what they're raising.</li>
+            <li>Read how Oduma Corp works and who it's for.</li>
+            <li>Come back when you're ready. Joining is free.</li>
+          </ul>
+          <div class="lp-browse-links">
+            <a href="{% url 'project_list' %}" class="lp-btn lp-btn--primary">Browse projects</a>
+            <a href="{% url 'about' %}" class="lp-btn lp-btn--outline">About Oduma Corp</a>
+          </div>
+          {% if not user.is_authenticated %}<p class="lp-small">You'll need a free account to open project pages.</p>{% endif %}
+        </div>
+        <figure class="lp-photo">
+          <picture>
+            <source type="image/avif" srcset="{% static 'images/home/expo-480.avif' %} 480w, {% static 'images/home/expo-800.avif' %} 800w, {% static 'images/home/expo-1200.avif' %} 1200w" sizes="(min-width:900px) 520px, calc(100vw - 32px)">
+            <source type="image/webp" srcset="{% static 'images/home/expo-480.webp' %} 480w, {% static 'images/home/expo-800.webp' %} 800w, {% static 'images/home/expo-1200.webp' %} 1200w" sizes="(min-width:900px) 520px, calc(100vw - 32px)">
+            <img src="{% static 'images/home/expo-800.jpg' %}" width="800" height="572" loading="lazy" decoding="async" alt="A man looks at products on an exhibitor's table at a trade show while two women talk nearby.">
+          </picture>
+          <figcaption>Trade show in Accra, Ghana. Photo: Wo Nfoni Media, <a href="https://www.pexels.com/photo/39680007/" rel="noopener">Pexels</a></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="lp-sec" id="industries" aria-labelledby="lp-ind">
+  <div class="lp-wrap">
+    <h2 id="lp-ind">Browse by industry</h2>
+    <p class="lp-sec__lead">Projects are grouped the same way as in the app.</p>
+    <div class="lp-ind">
+      <div class="lp-tiles" id="lp-tiles" data-reveal-group>
+        <a class="lp-tile" data-ind="all" href="{% url 'project_list' %}"><span class="lp-tile__ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span><span class="lp-tile__name">All projects</span><span class="lp-tile__n">{% if all_projects_count %}{{ all_projects_count }} project{{ all_projects_count|pluralize }}{% else %}Browse{% endif %}</span></a>
+        <a class="lp-tile" data-ind="tech" href="{% url 'project_list' %}?industry=tech"{% if industry_counts.tech %}{% else %} hidden{% endif %}><span class="lp-tile__ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span><span class="lp-tile__name">Technology</span><span class="lp-tile__n">{% if industry_counts.tech %}{{ industry_counts.tech }} project{{ industry_counts.tech|pluralize }}{% else %}Browse{% endif %}</span></a>
+        <a class="lp-tile" data-ind="telecom" href="{% url 'project_list' %}?industry=telecom"{% if industry_counts.telecom %}{% else %} hidden{% endif %}><span class="lp-tile__ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg></span><span class="lp-tile__name">Telecommunications</span><span class="lp-tile__n">{% if industry_counts.telecom %}{{ industry_counts.telecom }} project{{ industry_counts.telecom|pluralize }}{% else %}Browse{% endif %}</span></a>
+        <a class="lp-tile" data-ind="finance" href="{% url 'project_list' %}?industry=finance"{% if industry_counts.finance %}{% else %} hidden{% endif %}><span class="lp-tile__ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span><span class="lp-tile__name">Finance</span><span class="lp-tile__n">{% if industry_counts.finance %}{{ industry_counts.finance }} project{{ industry_counts.finance|pluralize }}{% else %}Browse{% endif %}</span></a>
+        <a class="lp-tile" data-ind="health" href="{% url 'project_list' %}?industry=health"{% if industry_counts.health %}{% else %} hidden{% endif %}><span class="lp-tile__ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span><span class="lp-tile__name">Healthcare</span><span class="lp-tile__n">{% if industry_counts.health %}{{ industry_counts.health }} project{{ industry_counts.health|pluralize }}{% else %}Browse{% endif %}</span></a>
+        <a class="lp-tile" data-ind="edu" href="{% url 'project_list' %}?industry=edu"{% if industry_counts.edu %}{% else %} hidden{% endif %}><span class="lp-tile__ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="lp-tile__name">Education</span><span class="lp-tile__n">{% if industry_counts.edu %}{{ industry_counts.edu }} project{{ industry_counts.edu|pluralize }}{% else %}Browse{% endif %}</span></a>
+        <a class="lp-tile" data-ind="energy" href="{% url 'project_list' %}?industry=energy"{% if industry_counts.energy %}{% else %} hidden{% endif %}><span class="lp-tile__ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span class="lp-tile__name">Energy</span><span class="lp-tile__n">{% if industry_counts.energy %}{{ industry_counts.energy }} project{{ industry_counts.energy|pluralize }}{% else %}Browse{% endif %}</span></a>
+        <a class="lp-tile" data-ind="agriculture" href="{% url 'project_list' %}?industry=agriculture"{% if industry_counts.agriculture %}{% else %} hidden{% endif %}><span class="lp-tile__ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 22"/><path d="M9.73 16.5c1.18 1.07 2.55 1.4 3.99 1.5 2.08.14 4.28-.25 5.78-1.75 2.53-2.53 1.5-8-.5-12-1.5 3-2 5-5 6.5z"/></svg></span><span class="lp-tile__name">Agriculture</span><span class="lp-tile__n">{% if industry_counts.agriculture %}{{ industry_counts.agriculture }} project{{ industry_counts.agriculture|pluralize }}{% else %}Browse{% endif %}</span></a>
+        <a class="lp-tile" data-ind="manufacturing" href="{% url 'project_list' %}?industry=manufacturing"{% if industry_counts.manufacturing %}{% else %} hidden{% endif %}><span class="lp-tile__ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><circle cx="12" cy="12" r="7"/></svg></span><span class="lp-tile__name">Manufacturing</span><span class="lp-tile__n">{% if industry_counts.manufacturing %}{{ industry_counts.manufacturing }} project{{ industry_counts.manufacturing|pluralize }}{% else %}Browse{% endif %}</span></a>
+      </div>
+      <figure class="lp-photo">
+        <picture>
+          <source type="image/avif" srcset="{% static 'images/home/team-480.avif' %} 480w, {% static 'images/home/team-800.avif' %} 800w, {% static 'images/home/team-1200.avif' %} 1200w" sizes="(min-width:1024px) 420px, calc(100vw - 32px)">
+          <source type="image/webp" srcset="{% static 'images/home/team-480.webp' %} 480w, {% static 'images/home/team-800.webp' %} 800w, {% static 'images/home/team-1200.webp' %} 1200w" sizes="(min-width:1024px) 420px, calc(100vw - 32px)">
+          <img src="{% static 'images/home/team-800.jpg' %}" width="800" height="534" loading="lazy" decoding="async" alt="Four colleagues stand and talk in a bright office.">
+        </picture>
+        <figcaption>Office in Lagos, Nigeria. Photo: Ninthgrid, <a href="https://www.pexels.com/photo/30688593/" rel="noopener">Pexels</a></figcaption>
       </figure>
     </div>
   </div>
 </section>
 
-<section class="lp-sec lp-sec--paper" id="projects" aria-labelledby="lp-proj">
+<section class="lp-sec lp-sec--alt" id="projects" aria-labelledby="lp-proj">
   <div class="lp-wrap">
     <div class="lp-sec-head">
       <h2 id="lp-proj">Projects open to investors</h2>
       <a href="{% url 'project_list' %}" class="lp-link">View all projects &rarr;</a>
     </div>
 
-    <div class="lp-projects" id="lp-projects">
+    <div class="lp-projects" id="lp-projects" data-reveal-group>
     {% if featured_projects %}
       {% for project in featured_projects %}
-      <article class="lp-proj-card">
-        {% with img=project.get_main_image_url %}{% if img %}<img src="{{ img }}" alt="" class="lp-proj-img" width="640" height="360" loading="lazy" decoding="async">{% endif %}{% endwith %}
+      <article class="lp-card lp-card--hover lp-proj-card">
+        <div class="lp-proj-media">{% with img=project.get_main_image_url %}{% if img %}<img src="{{ img }}" alt="" class="lp-proj-img" width="640" height="360" loading="lazy" decoding="async">{% else %}<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>{% endif %}{% endwith %}</div>
         <div class="lp-proj-body">
           <div class="lp-proj-tags">
-            {% if project.industry %}<span class="lp-proj-industry">{{ project.industry }}</span>{% endif %}
-            {% if project.pipeline_stage %}<span class="lp-proj-stage">{{ project.get_pipeline_stage_display }}</span>{% endif %}
+            {% if project.industry %}<span class="lp-pill">{{ project.get_industry_display }}</span>{% endif %}
+            {% if project.pipeline_stage %}<span class="lp-pill lp-pill--stage">{{ project.get_pipeline_stage_display }}</span>{% endif %}
           </div>
           <h3><a href="{% url 'project_detail' project.pk %}" class="lp-proj-title">{{ project.title }}</a></h3>
-          <p class="lp-proj-desc">{{ project.card_description|truncatewords:22 }}</p>
+          <p class="lp-proj-desc">{{ project.card_description|truncatewords:30 }}</p>
           {% if project.funding_requirement %}<p class="lp-proj-ask">Seeking: {{ project.funding_requirement }}</p>{% endif %}
         </div>
         <div class="lp-proj-footer">
@@ -407,9 +559,10 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
       </article>
       {% endfor %}
     {% else %}<!-- empty -->
-      <article class="lp-proj-card">
+      <article class="lp-card lp-card--hover lp-proj-card">
+        <div class="lp-proj-media"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
         <div class="lp-proj-body">
-          <div class="lp-proj-tags"><span class="lp-proj-industry">Telecom</span></div>
+          <div class="lp-proj-tags"><span class="lp-pill">Telecommunications</span></div>
           <h3><a href="{% url 'project_list' %}2/" class="lp-proj-title">UniversalContacts</a></h3>
           <p class="lp-proj-desc">Lost your phone? Dial a short USSD code on any phone to get your saved contacts back. No smartphone or internet needed.</p>
         </div>
@@ -422,7 +575,7 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
     </div>
 
     <div class="lp-projects__more">
-      <a href="{% url 'project_list' %}" class="lp-btn lp-btn--ghost">Browse all projects &rarr;</a>
+      <a href="{% url 'project_list' %}" class="lp-btn lp-btn--outline">Browse all projects &rarr;</a>
       <p>Raising money? {% if user.is_authenticated %}<a class="lp-link" href="{% url 'create_project' %}">List your project</a>{% else %}<a class="lp-link" href="{% url 'register' %}?next=/projects/create/">List your project</a>{% endif %} and it can appear here too.</p>
     </div>
   </div>
@@ -432,115 +585,178 @@ a.lp-proj-title:hover{color:var(--blue);text-decoration:underline;}
   <div class="lp-wrap">
     <h2 id="lp-svc">Help beyond the listing</h2>
     <p class="lp-sec__lead">Members can also learn, get advice and meet people inside the app.</p>
-    <div class="lp-svc-list">
-      <a href="{% if user.is_authenticated %}{% url 'training_hub' %}{% else %}{% url 'register' %}{% endif %}" class="lp-svc">
+    <div class="lp-svcs" data-reveal-group>
+      <a href="{% if user.is_authenticated %}{% url 'training_hub' %}{% else %}{% url 'register' %}{% endif %}" class="lp-card lp-card--hover lp-svc">
+        <span class="lp-svc__ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
         <span class="lp-svc__title">Training &amp; Courses</span>
         <span class="lp-svc__desc">Courses for founders that you take at your own pace and track in the app.</span>
-        <span class="lp-svc__arrow" aria-hidden="true">&rarr;</span>
+        <span class="lp-svc__go" aria-hidden="true">Open &rarr;</span>
       </a>
-      <a href="{% if user.is_authenticated %}{% url 'mentorship_hub' %}{% else %}{% url 'register' %}{% endif %}" class="lp-svc">
+      <a href="{% if user.is_authenticated %}{% url 'mentorship_hub' %}{% else %}{% url 'register' %}{% endif %}" class="lp-card lp-card--hover lp-svc">
+        <span class="lp-svc__ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
         <span class="lp-svc__title">Mentorship</span>
         <span class="lp-svc__desc">Ask for a mentor through the app and we'll pair you with one.</span>
-        <span class="lp-svc__arrow" aria-hidden="true">&rarr;</span>
+        <span class="lp-svc__go" aria-hidden="true">Open &rarr;</span>
       </a>
-      <a href="{% if user.is_authenticated %}{% url 'request_consulting' %}{% else %}{% url 'register' %}{% endif %}" class="lp-svc">
+      <a href="{% if user.is_authenticated %}{% url 'request_consulting' %}{% else %}{% url 'register' %}{% endif %}" class="lp-card lp-card--hover lp-svc">
+        <span class="lp-svc__ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>
         <span class="lp-svc__title">Innovation Consulting</span>
         <span class="lp-svc__desc">Request help with strategy, going to market or getting ready for investors.</span>
-        <span class="lp-svc__arrow" aria-hidden="true">&rarr;</span>
+        <span class="lp-svc__go" aria-hidden="true">Open &rarr;</span>
       </a>
-      <a href="{% if user.is_authenticated %}{% url 'events_hub' %}{% else %}{% url 'register' %}{% endif %}" class="lp-svc">
+      <a href="{% if user.is_authenticated %}{% url 'events_hub' %}{% else %}{% url 'register' %}{% endif %}" class="lp-card lp-card--hover lp-svc">
+        <span class="lp-svc__ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
         <span class="lp-svc__title">Events &amp; Demo Days</span>
         <span class="lp-svc__desc">See upcoming pitch events and meetups, and register for them in the app.</span>
-        <span class="lp-svc__arrow" aria-hidden="true">&rarr;</span>
+        <span class="lp-svc__go" aria-hidden="true">Open &rarr;</span>
       </a>
     </div>
   </div>
 </section>
 
-<section class="lp-sec lp-sec--paper" id="about-us" aria-labelledby="lp-today">
-  <div class="lp-wrap"><div class="lp-plain">
-    <h2 id="lp-today">Where we are today</h2>
-    <p>Oduma Corp is a young company based in Nairobi, Kenya. We're building our founding cohort of founders and investors now.</p>
-    <p>We introduce founders and investors and give you the tools to talk and agree terms. Before you accept a proposal, read the Platform Agreement in our <a class="lp-link" href="{% url 'privacy_policy' %}">Privacy Policy</a>.</p>
-    <p><a class="lp-link" href="{% url 'about' %}">More about us</a></p>
-  </div></div>
+<section class="lp-sec lp-sec--white" id="about-us" aria-labelledby="lp-today">
+  <div class="lp-wrap lp-today">
+    <div>
+      <h2 id="lp-today">Where we are today</h2>
+      <p>Oduma Corp is a young company based in Nairobi, Kenya. We're building our founding cohort of founders and investors now.</p>
+      <p>We introduce founders and investors and give you the tools to talk and agree terms. Before you accept a proposal, read the Platform Agreement in our <a class="lp-link" href="{% url 'privacy_policy' %}">Privacy Policy</a>.</p>
+      <p><a class="lp-link" href="{% url 'about' %}">More about us</a></p>
+    </div>
+    <figure class="lp-photo">
+      <picture>
+        <source type="image/avif" srcset="{% static 'images/home/cohort-480.avif' %} 480w, {% static 'images/home/cohort-800.avif' %} 800w, {% static 'images/home/cohort-1200.avif' %} 1200w" sizes="(min-width:900px) 480px, calc(100vw - 32px)">
+        <source type="image/webp" srcset="{% static 'images/home/cohort-480.webp' %} 480w, {% static 'images/home/cohort-800.webp' %} 800w, {% static 'images/home/cohort-1200.webp' %} 1200w" sizes="(min-width:900px) 480px, calc(100vw - 32px)">
+        <img src="{% static 'images/home/cohort-800.jpg' %}" width="800" height="534" loading="lazy" decoding="async" alt="Four women in an office gather around a laptop, smiling.">
+      </picture>
+      <figcaption>Stock photo, not our members. Photo: PICHA Stock, <a href="https://www.pexels.com/photo/3894376/" rel="noopener">Pexels</a></figcaption>
+    </figure>
+  </div>
 </section>
 
 </div><!-- /lp-main -->
 
-<div class="lp-dark">
-  <section class="lp-cta" aria-labelledby="lp-cta">
-    <div class="lp-wrap">
-      <h2 id="lp-cta">List your project or start browsing.</h2>
-      <p>Creating an account is free and takes a few minutes.</p>
-      <div class="lp-cta__act">
+<section class="lp-cta" aria-labelledby="lp-cta">
+  <div class="lp-wrap">
+    <div class="lp-banner">
+      <div>
+        <h2 id="lp-cta">List your project or start browsing.</h2>
+        <p>Creating an account is free and takes a few minutes.</p>
+      </div>
+      <div class="lp-banner__act">
         {% if user.is_authenticated %}
-          <a href="{% url 'app' %}" class="lp-btn lp-btn--primary">Go to your feed &rarr;</a>
-          <a href="{% url 'project_list' %}" class="lp-btn lp-btn--ghost-dark">Browse projects</a>
+          <a href="{% url 'app' %}" class="lp-btn lp-btn--white">Go to your feed &rarr;</a>
+          <a href="{% url 'project_list' %}" class="lp-btn lp-btn--on-blue">Browse projects</a>
         {% else %}
-          <a href="{% url 'register' %}" class="lp-btn lp-btn--primary">Create free account &rarr;</a>
-          <a href="{% url 'login' %}" class="lp-btn lp-btn--ghost-dark">Log in</a>
+          <a href="{% url 'register' %}" class="lp-btn lp-btn--white">Create free account &rarr;</a>
+          <a href="{% url 'login' %}" class="lp-btn lp-btn--on-blue">Log in</a>
         {% endif %}
       </div>
-      <p class="lp-data"><strong>How we use your data:</strong> when you join, we store your account, profile and project details to run your account, match innovators with investors and send you notifications. We don't sell your data. Read our <a href="{% url 'privacy_policy' %}">Privacy Policy</a>.</p>
     </div>
-  </section>
+    <p class="lp-data"><strong>How we use your data:</strong> when you join, we store your account, profile and project details to run your account, match innovators with investors and send you notifications. We don't sell your data. Read our <a href="{% url 'privacy_policy' %}">Privacy Policy</a>.</p>
+  </div>
+</section>
 
-  <footer class="lp-ftr">
-    <div class="lp-wrap">
-      <div class="lp-ftr__grid">
-        <div>
-          <div class="lp-ftr__name">Oduma Corp</div>
-          <p>Nairobi, Kenya</p>
-        </div>
-        <div>
-          <h2>Contact</h2>
-          <ul>
-            <li><a href="mailto:info@odumacorp.com">info@odumacorp.com</a></li>
-            <li><a href="{% url 'contact' %}">Contact form</a></li>
-          </ul>
-        </div>
-        <div>
-          <h2>Follow us</h2>
-          <ul>
-            <li><a href="https://www.linkedin.com/company/oduma-corp/" rel="noopener">LinkedIn</a></li>
-            <li><a href="https://www.instagram.com/odumacorpltd" rel="noopener">Instagram</a></li>
-          </ul>
-        </div>
-        <div>
-          <h2>Company</h2>
-          <ul>
-            <li><a href="{% url 'about' %}">About</a></li>
-            <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
-            <li><a href="{% url 'terms' %}">Terms</a></li>
-            <li><button type="button" class="lp-ftr__btn" id="lp-cookie-settings" hidden>Cookie settings</button></li>
-          </ul>
-        </div>
-      </div>
-      <p class="lp-ftr__copy">&copy; <span id="lp-year">{% now "Y" %}</span> Oduma Corp</p>
+<footer class="lp-ftr">
+  <div class="lp-wrap lp-ftr__grid">
+    <div>
+      <div class="lp-ftr__brand"><img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="" width="32" height="32" loading="lazy">Oduma Corp</div>
+      <p>Nairobi, Kenya</p>
     </div>
-  </footer>
-</div>
+    <div>
+      <h2>Contact</h2>
+      <ul>
+        <li><a href="mailto:info@odumacorp.com">info@odumacorp.com</a></li>
+        <li><a href="{% url 'contact' %}">Contact form</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Follow us</h2>
+      <ul>
+        <li><a href="https://www.linkedin.com/company/oduma-corp/" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://www.instagram.com/odumacorpltd" rel="noopener">Instagram</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Company</h2>
+      <ul>
+        <li><a href="{% url 'about' %}">About</a></li>
+        <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+        <li><a href="{% url 'terms' %}">Terms</a></li>
+        <li><button type="button" class="lp-ftr__btn" id="lp-cookie-settings" hidden>Cookie settings</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="lp-ftr__strip"><div class="lp-wrap">&copy; <span id="lp-year">{% now "Y" %}</span> Oduma Corp</div></div>
+</footer>
 </div>
 
 <script data-keep>
 (function () {
+  var root = document.querySelector('.lp');
+  if (!root) return;
+  root.classList.add('lp-js');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduce) document.documentElement.style.scrollBehavior = 'smooth';
+
+  /* Mobile menu */
   var btn = document.getElementById('lp-menu-btn'), mob = document.getElementById('lp-mob');
-  if (!btn || !mob) return;
-  function set(open) {
-    mob.classList.toggle('open', open);
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  function setMenu(open) { mob.classList.toggle('open', open); btn.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+  if (btn && mob) {
+    btn.addEventListener('click', function () {
+      var open = !mob.classList.contains('open'); setMenu(open);
+      if (open) { var a = mob.querySelector('a'); if (a) a.focus(); }
+    });
+    mob.addEventListener('click', function (e) { if (e.target.closest('a')) setMenu(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && mob.classList.contains('open')) { setMenu(false); btn.focus(); } });
+    window.matchMedia('(min-width:1024px)').addEventListener('change', function (m) { if (m.matches) setMenu(false); });
   }
-  btn.addEventListener('click', function () {
-    var open = !mob.classList.contains('open');
-    set(open);
-    if (open) { var a = mob.querySelector('a'); if (a) a.focus(); }
-  });
-  mob.addEventListener('click', function (e) { if (e.target.closest('a')) set(false); });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && mob.classList.contains('open')) { set(false); btn.focus(); }
-  });
-  window.matchMedia('(min-width:1024px)').addEventListener('change', function (m) { if (m.matches) set(false); });
+
+  /* Tabs: "What you can do here". Without JS all three panels show in a row. */
+  var list = root.querySelector('.lp-tabs');
+  if (list) {
+    var tabs = [].slice.call(list.querySelectorAll('[role="tab"]'));
+    var select = function (t, focus) {
+      tabs.forEach(function (x) {
+        var on = x === t;
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+        x.tabIndex = on ? 0 : -1;
+        document.getElementById(x.getAttribute('aria-controls')).hidden = !on;
+      });
+      if (focus) t.focus();
+    };
+    list.hidden = false;
+    select(tabs[0], false);
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { select(t, false); });
+      t.addEventListener('keydown', function (e) {
+        var j = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+        if (j === undefined) return;
+        e.preventDefault(); select(tabs[(j + tabs.length) % tabs.length], true);
+      });
+    });
+  }
+
+  if (reduce || !('IntersectionObserver' in window)) return;
+
+  /* Hero: the example "New proposal" notification slides in after about 1.5 s. */
+  var notif = root.querySelector('.lp-js-notif');
+  if (notif) { notif.classList.add('lp-wait'); setTimeout(function () { notif.classList.add('is-in'); }, 1500); }
+
+  /* Scroll reveal for groups below the hero, staggered within each group. */
+  var io = new IntersectionObserver(function (entries) {
+    /* Reveal on entering the viewport, and anything already scrolled past (fast scrolls, jump links). */
+    entries.forEach(function (en) { if (en.isIntersecting || en.boundingClientRect.top < 0) { en.target.classList.add('is-in'); io.unobserve(en.target); } });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+  window.lpReveal = function (group) {
+    [].slice.call(group.children).forEach(function (el, i) {
+      if (el.hidden || el.classList.contains('is-in')) return;
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) return;   /* already on screen: never hide it */
+      el.style.setProperty('--lp-d', Math.min(i, 5) * 70 + 'ms');
+      el.classList.add('lp-reveal'); io.observe(el);
+    });
+  };
+  [].forEach.call(root.querySelectorAll('[data-reveal-group]'), window.lpReveal);
 })();
 </script>
 {% endblock %}

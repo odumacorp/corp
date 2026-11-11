@@ -30,6 +30,8 @@ URLS = {'index': '/', 'about': APP + '/about/', 'login': APP + '/login/',
         'contact': APP + '/contact/'}
 
 src = SRC.read_text()
+# One source of truth for colours, shadows and gradients: the app's design-system.css :root block.
+TOKENS = re.search(r'^:root\s*{.*?^}', (ROOT / 'core' / 'static' / 'css' / 'design-system.css').read_text(), re.S | re.M).group(0)
 block = lambda name: re.search(r'{%% block %s %%}(.*?){%% endblock %%}' % name, src, re.S).group(1)
 head, body = block('extra_head'), block('content')
 title = block('title').strip()
@@ -48,8 +50,14 @@ def sub1(pattern, repl, text, flags=re.S):
 body = re.sub(r'{% if user\.is_authenticated %}((?:(?!{% if).)*?){% else %}((?:(?!{% if).)*?){% endif %}',
               r'\2', body, flags=re.S)
 
-# Hero listing card and other one-line featured_projects branches: keep the fallback text.
-body = sub1(r'{% if featured_projects %}((?:(?!{%).)*?){% else %}((?:(?!{%).)*?){% endif %}', r'\2', body)
+# One-line data branches ({% if featured_projects... %}, {% if industry_counts.x %}, {% if all_projects_count %}):
+# keep the fallback text. Industry tiles are the exception: the static page shows them all
+# neutrally ("Browse") until the feed says which ones have projects.
+SIMPLE = r'{%% if (%s)(?:\.[\w.]+)? %%}((?:(?!{%%).)*?){%% else %%}((?:(?!{%%).)*?){%% endif %%}'
+body = sub1(SIMPLE % 'industry_counts', lambda m: '' if m.group(3).strip() == 'hidden' else m.group(3), body)
+body = sub1(SIMPLE % 'featured_projects|all_projects_count', r'\3', body)
+# Guest-only notes stay (static visitors are never logged in).
+body = re.sub(r'{% if not user\.is_authenticated %}((?:(?!{%).)*?){% endif %}', r'\1', body, flags=re.S)
 # Featured projects: keep the empty state + example card; the script swaps in live cards.
 body = sub1(r'{% if featured_projects %}(?:(?!{% if featured_projects %}).)*?{% else %}<!-- empty -->', '', body)
 body = sub1(r'<!-- /empty -->{% endif %}', '', body)
@@ -61,6 +69,10 @@ body = sub1(r'<span class="lp-cohort__n" id="lp-cohort-n">.*?</span>',
 
 body = re.sub(r"{% url '(\w+)' %}", lambda m: URLS[m.group(1)], body)
 body = sub1(r"{% static 'images/OdumaCorp-icon-small.png' %}", 'icon-72.png', body)
+# Photos: the app serves them from core/static/images/home/, the static site from loading/img/.
+body = sub1(r"{% static 'images/home/([\w.-]+)' %}", lambda m: 'img/' + m.group(1), body)
+for f in re.findall(r'img/([\w.-]+\.(?:avif|webp|jpg))', body):
+    assert (ROOT / 'loading' / 'img' / f).exists(), 'missing loading/img/' + f
 body = sub1(r'{% now "Y" %}', str(datetime.date.today().year), body)
 body = re.sub(r'<script>.*?</script>', '', body, flags=re.S)  # template-only scripts
 body = body.replace('<script data-keep>', '<script>')          # shared scripts stay
@@ -183,20 +195,41 @@ script = """<script>
 
   /* ── Live data. The same request wakes the app from Render's free-tier sleep. ── */
   var awake = false;
+  var LAYERS = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>';
   function card(p) {
     var url = APP + '/projects/' + p.id + '/';
-    var img = p.image ? '<img src="' + esc(abs(p.image)) + '" alt="" class="lp-proj-img" width="640" height="360" loading="lazy" decoding="async">' : '';
+    var media = p.image ? '<img src="' + esc(abs(p.image)) + '" alt="" class="lp-proj-img" width="640" height="360" loading="lazy" decoding="async">' : LAYERS;
     var av = p.owner_avatar ? '<img src="' + esc(abs(p.owner_avatar)) + '" class="lp-proj-owner-av" alt="" width="28" height="28" loading="lazy">'
       : '<span class="lp-proj-owner-av" aria-hidden="true">' + esc(p.owner_initials) + '</span>';
-    return '<article class="lp-proj-card">' + img + '<div class="lp-proj-body"><div class="lp-proj-tags">' +
-      (p.industry ? '<span class="lp-proj-industry">' + esc(p.industry) + '</span>' : '') +
-      (p.stage ? '<span class="lp-proj-stage">' + esc(p.stage) + '</span>' : '') +
+    return '<article class="lp-card lp-card--hover lp-proj-card"><div class="lp-proj-media">' + media + '</div><div class="lp-proj-body"><div class="lp-proj-tags">' +
+      (p.industry ? '<span class="lp-pill">' + esc(p.industry_label || p.industry) + '</span>' : '') +
+      (p.stage ? '<span class="lp-pill lp-pill--stage">' + esc(p.stage) + '</span>' : '') +
       '</div><h3><a href="' + url + '" class="lp-proj-title">' + esc(p.title) + '</a></h3>' +
       '<p class="lp-proj-desc">' + esc(p.description) + '</p>' +
       (p.funding ? '<p class="lp-proj-ask">Seeking: ' + esc(p.funding) + '</p>' : '') +
       '</div><div class="lp-proj-footer"><a href="' + APP + '/profile/' + encodeURIComponent(p.owner_username) + '/" class="lp-proj-owner">' + av +
       '<span class="lp-proj-owner-name">' + esc(p.owner_name) + '</span></a>' +
       '<a href="' + url + '" class="lp-proj-arrow">View pitch &rarr;</a></div></article>';
+  }
+  function text(id, v) { var el = $(id); if (el) { el.textContent = v || ''; el.hidden = !v; } }
+  function hero(p) {
+    /* Same slots and sizes as the fallback card, so swapping in live data never shifts the layout. */
+    $('lp-latest-thumb').innerHTML = p.image ? '<img src="' + esc(abs(p.image)) + '" alt="" width="460" height="120">' : LAYERS;
+    $('lp-latest-title').textContent = p.title;
+    $('lp-latest-desc').textContent = p.description || '';
+    $('lp-latest-meta').textContent = p.owner_name;
+    $('lp-latest-av').textContent = p.owner_initials;
+    text('lp-latest-ind', p.industry_label || p.industry || 'Project');
+    text('lp-latest-stage', p.stage);
+    text('lp-latest-ask', p.funding ? 'Seeking ' + p.funding : '');
+  }
+  function tiles(d) {
+    var counts = d.industry_counts || {};
+    document.querySelectorAll('#lp-tiles [data-ind]').forEach(function (t) {
+      var k = t.getAttribute('data-ind'), n = k === 'all' ? +d.all_projects || 0 : +counts[k] || 0;
+      if (k !== 'all') t.hidden = !n;
+      if (n) t.querySelector('.lp-tile__n').textContent = plural(n, 'project');
+    });
   }
   var ctl = window.AbortController ? new AbortController() : null;
   var stop = setTimeout(function () { if (ctl) ctl.abort(); }, 90000);
@@ -206,14 +239,12 @@ script = """<script>
       awake = true; clearTimeout(stop);
       var i = +d.innovators || 0, v = +d.investors || 0;
       if (i || v) $('lp-cohort-n').textContent = plural(i, 'innovator') + ' and ' + plural(v, 'investor') + ' so far.';
+      if (d.industry_counts) tiles(d);
       if (d.featured && d.featured.length) {
-        $('lp-projects').innerHTML = d.featured.map(card).join('');
-        var p = d.featured[0];
-        $('lp-latest-title').textContent = p.title.length > 60 ? p.title.slice(0, 59) + '\\u2026' : p.title;
-        $('lp-latest-meta').textContent = (p.industry || 'Project') + ' \\u00b7 by ' + p.owner_name;
-        $('lp-latest-stage').textContent = p.stage || 'Not stated';
-        $('lp-latest-ask').textContent = p.funding || 'Not stated';
-        $('lp-latest-extra').removeAttribute('data-pending');
+        var grid = $('lp-projects');
+        grid.innerHTML = d.featured.map(card).join('');
+        if (window.lpReveal) window.lpReveal(grid);
+        hero(d.featured[0]);
       }
     })
     .catch(function () { /* app still asleep or unreachable: the page already reads complete without numbers */ });
@@ -329,11 +360,13 @@ page = f"""<!DOCTYPE html>
   <link rel="preload" href="fonts/space-grotesk-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <script type="application/ld+json">{json.dumps(org, separators=(',', ':'))}</script>
   <style>
+    /* :root copied from core/static/css/design-system.css by build.py */
+    {TOKENS}
     @font-face{{font-family:'Space Grotesk';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/space-grotesk-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}}
     @font-face{{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/inter-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}}
     @font-face{{font-family:'Inter';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/inter-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}}
     html{{-webkit-text-size-adjust:100%;}}
-    body{{margin:0;background:#0A1628;overflow-x:hidden;}}
+    body{{margin:0;background:#F4F7FB;overflow-x:hidden;}}
 {extras_css}
   </style>
 {head}
