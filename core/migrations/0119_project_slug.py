@@ -26,10 +26,13 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # No index yet: on Postgres a SlugField index brings a second "_like" index, and the
+        # unique step below creates that same index again (DuplicateTable). Adding the column
+        # unindexed means the indexes are created exactly once, by the AlterField.
         migrations.AddField(
             model_name='project',
             name='slug',
-            field=models.SlugField(blank=True, max_length=120, null=True),
+            field=models.SlugField(blank=True, max_length=120, null=True, db_index=False),
         ),
         migrations.RunPython(fill_slugs, migrations.RunPython.noop),
         migrations.AlterField(
