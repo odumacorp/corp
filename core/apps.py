@@ -10,7 +10,13 @@ def _sync_social_apps(sender, **kwargs):
     DB record should exist. This handler runs after every migrate so the record
     always reflects the current GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET env vars.
     """
+    import os
     from django.conf import settings
+    # Only on Render (it sets RENDER=true), or when asked explicitly. A local `migrate`
+    # often points at the production database, and copying a laptop's settings.ini
+    # credentials into it once broke Google sign-in (stale client secret -> 401).
+    if not (os.environ.get('RENDER') or os.environ.get('SYNC_GOOGLE_APP') == '1'):
+        return
     try:
         from allauth.socialaccount.models import SocialApp
     except Exception:
