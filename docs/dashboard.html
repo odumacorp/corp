@@ -698,7 +698,7 @@
             <a href="{% url 'inbox' %}" class="db-quick-link"><span class="db-quick-link-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>Inbox</a>
             <a href="{% url 'update_password' %}" class="db-quick-link"><span class="db-quick-link-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>Change Password</a>
             <a href="{% url 'my_subscription' %}" class="db-quick-link"><span class="db-quick-link-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>My Plan &amp; Billing</a>
-            <a href="{% url 'subscription_plans' %}" class="db-quick-link"><span class="db-quick-link-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>Pricing &amp; Plans</a>
+{% if pricing_enabled %}            <a href="{% url 'subscription_plans' %}" class="db-quick-link"><span class="db-quick-link-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>Pricing &amp; Plans</a>{% endif %}
           </div>
         </div>
       </div>

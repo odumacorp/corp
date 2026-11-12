@@ -39,12 +39,16 @@ def linkify_hashtags(value, autoescape=True):
     if not value:
         return value
     text = str(value)
-    parts = re.split(r'(#\w+)', text)
+    # A tag is "#" + ASCII letters/digits/_ (what the hashtags/<slug:tag>/ URL accepts), not
+    # glued to a preceding word or path ("C#", "page#top") and not cut off mid-word ("#café").
+    # re.split with one capturing group puts the matches at odd indices; only those are tags.
+    # (Checking startswith('#') on every piece turned "# Heading ..." text into one giant link.)
+    parts = re.split(r'(?<![\w/&])(#[A-Za-z0-9_]+)(?!\w)', text)
     out = []
-    for part in parts:
-        if part.startswith('#') and len(part) > 1:
+    for i, part in enumerate(parts):
+        if i % 2:
             tag = part[1:].lower()
-            out.append(f'<a href="/hashtags/{tag}/" class="oc-hashtag">{part}</a>')
+            out.append(f'<a href="/hashtags/{tag}/" class="oc-hashtag">{conditional_escape(part)}</a>')
         else:
             out.append(conditional_escape(part) if autoescape else part)
     return mark_safe(''.join(out))

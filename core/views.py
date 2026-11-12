@@ -257,8 +257,9 @@ def profile_view(request, username):
     # Block regular users from viewing admin profiles
     if user_obj.user_type == 'admin' or user_obj.is_staff or user_obj.is_superuser:
         if not (request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser or request.user.user_type == 'admin')):
-            from django.http import HttpResponseForbidden
-            return HttpResponseForbidden("You do not have permission to view this profile.")
+            # Team profiles stay private, but links to them (feed, projects, comments) should land
+            # on a real page instead of a bare 403 message.
+            return render(request, 'profile_team.html', {'team_user': user_obj})
 
     # Track this profile view
     if request.user.is_authenticated and request.user != user_obj:
@@ -1289,6 +1290,7 @@ def user_search_api(request):
     return JsonResponse({'users': results})
 
 
+@login_required
 def inbox(request):
     from .models import Conversation
     # Get all conversations this user is part of, newest message first
@@ -7190,6 +7192,9 @@ def my_subscription(request):
         sub = request.user.subscription
     except UserSubscription.DoesNotExist:
         free_plan = SubscriptionPlan.objects.filter(slug='starter').first()
+        if free_plan is None:   # plans are seeded by `manage.py seed_plans`; don't crash if that never ran
+            messages.info(request, "Subscription plans aren't available yet.")
+            return redirect('dashboard')
         sub = UserSubscription.objects.create(user=request.user, plan=free_plan)
 
     orders = SubscriptionOrder.objects.filter(user=request.user)[:10]
@@ -8233,7 +8238,8 @@ def _get_trending_hashtags(limit=10):
     contents = Post.objects.filter(is_hidden=False).order_by('-created_at').values_list('content', flat=True)[:400]
     counts = {}
     for text in contents:
-        for tag in _hashtag_re.findall(r'#(\w+)', (text or '').lower()):
+        # Same rule as the linkify_hashtags filter: only tags the hashtags/<slug:tag>/ URL accepts.
+        for tag in _hashtag_re.findall(r'(?<![\w/&])#([a-z0-9_]+)(?!\w)', (text or '').lower()):
             counts[tag] = counts.get(tag, 0) + 1
     return sorted(counts.items(), key=lambda x: -x[1])[:limit]
 

@@ -552,7 +552,7 @@
       <a href="{% url 'events' %}"             class="oc-mobile-menu__link">Events</a>
       <a href="{% url 'jobs' %}"               class="oc-mobile-menu__link">Jobs</a>
       <a href="{% url 'faq' %}"                class="oc-mobile-menu__link">FAQ</a>
-      <a href="{% url 'subscription_plans' %}" class="oc-mobile-menu__link">Pricing</a>
+      {% if pricing_enabled %}<a href="{% url 'subscription_plans' %}" class="oc-mobile-menu__link">Pricing</a>{% endif %}
       <div class="oc-mobile-menu__divider"></div>
       <a href="{% url 'login' %}"    class="oc-mobile-menu__link">Log in</a>
       <a href="{% url 'register' %}" class="oc-mobile-menu__link" style="color:#3B7FFF;font-weight:600;">Get started →</a>
