@@ -9151,31 +9151,62 @@ def gallery(request):
         'items': items,
         'is_admin': is_admin,
         'max_mb': GALLERY_MAX_MB,
+        'max_files': GALLERY_MAX_FILES,
         'accept': ','.join('.' + e for e in sorted(GALLERY_IMAGE_EXT | GALLERY_VIDEO_EXT)),
     })
+
+
+GALLERY_MAX_FILES = 20
+
+
+def _title_from_filename(name):
+    """'demo_day-2026.jpg' -> 'Demo day 2026'."""
+    import re
+    stem = name.rsplit('.', 1)[0] if '.' in name else name
+    words = re.sub(r'[_\-.]+', ' ', stem).strip()
+    return (words[:1].upper() + words[1:])[:120] or 'Untitled'
 
 
 @login_required
 @require_POST
 def gallery_add(request):
+    """Add one or more photos/videos. Each file becomes its own gallery item."""
     from .models import GalleryItem
     if not _is_admin(request.user):
         return HttpResponseForbidden('Only admins can add to the gallery.')
-    title = (request.POST.get('title') or '').strip()[:120]
+    title = (request.POST.get('title') or '').strip()[:110]
     caption = (request.POST.get('caption') or '').strip()[:2000]
-    upload = request.FILES.get('file')
-    ext = upload.name.rsplit('.', 1)[-1].lower() if upload and '.' in upload.name else ''
-    media_type = 'video' if ext in GALLERY_VIDEO_EXT else 'image' if ext in GALLERY_IMAGE_EXT else ''
-    if not title or not upload:
-        messages.error(request, 'Add a title and choose a photo or video.')
-    elif not media_type:
-        messages.error(request, 'That file type isn’t supported. Use a photo (JPG, PNG, WebP, GIF, HEIC) or a video (MP4, MOV, WebM).')
-    elif upload.size > GALLERY_MAX_MB[media_type] * 1024 * 1024:
-        messages.error(request, f'That file is too large. {"Videos" if media_type == "video" else "Photos"} can be up to {GALLERY_MAX_MB[media_type]} MB.')
-    else:
-        GalleryItem.objects.create(title=title, caption=caption, file=upload, media_type=media_type,
-                                   is_published=request.POST.get('is_published') == 'on', created_by=request.user)
-        messages.success(request, 'Added to the gallery.')
+    publish = request.POST.get('is_published') == 'on'
+    uploads = request.FILES.getlist('file')
+    if not uploads:
+        messages.error(request, 'Choose at least one photo or video.')
+        return redirect('gallery')
+    if len(uploads) > GALLERY_MAX_FILES:
+        messages.error(request, f'You can add up to {GALLERY_MAX_FILES} files at a time. You chose {len(uploads)}.')
+        return redirect('gallery')
+
+    added, skipped = 0, []
+    numbered = bool(title) and len(uploads) > 1
+    for n, upload in enumerate(uploads, start=1):
+        ext = upload.name.rsplit('.', 1)[-1].lower() if '.' in upload.name else ''
+        media_type = 'video' if ext in GALLERY_VIDEO_EXT else 'image' if ext in GALLERY_IMAGE_EXT else ''
+        if not media_type:
+            skipped.append(f'{upload.name} (file type not supported)')
+            continue
+        if upload.size > GALLERY_MAX_MB[media_type] * 1024 * 1024:
+            skipped.append(f'{upload.name} (over {GALLERY_MAX_MB[media_type]} MB)')
+            continue
+        item_title = f'{title} {n}' if numbered else (title or _title_from_filename(upload.name))
+        GalleryItem.objects.create(title=item_title, caption=caption, file=upload, media_type=media_type,
+                                   is_published=publish, created_by=request.user)
+        added += 1
+
+    if added:
+        messages.success(request, 'Added to the gallery.' if added == 1 else f'Added {added} items to the gallery.')
+    if skipped:
+        messages.error(request, 'Not added: ' + '; '.join(skipped) +
+                       '. Use photos (JPG, PNG, WebP, GIF, HEIC) up to '
+                       f'{GALLERY_MAX_MB["image"]} MB or videos (MP4, MOV, WebM) up to {GALLERY_MAX_MB["video"]} MB.')
     return redirect('gallery')
 
 

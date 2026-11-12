@@ -24,6 +24,9 @@
 .pf-file-wrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;}
 .pf-file-btn{flex-shrink:0;padding:8px 14px;border-radius:8px;background:var(--blue);color:#fff;font-weight:700;font-size:14px;}
 .pf-file-name{font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gl-picked{margin:8px 0 0;padding:8px 12px;list-style:none;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px;max-height:180px;overflow:auto;}
+.gl-picked li{padding:3px 0;color:var(--text);}
+.gl-picked li.is-bad{color:#A12020;}
 .gl-check{display:flex;align-items:center;gap:8px;font-size:15px;min-height:44px;}
 .gl-check input{width:20px;height:20px;}
 .gl-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:8px;border:1.5px solid transparent;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;}
@@ -82,28 +85,31 @@ body dialog.gl-view{min-height:0;}   /* the app's stylesheet gives every dialog 
 
   {% if is_admin %}
   <section class="gl-card gl-admin" aria-labelledby="gl-add">
-    <h2 id="gl-add">Add a photo or video</h2>
+    <h2 id="gl-add">Add photos or videos</h2>
     <form class="gl-form" method="post" action="{% url 'gallery_add' %}" enctype="multipart/form-data" id="gl-form">
       {% csrf_token %}
       <div>
-        <label for="gl-title">Title</label>
-        <input type="text" id="gl-title" name="title" maxlength="120" required>
+        <label for="gl-title">Title <span>(optional)</span></label>
+        <input type="text" id="gl-title" name="title" maxlength="110" aria-describedby="gl-title-help">
+        <p class="gl-small" id="gl-title-help">Leave it empty to name each item after its file. With several files, a title is numbered: “Demo day 1”, “Demo day 2”…</p>
       </div>
       <div>
-        <label for="gl-caption">Caption <span>(optional)</span></label>
+        <label for="gl-caption">Caption <span>(optional, used for every file)</span></label>
         <textarea id="gl-caption" name="caption" maxlength="2000"></textarea>
       </div>
       <div>
-        <label for="gl-file">Photo or video</label>
+        <label for="gl-file">Photos or videos</label>
         <div class="pf-file-wrap">
-          <input type="file" id="gl-file" name="file" accept="{{ accept }}" required aria-describedby="gl-file-help">
-          <span class="pf-file-btn" aria-hidden="true">Choose file</span>
-          <span class="pf-file-name" id="gl-file-name">No file chosen</span>
+          <input type="file" id="gl-file" name="file" accept="{{ accept }}" multiple required aria-describedby="gl-file-help">
+          <span class="pf-file-btn" aria-hidden="true">Choose files</span>
+          <span class="pf-file-name" id="gl-file-name">No files chosen</span>
         </div>
-        <p class="gl-small" id="gl-file-help">Photos up to {{ max_mb.image }} MB (JPG, PNG, WebP, GIF, HEIC). Videos up to {{ max_mb.video }} MB (MP4, MOV, WebM).</p>
+        <p class="gl-small" id="gl-file-help">Select several at once (up to {{ max_files }}). Photos up to {{ max_mb.image }} MB (JPG, PNG, WebP, GIF, HEIC). Videos up to {{ max_mb.video }} MB (MP4, MOV, WebM).</p>
+        <ul class="gl-picked" id="gl-picked" hidden></ul>
       </div>
       <label class="gl-check"><input type="checkbox" name="is_published" value="on" checked> Show it in the gallery straight away</label>
       <div><button type="submit" class="gl-btn gl-btn--p" id="gl-submit">Add to gallery</button></div>
+      <p class="gl-small" id="gl-status" role="status"></p>
     </form>
   </section>
   {% endif %}
@@ -156,11 +162,33 @@ body dialog.gl-view{min-height:0;}   /* the app's stylesheet gives every dialog 
   var form = document.getElementById('gl-form');
   if (form) {
     var file = document.getElementById('gl-file'), name = document.getElementById('gl-file-name');
-    file.addEventListener('change', function () { name.textContent = file.files.length ? file.files[0].name : 'No file chosen'; });
+    var picked = document.getElementById('gl-picked'), status = document.getElementById('gl-status');
+    var MAX = {{ max_files }}, LIMIT = { image: {{ max_mb.image }}, video: {{ max_mb.video }} };
+    var VIDEO = /\.(mp4|webm|mov|m4v)$/i, IMAGE = /\.(jpe?g|png|gif|webp|heic)$/i;
+    function mb(n) { return (n / 1048576).toFixed(n < 10485760 ? 1 : 0) + ' MB'; }
+    file.addEventListener('change', function () {
+      var fs = [].slice.call(file.files);
+      name.textContent = !fs.length ? 'No files chosen' : fs.length === 1 ? fs[0].name : fs.length + ' files chosen';
+      picked.innerHTML = '';
+      fs.forEach(function (f) {
+        var kind = VIDEO.test(f.name) ? 'video' : IMAGE.test(f.name) ? 'image' : '';
+        var li = document.createElement('li');
+        li.textContent = f.name + ' · ' + mb(f.size);
+        if (!kind) { li.className = 'is-bad'; li.textContent += ' · not a supported type, will be skipped'; }
+        else if (f.size > LIMIT[kind] * 1048576) { li.className = 'is-bad'; li.textContent += ' · over ' + LIMIT[kind] + ' MB, will be skipped'; }
+        picked.appendChild(li);
+      });
+      picked.hidden = fs.length < 2 && !picked.querySelector('.is-bad');
+      status.textContent = fs.length > MAX ? 'Choose up to ' + MAX + ' files at a time.' : '';
+      var good = fs.length - picked.querySelectorAll('.is-bad').length;
+      document.getElementById('gl-submit').textContent = good > 1 ? 'Add ' + good + ' to gallery' : 'Add to gallery';
+    });
     form.addEventListener('submit', function (e) {
       var b = document.getElementById('gl-submit');
       if (b.disabled) { e.preventDefault(); return; }
+      if (file.files.length > MAX) { e.preventDefault(); status.textContent = 'Choose up to ' + MAX + ' files at a time.'; return; }
       b.disabled = true; b.textContent = 'Uploading…';
+      status.textContent = file.files.length > 1 ? 'Uploading ' + file.files.length + ' files. Large videos can take a few minutes; keep this page open.' : '';
     });
   }
   document.querySelectorAll('form[data-confirm]').forEach(function (f) {
