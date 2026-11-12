@@ -337,6 +337,7 @@ urlpatterns = _html_redirects + [
     path('companies/', views.companies_list, name='companies_list'),
     path('companies/create/', views.create_company, name='create_company'),
     path('company/<int:company_id>/', views.company_profile, name='company_profile'),
+    path('company/<slug:slug>/', views.company_profile_slug, name='company_profile_slug'),
     path('company/<int:company_id>/edit/', views.company_edit, name='company_edit'),
     path('company/<int:company_id>/follow/', views.company_follow, name='company_follow'),
     path('company/<int:company_id>/post/', views.company_post_update, name='company_post_update'),

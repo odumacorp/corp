@@ -291,7 +291,7 @@
           </div>
         </div>
         <div class="cl-card-actions">
-          <a href="{% url 'company_profile' company.pk %}" class="cl-btn cl-btn--ghost">
+          <a href="{{ company.get_absolute_url }}" class="cl-btn cl-btn--ghost">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             View
           </a>
@@ -464,7 +464,7 @@
         </div>
       </div>
       <div class="cl-card-actions">
-        <a href="{% url 'company_profile' company.pk %}" class="cl-btn cl-btn--primary">
+        <a href="{{ company.get_absolute_url }}" class="cl-btn cl-btn--primary">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           View Page
         </a>

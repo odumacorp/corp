@@ -5295,6 +5295,22 @@ def companies_list(request):
 
 @login_required
 def company_profile(request, company_id):
+    """Old numeric address /company/<id>/: permanently redirect to /company/<slug>/."""
+    from .models import Company
+    company = get_object_or_404(Company, pk=company_id)
+    if not company.slug:
+        company.save(update_fields=['slug'])
+    qs = request.META.get('QUERY_STRING', '')
+    return redirect(company.get_absolute_url() + ('?' + qs if qs else ''), permanent=True)
+
+
+@login_required
+def company_profile_slug(request, slug):
+    from .models import Company
+    return _company_profile(request, get_object_or_404(Company, slug=slug).pk)
+
+
+def _company_profile(request, company_id):
     from .models import Company, CompanyMedia, CompanyUpdate
     company     = get_object_or_404(Company, pk=company_id)
     media_items = CompanyMedia.objects.filter(company=company).order_by('-uploaded_at')

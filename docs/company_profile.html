@@ -514,7 +514,7 @@
         {% else %}
 
         {% if company and company.id %}
-          <a href="{% url 'company_profile' company.id %}">
+          <a href="{{ company.get_absolute_url }}">
             View Company
           </a>
         {% endif %}
@@ -531,12 +531,10 @@
               {% if is_saved %}Saved{% else %}Read Later{% endif %}
             </button>
           
-            {% url 'company_profile' company.pk as company_url %}
-          
             <button class="oc-share-btn"
                     onclick="ocShare(
                       '{{ company.name|escapejs }}',
-                      '{{ request.scheme }}://{{ request.get_host }}{{ company_url }}',
+                      '{{ request.scheme }}://{{ request.get_host }}{{ company.get_absolute_url }}',
                       'company',
                       {{ company.pk }},
                       this

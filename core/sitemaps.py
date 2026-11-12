@@ -93,6 +93,6 @@ class CompanySitemap(Sitemap):
 
     def location(self, obj):
         try:
-            return reverse('company_profile', args=[obj.pk])
+            return obj.get_absolute_url()
         except Exception:
             return '/'

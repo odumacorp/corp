@@ -206,7 +206,7 @@
         </div>
       </div>
       <div class="pj-footer">
-        <a href="{% url 'company_profile' company.pk %}" class="pj-btn pj-btn-ghost">Cancel</a>
+        <a href="{{ company.get_absolute_url }}" class="pj-btn pj-btn-ghost">Cancel</a>
         <button type="submit" class="pj-btn pj-btn-primary">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           Post Job

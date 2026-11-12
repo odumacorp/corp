@@ -249,7 +249,7 @@
       </div>
 
       <div class="ce-actions">
-        <a href="{% url 'company_profile' company.pk %}" class="ce-btn ce-btn-outline"><i class="fi fi-rr-arrow-left"></i> Cancel</a>
+        <a href="{{ company.get_absolute_url }}" class="ce-btn ce-btn-outline"><i class="fi fi-rr-arrow-left"></i> Cancel</a>
         <button type="submit" class="ce-btn ce-btn-primary"><i class="fi fi-rr-check"></i> Save Changes</button>
       </div>
     </form>

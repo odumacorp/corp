@@ -937,7 +937,7 @@
       </div>
       <div class="pf-tile-list">
         {% for co in companies %}
-        <a href="{% url 'company_profile' co.id %}" class="pf-tile">
+        <a href="{{ co.get_absolute_url }}" class="pf-tile">
           <img src="{{ co.logo.url }}" class="pf-tile-img" alt="{{ co.name }}">
           <div class="pf-tile-info">
             <div class="pf-tile-name">{{ co.name }}</div>

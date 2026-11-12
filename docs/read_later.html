@@ -225,7 +225,7 @@
             </div>
           </div>
           <div class="rl-card-actions">
-            <a href="{% url 'company_profile' item.company.pk %}" class="rl-view-btn"><i class="fi fi-rr-arrow-right fi-sm"></i> Read</a>
+            <a href="{{ item.company.get_absolute_url }}" class="rl-view-btn"><i class="fi fi-rr-arrow-right fi-sm"></i> Read</a>
             <button class="rl-remove-btn" onclick="removeReadLater('company', {{ item.company.pk }}, this)">
               <i class="fi fi-rr-trash fi-xs"></i> Remove
             </button>

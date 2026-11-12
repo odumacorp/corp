@@ -285,7 +285,7 @@
             {% endif %}
           </div>
           <div class="mb-card-actions">
-            <a href="{% url 'company_profile' biz.pk %}" class="mb-btn mb-btn-primary">
+            <a href="{{ biz.get_absolute_url }}" class="mb-btn mb-btn-primary">
               <i class="fi fi-rr-eye fi-sm"></i> View Page
             </a>
             <a href="{% url 'company_edit' biz.pk %}" class="mb-btn mb-btn-outline">

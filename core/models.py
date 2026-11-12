@@ -175,6 +175,24 @@ class UserProfile(models.Model):
 from django.conf import settings
 from django.db import models
 
+def make_unique_slug(model, text, exclude_pk=None, reserved=(), fallback='item'):
+    """Readable, unique address part from a name: 'Oduma Corp' -> 'oduma-corp', then
+    'oduma-corp-2', ... Names that are all digits (old /<id>/ addresses) or reserved
+    words get '-<fallback>' added so they can't clash with other routes."""
+    from django.utils.text import slugify
+    base = slugify(text or '')[:100].strip('-') or fallback
+    if base in reserved or base.isdigit():
+        base = f'{base}-{fallback}'
+    qs = model.objects.all()
+    if exclude_pk:
+        qs = qs.exclude(pk=exclude_pk)
+    slug, n = base, 2
+    while qs.filter(slug=slug).exists():
+        slug = f'{base}-{n}'
+        n += 1
+    return slug
+
+
 class Project(models.Model):
     STATUS_CHOICES = (
         ('draft', 'Draft'),
@@ -327,18 +345,7 @@ class Project(models.Model):
 
     @classmethod
     def unique_slug(cls, title, exclude_pk=None):
-        from django.utils.text import slugify
-        base = slugify(title or '')[:100].strip('-') or 'project'
-        if base in cls.RESERVED_SLUGS or base.isdigit():
-            base = f'{base}-project'
-        qs = cls.objects.all()
-        if exclude_pk:
-            qs = qs.exclude(pk=exclude_pk)
-        slug, n = base, 2
-        while qs.filter(slug=slug).exists():
-            slug = f'{base}-{n}'
-            n += 1
-        return slug
+        return make_unique_slug(cls, title, exclude_pk, cls.RESERVED_SLUGS, 'project')
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -683,6 +690,8 @@ class Company(models.Model):
     INDUSTRY_CHOICES = INDUSTRY_CHOICES  # noqa: F821
     owner        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='companies')
     name         = models.CharField(max_length=255)
+    # Readable address /company/<slug>/ (old /company/<id>/ links redirect). Kept if renamed.
+    slug         = models.SlugField(max_length=120, unique=True, null=True, blank=True)
     description  = models.TextField()
     industry     = models.CharField(max_length=100, choices=INDUSTRY_CHOICES)
     tagline      = models.CharField(max_length=300, blank=True, default='')
@@ -698,6 +707,19 @@ class Company(models.Model):
     followers    = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='followed_companies', blank=True)
     is_verified  = models.BooleanField(default=False)
     created_at   = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = make_unique_slug(Company, self.name, self.pk, fallback='company')
+            if kwargs.get('update_fields') is not None:
+                kwargs['update_fields'] = list(set(kwargs['update_fields']) | {'slug'})
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        if self.slug:
+            return reverse('company_profile_slug', kwargs={'slug': self.slug})
+        return reverse('company_profile', kwargs={'company_id': self.pk})
 
     def __str__(self):
         return self.name

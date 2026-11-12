@@ -1927,7 +1927,7 @@
       {% if featured_companies %}
       <div class="ap-co-grid">
         {% for company in featured_companies %}
-        <a href="{% url 'company_profile' company.id %}" class="ap-co-card">
+        <a href="{{ company.get_absolute_url }}" class="ap-co-card">
           {% if company.is_verified %}
           <div class="ap-co-verified" title="Verified">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2004,7 +2004,7 @@
       </div>
       <div class="ap-co-grid">
         {% for company in featured_companies %}
-        <a href="{% url 'company_profile' company.id %}" class="ap-co-card">
+        <a href="{{ company.get_absolute_url }}" class="ap-co-card">
           {% if company.is_verified %}
           <div class="ap-co-verified" title="Verified">✓</div>
           {% endif %}
