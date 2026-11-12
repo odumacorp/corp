@@ -1730,7 +1730,11 @@ def chat_page_by_id(request, conversation_id):
     return redirect('chat_page', slug=conversation.slug)
 
 def chat_page(request, slug):
-    conversation = get_object_or_404(Conversation, slug=slug)
+    conversation = Conversation.objects.filter(slug=slug).first()
+    if conversation is None:
+        # Renamed chat: send old addresses to the current one.
+        old = get_object_or_404(Conversation, legacy_slug=slug)
+        return redirect('chat_page', slug=old.slug, permanent=True)
 
     # Security: only participants can view
     if request.user not in conversation.participants.all():
@@ -3171,8 +3175,7 @@ def register(request):
 
                     conv = Conversation.objects.create(context_type='direct')
 
-                    conv.participants.add(admin.pk)
-                    conv.participants.add(user.pk)
+                    conv.participants.add(admin.pk, user.pk)   # together, so the chat is named after both
 
                     Msg.objects.create(
                         conversation_id=conv.pk,
@@ -6247,10 +6250,7 @@ def project_collaborate(request, project_id):
                 context_type='project', project=project,
                 defaults={}
             )
-            if not conv.participants.filter(pk=request.user.pk).exists():
-                conv.participants.add(request.user)
-            if not conv.participants.filter(pk=project.owner.pk).exists():
-                conv.participants.add(project.owner)
+            conv.participants.add(request.user, project.owner)   # no-op for existing members
             Msg.objects.create(conversation=conv, sender=request.user, content=msg_text)
             messages.success(request, "Collaboration request sent!")
     return redirect(request.META.get('HTTP_REFERER', '/app/'))
@@ -6279,9 +6279,7 @@ def project_send_proposal(request, project_id):
                 context_type='project', project=project,
                 defaults={}
             )
-            for u in (request.user, project.owner):
-                if not conv.participants.filter(pk=u.pk).exists():
-                    conv.participants.add(u)
+            conv.participants.add(request.user, project.owner)   # no-op for existing members
             Msg.objects.create(conversation=conv, sender=request.user, content=msg_text)
             messages.success(request, "Proposal sent!")
     return redirect(request.META.get('HTTP_REFERER', '/app/'))

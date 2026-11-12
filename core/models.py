@@ -788,6 +788,8 @@ class Conversation(models.Model):
     resolved_at   = models.DateTimeField(null=True, blank=True)
     auto_replied  = models.BooleanField(default=False)
     slug          = models.CharField(max_length=80, unique=True, blank=True)
+    # Previous address, kept when a chat is renamed so old /chat/<old>/ links still work.
+    legacy_slug   = models.CharField(max_length=80, null=True, blank=True, db_index=True)
 
     # Matches temp UUID slugs generated before participants are added
     _TEMP_RE = _re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}$|^[0-9a-f]{12}$')

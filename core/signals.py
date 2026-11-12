@@ -128,15 +128,21 @@ def set_post_slug(sender, instance, created, **kwargs):
 
 @receiver(m2m_changed, sender=Conversation.participants.through)
 def set_conversation_slug(sender, instance, action, **kwargs):
-    """Once participants are first added, replace the temp UUID slug with a readable one."""
+    """Give a chat a readable address built from its context and members.
+
+    Members are sometimes added one at a time (e.g. the welcome chat: team account,
+    then the new member), so the name is also rebuilt when someone joins a chat that
+    has no messages yet. Chats that already have messages keep their address."""
     if action != 'post_add':
         return
-    if not Conversation._TEMP_RE.match(instance.slug or ''):
+    is_temp = Conversation._TEMP_RE.match(instance.slug or '')
+    if not is_temp and instance.messages.exists():
         return
     try:
         new_slug = instance.build_slug()
-        Conversation.objects.filter(pk=instance.pk).update(slug=new_slug)
-        instance.slug = new_slug
+        if new_slug != instance.slug:
+            Conversation.objects.filter(pk=instance.pk).update(slug=new_slug)
+            instance.slug = new_slug
     except Exception:
         pass
 
