@@ -411,6 +411,16 @@ def homepage_projects(limit=6):
     return projects
 
 
+def platform_counts():
+    """Live member/project numbers shown on the homepage, login, sign-up and About pages."""
+    from .models import Project
+    return {
+        'innovator_count': CustomUser.objects.filter(user_type='innovator').count(),
+        'investor_count': CustomUser.objects.filter(user_type='investor').count(),
+        'project_count': Project.objects.filter(is_hidden=False).exclude(status='draft').count(),
+    }
+
+
 def homepage_industry_counts():
     """{industry_key: count} for non-hidden projects, the same numbers /projects/ shows on its tiles."""
     from django.db.models import Count
@@ -439,7 +449,7 @@ def index(request):
     })
 ##about.html
 def about(request):
-    context = {"page_title": "About" , "page_name": "About"}
+    context = {"page_title": "About" , "page_name": "About", **platform_counts()}
     return render(request, 'about.html', context)
 ##services.html
 def services(request):
@@ -3095,7 +3105,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 @ensure_csrf_cookie
 def register(request):
     if request.user.is_authenticated:
-        return render(request, 'register.html', {'already_logged_in': True})
+        return render(request, 'register.html', {'already_logged_in': True, **platform_counts()})
     context = {"page_title": "App Center"}
     # Where to go after signing up (e.g. ?next=/projects/create/ from "Create Project"). Same-site paths only.
     from django.utils.http import url_has_allowed_host_and_scheme
@@ -3176,7 +3186,7 @@ def register(request):
         role = request.GET.get('role')
         form = CustomUserCreationForm(initial={'user_type': role} if role in ('innovator', 'investor') else None)
 
-    return render(request, "register.html", {"form": form, "next": next_url})
+    return render(request, "register.html", {"form": form, "next": next_url, **platform_counts()})
 
 # User login
 def login_view(request):

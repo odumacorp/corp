@@ -370,13 +370,13 @@
   <!-- Trust strip -->
   <div class="auth-trust">
     <div class="auth-trust-item">
-      <span class="auth-trust-num">500+</span>
-      <span class="auth-trust-label">Innovators</span>
+      <span class="auth-trust-num">{{ innovator_count }}</span>
+      <span class="auth-trust-label">Innovator{{ innovator_count|pluralize }}</span>
     </div>
     <div class="auth-trust-sep"></div>
     <div class="auth-trust-item">
-      <span class="auth-trust-num">89</span>
-      <span class="auth-trust-label">Investors</span>
+      <span class="auth-trust-num">{{ investor_count }}</span>
+      <span class="auth-trust-label">Investor{{ investor_count|pluralize }}</span>
     </div>
     <div class="auth-trust-sep"></div>
     <div class="auth-trust-item">
@@ -385,8 +385,8 @@
     </div>
     <div class="auth-trust-sep"></div>
     <div class="auth-trust-item">
-      <span class="auth-trust-num">12+</span>
-      <span class="auth-trust-label">Markets</span>
+      <span class="auth-trust-num">{{ project_count }}</span>
+      <span class="auth-trust-label">Project{{ project_count|pluralize }}</span>
     </div>
   </div>
 

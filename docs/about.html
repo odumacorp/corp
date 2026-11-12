@@ -188,20 +188,20 @@
   <!-- Stats bar -->
   <div class="ab-stats">
     <div class="ab-stat">
-      <div class="ab-stat-num">54</div>
-      <div class="ab-stat-label">African countries</div>
+      <div class="ab-stat-num">Free</div>
+      <div class="ab-stat-label">To join</div>
     </div>
     <div class="ab-stat">
-      <div class="ab-stat-num">500+</div>
-      <div class="ab-stat-label">Innovators on platform</div>
+      <div class="ab-stat-num">{{ innovator_count }}</div>
+      <div class="ab-stat-label">Innovator{{ innovator_count|pluralize }} on the platform</div>
     </div>
     <div class="ab-stat">
-      <div class="ab-stat-num">200+</div>
-      <div class="ab-stat-label">Active investors</div>
+      <div class="ab-stat-num">{{ investor_count }}</div>
+      <div class="ab-stat-label">Investor{{ investor_count|pluralize }} on the platform</div>
     </div>
     <div class="ab-stat">
-      <div class="ab-stat-num">1,000+</div>
-      <div class="ab-stat-label">Projects posted</div>
+      <div class="ab-stat-num">{{ project_count }}</div>
+      <div class="ab-stat-label">Project{{ project_count|pluralize }} posted</div>
     </div>
   </div>
 
