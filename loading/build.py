@@ -197,7 +197,7 @@ script = """<script>
   var awake = false;
   var LAYERS = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>';
   function card(p) {
-    var url = APP + '/projects/' + p.id + '/';
+    var url = APP + (p.url || '/projects/' + p.id + '/');
     var media = p.image ? '<img src="' + esc(abs(p.image)) + '" alt="" class="lp-proj-img" width="640" height="360" loading="lazy" decoding="async">' : LAYERS;
     var av = p.owner_avatar ? '<img src="' + esc(abs(p.owner_avatar)) + '" class="lp-proj-owner-av" alt="" width="28" height="28" loading="lazy">'
       : '<span class="lp-proj-owner-av" aria-hidden="true">' + esc(p.owner_initials) + '</span>';

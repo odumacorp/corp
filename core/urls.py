@@ -159,6 +159,9 @@ urlpatterns = _html_redirects + [
     path('message_investor/<int:investor_id>/', views.message_investor, name='message_investor'),
 
     path('start_conversation/<int:user_id>/', views.start_conversation, name='start_conversation'),
+    # Fixed chat/... paths must come before chat/<str:slug>/ or the slug route swallows them.
+    path('chat/share-to-feed/',                   views.chat_share_to_feed,  name='chat_share_to_feed'),
+    path('chat/share/', views.share_to_chat, name='share_to_chat'),
     path('chat/<int:conversation_id>/', views.chat_page_by_id, name='chat_page_by_id'),  # legacy redirect
     path('chat/<str:slug>/', views.chat_page, name='chat_page'),
     path('chat/<str:slug>/resolve/', views.resolve_conversation, name='resolve_conversation'),
@@ -239,7 +242,6 @@ urlpatterns = _html_redirects + [
     path('messages/<int:message_id>/react/', views.toggle_message_reaction, name='toggle_message_reaction'),
     path('chat/message/<int:message_id>/delete/', views.chat_delete_message, name='chat_delete_message'),
     path('chat/message/<int:message_id>/edit/',   views.chat_edit_message,   name='chat_edit_message'),
-    path('chat/share-to-feed/',                   views.chat_share_to_feed,  name='chat_share_to_feed'),
 
     # Contact submissions (also registered above admin/ to take priority)
 
@@ -468,7 +470,6 @@ urlpatterns = _html_redirects + [
     path('patent-requests/<int:pr_id>/agree/', views.agree_to_patent_request, name='agree_to_patent_request'),
 
     # Share to chat
-    path('chat/share/', views.share_to_chat, name='share_to_chat'),
 
     # Subscription
     path('subscription/',          views.subscription_plans,    name='subscription_plans'),
@@ -481,5 +482,8 @@ urlpatterns = _html_redirects + [
 
     # Media viewer (collage click-through, gallery with thumbnail strip)
     path('view-media/', views.view_media, name='view_media'),
+
+    # Readable project address. Keep this last so fixed paths like projects/create/ win.
+    path('projects/<slug:slug>/', views.project_detail_slug, name='project_detail_slug'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

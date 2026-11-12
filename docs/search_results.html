@@ -46,7 +46,7 @@
       {% for project in project_results %}
       <div class="oc-card" style="padding:16px;display:flex;gap:14px;align-items:flex-start;">
         <div style="flex:1;">
-          <a href="{% url 'project_detail' project.pk %}" style="font-weight:600;color:#1a1a2e;text-decoration:none;font-size: 1.2rem;">{{ project.title }}</a>
+          <a href="{{ project.get_absolute_url }}" style="font-weight:600;color:#1a1a2e;text-decoration:none;font-size: 1.2rem;">{{ project.title }}</a>
           <div style="font-size: 1.2rem;color:#6b7280;margin:4px 0;">
             <span>{{ project.industry }}</span>
             {% if project.category %}&nbsp;·&nbsp;<span>{{ project.get_category_display|default:project.category }}</span>{% endif %}
@@ -54,7 +54,7 @@
           </div>
           <p style="font-size: 1.2rem;color:#374151;margin:6px 0 0;line-height:1.6;">{{ project.description|truncatewords:25 }}</p>
         </div>
-        <a href="{% url 'project_detail' project.pk %}" class="oc-btn oc-btn-outline oc-btn-sm" style="white-space:nowrap;">View</a>
+        <a href="{{ project.get_absolute_url }}" class="oc-btn oc-btn-outline oc-btn-sm" style="white-space:nowrap;">View</a>
       </div>
       {% endfor %}
     </div>

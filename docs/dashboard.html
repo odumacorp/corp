@@ -640,7 +640,7 @@
           <div class="db-interest-item">
             <div class="db-interest-badge"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
             <div style="flex:1;min-width:0;">
-              <a href="{% url 'project_detail' alert.project.pk %}" class="db-interest-name">{{ alert.project.title|truncatechars:32 }}</a>
+              <a href="{{ alert.project.get_absolute_url }}" class="db-interest-name">{{ alert.project.title|truncatechars:32 }}</a>
               <div class="db-interest-meta">{{ alert.project.industry }}</div>
             </div>
             <span class="db-interest-count">{{ alert.count }} interested</span>
@@ -721,7 +721,7 @@
         </div>
         <div class="db-proj-body">
           <div class="db-proj-industry">{{ project.get_industry_display }}</div>
-          <a href="{% url 'project_detail' project.id %}" class="db-proj-title">{{ project.title }}</a>
+          <a href="{{ project.get_absolute_url }}" class="db-proj-title">{{ project.title }}</a>
           <p class="db-proj-desc">{{ project.description|truncatechars:80 }}</p>
           <div class="db-proj-footer">
             <span class="db-proj-status db-proj-status--{{ project.status }}">

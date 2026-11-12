@@ -10,7 +10,7 @@
   <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
     <ol class="oc-breadcrumbs__list">
       <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-      <li class="oc-breadcrumbs__item"><a href="{% url 'project_detail' project.pk %}" class="oc-breadcrumbs__link">{{ project.title }}</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><a href="{{ project.get_absolute_url }}" class="oc-breadcrumbs__link">{{ project.title }}</a><span class="oc-breadcrumbs__sep">›</span></li>
       <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Edit</span></li>
     </ol>
   </nav>
@@ -33,7 +33,7 @@
       <h1 class="ep-hero-title">{{ project.title }}</h1>
       <p class="ep-hero-sub">{{ project.get_industry_display }}{% if project.category %} · {{ project.get_category_display|default:project.category }}{% endif %}</p>
     </div>
-    <a href="{% url 'project_detail' project.pk %}" class="ep-hero-view">View Live</a>
+    <a href="{{ project.get_absolute_url }}" class="ep-hero-view">View Live</a>
   </div>
 
   <!-- ── Section nav ── -->
@@ -320,7 +320,7 @@
       </fieldset>
 
       <div class="ep-actions">
-        <a href="{% url 'project_detail' project.pk %}" class="oc-btn oc-btn--outline">Cancel</a>
+        <a href="{{ project.get_absolute_url }}" class="oc-btn oc-btn--outline">Cancel</a>
         <button type="submit" class="oc-btn oc-btn--primary">Save Changes</button>
       </div>
     </form>
@@ -334,7 +334,7 @@
     <p class="ep-hint-text">Control who can see and download each file.</p>
     <div class="ep-att-list">
       {% for att in attachments %}
-      <form method="POST" action="{% url 'project_detail' project.pk %}" class="ep-att-item">
+      <form method="POST" action="{{ project.get_absolute_url }}" class="ep-att-item">
         {% comment %}Inline edit per attachment — uses a sub-form posted to a separate update endpoint if you add one{% endcomment %}
         <div class="ep-att-icon">
           {% if att.doc_type == 'financial' %}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>

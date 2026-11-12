@@ -49,7 +49,7 @@
           {% for req in pending %}
           <tr>
             <td>
-              <a href="{% url 'project_detail' req.project.pk %}" style="font-weight:600;color:#1B5EC7;text-decoration:none;">
+              <a href="{{ req.project.get_absolute_url }}" style="font-weight:600;color:#1B5EC7;text-decoration:none;">
                 {{ req.project.title }}
               </a>
             </td>
@@ -105,7 +105,7 @@
           {% for req in recent %}
           <tr>
             <td>
-              <a href="{% url 'project_detail' req.project.pk %}" style="font-weight:600;color:#1B5EC7;text-decoration:none;">
+              <a href="{{ req.project.get_absolute_url }}" style="font-weight:600;color:#1B5EC7;text-decoration:none;">
                 {{ req.project.title }}
               </a>
             </td>

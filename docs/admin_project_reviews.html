@@ -50,7 +50,7 @@
         <!-- Project info -->
         <div style="flex:1;min-width:260px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
-            <a href="{% url 'project_detail' project.pk %}" target="_blank"
+            <a href="{{ project.get_absolute_url }}" target="_blank"
                style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0a1628;text-decoration:none;">
               {% if project.review_status == 'featured' %}<span class="oc-featured-star">★</span>{% endif %}
               {{ project.title }}

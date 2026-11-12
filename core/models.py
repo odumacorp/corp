@@ -238,6 +238,9 @@ class Project(models.Model):
 
     # Default title and description for testing
     title = models.CharField(max_length=255, default="Sample Project Title")
+    # Readable address: /projects/<slug>/ (old /projects/<id>/ links redirect here).
+    # Set once from the title and kept if the title changes, so shared links keep working.
+    slug = models.SlugField(max_length=120, unique=True, null=True, blank=True)
     description = models.TextField(default="This is a sample project description for testing purposes.")
 
     industry = models.CharField(
@@ -319,6 +322,37 @@ class Project(models.Model):
             return ('Getting Started', 'starter')
 
     # Method to calculate the average rating
+    # Words already used by other /projects/<word>/ addresses.
+    RESERVED_SLUGS = {'create', 'generate-description'}
+
+    @classmethod
+    def unique_slug(cls, title, exclude_pk=None):
+        from django.utils.text import slugify
+        base = slugify(title or '')[:100].strip('-') or 'project'
+        if base in cls.RESERVED_SLUGS or base.isdigit():
+            base = f'{base}-project'
+        qs = cls.objects.all()
+        if exclude_pk:
+            qs = qs.exclude(pk=exclude_pk)
+        slug, n = base, 2
+        while qs.filter(slug=slug).exists():
+            slug = f'{base}-{n}'
+            n += 1
+        return slug
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self.unique_slug(self.title, exclude_pk=self.pk)
+            if kwargs.get('update_fields') is not None:
+                kwargs['update_fields'] = list(set(kwargs['update_fields']) | {'slug'})
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        if self.slug:
+            return reverse('project_detail_slug', kwargs={'slug': self.slug})
+        return reverse('project_detail', kwargs={'pk': self.pk})
+
     def average_rating(self):
         ratings = self.ratings.all()
         return round(sum(r.value for r in ratings) / ratings.count(), 1) if ratings.exists() else 0
@@ -727,6 +761,8 @@ class Conversation(models.Model):
             h = uuid.uuid4().hex
             return f"{h[:8]}-{h[8:12]}-{h[12:16]}"
         base = '-'.join(p for p in parts if p)[:70]
+        if base in ('share', 'share-to-feed') or base.isdigit():   # taken by other chat/... paths
+            base = f'{base}-chat'
         slug = base
         n = 2
         qs = Conversation.objects.exclude(pk=self.pk) if self.pk else Conversation.objects.all()

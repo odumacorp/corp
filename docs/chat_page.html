@@ -1314,7 +1314,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
     {% if p.funding_requirement %}
       <div class="ch-proj-banner-ask">{{ p.funding_requirement }}</div>
     {% endif %}
-    <a href="{% url 'project_detail' p.pk %}" class="ch-proj-banner-link" title="View project" target="_blank">
+    <a href="{{ p.get_absolute_url }}" class="ch-proj-banner-link" title="View project" target="_blank">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
     </a>
   </div>
@@ -1469,7 +1469,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
               {% endif %}
 
               {# Project card — pitch deck / dark VC style #}
-              <a href="{% url 'project_detail' p.pk %}" class="ch-proj-card" target="_blank">
+              <a href="{{ p.get_absolute_url }}" class="ch-proj-card" target="_blank">
 
                 {# Cover image or gradient placeholder #}
                 {% if p.get_main_image_url %}
@@ -1758,7 +1758,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
               {% endif %}
 
               {# Project card — pitch deck / dark VC style #}
-              <a href="{% url 'project_detail' p.pk %}" class="ch-proj-card" target="_blank">
+              <a href="{{ p.get_absolute_url }}" class="ch-proj-card" target="_blank">
 
                 {# Cover image or gradient placeholder #}
                 {% if p.get_main_image_url %}
@@ -2297,7 +2297,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
     {% with p=project_context %}
     <div class="ch-panel-section" style="background:#eef4ff;border-radius:10px;">
       <div class="ch-panel-section-title" style="color:#1B5EC7;">This Conversation Is About</div>
-      <a href="{% url 'project_detail' p.pk %}" class="ch-panel-proj" target="_blank" style="padding-top:0;border-bottom:none;">
+      <a href="{{ p.get_absolute_url }}" class="ch-panel-proj" target="_blank" style="padding-top:0;border-bottom:none;">
         {% if p.get_main_image_url %}
           <img src="{{ p.get_main_image_url }}" class="ch-panel-proj-img" alt="">
         {% else %}
@@ -2378,7 +2378,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
       <div class="ch-panel-section">
         <div class="ch-panel-section-title">Active Projects</div>
         {% for proj in participant_projects %}
-        <a href="{% url 'project_detail' proj.pk %}" class="ch-panel-proj" target="_blank">
+        <a href="{{ proj.get_absolute_url }}" class="ch-panel-proj" target="_blank">
           {% if proj.get_main_image_url %}
             <img src="{{ proj.get_main_image_url }}" class="ch-panel-proj-img" alt="">
           {% else %}

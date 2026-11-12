@@ -56,7 +56,7 @@
             <span class="prp-card__date">{{ proposal.created_at|date:"M j, Y" }}</span>
           </div>
         </div>
-        <div class="prp-card__project">Project: <a href="{% url 'project_detail' pk=proposal.project.pk %}">{{ proposal.project.title }}</a></div>
+        <div class="prp-card__project">Project: <a href="{{ proposal.project.get_absolute_url }}">{{ proposal.project.title }}</a></div>
         {% if proposal.amount %}<div class="prp-card__amount">Proposed: <strong>{{ proposal.amount }}</strong></div>{% endif %}
         {% if proposal.message %}<blockquote class="prp-card__msg">{{ proposal.message }}</blockquote>{% endif %}
         {% if proposal.status == 'pending' %}
@@ -123,7 +123,7 @@
             <span class="prp-card__date">{{ collab.created_at|date:"M j, Y" }}</span>
           </div>
         </div>
-        <div class="prp-card__project">Project: <a href="{% url 'project_detail' pk=collab.project.pk %}">{{ collab.project.title }}</a></div>
+        <div class="prp-card__project">Project: <a href="{{ collab.project.get_absolute_url }}">{{ collab.project.title }}</a></div>
         {% if collab.message %}<blockquote class="prp-card__msg">{{ collab.message }}</blockquote>{% endif %}
         {% if collab.status == 'pending' %}
         <div class="prp-card__actions">
@@ -173,7 +173,7 @@
             <span class="prp-card__date">{{ proposal.created_at|date:"M j, Y" }}</span>
           </div>
         </div>
-        <div class="prp-card__project">Project: <a href="{% url 'project_detail' pk=proposal.project.pk %}">{{ proposal.project.title }}</a></div>
+        <div class="prp-card__project">Project: <a href="{{ proposal.project.get_absolute_url }}">{{ proposal.project.title }}</a></div>
         {% if proposal.amount %}<div class="prp-card__amount">Amount: <strong>{{ proposal.amount }}</strong></div>{% endif %}
         {% if proposal.message %}<blockquote class="prp-card__msg">{{ proposal.message }}</blockquote>{% endif %}
       </div>
@@ -202,7 +202,7 @@
             <span class="prp-card__date">{{ collab.created_at|date:"M j, Y" }}</span>
           </div>
         </div>
-        <div class="prp-card__project">Project: <a href="{% url 'project_detail' pk=collab.project.pk %}">{{ collab.project.title }}</a></div>
+        <div class="prp-card__project">Project: <a href="{{ collab.project.get_absolute_url }}">{{ collab.project.title }}</a></div>
         {% if collab.message %}<blockquote class="prp-card__msg">{{ collab.message }}</blockquote>{% endif %}
       </div>
       {% endfor %}

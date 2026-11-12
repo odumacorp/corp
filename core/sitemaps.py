@@ -44,7 +44,7 @@ class ProjectSitemap(Sitemap):
 
     def location(self, obj):
         try:
-            return reverse('project_detail', args=[obj.pk])
+            return obj.get_absolute_url()
         except Exception:
             return '/'
 

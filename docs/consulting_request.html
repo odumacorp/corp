@@ -16,7 +16,7 @@
 </button>
 <div style="max-width:600px;margin:48px auto;padding:0 24px 64px;">
 
-  <a href="{% if project %}{% url 'project_detail' project.pk %}{% else %}{% url 'services' %}{% endif %}"
+  <a href="{% if project %}{{ project.get_absolute_url }}{% else %}{% url 'services' %}{% endif %}"
      style="font-size: 1.2rem;color:#1B5EC7;text-decoration:none;display:inline-block;margin-bottom:20px;">← Back</a>
 
   <div style="background:linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);border-radius:16px;padding:32px 36px;color:#fff;margin-bottom:28px;">

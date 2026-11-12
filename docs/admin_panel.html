@@ -1041,7 +1041,7 @@
             {% for p in projects %}
             <tr data-search="{{ p.title|lower }} {{ p.owner.username|lower }}" data-industry="{{ p.industry }}" data-status="{{ p.status }}" data-date="{{ p.created_at|date:'U' }}">
               <td>
-                <a href="{% url 'project_detail' p.id %}" style="font-family:var(--ff-serif);color:var(--text);text-decoration:none;">
+                <a href="{{ p.get_absolute_url }}" style="font-family:var(--ff-serif);color:var(--text);text-decoration:none;">
                   {{ p.title|truncatechars:45 }}
                 </a>
               </td>
@@ -1065,7 +1065,7 @@
               <td>{{ p.created_at|date:"M d, Y" }}</td>
               <td>
                 <div class="adm-actions">
-                  <a href="{% url 'project_detail' p.id %}" class="adm-act-btn adm-btn-view">View</a>
+                  <a href="{{ p.get_absolute_url }}" class="adm-act-btn adm-btn-view">View</a>
                   <span id="proj-desc-{{ p.id }}" style="display:none;">{{ p.description }}</span>
                   <button type="button" class="adm-act-btn adm-btn-primary"
                     onclick="openEditProject({{ p.id }},'{{ p.title|escapejs }}','{{ p.industry }}','{{ p.status }}')">
@@ -1935,7 +1935,7 @@
             {% for c in project_comments %}
             <tr data-date="{{ c.created_at|date:'U' }}">
               <td><a href="{% url 'profile_view' username=c.user.username %}" style="color:var(--blue);text-decoration:none;">{{ c.user.get_full_name|default:c.user.username }}</a></td>
-              <td><a href="{% url 'project_detail' c.project.id %}" style="color:var(--blue);text-decoration:none;">{{ c.project.title|truncatechars:30 }}</a></td>
+              <td><a href="{{ c.project.get_absolute_url }}" style="color:var(--blue);text-decoration:none;">{{ c.project.title|truncatechars:30 }}</a></td>
               <td style="max-width:220px;">{{ c.content|truncatechars:70 }}</td>
               <td>
                 {% if c.is_hidden %}
@@ -2064,7 +2064,7 @@
             {% for col in collaborations %}
             <tr data-date="{{ col.created_at|date:'U' }}">
               <td><a href="{% url 'profile_view' username=col.from_user.username %}" style="color:var(--blue);text-decoration:none;">{{ col.from_user.get_full_name|default:col.from_user.username }}</a></td>
-              <td><a href="{% url 'project_detail' col.project.id %}" style="color:var(--blue);text-decoration:none;">{{ col.project.title|truncatechars:35 }}</a></td>
+              <td><a href="{{ col.project.get_absolute_url }}" style="color:var(--blue);text-decoration:none;">{{ col.project.title|truncatechars:35 }}</a></td>
               <td style="max-width:200px;">{{ col.message|truncatechars:60|default:"—" }}</td>
               <td>
                 {% if col.status == 'accepted' %}<span class="adm-active-badge">Accepted</span>
@@ -2098,7 +2098,7 @@
             {% for r in ratings %}
             <tr>
               <td><a href="{% url 'profile_view' username=r.user.username %}" style="color:var(--blue);text-decoration:none;">{{ r.user.get_full_name|default:r.user.username }}</a></td>
-              <td><a href="{% url 'project_detail' r.project.id %}" style="color:var(--blue);text-decoration:none;">{{ r.project.title|truncatechars:40 }}</a></td>
+              <td><a href="{{ r.project.get_absolute_url }}" style="color:var(--blue);text-decoration:none;">{{ r.project.title|truncatechars:40 }}</a></td>
               <td>
                 <span style="color:#f59e0b;font-size: 1.2rem;">{% for i in "12345" %}{% if forloop.counter <= r.value %}<i class="fi fi-rr-star"></i>{% else %}<i class="fi fi-rr-star"></i>{% endif %}{% endfor %}</span>
                 <span style="font-size: 1.2rem;color:var(--muted);margin-left:4px;">{{ r.value }}/5</span>
@@ -2266,7 +2266,7 @@
                 {{ dl.attachment.file.name|cut:"attachments/" }}
               </td>
               <td>
-                <a href="{% url 'project_detail' dl.attachment.project.id %}" style="color:#004AAD;">
+                <a href="{{ dl.attachment.project.get_absolute_url }}" style="color:#004AAD;">
                   {{ dl.attachment.project.title|truncatechars:40 }}
                 </a>
               </td>
@@ -3389,7 +3389,7 @@
                 {% if msg.message_type == 'post_share' and msg.shared_post %}
                   <a href="{% url 'post_detail' slug=msg.shared_post.slug %}" target="_blank" style="color:var(--blue);">{{ msg.shared_post.content|truncatechars:50 }}</a>
                 {% elif msg.message_type == 'project_share' and msg.shared_project %}
-                  <a href="{% url 'project_detail' msg.shared_project.id %}" target="_blank" style="color:var(--blue);">{{ msg.shared_project.title|truncatechars:50 }}</a>
+                  <a href="{{ msg.shared_project.get_absolute_url }}" target="_blank" style="color:var(--blue);">{{ msg.shared_project.title|truncatechars:50 }}</a>
                 {% else %}
                   <span style="color:var(--muted);">—</span>
                 {% endif %}

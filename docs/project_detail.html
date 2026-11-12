@@ -299,12 +299,12 @@
           </button>
 
           <button class="oc-share-btn"
-                  onclick="ocShare('{{ project.title|escapejs }}', '{{ request.scheme }}://{{ request.get_host }}{% url 'project_detail' project.pk %}', 'project', {{ project.pk }}, this)">
+                  onclick="ocShare('{{ project.title|escapejs }}', '{{ request.scheme }}://{{ request.get_host }}{{ project.get_absolute_url }}', 'project', {{ project.pk }}, this)">
             ↑ Share
           </button>
 
           <button class="oc-btn oc-btn--ghost"
-                  onclick="ocSaveOffline('{% url 'project_detail' project.pk %}')">
+                  onclick="ocSaveOffline('{{ project.get_absolute_url }}')">
             ⬇ Save Offline
           </button>
         {% endif %}

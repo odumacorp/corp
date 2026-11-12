@@ -543,7 +543,7 @@ a.lp-proj-title:hover{color:var(--lp-blue);text-decoration:underline;}
             {% if project.industry %}<span class="lp-pill">{{ project.get_industry_display }}</span>{% endif %}
             {% if project.pipeline_stage %}<span class="lp-pill lp-pill--stage">{{ project.get_pipeline_stage_display }}</span>{% endif %}
           </div>
-          <h3><a href="{% url 'project_detail' project.pk %}" class="lp-proj-title">{{ project.title }}</a></h3>
+          <h3><a href="{{ project.get_absolute_url }}" class="lp-proj-title">{{ project.title }}</a></h3>
           <p class="lp-proj-desc">{{ project.card_description|truncatewords:30 }}</p>
           {% if project.funding_requirement %}<p class="lp-proj-ask">Seeking: {{ project.funding_requirement }}</p>{% endif %}
         </div>
@@ -552,7 +552,7 @@ a.lp-proj-title:hover{color:var(--lp-blue);text-decoration:underline;}
             {% if project.owner.userprofile.profile_pics %}<img src="{{ project.owner.userprofile.profile_pics.url }}" class="lp-proj-owner-av" alt="" width="28" height="28" loading="lazy">{% else %}<span class="lp-proj-owner-av" aria-hidden="true">{{ project.owner.first_name|first|upper }}{{ project.owner.last_name|first|upper }}</span>{% endif %}
             <span class="lp-proj-owner-name">{{ project.owner.get_full_name|default:project.owner.username }}</span>
           {% if project.owner_profile_public %}</a>{% else %}</span>{% endif %}
-          <a href="{% url 'project_detail' project.pk %}" class="lp-proj-arrow">View pitch &rarr;</a>
+          <a href="{{ project.get_absolute_url }}" class="lp-proj-arrow">View pitch &rarr;</a>
         </div>
       </article>
       {% endfor %}
@@ -561,12 +561,12 @@ a.lp-proj-title:hover{color:var(--lp-blue);text-decoration:underline;}
         <div class="lp-proj-media"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
         <div class="lp-proj-body">
           <div class="lp-proj-tags"><span class="lp-pill">Telecommunications</span></div>
-          <h3><a href="{% url 'project_list' %}2/" class="lp-proj-title">UniversalContacts</a></h3>
+          <h3><a href="{% url 'project_list' %}universalcontacts/" class="lp-proj-title">UniversalContacts</a></h3>
           <p class="lp-proj-desc">Lost your phone? Dial a short USSD code on any phone to get your saved contacts back. No smartphone or internet needed.</p>
         </div>
         <div class="lp-proj-footer">
           <span class="lp-proj-owner"><span class="lp-proj-owner-av" aria-hidden="true">AO</span><span class="lp-proj-owner-name">Austin Oduma</span></span>
-          <a href="{% url 'project_list' %}2/" class="lp-proj-arrow">View pitch &rarr;</a>
+          <a href="{% url 'project_list' %}universalcontacts/" class="lp-proj-arrow">View pitch &rarr;</a>
         </div>
       </article>
     <!-- /empty -->{% endif %}

@@ -670,7 +670,7 @@
 
       {% for pin in pinned_projects %}
       {% with proj=pin.project %}
-      <a href="{% url 'project_detail' proj.id %}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;text-decoration:none;color:inherit;background:#f5fff8;">
+      <a href="{{ proj.get_absolute_url }}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;text-decoration:none;color:inherit;background:#f5fff8;">
         <span style="width:30px;height:30px;border-radius:50%;background:#f0fdf4;color:#16a34a;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         </span>
@@ -716,7 +716,7 @@
                 <span class="id-rec-score-label">match</span>
               </div>
               <div style="flex:1;min-width:0;">
-                <a href="{% url 'project_detail' p.pk %}" class="id-rec-title">{{ p.title }}</a>
+                <a href="{{ p.get_absolute_url }}" class="id-rec-title">{{ p.title }}</a>
                 <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;">
                   <span style="font-size: 1.2rem;font-weight:700;background:#e0e8ff;color:#3730a3;padding:1px 7px;border-radius:20px;">{{ p.industry }}</span>
                   {% if p.funding_requirement %}
@@ -750,7 +750,7 @@
             </div>
             {% endif %}
             <div class="id-rec-actions">
-              <a href="{% url 'project_detail' p.pk %}" class="id-btn id-btn-primary" style="font-size: 1.2rem;padding:5px 12px;flex:1;justify-content:center;">View Pitch →</a>
+              <a href="{{ p.get_absolute_url }}" class="id-btn id-btn-primary" style="font-size: 1.2rem;padding:5px 12px;flex:1;justify-content:center;">View Pitch →</a>
               <button class="id-btn id-btn-interest {% if p.id in interested_project_ids %}active{% endif %}"
                       onclick="toggleInterest(this, {{ p.pk }})"
                       style="font-size: 1.2rem;padding:5px 10px;">
@@ -891,7 +891,7 @@
               {% endwith %}
             </div>
 
-            <a href="{% url 'project_detail' proj.pk %}" class="id-df-title">{{ proj.title }}</a>
+            <a href="{{ proj.get_absolute_url }}" class="id-df-title">{{ proj.title }}</a>
 
             <!-- Problem / Market / Ask cells -->
             <div class="id-df-data">
@@ -926,7 +926,7 @@
 
             <!-- Action buttons -->
             <div class="id-df-actions">
-              <a href="{% url 'project_detail' proj.pk %}" class="id-btn id-btn-primary" style="font-size: 1.2rem;padding:6px 14px;">View Pitch</a>
+              <a href="{{ proj.get_absolute_url }}" class="id-btn id-btn-primary" style="font-size: 1.2rem;padding:6px 14px;">View Pitch</a>
 
               <button class="id-btn id-btn-interest {% if proj.id in interested_project_ids %}active{% endif %}"
                       onclick="toggleInterest(this, {{ proj.pk }})"
@@ -1037,14 +1037,14 @@
             </div>
             <!-- Info -->
             <div style="flex:1;min-width:0;">
-              <a href="{% url 'project_detail' p.pk %}" style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;text-decoration:none;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.title }}</a>
+              <a href="{{ p.get_absolute_url }}" style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;text-decoration:none;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.title }}</a>
               <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;">
                 <span style="background:#e0e8f4;color:#1B5EC7;font-size: 1.2rem;font-weight:700;padding:2px 7px;border-radius:20px;">{{ p.industry }}</span>
                 <span style="background:#f3f4f6;color:#6b7280;font-size: 1.2rem;font-weight:700;padding:2px 7px;border-radius:20px;">{{ match.label }}</span>
               </div>
             </div>
             <!-- CTA -->
-            <a href="{% url 'project_detail' p.pk %}" style="background:#1B5EC7;color:#fff;padding:6px 14px;border-radius:7px;font-size: 1.2rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;">View →</a>
+            <a href="{{ p.get_absolute_url }}" style="background:#1B5EC7;color:#fff;padding:6px 14px;border-radius:7px;font-size: 1.2rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;">View →</a>
           </div>
           {% endwith %}
           {% endfor %}
@@ -1126,7 +1126,7 @@
           {% for p in sent_proposals|slice:":4" %}
           <div class="id-row-item">
             <div>
-              <a href="{% url 'project_detail' p.project.pk %}" class="id-row-label">{{ p.project.title|truncatechars:60 }}</a>
+              <a href="{{ p.project.get_absolute_url }}" class="id-row-label">{{ p.project.title|truncatechars:60 }}</a>
               <div class="id-row-sub">to <a href="{% url 'profile_view' username=p.project.owner.username %}">{{ p.project.owner.get_full_name|default:p.project.owner.username }}</a> · {{ p.created_at|timesince }} ago</div>
             </div>
             <div class="id-row-right">
@@ -1151,10 +1151,10 @@
             {% if item.project.get_main_image_url %}<img src="{{ item.project.get_main_image_url }}" alt="" class="id-df-img">
             {% else %}<div class="id-df-img-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#1B5EC7;opacity:.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>{% endif %}
             <div class="id-df-body">
-              <a href="{% url 'project_detail' item.project.pk %}" class="id-df-title">{{ item.project.title }}</a>
+              <a href="{{ item.project.get_absolute_url }}" class="id-df-title">{{ item.project.title }}</a>
               <p class="id-df-problem">{{ item.project.description|truncatewords:15 }}</p>
               <div class="id-df-actions">
-                <a href="{% url 'project_detail' item.project.pk %}" class="id-btn id-btn-primary" style="font-size: 1.2rem;padding:5px 12px;">View Pitch</a>
+                <a href="{{ item.project.get_absolute_url }}" class="id-btn id-btn-primary" style="font-size: 1.2rem;padding:5px 12px;">View Pitch</a>
                 <button class="id-btn id-btn-ghost" onclick="openActionModal('proposal','{% url 'project_send_proposal' item.project.pk %}','{{ item.project.title|escapejs }}')" style="font-size: 1.2rem;padding:5px 12px;">Propose</button>
               </div>
             </div>
@@ -1178,7 +1178,7 @@
         {% for p in sent_proposals %}
         <div class="id-row-item">
           <div>
-            <a href="{% url 'project_detail' p.project.pk %}" class="id-row-label">{{ p.project.title }}</a>
+            <a href="{{ p.project.get_absolute_url }}" class="id-row-label">{{ p.project.title }}</a>
             <div class="id-row-sub">
               {{ p.project.industry }} · {{ p.project.get_pipeline_stage_display }} ·
               to <a href="{% url 'profile_view' username=p.project.owner.username %}">{{ p.project.owner.get_full_name|default:p.project.owner.username }}</a> ·
@@ -1210,7 +1210,7 @@
         {% for pr in my_pitch_requests %}
         <div class="id-row-item">
           <div>
-            <a href="{% url 'project_detail' pr.project.pk %}" class="id-row-label">{{ pr.project.title }}</a>
+            <a href="{{ pr.project.get_absolute_url }}" class="id-row-label">{{ pr.project.title }}</a>
             <div class="id-row-sub">
               {{ pr.project.industry }} · {{ pr.project.get_pipeline_stage_display }} ·
               requested {{ pr.requested_at|timesince }} ago
@@ -1246,10 +1246,10 @@
               <span class="id-df-tag id-df-tag--industry">{{ item.project.industry }}</span>
               <span class="id-df-tag id-df-tag--stage">{{ item.project.get_pipeline_stage_display }}</span>
             </div>
-            <a href="{% url 'project_detail' item.project.pk %}" class="id-df-title">{{ item.project.title }}</a>
+            <a href="{{ item.project.get_absolute_url }}" class="id-df-title">{{ item.project.title }}</a>
             {% if item.project.funding_requirement %}<div class="id-df-funding-ask">{{ item.project.funding_requirement }}</div>{% endif %}
             <div class="id-df-actions">
-              <a href="{% url 'project_detail' item.project.pk %}" class="id-btn id-btn-primary" style="font-size: 1.2rem;padding:5px 12px;">View Pitch</a>
+              <a href="{{ item.project.get_absolute_url }}" class="id-btn id-btn-primary" style="font-size: 1.2rem;padding:5px 12px;">View Pitch</a>
               <button class="id-btn id-btn-ghost" onclick="openActionModal('proposal','{% url 'project_send_proposal' item.project.pk %}','{{ item.project.title|escapejs }}')" style="font-size: 1.2rem;padding:5px 12px;">Propose</button>
             </div>
           </div>

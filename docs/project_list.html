@@ -506,7 +506,7 @@
   <div class="pl-grid">
     {% for proj in page_obj %}
 
-    <a href="{% url 'project_detail' proj.pk %}" class="pl-card">
+    <a href="{{ proj.get_absolute_url }}" class="pl-card">
 
       {% if proj.review_status == 'featured' %}
       <span class="pl-card-ribbon">★ Featured</span>

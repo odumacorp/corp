@@ -116,8 +116,12 @@ def create_user_subscription(sender, instance, created, **kwargs):
 def set_post_slug(sender, instance, created, **kwargs):
     if not instance.slug:
         from django.utils.text import slugify
-        base = slugify(instance.title)[:80] or 'post'
-        slug = f"{base}-{instance.pk}"
+        base = slugify(instance.title)[:80].strip('-') or 'post'
+        # Readable address: the title alone (/posts/we-launched/). Add the id only when that
+        # name is taken, or when it's all digits (posts/<int>/ is the old id address).
+        slug = base
+        if base.isdigit() or Post.objects.filter(slug=base).exclude(pk=instance.pk).exists():
+            slug = f"{base}-{instance.pk}"
         Post.objects.filter(pk=instance.pk).update(slug=slug)
         instance.slug = slug
 

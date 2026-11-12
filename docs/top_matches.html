@@ -76,7 +76,7 @@
       <span class="tm-score-pct">/ 100</span>
     </div>
     <div class="tm-info">
-      <a href="{% url 'project_detail' p.pk %}" class="tm-title">
+      <a href="{{ p.get_absolute_url }}" class="tm-title">
         {% if p.review_status == 'featured' %}★ {% endif %}{{ p.title }}
       </a>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
@@ -128,7 +128,7 @@
       {% endif %}
     </div>
     <div class="tm-actions">
-      <a href="{% url 'project_detail' p.pk %}" class="tm-btn tm-btn--primary">View Pitch</a>
+      <a href="{{ p.get_absolute_url }}" class="tm-btn tm-btn--primary">View Pitch</a>
       <button class="tm-btn tm-btn--outline"
               onclick="openPitchModal({{ p.pk }}, '{{ p.title|escapejs }}')"
               {% if p.pk in pitched_ids %}disabled style="opacity:.5;"{% endif %}>

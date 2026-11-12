@@ -2502,6 +2502,22 @@ from .models import Project
 
 @login_required
 def project_detail(request, pk):
+    """Old numeric address /projects/<id>/: permanently redirect to /projects/<slug>/.
+    Kept behind login so it can't be used to discover the names of hidden projects."""
+    project = get_object_or_404(Project, pk=pk)
+    if not project.slug:
+        project.save(update_fields=['slug'])
+    qs = request.META.get('QUERY_STRING', '')
+    return redirect(project.get_absolute_url() + ('?' + qs if qs else ''), permanent=True)
+
+
+@login_required
+def project_detail_slug(request, slug):
+    project = get_object_or_404(Project, slug=slug)
+    return _project_detail(request, project.pk)
+
+
+def _project_detail(request, pk):
     project = get_object_or_404(Project, pk=pk)
     images = ProjectImage.objects.filter(project=project)
     main_image = images.filter(is_main=True).first() or images.first()
@@ -8112,6 +8128,7 @@ def public_stats(request):
         prof = getattr(p.owner, 'userprofile', None)
         projects.append({
             'id': p.pk,
+            'url': p.get_absolute_url(),
             'title': p.title,
             'industry': p.industry or '',
             'industry_label': p.get_industry_display() if p.industry else '',

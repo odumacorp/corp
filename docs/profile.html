@@ -566,7 +566,7 @@
           </div>
           <div class="pf-proj-grid">
             {% for proj in projects|slice:":3" %}
-            <a href="{% url 'project_detail' proj.pk %}" class="pf-proj-card">
+            <a href="{{ proj.get_absolute_url }}" class="pf-proj-card">
               {% if proj.images.filter %}
                 {% with proj.images.first as img %}
                   {% if img %}<img src="{{ img.image.url }}" alt="{{ proj.title }}" class="pf-proj-thumb">
@@ -762,7 +762,7 @@
       {% if projects %}
       <div class="pf-proj-grid">
         {% for proj in projects %}
-        <a href="{% url 'project_detail' proj.pk %}" class="pf-proj-card">
+        <a href="{{ proj.get_absolute_url }}" class="pf-proj-card">
           {% with proj.images.first as img %}
             {% if img %}<img src="{{ img.image.url }}" alt="{{ proj.title }}" class="pf-proj-thumb">
             {% else %}<div class="pf-proj-thumb-ph"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>{% endif %}

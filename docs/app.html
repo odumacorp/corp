@@ -1752,7 +1752,7 @@
                 onclick="event.stopPropagation();var m=this.nextElementSibling;m.style.display=m.style.display==='block'?'none':'block'">⋯</button>
         <div class="ap-options-menu">
           <a href="{% url 'edit_project' project.pk %}">Edit Project</a>
-          <a href="{% url 'project_detail' project.pk %}">View Details</a>
+          <a href="{{ project.get_absolute_url }}">View Details</a>
           <form method="POST" action="{% url 'delete_project' project.pk %}" onsubmit="return confirm('Delete this project?')">
             {% csrf_token %}
             <button type="submit" class="ap-options-danger">Delete</button>
@@ -1795,7 +1795,7 @@
 
       <!-- Body -->
       <div class="ap-card-body">
-        <a href="{% url 'project_detail' project.pk %}" class="ap-card-title-link">{{ project.title }}</a>
+        <a href="{{ project.get_absolute_url }}" class="ap-card-title-link">{{ project.title }}</a>
         {% if project.category %}
         <span class="ap-card-category">{{ project.get_category_display|default:project.category }}</span>
         {% endif %}
@@ -1876,7 +1876,7 @@
         <button type="button" class="ap-rxn-btn" onclick="ocShare('{{ project.title|escapejs }}', window.location.origin+'/projects/{{ project.pk }}/', 'project', {{ project.pk }}, this)">↑ <span class="ap-rxn-lbl">Share</span></button>
         <button type="button" class="ap-rxn-btn ap-rxn-btn--send" onclick="stcOpen('project', {{ project.pk }}, '{{ project.title|escapejs }}')">↗ <span class="ap-rxn-lbl">Send</span></button>
         {% endif %}
-        <a href="{% url 'project_detail' project.pk %}" class="ap-rxn-btn ap-rxn-btn--view">View Details →</a>
+        <a href="{{ project.get_absolute_url }}" class="ap-rxn-btn ap-rxn-btn--view">View Details →</a>
       </div>
 
       <!-- Project comments preview -->
@@ -2152,13 +2152,13 @@
       {% for item in investor_saved %}
       {% if item.project %}
       <div class="ap-saved-item">
-        <a href="{% url 'project_detail' item.project.pk %}" class="ap-saved-title">{{ item.project.title }}</a>
+        <a href="{{ item.project.get_absolute_url }}" class="ap-saved-title">{{ item.project.title }}</a>
         <div class="ap-saved-meta">
           by <a href="{% url 'profile_view' username=item.project.owner.username %}" style="color:#1B5EC7;text-decoration:none;">{{ item.project.owner.get_full_name }}</a>
           &nbsp;·&nbsp;{{ item.project.industry }}
         </div>
         <div style="display:flex;gap:7px;margin-top:8px;">
-          <a href="{% url 'project_detail' item.project.pk %}" style="background:#e0e8f4;color:#1B5EC7;padding:4px 12px;border-radius:7px;font-size: 1.2rem;font-weight:700;text-decoration:none;">View</a>
+          <a href="{{ item.project.get_absolute_url }}" style="background:#e0e8f4;color:#1B5EC7;padding:4px 12px;border-radius:7px;font-size: 1.2rem;font-weight:700;text-decoration:none;">View</a>
           <button onclick="qmOpen('proposal','{{ item.project.title|escapejs }}',{{ item.project.pk }},'{% url "project_send_proposal" item.project.pk %}')"
                   style="background:#f3f4f6;color:#374151;border:none;padding:4px 12px;border-radius:7px;font-size: 1.2rem;font-weight:600;cursor:pointer;">Propose</button>
         </div>

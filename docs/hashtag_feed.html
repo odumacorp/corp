@@ -213,7 +213,7 @@
     </p>
     <div class="hf-proj-grid">
       {% for proj in projects %}
-      <a href="{% url 'project_detail' proj.pk %}" class="hf-proj-card">
+      <a href="{{ proj.get_absolute_url }}" class="hf-proj-card">
         {% with img=proj.images.first %}
         {% if img %}
           <img src="{{ img.image.url }}" class="hf-proj-thumb" alt="{{ proj.title }}" loading="lazy">
