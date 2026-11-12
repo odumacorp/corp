@@ -359,18 +359,16 @@ class Project(models.Model):
 
     # Method to get the main image URL
     def get_main_image_url(self):
-        # Trying to get the image marked as 'main'
-        main_image = self.images.filter(is_main=True).first()
-        if main_image and main_image.image:
-            return main_image.image.url
-
-        # Fallback: return the first image if no main image is found
-        first_image = self.images.first()
-        if first_image and first_image.image:
-            return first_image.image.url
-
-        # If no image is found, return None
-        return None
+        """The image marked 'main', else the first image, else None.
+        Uses prefetch_related('images') when the caller did it (no extra queries) and
+        caches the answer on the instance, since templates often call this twice."""
+        if not hasattr(self, '_main_image_url'):
+            imgs = sorted(self.images.all(), key=lambda i: i.pk)   # one query at most
+            pick = next((i for i in imgs if i.is_main), None)
+            if not (pick and pick.image):
+                pick = imgs[0] if imgs else None
+            self._main_image_url = pick.image.url if pick and pick.image else None
+        return self._main_image_url
 
     class Meta:
         indexes = [

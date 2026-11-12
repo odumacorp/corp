@@ -413,13 +413,19 @@ def homepage_projects(limit=6):
 
 
 def platform_counts():
-    """Live member/project numbers shown on the homepage, login, sign-up and About pages."""
+    """Live member/project numbers shown on the homepage, login, sign-up and About pages.
+    Two queries in total (people, projects) instead of one per number."""
+    from django.db.models import Count, Q
     from .models import Project
-    return {
-        'innovator_count': CustomUser.objects.filter(user_type='innovator').count(),
-        'investor_count': CustomUser.objects.filter(user_type='investor').count(),
-        'project_count': Project.objects.filter(is_hidden=False).exclude(status='draft').count(),
-    }
+    people = CustomUser.objects.aggregate(
+        innovator_count=Count('id', filter=Q(user_type='innovator')),
+        investor_count=Count('id', filter=Q(user_type='investor')),
+    )
+    projects = Project.objects.filter(is_hidden=False).aggregate(
+        project_count=Count('id', filter=~Q(status='draft')),
+        all_projects_count=Count('id'),
+    )
+    return {**people, **projects}
 
 
 def homepage_industry_counts():
@@ -433,9 +439,10 @@ def homepage_industry_counts():
 def index(request):
     from .models import Project, CustomUser, UserProfile, SubscriptionPlan
     featured = homepage_projects()
-    innovator_count = CustomUser.objects.filter(user_type='innovator').count()
-    investor_count  = CustomUser.objects.filter(user_type='investor').count()
-    project_count   = Project.objects.filter(is_hidden=False).exclude(status='draft').count()
+    counts          = platform_counts()
+    innovator_count = counts['innovator_count']
+    investor_count  = counts['investor_count']
+    project_count   = counts['project_count']
     sub_plans       = list(SubscriptionPlan.objects.filter(is_active=True).order_by('order'))
     industry_counts = homepage_industry_counts()
     return render(request, 'index.html', {
@@ -445,7 +452,7 @@ def index(request):
         "investor_count": investor_count,
         "project_count": project_count,
         "industry_counts": industry_counts,
-        "all_projects_count": Project.objects.filter(is_hidden=False).count(),
+        "all_projects_count": counts['all_projects_count'],
         "sub_plans": sub_plans,
     })
 ##about.html
@@ -3238,12 +3245,7 @@ def login_view(request):
         else:
             messages.error(request, "Invalid credentials, try again.")
 
-    return render(request, 'login.html', {
-        'form': form,
-        'innovator_count': CustomUser.objects.filter(user_type='innovator').count(),
-        'investor_count': CustomUser.objects.filter(user_type='investor').count(),
-        'project_count': Project.objects.filter(is_hidden=False).exclude(status='draft').count(),
-    })
+    return render(request, 'login.html', {'form': form, **platform_counts()})
 
 # User Logout
 @login_required
@@ -8142,12 +8144,13 @@ def public_stats(request):
             'owner_initials': ((p.owner.first_name[:1] + p.owner.last_name[:1]) or p.owner.username[:1]).upper(),
             'owner_avatar': prof.profile_pics.url if prof and prof.profile_pics else None,
         })
+    counts = platform_counts()
     resp = JsonResponse({
-        'innovators': CustomUser.objects.filter(user_type='innovator').count(),
-        'investors': CustomUser.objects.filter(user_type='investor').count(),
-        'projects': Project.objects.filter(is_hidden=False).exclude(status='draft').count(),
+        'innovators': counts['innovator_count'],
+        'investors': counts['investor_count'],
+        'projects': counts['project_count'],
         'featured': projects,
-        'all_projects': Project.objects.filter(is_hidden=False).count(),
+        'all_projects': counts['all_projects_count'],
         'industry_counts': homepage_industry_counts(),
     })
     origin = request.headers.get('Origin')
