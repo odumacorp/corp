@@ -92,10 +92,10 @@
       {% for group in group_results %}
       <div class="oc-card" style="padding:16px;display:flex;justify-content:space-between;align-items:center;">
         <div>
-          <a href="{% url 'group_detail' group.pk %}" style="font-weight:600;color:#1a1a2e;text-decoration:none;">{{ group.name }}</a>
+          <a href="{{ group.get_absolute_url }}" style="font-weight:600;color:#1a1a2e;text-decoration:none;">{{ group.name }}</a>
           <div style="font-size: 1.2rem;color:#6b7280;margin-top:4px;">{{ group.members.count }} members &nbsp;·&nbsp; {{ group.get_industry_display|default:group.industry }}</div>
         </div>
-        <a href="{% url 'group_detail' group.pk %}" class="oc-btn oc-btn-outline oc-btn-sm">View</a>
+        <a href="{{ group.get_absolute_url }}" class="oc-btn oc-btn-outline oc-btn-sm">View</a>
       </div>
       {% endfor %}
     </div>
@@ -112,10 +112,10 @@
       {% for page in page_results %}
       <div class="oc-card" style="padding:16px;display:flex;justify-content:space-between;align-items:center;">
         <div>
-          <a href="{% url 'page_detail' page_id=page.id %}" style="font-weight:600;color:#1a1a2e;text-decoration:none;">{{ page.title }}</a>
+          <a href="{{ page.get_absolute_url }}" style="font-weight:600;color:#1a1a2e;text-decoration:none;">{{ page.title }}</a>
           <div style="font-size: 1.2rem;color:#6b7280;margin-top:4px;">{{ page.followers.count }} followers &nbsp;·&nbsp; {{ page.get_industry_display|default:page.industry }}</div>
         </div>
-        <a href="{% url 'page_detail' page_id=page.id %}" class="oc-btn oc-btn-outline oc-btn-sm">View</a>
+        <a href="{{ page.get_absolute_url }}" class="oc-btn oc-btn-outline oc-btn-sm">View</a>
       </div>
       {% endfor %}
     </div>

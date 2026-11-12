@@ -131,7 +131,7 @@
   <nav class="oc-breadcrumb" style="margin-bottom:16px;">
     <a href="{% url 'app' %}"><i class="fi fi-rr-home fi-sm"></i> Home</a>
     <span class="oc-bc-sep">›</span>
-    <a href="{% url 'page_detail' page.pk %}">{{ page.title|truncatewords:5 }}</a>
+    <a href="{{ page.get_absolute_url }}">{{ page.title|truncatewords:5 }}</a>
     <span class="oc-bc-sep">›</span>
     <span class="oc-bc-current">Edit Post Photos</span>
   </nav>
@@ -142,7 +142,7 @@
       <h1><i class="fi fi-rr-picture" style="color:var(--blue);font-size: 1.2rem;"></i> Edit Post Photos</h1>
       <p>Add or remove images for a post on <strong>{{ page.title }}</strong></p>
     </div>
-    <a href="{% url 'page_detail' page.pk %}" style="color:var(--blue);font-family:var(--ff-sans);font-size: 1.2rem;text-decoration:none;display:flex;align-items:center;gap:5px;margin-top:6px;">
+    <a href="{{ page.get_absolute_url }}" style="color:var(--blue);font-family:var(--ff-sans);font-size: 1.2rem;text-decoration:none;display:flex;align-items:center;gap:5px;margin-top:6px;">
       <i class="fi fi-rr-arrow-left fi-sm"></i> Back to page
     </a>
   </div>

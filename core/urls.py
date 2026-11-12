@@ -349,6 +349,7 @@ urlpatterns = _html_redirects + [
     path('groups/', views.groups_list, name='groups_list'),
     path('groups/create/', views.group_create, name='group_create'),
     path('groups/<int:group_id>/', views.group_detail, name='group_detail'),
+    path('groups/<slug:slug>/', views.group_detail_slug, name='group_detail_slug'),
     path('groups/<int:group_id>/discussions/<int:discussion_id>/', views.group_discussion_detail, name='group_discussion_detail'),
     path('groups/<int:group_id>/discussions/<int:discussion_id>/media/', views.group_discussion_media, name='group_discussion_media'),
     path('groups/<int:group_id>/discussions/<int:discussion_id>/react/', views.group_discussion_react, name='group_discussion_react'),
@@ -373,6 +374,7 @@ urlpatterns = _html_redirects + [
     path('pages/', views.pages_list, name='pages_list'),
     path('pages/create/', views.page_create, name='page_create'),
     path('pages/<int:page_id>/', views.page_detail, name='page_detail'),
+    path('pages/<slug:slug>/', views.page_detail_slug, name='page_detail_slug'),
     path('pages/<int:page_id>/follow/', views.page_follow_toggle, name='page_follow_toggle'),
     path('pages/<int:page_id>/posts/<int:post_id>/react/', views.page_post_react, name='page_post_react'),
     path('pages/<int:page_id>/posts/<int:post_id>/share/', views.page_post_share, name='page_post_share'),
@@ -408,6 +410,7 @@ urlpatterns = _html_redirects + [
     path('jobs/post/',              views.user_post_job, name='user_post_job'),
     path('jobs/create/',            views.user_post_job, name='create_job'),
     path('jobs/<int:pk>/',          views.job_detail,    name='job_detail'),
+    path('jobs/<slug:slug>/',       views.job_detail_slug, name='job_detail_slug'),
 
     # User view alias
     path('users/<int:user_id>/', views.view_user, name='view_user'),

@@ -636,6 +636,8 @@ class Interest(models.Model):
 class Group(models.Model):
     INDUSTRY_CHOICES = INDUSTRY_CHOICES  # noqa: F821
     name        = models.CharField(max_length=255)
+    # Readable address (old /<id>/ links redirect). Set once from the name, kept if renamed.
+    slug        = models.SlugField(max_length=120, unique=True, null=True, blank=True)
     members     = models.ManyToManyField(CustomUser)
     creator     = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_groups')
     description = models.TextField(blank=True, default='')
@@ -646,10 +648,28 @@ class Group(models.Model):
     created_at  = models.DateTimeField(auto_now_add=True)
 
 ##user page
+
+    RESERVED_SLUGS = {'create'}   # other addresses under the same prefix
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = make_unique_slug(Group, self.name, self.pk, self.RESERVED_SLUGS, 'group')
+            if kwargs.get('update_fields') is not None:
+                kwargs['update_fields'] = list(set(kwargs['update_fields']) | {'slug'})
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        if self.slug:
+            return reverse('group_detail_slug', kwargs={'slug': self.slug})
+        return reverse('group_detail', kwargs={'group_id': self.pk})
+
 class Page(models.Model):
     INDUSTRY_CHOICES = INDUSTRY_CHOICES  # noqa: F821
     owner       = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     title       = models.CharField(max_length=255)
+    # Readable address (old /<id>/ links redirect). Set once from the title, kept if renamed.
+    slug        = models.SlugField(max_length=120, unique=True, null=True, blank=True)
     description = models.TextField(blank=True, default='')
     industry    = models.CharField(max_length=100, choices=INDUSTRY_CHOICES, default='other')
     cover_image = models.ImageField(upload_to='page_covers/', blank=True, null=True)
@@ -665,6 +685,22 @@ class Page(models.Model):
 
 
 ##comments
+
+    RESERVED_SLUGS = {'create'}   # other addresses under the same prefix
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = make_unique_slug(Page, self.title, self.pk, self.RESERVED_SLUGS, 'page')
+            if kwargs.get('update_fields') is not None:
+                kwargs['update_fields'] = list(set(kwargs['update_fields']) | {'slug'})
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        if self.slug:
+            return reverse('page_detail_slug', kwargs={'slug': self.slug})
+        return reverse('page_detail', kwargs={'page_id': self.pk})
+
 class Comment(models.Model):
     post       = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     user       = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -1040,6 +1076,8 @@ class Job(models.Model):
         ('contract', 'Contract'), ('internship', 'Internship'), ('remote', 'Remote'),
     ]
     title        = models.CharField(max_length=255)
+    # Readable address (old /<id>/ links redirect). Set once from the title, kept if renamed.
+    slug        = models.SlugField(max_length=120, unique=True, null=True, blank=True)
     company      = models.CharField(max_length=255)
     location     = models.CharField(max_length=255, blank=True, default='')
     description  = models.TextField()
@@ -1055,6 +1093,20 @@ class Job(models.Model):
     def __str__(self):
         return self.title
 
+    RESERVED_SLUGS = {'post', 'create'}   # other addresses under the same prefix
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = make_unique_slug(Job, self.title, self.pk, self.RESERVED_SLUGS, 'job')
+            if kwargs.get('update_fields') is not None:
+                kwargs['update_fields'] = list(set(kwargs['update_fields']) | {'slug'})
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        if self.slug:
+            return reverse('job_detail_slug', kwargs={'slug': self.slug})
+        return reverse('job_detail', kwargs={'pk': self.pk})
 
 class JobApplication(models.Model):
     job        = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')

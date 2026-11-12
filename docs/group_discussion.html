@@ -9,7 +9,7 @@
   <ol class="oc-breadcrumbs__list">
     <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><a href="{% url 'groups' %}" class="oc-breadcrumbs__link">Groups</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><a href="{% url 'group_detail' discussion.group.pk %}" class="oc-breadcrumbs__link">{{ discussion.group.name }}</a><span class="oc-breadcrumbs__sep">›</span></li>
+    <li class="oc-breadcrumbs__item"><a href="{{ discussion.group.get_absolute_url }}" class="oc-breadcrumbs__link">{{ discussion.group.name }}</a><span class="oc-breadcrumbs__sep">›</span></li>
     <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Discussion</span></li>
   </ol>
 </nav>
@@ -218,7 +218,7 @@
   <nav class="gdc-breadcrumb">
     <a href="{% url 'groups_list' %}">Groups</a>
     <span>/</span>
-    <a href="{% url 'group_detail' group.pk %}">{{ group.name }}</a>
+    <a href="{{ group.get_absolute_url }}">{{ group.name }}</a>
     <span>/</span>
     <span>{{ discussion.title|truncatechars:55 }}</span>
   </nav>
@@ -373,7 +373,7 @@
   </div>
   {% else %}
   <div class="gdc-not-member">
-    <a href="{% url 'group_detail' group.pk %}" style="color:var(--blue);font-weight:600;">Join this group</a> to participate in discussions.
+    <a href="{{ group.get_absolute_url }}" style="color:var(--blue);font-weight:600;">Join this group</a> to participate in discussions.
   </div>
   {% endif %}
 </div>

@@ -477,7 +477,7 @@
   {% if my_groups %}
   <div class="grp-grid">
     {% for g in my_groups %}
-    <a href="{% url 'group_detail' g.pk %}" class="grp-card">
+    <a href="{{ g.get_absolute_url }}" class="grp-card">
       <div class="grp-cover">
         {% if g.cover_image %}<img src="{{ g.cover_image.url }}" alt="{{ g.name }}">{% else %}<i class="fi fi-rr-people-group"></i>{% endif %}
       </div>
@@ -502,7 +502,7 @@
   {% if other_groups %}
   <div class="grp-grid">
     {% for g in other_groups %}
-    <a href="{% url 'group_detail' g.pk %}" class="grp-card">
+    <a href="{{ g.get_absolute_url }}" class="grp-card">
       <div class="grp-cover">
         {% if g.cover_image %}<img src="{{ g.cover_image.url }}" alt="{{ g.name }}">{% else %}<i class="fi fi-rr-people-group"></i>{% endif %}
       </div>

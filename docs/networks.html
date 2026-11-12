@@ -653,12 +653,12 @@
           <span class="nw-item-owned">Member</span>
         </div>
         <div class="nw-item-body">
-          <a href="{% url 'group_detail' group.id %}" class="nw-item-name">{{ group.name }}</a>
+          <a href="{{ group.get_absolute_url }}" class="nw-item-name">{{ group.name }}</a>
           <div class="nw-item-meta">{{ group.memberships.count }} member{{ group.memberships.count|pluralize }}{% if group.industry %} · {{ group.industry }}{% endif %}</div>
           {% if group.description %}<p class="nw-item-desc">{{ group.description|truncatewords:14 }}</p>{% endif %}
         </div>
         <div class="nw-item-foot">
-          <a href="{% url 'group_detail' group.id %}" class="nw-btn nw-btn--primary" style="flex:1;justify-content:center;">Open Group</a>
+          <a href="{{ group.get_absolute_url }}" class="nw-btn nw-btn--primary" style="flex:1;justify-content:center;">Open Group</a>
         </div>
       </div>
       {% endfor %}
@@ -678,12 +678,12 @@
           {% if group.cover_image %}<img src="{{ group.cover_image.url }}" alt="">{% else %}<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>{% endif %}
         </div>
         <div class="nw-item-body">
-          <a href="{% url 'group_detail' group.id %}" class="nw-item-name">{{ group.name }}</a>
+          <a href="{{ group.get_absolute_url }}" class="nw-item-name">{{ group.name }}</a>
           <div class="nw-item-meta">{{ group.memberships.count }} member{{ group.memberships.count|pluralize }}{% if group.industry %} · {{ group.industry }}{% endif %}</div>
           {% if group.description %}<p class="nw-item-desc">{{ group.description|truncatewords:14 }}</p>{% endif %}
         </div>
         <div class="nw-item-foot">
-          <a href="{% url 'group_detail' group.id %}" class="nw-btn nw-btn--outline" style="flex:1;text-align:center;">View</a>
+          <a href="{{ group.get_absolute_url }}" class="nw-btn nw-btn--outline" style="flex:1;text-align:center;">View</a>
           <form method="POST" action="{% url 'group_join_request' group.id %}" style="flex:1;">
             {% csrf_token %}
             <button type="submit" class="nw-btn nw-btn--primary" style="width:100%;">Join</button>
@@ -805,12 +805,12 @@
           <span class="nw-item-owned">Owner</span>
         </div>
         <div class="nw-item-body">
-          <a href="{% url 'page_detail' page.id %}" class="nw-item-name">{{ page.title }}</a>
+          <a href="{{ page.get_absolute_url }}" class="nw-item-name">{{ page.title }}</a>
           <div class="nw-item-meta">{{ page.followers.count }} follower{{ page.followers.count|pluralize }}{% if page.industry %} · {{ page.get_industry_display }}{% endif %}</div>
           {% if page.description %}<p class="nw-item-desc">{{ page.description|truncatewords:14 }}</p>{% endif %}
         </div>
         <div class="nw-item-foot">
-          <a href="{% url 'page_detail' page.id %}" class="nw-btn nw-btn--primary" style="flex:1;justify-content:center;">Manage</a>
+          <a href="{{ page.get_absolute_url }}" class="nw-btn nw-btn--primary" style="flex:1;justify-content:center;">Manage</a>
         </div>
       </div>
       {% endfor %}
@@ -820,12 +820,12 @@
           {% if page.cover_image %}<img src="{{ page.cover_image.url }}" alt="">{% else %}<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>{% endif %}
         </div>
         <div class="nw-item-body">
-          <a href="{% url 'page_detail' page.id %}" class="nw-item-name">{{ page.title }}</a>
+          <a href="{{ page.get_absolute_url }}" class="nw-item-name">{{ page.title }}</a>
           <div class="nw-item-meta">{{ page.followers.count }} follower{{ page.followers.count|pluralize }}{% if page.industry %} · {{ page.get_industry_display }}{% endif %}</div>
           {% if page.description %}<p class="nw-item-desc">{{ page.description|truncatewords:14 }}</p>{% endif %}
         </div>
         <div class="nw-item-foot">
-          <a href="{% url 'page_detail' page.id %}" class="nw-btn nw-btn--outline" style="flex:1;justify-content:center;">View</a>
+          <a href="{{ page.get_absolute_url }}" class="nw-btn nw-btn--outline" style="flex:1;justify-content:center;">View</a>
         </div>
       </div>
       {% endfor %}
@@ -845,13 +845,13 @@
           {% if page.cover_image %}<img src="{{ page.cover_image.url }}" alt="">{% else %}<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>{% endif %}
         </div>
         <div class="nw-item-body">
-          <a href="{% url 'page_detail' page.id %}" class="nw-item-name">{{ page.title }}</a>
+          <a href="{{ page.get_absolute_url }}" class="nw-item-name">{{ page.title }}</a>
           <div class="nw-item-meta">{{ page.followers.count }} follower{{ page.followers.count|pluralize }}{% if page.industry %} · {{ page.get_industry_display }}{% endif %}</div>
           {% if page.description %}<p class="nw-item-desc">{{ page.description|truncatewords:14 }}</p>{% endif %}
         </div>
         <div class="nw-item-foot">
-          <a href="{% url 'page_detail' page.id %}" class="nw-btn nw-btn--outline" style="flex:1;text-align:center;">View</a>
-          <a href="{% url 'page_detail' page.id %}?follow=1" class="nw-btn nw-btn--primary" style="flex:1;text-align:center;">Follow</a>
+          <a href="{{ page.get_absolute_url }}" class="nw-btn nw-btn--outline" style="flex:1;text-align:center;">View</a>
+          <a href="{{ page.get_absolute_url }}?follow=1" class="nw-btn nw-btn--primary" style="flex:1;text-align:center;">Follow</a>
         </div>
       </div>
       {% endfor %}

@@ -5568,8 +5568,32 @@ def group_create(request):
             messages.error(request, 'Group name is required.')
     return redirect('groups_list')
 
+def _legacy_id_redirect(request, obj, real_view, **kwargs):
+    """Old numeric address -> readable /<prefix>/<slug>/ (301, query string kept).
+    Form submissions are handled in place so old forms keep working."""
+    if request.method not in ('GET', 'HEAD'):
+        return real_view(request, **kwargs)
+    if not obj.slug:
+        obj.save(update_fields=['slug'])
+    qs = request.META.get('QUERY_STRING', '')
+    return redirect(obj.get_absolute_url() + ('?' + qs if qs else ''), permanent=True)
+
+
 @login_required
 def group_detail(request, group_id):
+    """Old numeric address /groups/<id>/."""
+    from .models import Group
+    return _legacy_id_redirect(request, get_object_or_404(Group, pk=group_id), _group_detail, group_id=group_id)
+
+
+@login_required
+def group_detail_slug(request, slug):
+    from .models import Group
+    return _group_detail(request, group_id=get_object_or_404(Group, slug=slug).pk)
+
+
+@login_required
+def _group_detail(request, group_id):
     from .models import GroupMembership, GroupDiscussion, GroupDiscussionComment
     from django.db.models import Count
     group = get_object_or_404(Group, pk=group_id)
@@ -5841,6 +5865,19 @@ def page_create(request):
 
 @login_required
 def page_detail(request, page_id):
+    """Old numeric address /pages/<id>/."""
+    from .models import Page
+    return _legacy_id_redirect(request, get_object_or_404(Page, pk=page_id), _page_detail, page_id=page_id)
+
+
+@login_required
+def page_detail_slug(request, slug):
+    from .models import Page
+    return _page_detail(request, page_id=get_object_or_404(Page, slug=slug).pk)
+
+
+@login_required
+def _page_detail(request, page_id):
     from .models import Page, PagePost, PagePostReaction, PagePostImage
     pg = get_object_or_404(Page, pk=page_id)
     posts = PagePost.objects.filter(page=pg).prefetch_related('post_images', 'reactions', 'shares')
@@ -6282,6 +6319,19 @@ def user_post_job(request):
 
 @login_required
 def job_detail(request, pk):
+    """Old numeric address /jobs/<id>/."""
+    from .models import Job
+    return _legacy_id_redirect(request, get_object_or_404(Job, pk=pk), _job_detail, pk=pk)
+
+
+@login_required
+def job_detail_slug(request, slug):
+    from .models import Job
+    return _job_detail(request, pk=get_object_or_404(Job, slug=slug).pk)
+
+
+@login_required
+def _job_detail(request, pk):
     from .models import Job, JobApplication
     job = get_object_or_404(Job, pk=pk, is_hidden=False)
     already_applied = False

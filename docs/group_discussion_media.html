@@ -131,7 +131,7 @@
   <nav class="oc-breadcrumb" style="margin-bottom:16px;">
     <a href="{% url 'app' %}"><i class="fi fi-rr-home fi-sm"></i> Home</a>
     <span class="oc-bc-sep">›</span>
-    <a href="{% url 'group_detail' group.pk %}">{{ group.name|truncatewords:4 }}</a>
+    <a href="{{ group.get_absolute_url }}">{{ group.name|truncatewords:4 }}</a>
     <span class="oc-bc-sep">›</span>
     <a href="{% url 'group_discussion_detail' group.pk discussion.id %}">{{ discussion.title|truncatewords:6 }}</a>
     <span class="oc-bc-sep">›</span>

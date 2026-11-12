@@ -2320,7 +2320,7 @@
             {% for grp in groups %}
             <tr data-date="{{ grp.created_at|date:'U' }}">
               <td>
-                <a href="{% url 'group_detail' grp.pk %}" style="color:var(--blue);text-decoration:none;font-family:var(--ff-serif);">{{ grp.name|truncatechars:40 }}</a>
+                <a href="{{ grp.get_absolute_url }}" style="color:var(--blue);text-decoration:none;font-family:var(--ff-serif);">{{ grp.name|truncatechars:40 }}</a>
               </td>
               <td>
                 {% if grp.creator %}
@@ -2346,7 +2346,7 @@
               <td>{{ grp.created_at|date:"M d, Y" }}</td>
               <td>
                 <div class="adm-actions">
-                  <a href="{% url 'group_detail' grp.pk %}" class="adm-act-btn adm-btn-view">View</a>
+                  <a href="{{ grp.get_absolute_url }}" class="adm-act-btn adm-btn-view">View</a>
                   <!-- Edit group name/description inline -->
                   <button type="button" class="adm-act-btn adm-btn-primary"
                     onclick="openEditGroup({{ grp.id }}, '{{ grp.name|escapejs }}', '{{ grp.description|escapejs }}')">
@@ -2409,7 +2409,7 @@
             {% for pg in pages %}
             <tr data-date="{{ pg.created_at|date:'U' }}">
               <td>
-                <a href="{% url 'page_detail' pg.pk %}" style="color:var(--blue);text-decoration:none;font-family:var(--ff-serif);">{{ pg.title|truncatechars:40 }}</a>
+                <a href="{{ pg.get_absolute_url }}" style="color:var(--blue);text-decoration:none;font-family:var(--ff-serif);">{{ pg.title|truncatechars:40 }}</a>
               </td>
               <td>
                 <a href="{% url 'profile_view' username=pg.owner.username %}" style="color:var(--blue);text-decoration:none;">{{ pg.owner.get_full_name|default:pg.owner.username }}</a>
@@ -2426,7 +2426,7 @@
               <td>{{ pg.created_at|date:"M d, Y" }}</td>
               <td>
                 <div class="adm-actions">
-                  <a href="{% url 'page_detail' pg.pk %}" class="adm-act-btn adm-btn-view">View</a>
+                  <a href="{{ pg.get_absolute_url }}" class="adm-act-btn adm-btn-view">View</a>
                   <button type="button" class="adm-act-btn adm-btn-primary"
                     onclick="openEditPage({{ pg.id }}, '{{ pg.title|escapejs }}', '{{ pg.description|escapejs }}')">
                     Edit

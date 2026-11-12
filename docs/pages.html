@@ -359,7 +359,7 @@
   <h2 class="pg-section-title">My Pages</h2>
   <div class="pg-grid">
     {% for page in my_pages %}
-    <a href="{% url 'page_detail' page.pk %}" class="pg-card">
+    <a href="{{ page.get_absolute_url }}" class="pg-card">
       <div class="pg-cover">
         {% if page.cover_image %}<img src="{{ page.cover_image.url }}" alt="">{% else %}<i class="fi fi-rr-file-bookmark"></i>{% endif %}
         <div class="pg-logo-wrap">
@@ -384,7 +384,7 @@
   <h2 class="pg-section-title">Following</h2>
   <div class="pg-grid">
     {% for page in followed_pages %}
-    <a href="{% url 'page_detail' page.pk %}" class="pg-card">
+    <a href="{{ page.get_absolute_url }}" class="pg-card">
       <div class="pg-cover">
         {% if page.cover_image %}<img src="{{ page.cover_image.url }}" alt="">{% else %}<i class="fi fi-rr-file-bookmark"></i>{% endif %}
         <div class="pg-logo-wrap">
@@ -409,7 +409,7 @@
   {% if discover_pages %}
   <div class="pg-grid">
     {% for page in discover_pages %}
-    <a href="{% url 'page_detail' page.pk %}" class="pg-card">
+    <a href="{{ page.get_absolute_url }}" class="pg-card">
       <div class="pg-cover">
         {% if page.cover_image %}<img src="{{ page.cover_image.url }}" alt="">{% else %}<i class="fi fi-rr-file-bookmark"></i>{% endif %}
         <div class="pg-logo-wrap">

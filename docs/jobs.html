@@ -58,7 +58,7 @@
         </div>
         <div style="flex-shrink:0;">
           {% if user.is_authenticated %}
-            <a href="{% url 'job_detail' job.pk %}" class="oc-btn oc-btn-primary oc-btn-sm">Apply</a>
+            <a href="{{ job.get_absolute_url }}" class="oc-btn oc-btn-primary oc-btn-sm">Apply</a>
           {% else %}
             <a href="{% url 'login' %}" class="oc-btn oc-btn-outline oc-btn-sm">View</a>
           {% endif %}
