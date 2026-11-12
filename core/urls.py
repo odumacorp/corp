@@ -484,6 +484,12 @@ urlpatterns = _html_redirects + [
     # Intercept raw chat attachment media URLs → styled viewer
     path('media/chat_attachments/<path:file_path>', views.media_chat_attachment_viewer, name='media_chat_attachment_viewer'),
 
+    # Public gallery; admins add, hide and remove items
+    path('gallery/', views.gallery, name='gallery'),
+    path('gallery/add/', views.gallery_add, name='gallery_add'),
+    path('gallery/<int:pk>/toggle/', views.gallery_toggle, name='gallery_toggle'),
+    path('gallery/<int:pk>/delete/', views.gallery_delete, name='gallery_delete'),
+
     # Media viewer (collage click-through, gallery with thumbnail strip)
     path('view-media/', views.view_media, name='view_media'),
 

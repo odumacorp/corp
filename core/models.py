@@ -947,6 +947,52 @@ class MessageAttachment(models.Model):
         return f"{self.attachment_type}: {self.filename}"
 
 
+def cloudinary_typed_url(url, media_type, transform=''):
+    """Cloudinary stores these files without an extension, so .url can come back with the
+    wrong resource type (/raw/ or /image/ for a video). Put the right one back and
+    optionally add a transformation such as 'c_fill,w_600,h_450'."""
+    if 'res.cloudinary.com' not in url:
+        return url
+    want = 'video' if media_type == 'video' else 'image'
+    for kind in ('raw', 'image', 'video'):
+        url = url.replace(f'/{kind}/upload/', f'/{want}/upload/', 1)
+    if transform:
+        url = url.replace(f'/{want}/upload/', f'/{want}/upload/{transform}/', 1)
+    return url
+
+
+class GalleryItem(models.Model):
+    """A photo or video posted by an admin to the public gallery (/gallery/)."""
+    MEDIA_TYPES = [('image', 'Photo'), ('video', 'Video')]
+
+    title        = models.CharField(max_length=120)
+    caption      = models.TextField(blank=True, default='')
+    file         = models.FileField(storage=ChatAttachmentStorage(), upload_to='gallery/%Y/%m/')
+    media_type   = models.CharField(max_length=5, choices=MEDIA_TYPES, default='image')
+    is_published = models.BooleanField(default=True)
+    created_by   = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='gallery_items')
+    created_at   = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def url(self):
+        return cloudinary_typed_url(self.file.url, self.media_type)
+
+    @property
+    def thumb_url(self):
+        """A small image for grids: a resized photo, or a frame from the video."""
+        url = cloudinary_typed_url(self.file.url, self.media_type, 'c_fill,w_640,h_480,q_auto,f_auto' if self.media_type == 'image' else 'so_1,c_fill,w_640,h_480,q_auto')
+        if self.media_type == 'video' and 'res.cloudinary.com' in url:
+            url = url.rsplit('.', 1)[0] if url.rsplit('/', 1)[-1].count('.') else url
+            url += '.jpg'                               # Cloudinary turns the frame into a JPEG
+        return url
+
+
 ###pagination
 
 

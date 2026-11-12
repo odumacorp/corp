@@ -245,6 +245,15 @@ a.lp-proj-title:hover{color:var(--lp-blue);text-decoration:underline;}
 @media(min-width:640px){.lp-svcs{grid-template-columns:repeat(2,1fr);}}
 @media(min-width:1024px){.lp-svcs{grid-template-columns:repeat(4,1fr);}}
 
+/* Gallery preview */
+.lp-gal{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:28px;}
+@media(min-width:768px){.lp-gal{grid-template-columns:repeat(3,1fr);gap:16px;}}
+.lp-gal__item{position:relative;display:block;overflow:hidden;border-radius:var(--lp-r);border:1px solid var(--lp-line);background:#E6EBF2;aspect-ratio:4/3;}
+.lp-gal__item img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;}
+.lp-gal__item:hover img{transform:scale(1.03);}
+.lp-gal__play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:rgba(10,22,40,.7);color:#fff;display:flex;align-items:center;justify-content:center;}
+.lp-gal__cap{position:absolute;left:0;right:0;bottom:0;padding:24px 12px 10px;background:linear-gradient(transparent,rgba(10,22,40,.75));color:#fff;font-size:14px;font-weight:600;line-height:1.3;}
+
 /* Where we are today */
 .lp-today{display:grid;gap:28px;align-items:center;}
 .lp-today p{margin-top:14px;font-size:17px;max-width:38em;}
@@ -612,6 +621,21 @@ a.lp-proj-title:hover{color:var(--lp-blue);text-decoration:underline;}
   </div>
 </section>
 
+<section class="lp-sec" id="gallery" aria-labelledby="lp-gal"{% if gallery_items %}{% else %} hidden{% endif %}>
+  <div class="lp-wrap">
+    <div class="lp-sec-head">
+      <h2 id="lp-gal">From the gallery</h2>
+      <a href="{% url 'gallery' %}" class="lp-link">View the gallery &rarr;</a>
+    </div>
+    <p class="lp-sec__lead">Photos and videos posted by the Oduma Corp team.</p>
+    <div class="lp-gal" id="lp-gal-grid" data-reveal-group>
+      <!-- gallery -->{% for g in gallery_items %}
+      <a class="lp-gal__item" href="{% url 'gallery' %}#item-{{ g.pk }}"><img src="{{ g.thumb_url }}" alt="{{ g.title }}" width="640" height="480" loading="lazy" decoding="async">{% if g.media_type == 'video' %}<span class="lp-gal__play" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg></span>{% endif %}<span class="lp-gal__cap">{{ g.title }}</span></a>
+      {% endfor %}<!-- /gallery -->
+    </div>
+  </div>
+</section>
+
 <section class="lp-sec lp-sec--white" id="about-us" aria-labelledby="lp-today">
   <div class="lp-wrap lp-today">
     <div>
@@ -678,6 +702,7 @@ a.lp-proj-title:hover{color:var(--lp-blue);text-decoration:underline;}
       <h2>Company</h2>
       <ul>
         <li><a href="{% url 'about' %}">About</a></li>
+        <li><a href="{% url 'gallery' %}">Gallery</a></li>
         <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
         <li><a href="{% url 'terms' %}">Terms</a></li>
         <li><button type="button" class="lp-ftr__btn" id="lp-cookie-settings" hidden>Cookie settings</button></li>

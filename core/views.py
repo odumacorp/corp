@@ -428,6 +428,12 @@ def platform_counts():
     return {**people, **projects}
 
 
+def homepage_gallery(limit=6):
+    """Latest published gallery items for the homepage preview."""
+    from .models import GalleryItem
+    return list(GalleryItem.objects.filter(is_published=True)[:limit])
+
+
 def homepage_industry_counts():
     """{industry_key: count} for non-hidden projects, the same numbers /projects/ shows on its tiles."""
     from django.db.models import Count
@@ -452,6 +458,7 @@ def index(request):
         "investor_count": investor_count,
         "project_count": project_count,
         "industry_counts": industry_counts,
+        "gallery_items": homepage_gallery(),
         "all_projects_count": counts['all_projects_count'],
         "sub_plans": sub_plans,
     })
@@ -8216,6 +8223,7 @@ def public_stats(request):
         'featured': projects,
         'all_projects': counts['all_projects_count'],
         'industry_counts': homepage_industry_counts(),
+        'gallery': [{'id': g.pk, 'title': g.title, 'type': g.media_type, 'thumb': g.thumb_url} for g in homepage_gallery()],
     })
     origin = request.headers.get('Origin')
     if origin in PUBLIC_STATS_ORIGINS:
@@ -9125,3 +9133,76 @@ def admin_setup_2fa_for(request, user_id):
     request.session['_2fa_user_id'] = target.pk
     request.session['_2fa_backend'] = 'django.contrib.auth.backends.ModelBackend'
     return redirect('admin_setup_totp')
+
+
+# ─── Gallery ───────────────────────────────────────────────────────────────────
+from django.http import HttpResponseForbidden
+GALLERY_IMAGE_EXT = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'heic'}
+GALLERY_VIDEO_EXT = {'mp4', 'webm', 'mov', 'm4v'}
+GALLERY_MAX_MB = {'image': 15, 'video': 100}
+
+
+def gallery(request):
+    """Public gallery of photos and videos posted by admins."""
+    from .models import GalleryItem
+    is_admin = request.user.is_authenticated and _is_admin(request.user)
+    items = GalleryItem.objects.all() if is_admin else GalleryItem.objects.filter(is_published=True)
+    return render(request, 'gallery.html', {
+        'items': items,
+        'is_admin': is_admin,
+        'max_mb': GALLERY_MAX_MB,
+        'accept': ','.join('.' + e for e in sorted(GALLERY_IMAGE_EXT | GALLERY_VIDEO_EXT)),
+    })
+
+
+@login_required
+@require_POST
+def gallery_add(request):
+    from .models import GalleryItem
+    if not _is_admin(request.user):
+        return HttpResponseForbidden('Only admins can add to the gallery.')
+    title = (request.POST.get('title') or '').strip()[:120]
+    caption = (request.POST.get('caption') or '').strip()[:2000]
+    upload = request.FILES.get('file')
+    ext = upload.name.rsplit('.', 1)[-1].lower() if upload and '.' in upload.name else ''
+    media_type = 'video' if ext in GALLERY_VIDEO_EXT else 'image' if ext in GALLERY_IMAGE_EXT else ''
+    if not title or not upload:
+        messages.error(request, 'Add a title and choose a photo or video.')
+    elif not media_type:
+        messages.error(request, 'That file type isn’t supported. Use a photo (JPG, PNG, WebP, GIF, HEIC) or a video (MP4, MOV, WebM).')
+    elif upload.size > GALLERY_MAX_MB[media_type] * 1024 * 1024:
+        messages.error(request, f'That file is too large. {"Videos" if media_type == "video" else "Photos"} can be up to {GALLERY_MAX_MB[media_type]} MB.')
+    else:
+        GalleryItem.objects.create(title=title, caption=caption, file=upload, media_type=media_type,
+                                   is_published=request.POST.get('is_published') == 'on', created_by=request.user)
+        messages.success(request, 'Added to the gallery.')
+    return redirect('gallery')
+
+
+@login_required
+@require_POST
+def gallery_toggle(request, pk):
+    from .models import GalleryItem
+    if not _is_admin(request.user):
+        return HttpResponseForbidden('Only admins can change the gallery.')
+    item = get_object_or_404(GalleryItem, pk=pk)
+    item.is_published = not item.is_published
+    item.save(update_fields=['is_published'])
+    messages.success(request, 'Shown in the gallery.' if item.is_published else 'Hidden from the gallery.')
+    return redirect('gallery')
+
+
+@login_required
+@require_POST
+def gallery_delete(request, pk):
+    from .models import GalleryItem
+    if not _is_admin(request.user):
+        return HttpResponseForbidden('Only admins can change the gallery.')
+    item = get_object_or_404(GalleryItem, pk=pk)
+    try:
+        item.file.delete(save=False)      # remove the file from storage too
+    except Exception:
+        pass
+    item.delete()
+    messages.success(request, 'Removed from the gallery.')
+    return redirect('gallery')

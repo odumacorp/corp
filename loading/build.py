@@ -27,7 +27,7 @@ OUT = ROOT / 'loading' / 'index.html'
 URLS = {'index': '/', 'about': APP + '/about/', 'login': APP + '/login/',
         'register': APP + '/register/', 'project_list': APP + '/projects/',
         'privacy_policy': APP + '/privacy/', 'terms': APP + '/terms/',
-        'contact': APP + '/contact/'}
+        'contact': APP + '/contact/', 'gallery': APP + '/gallery/'}
 
 src = SRC.read_text()
 # One source of truth for colours, shadows and gradients: the app's design-system.css :root block.
@@ -56,6 +56,9 @@ body = re.sub(r'{% if user\.is_authenticated %}((?:(?!{% if).)*?){% else %}((?:(
 SIMPLE = r'{%% if (%s)(?:\.[\w.]+)? %%}((?:(?!{%%).)*?){%% else %%}((?:(?!{%%).)*?){%% endif %%}'
 body = sub1(SIMPLE % 'industry_counts', lambda m: '' if m.group(3).strip() == 'hidden' else m.group(3), body)
 body = sub1(SIMPLE % 'featured_projects|all_projects_count', r'\3', body)
+# Gallery preview: empty and hidden on the static page; the script fills it from the feed.
+body = sub1(r'<!-- gallery -->.*?<!-- /gallery -->', '', body)
+body = sub1(r'id="gallery" aria-labelledby="lp-gal"{% if gallery_items %}{% else %} hidden{% endif %}', 'id="gallery" aria-labelledby="lp-gal" hidden', body)
 # Guest-only notes stay (static visitors are never logged in).
 body = re.sub(r'{% if not user\.is_authenticated %}((?:(?!{%).)*?){% endif %}', r'\1', body, flags=re.S)
 # Featured projects: keep the empty state + example card; the script swaps in live cards.
@@ -228,6 +231,16 @@ script = """<script>
     text('lp-latest-stage', p.stage);
     text('lp-latest-ask', p.funding ? 'Seeking ' + p.funding : '');
   }
+  function gallery(items) {
+    var PLAY = '<span class="lp-gal__play" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg></span>';
+    var grid = $('lp-gal-grid');
+    grid.innerHTML = items.map(function (g) {
+      return '<a class="lp-gal__item" href="' + APP + '/gallery/#item-' + g.id + '"><img src="' + esc(abs(g.thumb)) + '" alt="' + esc(g.title) +
+        '" width="640" height="480" loading="lazy" decoding="async">' + (g.type === 'video' ? PLAY : '') + '<span class="lp-gal__cap">' + esc(g.title) + '</span></a>';
+    }).join('');
+    $('gallery').hidden = false;
+    if (window.lpReveal) window.lpReveal(grid);
+  }
   function tiles(d) {
     var counts = d.industry_counts || {};
     document.querySelectorAll('#lp-tiles [data-ind]').forEach(function (t) {
@@ -245,6 +258,7 @@ script = """<script>
       var i = +d.innovators || 0, v = +d.investors || 0;
       if (i || v) $('lp-cohort-n').textContent = plural(i, 'innovator') + ' and ' + plural(v, 'investor') + ' so far.';
       if (d.industry_counts) tiles(d);
+      if (d.gallery && d.gallery.length) gallery(d.gallery);
       if (d.featured && d.featured.length) {
         var grid = $('lp-projects');
         grid.innerHTML = d.featured.map(card).join('');
