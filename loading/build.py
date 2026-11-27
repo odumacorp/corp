@@ -93,7 +93,7 @@ for needed in ('id="lp-projects"', 'id="lp-latest-title"', 'id="lp-latest-meta"'
 org = {
     '@context': 'https://schema.org', '@type': 'Organization',
     'name': 'Oduma Corp', 'url': SITE + '/', 'logo': SITE + '/logo.png',
-    'email': 'info@odumacorp.com',
+    'email': 'odumacorp@gmail.com',
     'address': {'@type': 'PostalAddress', 'addressLocality': 'Nairobi', 'addressCountry': 'KE'},
     'sameAs': ['https://www.linkedin.com/company/oduma-corp/', 'https://www.instagram.com/odumacorpltd'],
 }
@@ -343,7 +343,7 @@ script = """<script>
       })
       .catch(function (j) {
         status.className = 'sx-fb__status is-err';
-        status.textContent = (j && j.error) || "Sorry, that didn't send. Please try again, or email info@odumacorp.com.";
+        status.textContent = (j && j.error) || "Sorry, that didn't send. Please try again, or email odumacorp@gmail.com.";
       })
       .then(function () { clearTimeout(t); sending = false; send.disabled = false; send.textContent = 'Send feedback'; });
   });
