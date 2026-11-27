@@ -124,8 +124,55 @@
         });
         var grid = $('#projs');
         if (grid && d.featured && d.featured.length) grid.innerHTML = d.featured.slice(0, 6).map(projCard).join('');
+        carousel(d.gallery || []);
+        partnerLogos(d.partners || []);
       })
-      .catch(function () { /* app asleep or not allowed from this origin: static content stays */ });
+      .catch(function () { carousel(null); /* app asleep or not allowed from this origin: the rest of the page stays static */ });
+  };
+
+  /* ── Partner logos (homepage): added by admins in the app; the section stays hidden until there is one ── */
+  var partnerLogos = function (list) {
+    var sec = $('#partners'), ul = $('#partner-logos'); if (!sec || !ul || !list.length) return;
+    ul.innerHTML = list.map(function (p) {
+      var img = '<img src="' + esc(abs(p.logo)) + '" alt="' + esc(p.name) + '" height="52" loading="lazy" decoding="async">';
+      return '<li>' + (p.url ? '<a class="logo-tile" href="' + esc(p.url) + '" rel="noopener" target="_blank" aria-label="' + esc(p.name) + ' (opens their website)">' + img + '</a>'
+        : '<div class="logo-tile">' + img + '</div>') + '</li>';
+    }).join('');
+    sec.hidden = false;
+  };
+
+  /* ── Gallery carousel (homepage): newest event first; each card opens that item on /gallery/ ── */
+  var carousel = function (list) {
+    var track = $('#car-track'), note = $('#car-note'); if (!track) return;
+    var ctrl = $('.car-ctrl');
+    track.setAttribute('aria-busy', 'false');
+    if (!list || !list.length) {
+      track.innerHTML = ''; if (ctrl) ctrl.hidden = true;
+      note.innerHTML = list ? 'Photos from our events will appear here soon.' : 'The latest photos could not load just now. <a href="/gallery/">Open the gallery</a>.';
+      note.hidden = false;
+      return;
+    }
+    var PLAY = '<span class="gp-play" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg></span>';
+    track.innerHTML = list.map(function (g) {
+      var sub = [g.event, g.date_label].filter(Boolean).join(' · ');
+      return '<li class="car-card"><a href="/gallery/#item-' + encodeURIComponent(g.id) + '">' +
+        '<span class="car-media"><img src="' + esc(abs(g.thumb)) + '" alt="" width="640" height="480" loading="lazy" decoding="async">' + (g.type === 'video' ? PLAY : '') + '</span>' +
+        '<span class="car-cap"><b>' + esc(g.title) + '</b><small>' + esc(sub) + '</small></span></a></li>';
+    }).join('');
+    var prev = $('[data-car="prev"]'), next = $('[data-car="next"]'), raf = 0;
+    var update = function () {
+      raf = 0;
+      var max = track.scrollWidth - track.clientWidth - 2;
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft >= max;
+      if (ctrl) ctrl.hidden = max <= 0;
+    };
+    var go = function (dir) { track.scrollBy({ left: dir * Math.max(240, track.clientWidth * 0.85), behavior: reduce ? 'auto' : 'smooth' }); };
+    prev.onclick = function () { go(-1); };
+    next.onclick = function () { go(1); };
+    track.addEventListener('scroll', function () { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
+    window.addEventListener('resize', function () { if (!raf) raf = requestAnimationFrame(update); });
+    requestAnimationFrame(update);
   };
   if ($('#cohort-n') || $('#projs')) feed();
   document.addEventListener('pointerover', function (e) { if (e.target.closest && e.target.closest('a[href^="' + APP + '"]')) feed(); }, { passive: true });

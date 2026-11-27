@@ -214,28 +214,44 @@
   </div>
 </section>
 
-<!-- Partners -->
-<section id="partners" class="mist" aria-labelledby="h-partners">
+<!-- Gallery carousel: filled from the app's public feed, newest event first -->
+<section id="gallery" class="mist" aria-labelledby="h-gallery">
   <div class="wrap">
-    <div class="sec-head rv">
-      <span class="eyebrow">Partners and clients</span>
-      <h2 id="h-partners">{{PARTNERS_HEADING}}</h2>
+    <div class="sec-head row rv">
+      <div>
+        <span class="eyebrow">Gallery</span>
+        <h2 id="h-gallery">From our events</h2>
+        <p>Photos and videos from pitch events, meetups and expos, newest first.</p>
+      </div>
+      <div class="car-ctrl js-only" aria-hidden="false">
+        <button type="button" class="car-btn" data-car="prev" aria-controls="car-track" aria-label="Previous photos" disabled><svg class="i" aria-hidden="true" focusable="false"><use href="#i-left"/></svg></button>
+        <button type="button" class="car-btn" data-car="next" aria-controls="car-track" aria-label="Next photos"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-right"/></svg></button>
+      </div>
     </div>
-{{PARTNERS}}
+    <div class="car rv" aria-roledescription="carousel" aria-label="Gallery photos and videos">
+      <ul class="car-track" id="car-track" aria-live="polite" aria-busy="true">
+        <li class="car-card skel" aria-hidden="true"><span class="car-media"></span><span class="car-cap"><b></b><small></small></span></li>
+        <li class="car-card skel" aria-hidden="true"><span class="car-media"></span><span class="car-cap"><b></b><small></small></span></li>
+        <li class="car-card skel" aria-hidden="true"><span class="car-media"></span><span class="car-cap"><b></b><small></small></span></li>
+        <li class="car-card skel" aria-hidden="true"><span class="car-media"></span><span class="car-cap"><b></b><small></small></span></li>
+      </ul>
+      <p class="car-note" id="car-note" hidden></p>
+    </div>
+    <p class="car-more"><a class="btn btn-ghost" href="/gallery/">View all photos and videos <svg class="i" aria-hidden="true" focusable="false"><use href="#i-arrow"/></svg></a></p>
   </div>
 </section>
 
-<!-- Events -->
-<section id="events" aria-labelledby="h-events">
+<!-- Partners: logos added by admins in the app (/partners/manage/); hidden until there is at least one -->
+<section id="partners" aria-labelledby="h-partners" hidden>
   <div class="wrap">
-    <div class="sec-head rv">
-      <span class="eyebrow">Events</span>
-      <h2 id="h-events">Where you've met us</h2>
-      <p>Pitch events, meetups and expos we've taken part in.</p>
+    <div class="sec-head">
+      <span class="eyebrow">Partners and clients</span>
+      <h2 id="h-partners">Partners</h2>
     </div>
-{{EVENTS}}
+    <ul class="logos" id="partner-logos"></ul>
   </div>
 </section>
+
 
 <!-- About -->
 <section id="about" class="mist" aria-labelledby="h-about">

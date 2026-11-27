@@ -6,16 +6,14 @@ Pages are written to company/public/ (the folder Render publishes):
   index.html                    homepage (src/home.html): the founders-and-investors platform first
   products/index.html           every product
   products/<slug>/index.html    one page per product (src/product.html + optional src/products/*.html)
+  gallery/index.html            event photos and videos (src/gallery.html + src/gallery.js)
 
 Products are data: company/data/products.json. Add one entry (and its cover image in
 public/img/products/) and it appears on the homepage showcase, /products/, the footer and its own page.
 
-Partner logos and event photos are data, not markup:
-  * company/images/partners/partners.json   one line per logo (file sits next to it)
-  * company/images/events/events.json       one line per photo (file sits next to it)
-Add a file and its line, re-run this script, done. The script makes the 640px and
-1200px WebP copies of each event photo (in images/events/_web/) and reads every
-image's size, so the page never shifts while images load.
+Gallery photos/videos and partner logos are NOT built here: admins add them in the app at
+app.odumacorp.com/gallery/manage/ and app.odumacorp.com/partners/manage/. The homepage and
+/gallery/ load them live (api/public-stats/, api/public-gallery/); the files are on Cloudinary.
 
 It also makes the logo sizes, favicons and the 1200x630 share image (img/og.png)
 from loading/logo.png the first time, and checks the page for leftovers.
@@ -34,9 +32,6 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 PUB = HERE / 'public'          # the folder Render publishes
 IMG = PUB / 'img'
-PARTNERS = PUB / 'images' / 'partners'
-EVENTS = PUB / 'images' / 'events'
-WEB = EVENTS / '_web'
 OG_FONT = Path(sys.argv[1]) if len(sys.argv) > 1 else None   # optional DM Sans TTF, only for og.png
 esc = lambda s: html.escape(str(s), quote=True)
 MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
@@ -118,88 +113,7 @@ def og(logo):
 
 
 # ── Partner logos ────────────────────────────────────────────────────────────
-def logo_size(path):
-    if path.suffix.lower() == '.svg':
-        vb = re.search(r'viewBox="[\d.\-]+[ ,]+[\d.\-]+[ ,]+([\d.]+)[ ,]+([\d.]+)"', path.read_text())
-        assert vb, f'{path.name}: SVG needs a viewBox'
-        return float(vb.group(1)), float(vb.group(2))
-    return Image.open(path).size
-
-
-def partners():
-    data = json.loads((PARTNERS / 'partners.json').read_text())
-    logos = data.get('logos', [])
-    heading = data.get('heading') or 'Partners'
-    if not logos:
-        tiles = ''.join(f'<li class="rv" style="--d:{i * .08:.2f}s"><div class="logo-tile empty"><span>{icon("image")}Partner logo</span></div></li>'
-                        for i in range(6))
-        return heading, f'<ul class="logos" aria-label="Partner logos to come">{tiles}</ul>'
-    items = []
-    for i, p in enumerate(logos):
-        f = PARTNERS / p['file']
-        assert f.exists(), f'missing partner logo: {f}'
-        w, h = logo_size(f)
-        width = round(52 * w / h)
-        img = f'<img src="/images/partners/{esc(p["file"])}" alt="{esc(p["name"])}" width="{width}" height="52" loading="lazy" decoding="async">'
-        tile = f'<a class="logo-tile" href="{esc(p["url"])}" rel="noopener">{img}</a>' if p.get('url') else f'<div class="logo-tile">{img}</div>'
-        items.append(f'<li class="rv" style="--d:{min(i, 6) * .08:.2f}s">{tile}</li>')
-    return heading, f'<ul class="logos">{"".join(items)}</ul>'
-
-
 # ── Event photos ─────────────────────────────────────────────────────────────
-def variants(src):
-    """640 and 1200px WebP copies; returns (stem, width, height) of the 1200 copy."""
-    WEB.mkdir(exist_ok=True)
-    im = Image.open(src)
-    im = im.convert('RGB') if im.mode not in ('RGB', 'L') else im
-    try:
-        from PIL import ImageOps
-        im = ImageOps.exif_transpose(im)
-    except Exception:
-        pass
-    stem, sizes = src.stem, {}
-    for w in (640, 1200):
-        out = WEB / f'{stem}-{w}.webp'
-        cp = im.copy()
-        if cp.width > w:
-            cp = cp.resize((w, round(cp.height * w / cp.width)), Image.LANCZOS)
-        if not out.exists() or out.stat().st_mtime < src.stat().st_mtime:
-            cp.save(out, 'WEBP', quality=78, method=6)
-        sizes[w] = cp.size
-    return stem, sizes
-
-
-def events():
-    photos = json.loads((EVENTS / 'events.json').read_text()).get('photos', [])
-    if not photos:
-        tiles = ''.join(f'<div class="tile empty rv" style="--d:{i * .08:.2f}s"><span>{icon("image")}Event photo to come</span></div>' for i in range(5))
-        return f'<div class="gal" id="gal">{tiles}</div>'
-    photos = sorted(photos, key=lambda p: (-int(p['year']), -MONTHS.index(p['month']) if p.get('month') in MONTHS else 0))
-    years = sorted({str(p['year']) for p in photos}, reverse=True)
-    chips = ''
-    if len(years) > 1:
-        btns = '<button type="button" aria-pressed="true" data-year="all">All</button>' + \
-               ''.join(f'<button type="button" aria-pressed="false" data-year="{y}">{y}</button>' for y in years)
-        chips = f'<div class="chips" id="chips" role="group" aria-label="Show photos from"><span class="ind" aria-hidden="true"></span>{btns}</div>'
-    tiles = []
-    for i, p in enumerate(photos):
-        src = EVENTS / p['file']
-        assert src.exists(), f'missing event photo: {src}'
-        for k in ('event', 'place', 'year', 'alt'):
-            assert p.get(k), f'{p["file"]}: "{k}" is required in events.json'
-        stem, s = variants(src)
-        (w6, h6), (w12, h12) = s[640], s[1200]
-        meta = f'{p["place"]} · {(p.get("month") + " ") if p.get("month") else ""}{p["year"]}'
-        sizes = '(max-width:860px) 92vw, 580px' if i == 0 else '(max-width:860px) 46vw, 280px'
-        tiles.append(
-            f'<div class="tile rv" data-year="{esc(p["year"])}" style="--d:{min(i, 6) * .08:.2f}s">'
-            f'<a href="/images/events/_web/{stem}-1200.webp" data-i data-w="{w12}" data-h="{h12}" data-event="{esc(p["event"])}" data-meta="{esc(meta)}">'
-            f'<img src="/images/events/_web/{stem}-640.webp" srcset="/images/events/_web/{stem}-640.webp {w6}w, /images/events/_web/{stem}-1200.webp {w12}w" '
-            f'sizes="{sizes}" width="{w6}" height="{h6}" alt="{esc(p["alt"])}" loading="lazy" decoding="async">'
-            f'<span class="cap"><b>{esc(p["event"])}</b><span>{esc(meta)}</span></span></a></div>')
-    return f'{chips}<div class="gal" id="gal">{"".join(tiles)}</div>'
-
-
 SITE = 'https://odumacorp.com'
 SRC = HERE / 'src'
 PRODUCTS = json.loads((HERE / 'data' / 'products.json').read_text())['products']
@@ -274,7 +188,7 @@ def page(path, title, desc, content, js_extra='', og='/img/og.png', og_alt='Odum
     js = (SRC / 'site.js').read_text() + js_extra
     html = fill((SRC / 'base.html').read_text(), TITLE=esc(title), DESC=esc(desc), PATH=path, OG=og, OG_ALT=esc(og_alt),
                 JSONLD=json.dumps(jsonld or ORG, separators=(',', ':')), CSS=css, SPRITE=(SRC / 'sprite.svg').read_text(),
-                NAV=nav(NAV_HOME), CONTENT=content, JS=js, YEAR=str(datetime.date.today().year), AFTER=LIGHTBOX if 'id="gal"' in content else '',
+                NAV=nav(NAV_HOME), CONTENT=content, JS=js, YEAR=str(datetime.date.today().year), AFTER=LIGHTBOX if 'id="gp-groups"' in content else '',
                 FOOTER_PRODUCTS='\n'.join(f'          <li><a href="/products/{p["slug"]}/">{esc(p["name"])}</a></li>' for p in PRODUCTS))
     typed = ''.join(f'<span style="animation-delay:{0.25 + i * 0.14:.2f}s">{c}</span>' for i, c in enumerate('*384*88041#'))
     html = html.replace('<!--@TYPED-->', typed)
@@ -292,22 +206,28 @@ def page(path, title, desc, content, js_extra='', og='/img/og.png', og_alt='Odum
     return html
 
 
-LIGHTBOX = """<dialog class="lb" id="lb" aria-label="Event photo">
+LIGHTBOX = """<dialog class="lb" id="lb" aria-label="Gallery viewer">
   <div class="lb-bar"><span class="lb-count" id="lb-count"></span><button type="button" data-lb="close" aria-label="Close"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-x"/></svg></button></div>
-  <figure class="lb-fig" id="lb-fig"><img id="lb-img" alt=""><figcaption id="lb-cap"></figcaption></figure>
+  <figure class="lb-fig" id="lb-fig"><figcaption id="lb-cap"></figcaption></figure>
   <div><button type="button" class="lb-nav lb-prev" data-lb="prev" aria-label="Previous photo"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-left"/></svg></button><button type="button" class="lb-nav lb-next" data-lb="next" aria-label="Next photo"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-right"/></svg></button></div>
 </dialog>"""
 
 
 def home():
-    heading, logos = partners()
     inds = '\n'.join(f'      <a class="ind-tile" data-ind="{k}" href="https://app.odumacorp.com/projects/{"" if k == "all" else "?industry=" + k}">'
                      f'{icon(ic)}{n}<small>Browse</small></a>' for k, n, ic in INDUSTRIES)
     content = fill((SRC / 'home.html').read_text(), INDUSTRIES=inds, PRODUCT_CARDS=products_grid(),
-                   PARTNERS_HEADING=esc(heading), PARTNERS=logos, EVENTS=events())
+)
     return page('/', 'Oduma Corp: connect African founders with investors',
                 'Publish your project and get proposals from angel investors, or browse early-stage African projects to back. '
                 'Free to join. Based in Nairobi, Kenya.', content)
+
+
+def gallery_page():
+    """/gallery/: admin-posted photos and videos, loaded from the app's public feed (src/gallery.js)."""
+    return page('/gallery/', 'Gallery | Oduma Corp',
+                'Photos and videos from pitch events, meetups and expos Oduma Corp has taken part in.',
+                (SRC / 'gallery.html').read_text(), js_extra=(SRC / 'gallery.js').read_text())
 
 
 def products_index():
@@ -364,18 +284,15 @@ def main():
             assert p.get(k), f'products.json: "{k}" is required ({p.get("name")})'
         assert re.fullmatch(r'[a-z0-9-]+', p['slug']) and p['slug'] not in seen, f'bad or repeated slug {p["slug"]}'
         seen.add(p['slug'])
-    pages = [home(), products_index()] + [product_page(p) for p in PRODUCTS]
+    pages = [home(), products_index(), gallery_page()] + [product_page(p) for p in PRODUCTS]
     # remove pages of products that were taken out of the list
     for d in (PUB / 'products').iterdir():
         if d.is_dir() and d.name not in seen and (d / 'index.html').exists():
             shutil.rmtree(d)
             print('removed', d.relative_to(ROOT))
-    samples = [l['name'] for l in json.loads((PARTNERS / 'partners.json').read_text()).get('logos', []) if l.get('example')] + \
-              [e['file'] for e in json.loads((EVENTS / 'events.json').read_text()).get('photos', []) if e.get('example')]
     copy = sum(h.count(' data-ex') for h in pages)
-    if samples or copy:
-        print(f'NOTE: example content still on the site: {copy} text blocks marked data-ex in src/, '
-              f'{len(samples)} example logos/photos ({", ".join(samples)}). Replace them before telling people about the site.')
+    if copy:
+        print(f'NOTE: {copy} example text block(s) marked data-ex in src/ are still on the site.')
 
 
 if __name__ == '__main__':

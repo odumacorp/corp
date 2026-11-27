@@ -586,6 +586,66 @@ html:not(.js) .panel+.panel{margin-top:56px}
 @media (min-width:900px){.band-photo.bg-on::before{background-image:url(/img/photos/team-1600.webp)}}
 .band-photo::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(135deg,rgba(31,111,235,.9),rgba(22,88,196,.94))}
 
+/* ── Gallery carousel (homepage) ── */
+.car-ctrl{display:flex;gap:8px}
+.car-ctrl[hidden]{display:none}
+html:not(.js) .car-ctrl{display:none}
+.car-btn{width:48px;height:48px;border-radius:50%;border:1.5px solid #CBD3E1;background:var(--card);color:var(--ink);display:grid;place-items:center;cursor:pointer;transition:border-color .2s,transform .2s}
+.car-btn:hover:not([disabled]){border-color:var(--blue);transform:translateY(-1px)}
+.car-btn[disabled]{opacity:.4;cursor:default}
+.car-btn .i{width:20px;height:20px}
+.car{position:relative}
+.car-track{list-style:none;margin:0;padding:4px 2px 18px;display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 3*18px)/4);gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;overscroll-behavior-x:contain}
+@media (max-width:1024px){.car-track{grid-auto-columns:calc((100% - 2*16px)/3);gap:16px}}
+@media (max-width:760px){.car-track{grid-auto-columns:72%;gap:14px}}
+.car-card{scroll-snap-align:start;min-width:0}
+.car-card a{display:block;height:100%;color:var(--ink);text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s}
+.car-card a:hover{transform:translateY(-4px);box-shadow:var(--shadow-up);color:var(--ink)}
+.car-media{position:relative;display:block;aspect-ratio:4/3;background:#DCE4F2;overflow:hidden}
+.car-media img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.car-card a:hover .car-media img{transform:scale(1.04)}
+.car-cap{display:block;padding:12px 14px 14px}
+.car-cap b{display:block;font-size:15.5px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.car-cap small{display:block;margin-top:2px;font-size:13.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.skel .car-media,.gp-tile.skel{background:linear-gradient(100deg,#E4EAF4 30%,#EEF2F9 50%,#E4EAF4 70%);background-size:300% 100%;animation:shimmer 1.4s linear infinite}
+.skel .car-cap b{height:14px;width:70%;border-radius:6px;background:#E4EAF4}
+.skel .car-cap small{height:11px;width:45%;border-radius:6px;background:#EDF1F7;margin-top:8px}
+.car-card.skel{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--card)}
+@keyframes shimmer{from{background-position:100% 0}to{background-position:0 0}}
+.car-note{margin:0;padding:22px;border:1.5px dashed #C3CDE0;border-radius:18px;text-align:center;color:var(--muted)}
+.car-note a{font-weight:600}
+.car-more{margin:14px 0 0;text-align:center}
+.gp-play{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(15,27,51,.72);color:#fff;display:grid;place-items:center;pointer-events:none}
+
+/* ── Gallery page ── */
+.gp{padding-top:40px}
+.gp-years{margin-bottom:28px}
+.gp-status{margin:0 0 18px;color:var(--muted);font-size:15.5px;min-height:1.5em}
+.gp-status:empty{min-height:0;margin:0}
+.linkish{border:0;background:none;padding:0;font:inherit;color:var(--deep);font-weight:600;text-decoration:underline;cursor:pointer;min-height:44px}
+.gev{margin:0 0 44px;padding:0}
+.gev-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.gev-head h2{font-size:clamp(21px,1vw + 16px,26px);letter-spacing:-.02em;margin:0}
+.gev-head p{margin:0;color:var(--muted);font-size:15px}
+.gp-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+@media (max-width:1024px){.gp-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:640px){.gp-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+.gp-tile{position:relative;display:block;width:100%;aspect-ratio:4/3;padding:0;border:0;border-radius:16px;overflow:hidden;background:#DCE4F2;cursor:zoom-in;color:#fff}
+.gp-tile img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.gp-tile:hover img{transform:scale(1.04)}
+.gp-tile:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.gp-cap{position:absolute;left:0;right:0;bottom:0;padding:26px 12px 10px;text-align:left;background:linear-gradient(to top,rgba(15,27,51,.82),rgba(15,27,51,0));transform:translateY(101%);transition:transform .25s}
+.gp-cap b{display:block;font-size:14.5px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gp-tile:hover .gp-cap,.gp-tile:focus-visible .gp-cap{transform:none}
+@media (hover:none){.gp-cap{transform:none}}
+.gp-empty{padding:28px 22px;border:1.5px dashed #C3CDE0;border-radius:18px;text-align:center;color:var(--muted)}
+.lb-fig video{max-width:100%;max-height:calc(100vh - 190px);max-height:calc(100dvh - 190px);border-radius:10px;background:#000}
+.lb-fig figcaption .lb-note{margin-top:6px;opacity:.9;white-space:pre-line}
+@media (prefers-reduced-motion:reduce){.skel .car-media,.gp-tile.skel{animation:none}.gp-cap{transform:none}}
+/* About sits on mist; when there are no partners yet, keep the alternating backgrounds */
+#partners[hidden] + #about{background:var(--paper)}
+.logo-tile img{height:52px}
+
 </style>
 </head>
 <body>
@@ -894,28 +954,44 @@ html:not(.js) .panel+.panel{margin-top:56px}
   </div>
 </section>
 
-<!-- Partners -->
-<section id="partners" class="mist" aria-labelledby="h-partners">
+<!-- Gallery carousel: filled from the app's public feed, newest event first -->
+<section id="gallery" class="mist" aria-labelledby="h-gallery">
   <div class="wrap">
-    <div class="sec-head rv">
-      <span class="eyebrow">Partners and clients</span>
-      <h2 id="h-partners">Partners</h2>
+    <div class="sec-head row rv">
+      <div>
+        <span class="eyebrow">Gallery</span>
+        <h2 id="h-gallery">From our events</h2>
+        <p>Photos and videos from pitch events, meetups and expos, newest first.</p>
+      </div>
+      <div class="car-ctrl js-only" aria-hidden="false">
+        <button type="button" class="car-btn" data-car="prev" aria-controls="car-track" aria-label="Previous photos" disabled><svg class="i" aria-hidden="true" focusable="false"><use href="#i-left"/></svg></button>
+        <button type="button" class="car-btn" data-car="next" aria-controls="car-track" aria-label="Next photos"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-right"/></svg></button>
+      </div>
     </div>
-<ul class="logos"><li class="rv" style="--d:0.00s"><div class="logo-tile"><img src="/images/partners/acme-academy.svg" alt="Acme Academy" width="242" height="52" loading="lazy" decoding="async"></div></li><li class="rv" style="--d:0.08s"><div class="logo-tile"><img src="/images/partners/globex-sacco.svg" alt="Globex SACCO" width="242" height="52" loading="lazy" decoding="async"></div></li><li class="rv" style="--d:0.16s"><div class="logo-tile"><img src="/images/partners/initech-insurance.svg" alt="Initech Insurance" width="315" height="52" loading="lazy" decoding="async"></div></li><li class="rv" style="--d:0.24s"><div class="logo-tile"><img src="/images/partners/umbrella-law.svg" alt="Umbrella Law" width="242" height="52" loading="lazy" decoding="async"></div></li><li class="rv" style="--d:0.32s"><div class="logo-tile"><img src="/images/partners/northwind-logistics.svg" alt="Northwind Logistics" width="343" height="52" loading="lazy" decoding="async"></div></li><li class="rv" style="--d:0.40s"><div class="logo-tile"><img src="/images/partners/contoso-clinic.svg" alt="Contoso Clinic" width="270" height="52" loading="lazy" decoding="async"></div></li></ul>
+    <div class="car rv" aria-roledescription="carousel" aria-label="Gallery photos and videos">
+      <ul class="car-track" id="car-track" aria-live="polite" aria-busy="true">
+        <li class="car-card skel" aria-hidden="true"><span class="car-media"></span><span class="car-cap"><b></b><small></small></span></li>
+        <li class="car-card skel" aria-hidden="true"><span class="car-media"></span><span class="car-cap"><b></b><small></small></span></li>
+        <li class="car-card skel" aria-hidden="true"><span class="car-media"></span><span class="car-cap"><b></b><small></small></span></li>
+        <li class="car-card skel" aria-hidden="true"><span class="car-media"></span><span class="car-cap"><b></b><small></small></span></li>
+      </ul>
+      <p class="car-note" id="car-note" hidden></p>
+    </div>
+    <p class="car-more"><a class="btn btn-ghost" href="/gallery/">View all photos and videos <svg class="i" aria-hidden="true" focusable="false"><use href="#i-arrow"/></svg></a></p>
   </div>
 </section>
 
-<!-- Events -->
-<section id="events" aria-labelledby="h-events">
+<!-- Partners: logos added by admins in the app (/partners/manage/); hidden until there is at least one -->
+<section id="partners" aria-labelledby="h-partners" hidden>
   <div class="wrap">
-    <div class="sec-head rv">
-      <span class="eyebrow">Events</span>
-      <h2 id="h-events">Where you've met us</h2>
-      <p>Pitch events, meetups and expos we've taken part in.</p>
+    <div class="sec-head">
+      <span class="eyebrow">Partners and clients</span>
+      <h2 id="h-partners">Partners</h2>
     </div>
-<div class="chips" id="chips" role="group" aria-label="Show photos from"><span class="ind" aria-hidden="true"></span><button type="button" aria-pressed="true" data-year="all">All</button><button type="button" aria-pressed="false" data-year="2026">2026</button><button type="button" aria-pressed="false" data-year="2025">2025</button></div><div class="gal" id="gal"><div class="tile rv" data-year="2026" style="--d:0.00s"><a href="/images/events/_web/expo-1200.webp" data-i data-w="1200" data-h="857" data-event="Example: Kenya Innovation Expo" data-meta="Nairobi · September 2026"><img src="/images/events/_web/expo-640.webp" srcset="/images/events/_web/expo-640.webp 640w, /images/events/_web/expo-1200.webp 1200w" sizes="(max-width:860px) 92vw, 580px" width="640" height="457" alt="Visitors look at products on an exhibitor&#x27;s table at a trade show" loading="lazy" decoding="async"><span class="cap"><b>Example: Kenya Innovation Expo</b><span>Nairobi · September 2026</span></span></a></div><div class="tile rv" data-year="2026" style="--d:0.08s"><a href="/images/events/_web/workshop-1200.webp" data-i data-w="1200" data-h="800" data-event="Example: Founders workshop" data-meta="Nairobi · July 2026"><img src="/images/events/_web/workshop-640.webp" srcset="/images/events/_web/workshop-640.webp 640w, /images/events/_web/workshop-1200.webp 1200w" sizes="(max-width:860px) 46vw, 280px" width="640" height="427" alt="A woman works on a laptop at a desk during a workshop" loading="lazy" decoding="async"><span class="cap"><b>Example: Founders workshop</b><span>Nairobi · July 2026</span></span></a></div><div class="tile rv" data-year="2026" style="--d:0.16s"><a href="/images/events/_web/meeting-1200.webp" data-i data-w="1200" data-h="800" data-event="Example: SACCO partners meeting" data-meta="Nakuru · May 2026"><img src="/images/events/_web/meeting-640.webp" srcset="/images/events/_web/meeting-640.webp 640w, /images/events/_web/meeting-1200.webp 1200w" sizes="(max-width:860px) 46vw, 280px" width="640" height="427" alt="A team meets around a conference table with laptops" loading="lazy" decoding="async"><span class="cap"><b>Example: SACCO partners meeting</b><span>Nakuru · May 2026</span></span></a></div><div class="tile rv" data-year="2025" style="--d:0.24s"><a href="/images/events/_web/team-1200.webp" data-i data-w="1200" data-h="800" data-event="Example: Tech meetup" data-meta="Mombasa · November 2025"><img src="/images/events/_web/team-640.webp" srcset="/images/events/_web/team-640.webp 640w, /images/events/_web/team-1200.webp 1200w" sizes="(max-width:860px) 46vw, 280px" width="640" height="427" alt="Four colleagues stand and talk in a bright office" loading="lazy" decoding="async"><span class="cap"><b>Example: Tech meetup</b><span>Mombasa · November 2025</span></span></a></div><div class="tile rv" data-year="2025" style="--d:0.32s"><a href="/images/events/_web/signing-1200.webp" data-i data-w="1200" data-h="800" data-event="Example: Partnership signing" data-meta="Kisumu · August 2025"><img src="/images/events/_web/signing-640.webp" srcset="/images/events/_web/signing-640.webp 640w, /images/events/_web/signing-1200.webp 1200w" sizes="(max-width:860px) 46vw, 280px" width="640" height="427" alt="Two people at a desk; one hands the other a document to sign" loading="lazy" decoding="async"><span class="cap"><b>Example: Partnership signing</b><span>Kisumu · August 2025</span></span></a></div></div>
+    <ul class="logos" id="partner-logos"></ul>
   </div>
 </section>
+
 
 <!-- About -->
 <section id="about" class="mist" aria-labelledby="h-about">
@@ -986,7 +1062,7 @@ html:not(.js) .panel+.panel{margin-top:56px}
         <h2>Company</h2>
         <ul>
           <li><a href="/#about">About</a></li>
-          <li><a href="https://app.odumacorp.com/gallery/">Gallery</a></li>
+          <li><a href="/gallery/">Gallery</a></li>
           <li><a href="https://app.odumacorp.com/privacy/">Privacy Policy</a></li>
           <li><a href="https://app.odumacorp.com/terms/">Terms</a></li>
           <li><a href="https://www.linkedin.com/company/oduma-corp/" rel="noopener">LinkedIn</a></li>
@@ -1000,11 +1076,7 @@ html:not(.js) .panel+.panel{margin-top:56px}
     </div>
   </div>
 </footer>
-<dialog class="lb" id="lb" aria-label="Event photo">
-  <div class="lb-bar"><span class="lb-count" id="lb-count"></span><button type="button" data-lb="close" aria-label="Close"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-x"/></svg></button></div>
-  <figure class="lb-fig" id="lb-fig"><img id="lb-img" alt=""><figcaption id="lb-cap"></figcaption></figure>
-  <div><button type="button" class="lb-nav lb-prev" data-lb="prev" aria-label="Previous photo"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-left"/></svg></button><button type="button" class="lb-nav lb-next" data-lb="next" aria-label="Next photo"><svg class="i" aria-hidden="true" focusable="false"><use href="#i-right"/></svg></button></div>
-</dialog>
+
 <script>
 (function () {
   'use strict';
@@ -1134,8 +1206,55 @@ html:not(.js) .panel+.panel{margin-top:56px}
         });
         var grid = $('#projs');
         if (grid && d.featured && d.featured.length) grid.innerHTML = d.featured.slice(0, 6).map(projCard).join('');
+        carousel(d.gallery || []);
+        partnerLogos(d.partners || []);
       })
-      .catch(function () { /* app asleep or not allowed from this origin: static content stays */ });
+      .catch(function () { carousel(null); /* app asleep or not allowed from this origin: the rest of the page stays static */ });
+  };
+
+  /* ── Partner logos (homepage): added by admins in the app; the section stays hidden until there is one ── */
+  var partnerLogos = function (list) {
+    var sec = $('#partners'), ul = $('#partner-logos'); if (!sec || !ul || !list.length) return;
+    ul.innerHTML = list.map(function (p) {
+      var img = '<img src="' + esc(abs(p.logo)) + '" alt="' + esc(p.name) + '" height="52" loading="lazy" decoding="async">';
+      return '<li>' + (p.url ? '<a class="logo-tile" href="' + esc(p.url) + '" rel="noopener" target="_blank" aria-label="' + esc(p.name) + ' (opens their website)">' + img + '</a>'
+        : '<div class="logo-tile">' + img + '</div>') + '</li>';
+    }).join('');
+    sec.hidden = false;
+  };
+
+  /* ── Gallery carousel (homepage): newest event first; each card opens that item on /gallery/ ── */
+  var carousel = function (list) {
+    var track = $('#car-track'), note = $('#car-note'); if (!track) return;
+    var ctrl = $('.car-ctrl');
+    track.setAttribute('aria-busy', 'false');
+    if (!list || !list.length) {
+      track.innerHTML = ''; if (ctrl) ctrl.hidden = true;
+      note.innerHTML = list ? 'Photos from our events will appear here soon.' : 'The latest photos could not load just now. <a href="/gallery/">Open the gallery</a>.';
+      note.hidden = false;
+      return;
+    }
+    var PLAY = '<span class="gp-play" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg></span>';
+    track.innerHTML = list.map(function (g) {
+      var sub = [g.event, g.date_label].filter(Boolean).join(' · ');
+      return '<li class="car-card"><a href="/gallery/#item-' + encodeURIComponent(g.id) + '">' +
+        '<span class="car-media"><img src="' + esc(abs(g.thumb)) + '" alt="" width="640" height="480" loading="lazy" decoding="async">' + (g.type === 'video' ? PLAY : '') + '</span>' +
+        '<span class="car-cap"><b>' + esc(g.title) + '</b><small>' + esc(sub) + '</small></span></a></li>';
+    }).join('');
+    var prev = $('[data-car="prev"]'), next = $('[data-car="next"]'), raf = 0;
+    var update = function () {
+      raf = 0;
+      var max = track.scrollWidth - track.clientWidth - 2;
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft >= max;
+      if (ctrl) ctrl.hidden = max <= 0;
+    };
+    var go = function (dir) { track.scrollBy({ left: dir * Math.max(240, track.clientWidth * 0.85), behavior: reduce ? 'auto' : 'smooth' }); };
+    prev.onclick = function () { go(-1); };
+    next.onclick = function () { go(1); };
+    track.addEventListener('scroll', function () { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
+    window.addEventListener('resize', function () { if (!raf) raf = requestAnimationFrame(update); });
+    requestAnimationFrame(update);
   };
   if ($('#cohort-n') || $('#projs')) feed();
   document.addEventListener('pointerover', function (e) { if (e.target.closest && e.target.closest('a[href^="' + APP + '"]')) feed(); }, { passive: true });
