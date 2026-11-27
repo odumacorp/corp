@@ -1,0 +1,204 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Manage partners | Oduma Corp{% endblock %}
+{% block meta_description %}Add and edit the partner logos shown on odumacorp.com.{% endblock %}
+
+{% block content %}
+<style>
+.pm{--ink:#0A1628;--text:#2D3F58;--muted:#566A8A;--line:#E4EAF2;--blue:var(--oc-blue,#1B5EC7);--blue-d:var(--oc-blue-dark,#144FA8);
+  max-width:1160px;margin:0 auto;padding:16px 16px 56px;font-family:'Inter',system-ui,sans-serif;font-size:16px;line-height:1.55;color:var(--text);}
+.pm *{box-sizing:border-box;}
+.pm h1{font-family:'Space Grotesk',sans-serif;font-size:30px;line-height:1.15;color:var(--ink);margin:8px 0 4px;}
+.pm h2{font-family:'Space Grotesk',sans-serif;font-size:19px;color:var(--ink);margin:0 0 4px;}
+.pm-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px;margin-bottom:20px;}
+.pm-head p{margin:0;max-width:46em;}
+.pm-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 4px rgba(10,22,40,.04);}
+.pm-add{padding:20px;margin-bottom:28px;}
+.pm-add > p{margin:0 0 16px;color:var(--muted);font-size:14px;}
+.pm-grid{display:grid;grid-template-columns:2fr 2fr 1fr;gap:14px;}
+.pm-grid .full{grid-column:1/-1;}
+@media(max-width:760px){.pm-grid{grid-template-columns:minmax(0,1fr);}}
+.pm label{display:block;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.pm label span{font-weight:400;color:var(--muted);}
+.pm input[type=text],.pm input[type=url],.pm input[type=number]{width:100%;min-height:44px;padding:9px 12px;border:1px solid #C9D3E1;border-radius:8px;font:inherit;font-size:15px;color:var(--ink);background:#fff;}
+.pm input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,94,199,.15);}
+.pf-file-wrap{position:relative;display:flex;align-items:center;gap:12px;min-height:52px;padding:8px 12px;border:1.5px dashed #9AA8BB;border-radius:10px;background:#F8FAFD;cursor:pointer;}
+.pf-file-wrap:focus-within{outline:3px solid var(--blue);outline-offset:2px;}
+.pf-file-wrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;}
+.pf-file-btn{flex-shrink:0;padding:8px 14px;border-radius:8px;background:var(--blue);color:#fff;font-weight:700;font-size:14px;}
+.pf-file-wrap.sm{min-height:44px;}
+.pf-file-wrap.sm .pf-file-btn{background:#fff;color:var(--ink);border:1px solid #C9D3E1;}
+.pf-file-name{font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pm-preview{display:none;align-items:center;justify-content:center;height:84px;margin-top:8px;border:1px solid var(--line);border-radius:10px;background:#fff;}
+.pm-preview img{max-height:52px;max-width:90%;}
+.pm-check{display:flex;align-items:center;gap:8px;font-size:15px;min-height:44px;font-weight:400!important;}
+.pm-check input{width:20px;height:20px;}
+.pm-small{font-size:13px;color:var(--muted);margin:4px 0 0;}
+.pm-warn{margin:14px 0 0;padding:10px 12px;border-radius:8px;background:#FEF7E6;color:#7A4A00;font-size:14px;}
+.pm-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:9px 16px;border-radius:8px;border:1.5px solid transparent;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap;}
+.pm-btn--p{background:var(--blue);color:#fff;}
+.pm-btn--p:hover{background:var(--blue-d);color:#fff;}
+.pm-btn--p[disabled]{opacity:.7;cursor:progress;}
+.pm-btn--o{background:#fff;border-color:#C9D3E1;color:var(--ink);}
+.pm-btn--o:hover{border-color:var(--blue);color:var(--blue);}
+.pm-btn--danger{background:#fff;border-color:#F2C4C4;color:#A12020;}
+.pm-btn--danger:hover{border-color:#A12020;}
+.pm-list{list-style:none;margin:0;padding:0;display:grid;gap:14px;}
+.pm-item{display:grid;grid-template-columns:220px minmax(0,1fr);gap:18px;padding:14px;scroll-margin-top:90px;}
+.pm-item.is-hidden{background:#FAFBFD;}
+.pm-item.is-hidden .pm-logo img{opacity:.5;}
+.pm-item:target{box-shadow:0 0 0 3px rgba(27,94,199,.35);}
+.pm-logo{display:flex;align-items:center;justify-content:center;height:110px;margin:0;border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px;}
+.pm-logo img{max-height:56px;max-width:100%;object-fit:contain;}
+@media(max-width:800px){.pm-item{grid-template-columns:minmax(0,1fr);}}
+.pm-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:8px;}
+.pm-tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:100px;}
+.pm-tag--live{background:#DCF3E6;color:#0E5C34;}
+.pm-tag--off{background:#FEF3C7;color:#92400E;}
+.pm-fields{display:grid;grid-template-columns:2fr 2fr 1fr;gap:10px 12px;}
+.pm-fields .full{grid-column:1/-1;}
+@media(max-width:640px){.pm-fields{grid-template-columns:minmax(0,1fr);}}
+.pm-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;}
+.pm-actions form{margin:0;}
+.pm-actions .pm-btn{min-height:40px;padding:6px 14px;font-size:14px;}
+.pm-empty{padding:36px 22px;text-align:center;}
+</style>
+
+<div class="pm">
+  <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+    <ol class="oc-breadcrumbs__list">
+      <li class="oc-breadcrumbs__item"><a href="{% url 'admin_panel' %}" class="oc-breadcrumbs__link">Admin</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Partners</span></li>
+    </ol>
+  </nav>
+
+  <div class="pm-head">
+    <div>
+      <h1>Manage partners</h1>
+      <p>Logos you add here appear in the Partners section on <a href="https://odumacorp.com/#partners">odumacorp.com</a>, in the order you set. The section stays hidden until at least one partner is shown.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a class="pm-btn pm-btn--o" href="{% url 'gallery_manage' %}">Manage gallery</a>
+      <a class="pm-btn pm-btn--o" href="https://odumacorp.com/#partners" target="_blank" rel="noopener">View on website</a>
+    </div>
+  </div>
+
+  <section class="pm-card pm-add" aria-labelledby="pm-add-title">
+    <h2 id="pm-add-title">Add a partner</h2>
+    <p>A logo with a transparent or white background looks best. It shows in grey and turns to full colour when someone points at it.</p>
+    <form method="post" action="{% url 'partner_add' %}" enctype="multipart/form-data" id="pm-form">
+      {% csrf_token %}
+      <div class="pm-grid">
+        <div>
+          <label for="pm-name">Organisation name</label>
+          <input type="text" id="pm-name" name="name" maxlength="120" required placeholder="As it should appear">
+          <p class="pm-small">Also used as the logo's text for screen readers.</p>
+        </div>
+        <div>
+          <label for="pm-web">Website <span>(optional)</span></label>
+          <input type="url" id="pm-web" name="website" maxlength="300" placeholder="https://">
+          <p class="pm-small">If given, the logo links to it.</p>
+        </div>
+        <div>
+          <label for="pm-pos">Order</label>
+          <input type="number" id="pm-pos" name="position" min="0" max="9999" value="{{ next_position }}">
+          <p class="pm-small">Lower shows first.</p>
+        </div>
+        <div class="full">
+          <label for="pm-logo">Logo</label>
+          <div class="pf-file-wrap">
+            <input type="file" id="pm-logo" name="logo" accept="{{ accept }}" required aria-describedby="pm-logo-help">
+            <span class="pf-file-btn" aria-hidden="true">Choose logo</span>
+            <span class="pf-file-name" id="pm-logo-name">No file chosen</span>
+          </div>
+          <p class="pm-small" id="pm-logo-help">PNG, SVG, WebP, JPG or GIF, up to {{ max_mb }} MB.</p>
+          <div class="pm-preview" id="pm-preview"><img alt="Logo preview" id="pm-preview-img"></div>
+        </div>
+        <div class="full">
+          <label class="pm-check"><input type="checkbox" name="is_published" value="on" checked> Show on the website straight away</label>
+          <button type="submit" class="pm-btn pm-btn--p" id="pm-submit">Add partner</button>
+          <p class="pm-warn">Only add an organisation's logo with their permission.</p>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section aria-labelledby="pm-list-title">
+    <h2 id="pm-list-title">Partners</h2>
+    <p class="pm-small" style="margin:0 0 14px;">{{ items|length }} partner{{ items|length|pluralize }}, {{ shown }} shown on the website.</p>
+    {% if items %}
+    <ul class="pm-list">
+      {% for p in items %}
+      <li class="pm-card pm-item{% if not p.is_published %} is-hidden{% endif %}" id="partner-{{ p.pk }}">
+        <figure class="pm-logo"><img src="{{ p.logo_url }}" alt="{{ p.name }} logo" loading="lazy" decoding="async"></figure>
+        <div>
+          <div class="pm-meta">
+            {% if p.is_published %}<span class="pm-tag pm-tag--live">Shown</span>{% else %}<span class="pm-tag pm-tag--off">Hidden</span>{% endif %}
+            <span>Added {{ p.created_at|date:"j M Y" }}</span>
+          </div>
+          <form method="post" action="{% url 'partner_update' p.pk %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="pm-fields">
+              <div>
+                <label for="n-{{ p.pk }}">Organisation name</label>
+                <input type="text" id="n-{{ p.pk }}" name="name" value="{{ p.name }}" maxlength="120" required>
+              </div>
+              <div>
+                <label for="w-{{ p.pk }}">Website <span>(optional)</span></label>
+                <input type="url" id="w-{{ p.pk }}" name="website" value="{{ p.website }}" maxlength="300" placeholder="https://">
+              </div>
+              <div>
+                <label for="o-{{ p.pk }}">Order</label>
+                <input type="number" id="o-{{ p.pk }}" name="position" value="{{ p.position }}" min="0" max="9999">
+              </div>
+              <div class="full">
+                <label for="l-{{ p.pk }}">Replace logo <span>(optional)</span></label>
+                <div class="pf-file-wrap sm">
+                  <input type="file" id="l-{{ p.pk }}" name="logo" accept="{{ accept }}">
+                  <span class="pf-file-btn" aria-hidden="true">Choose new logo</span>
+                  <span class="pf-file-name">Keep the current logo</span>
+                </div>
+              </div>
+            </div>
+            <div class="pm-actions"><button type="submit" class="pm-btn pm-btn--p">Save changes</button></div>
+          </form>
+          <div class="pm-actions">
+            <form method="post" action="{% url 'partner_toggle' p.pk %}">{% csrf_token %}<button type="submit" class="pm-btn pm-btn--o">{% if p.is_published %}Hide from website{% else %}Show on website{% endif %}</button></form>
+            <form method="post" action="{% url 'partner_delete' p.pk %}" data-confirm="Remove {{ p.name }}? This deletes the logo.">{% csrf_token %}<button type="submit" class="pm-btn pm-btn--danger">Remove</button></form>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="pm-card pm-empty"><h2>No partners yet</h2><p>Add the first one with the form above. Until then the Partners section is hidden on the website.</p></div>
+    {% endif %}
+  </section>
+</div>
+
+<script>
+(function () {
+  /* File inputs: show the chosen name; preview the new logo */
+  document.querySelectorAll('.pm .pf-file-wrap input[type=file]').forEach(function (inp) {
+    inp.addEventListener('change', function () {
+      var f = inp.files[0], label = inp.parentNode.querySelector('.pf-file-name');
+      label.textContent = f ? f.name : (inp.id === 'pm-logo' ? 'No file chosen' : 'Keep the current logo');
+      if (inp.id === 'pm-logo') {
+        var box = document.getElementById('pm-preview');
+        if (f && /^image\//.test(f.type)) { document.getElementById('pm-preview-img').src = URL.createObjectURL(f); box.style.display = 'flex'; }
+        else box.style.display = 'none';
+      }
+    });
+  });
+  var form = document.getElementById('pm-form'), submit = document.getElementById('pm-submit');
+  form.addEventListener('submit', function (e) {
+    setTimeout(function () { if (!e.defaultPrevented) { submit.disabled = true; submit.textContent = 'Uploading…'; } }, 0);
+  });
+  window.addEventListener('pageshow', function () { submit.disabled = false; submit.textContent = 'Add partner'; });
+  document.querySelectorAll('form[data-confirm]').forEach(function (f) {
+    f.addEventListener('submit', function (e) { if (!window.confirm(f.getAttribute('data-confirm'))) e.preventDefault(); });
+  });
+})();
+</script>
+{% endblock %}

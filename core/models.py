@@ -969,15 +969,37 @@ class GalleryItem(models.Model):
     caption      = models.TextField(blank=True, default='')
     file         = models.FileField(storage=ChatAttachmentStorage(), upload_to='gallery/%Y/%m/')
     media_type   = models.CharField(max_length=5, choices=MEDIA_TYPES, default='image')
+    # The event the photo or video is from. The gallery groups and sorts by these (newest event first).
+    event_name   = models.CharField(max_length=120, blank=True, default='')
+    place        = models.CharField(max_length=120, blank=True, default='')
+    event_date   = models.DateField(null=True, blank=True)
     is_published = models.BooleanField(default=True)
     created_by   = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='gallery_items')
     created_at   = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = [models.F('event_date').desc(nulls_last=True), '-created_at']
 
     def __str__(self):
         return self.title
+
+    @property
+    def shown_date(self):
+        """The event date, or the upload date when no event date was given."""
+        return self.event_date or self.created_at.date()
+
+    @property
+    def large_url(self):
+        """A full-screen size: photos resized to at most 1600px wide; videos as they are."""
+        return cloudinary_typed_url(self.file.url, self.media_type, 'c_limit,w_1600,q_auto,f_auto' if self.media_type == 'image' else '')
+
+    def public_dict(self):
+        """What the public gallery feed (odumacorp.com) shows for this item.
+        (Partner logos are a separate model below: Partner.)"""
+        d = self.shown_date
+        return {'id': self.pk, 'title': self.title, 'caption': self.caption, 'type': self.media_type,
+                'thumb': self.thumb_url, 'src': self.large_url, 'event': self.event_name, 'place': self.place,
+                'date': d.isoformat(), 'date_label': f'{d.day} {d:%b %Y}', 'dated': bool(self.event_date)}
 
     @property
     def url(self):
@@ -991,6 +1013,32 @@ class GalleryItem(models.Model):
             url = url.rsplit('.', 1)[0] if url.rsplit('/', 1)[-1].count('.') else url
             url += '.jpg'                               # Cloudinary turns the frame into a JPEG
         return url
+
+
+
+class Partner(models.Model):
+    """A partner or client logo shown on odumacorp.com. Admins manage these at /partners/manage/.
+    Only add a logo with that organisation's permission."""
+    name         = models.CharField(max_length=120)
+    logo         = models.FileField(storage=ChatAttachmentStorage(), upload_to='partners/')
+    website      = models.URLField(max_length=300, blank=True, default='')
+    position     = models.PositiveIntegerField(default=0, help_text='Lower numbers show first.')
+    is_published = models.BooleanField(default=True)
+    created_at   = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['position', 'name']
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def logo_url(self):
+        """The logo scaled to at most 480x160 (sharp on high-density screens at the 52px tile height)."""
+        return cloudinary_typed_url(self.logo.url, 'image', 'c_limit,w_480,h_160,q_auto,f_auto')
+
+    def public_dict(self):
+        return {'id': self.pk, 'name': self.name, 'logo': self.logo_url, 'url': self.website}
 
 
 ###pagination

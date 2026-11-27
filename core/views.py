@@ -428,8 +428,8 @@ def platform_counts():
     return {**people, **projects}
 
 
-def homepage_gallery(limit=6):
-    """Latest published gallery items for the homepage preview."""
+def homepage_gallery(limit=12):
+    """Published gallery items for the homepage carousel, newest event first."""
     from .models import GalleryItem
     return list(GalleryItem.objects.filter(is_published=True)[:limit])
 
@@ -458,7 +458,7 @@ def index(request):
         "investor_count": investor_count,
         "project_count": project_count,
         "industry_counts": industry_counts,
-        "gallery_items": homepage_gallery(),
+        "gallery_items": homepage_gallery(6),
         "all_projects_count": counts['all_projects_count'],
         "sub_plans": sub_plans,
     })
@@ -8204,7 +8204,7 @@ def public_stats(request):
     """Public JSON for the static homepage: live counts + featured projects.
     Also doubles as the wake-up ping that spins the app up from Render's free-tier sleep."""
     from django.utils.text import Truncator
-    from .models import Project, CustomUser
+    from .models import Project, CustomUser, Partner
     featured = homepage_projects()
     projects = []
     for p in featured:
@@ -8233,7 +8233,8 @@ def public_stats(request):
         'featured': projects,
         'all_projects': counts['all_projects_count'],
         'industry_counts': homepage_industry_counts(),
-        'gallery': [{'id': g.pk, 'title': g.title, 'type': g.media_type, 'thumb': g.thumb_url} for g in homepage_gallery()],
+        'gallery': [g.public_dict() for g in homepage_gallery()],
+        'partners': [p.public_dict() for p in Partner.objects.filter(is_published=True)[:48]],
     })
     origin = request.headers.get('Origin')
     if origin in PUBLIC_STATS_ORIGINS:
@@ -9153,20 +9154,230 @@ GALLERY_MAX_MB = {'image': 15, 'video': 100}
 
 
 def gallery(request):
-    """Public gallery of photos and videos posted by admins."""
+    """Public gallery of photos and videos posted by admins, newest event first.
+    Admins manage it at /gallery/manage/."""
     from .models import GalleryItem
     is_admin = request.user.is_authenticated and _is_admin(request.user)
-    items = GalleryItem.objects.all() if is_admin else GalleryItem.objects.filter(is_published=True)
     return render(request, 'gallery.html', {
-        'items': items,
+        'items': GalleryItem.objects.filter(is_published=True),
         'is_admin': is_admin,
+    })
+
+
+GALLERY_MAX_FILES = 20
+
+
+def _gallery_back(request, item=None):
+    """Where gallery admin actions return to: the manage page (or a same-site ?next=)."""
+    from django.urls import reverse
+    from django.utils.http import url_has_allowed_host_and_scheme
+    nxt = request.POST.get('next') or ''
+    if nxt and url_has_allowed_host_and_scheme(nxt, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return redirect(nxt)
+    url = reverse('gallery_manage')
+    return redirect(url + (f'#item-{item.pk}' if item else ''))
+
+
+def _gallery_event_fields(post):
+    """event_name, place and event_date from a form; a bad date becomes None plus an error message."""
+    import datetime
+    raw = (post.get('event_date') or '').strip()
+    date, err = None, ''
+    if raw:
+        try:
+            date = datetime.date.fromisoformat(raw)
+        except ValueError:
+            err = 'The event date was not a valid date, so it was left empty.'
+    return {'event_name': (post.get('event_name') or '').strip()[:120],
+            'place': (post.get('place') or '').strip()[:120],
+            'event_date': date}, err
+
+
+@login_required
+def gallery_manage(request):
+    """Admin page: add photos and videos, edit titles and event details, show/hide, remove."""
+    from .models import GalleryItem
+    if not _is_admin(request.user):
+        return HttpResponseForbidden('Only admins can manage the gallery.')
+    items = list(GalleryItem.objects.all())
+    events = sorted({i.event_name for i in items if i.event_name})
+    places = sorted({i.place for i in items if i.place})
+    return render(request, 'gallery_manage.html', {
+        'items': items,
+        'shown': sum(1 for i in items if i.is_published),
+        'events': events,
+        'places': places,
         'max_mb': GALLERY_MAX_MB,
         'max_files': GALLERY_MAX_FILES,
         'accept': ','.join('.' + e for e in sorted(GALLERY_IMAGE_EXT | GALLERY_VIDEO_EXT)),
     })
 
 
-GALLERY_MAX_FILES = 20
+@login_required
+@require_POST
+def gallery_update(request, pk):
+    """Admin: change an item's title, caption and event details."""
+    from .models import GalleryItem
+    if not _is_admin(request.user):
+        return HttpResponseForbidden('Only admins can change the gallery.')
+    item = get_object_or_404(GalleryItem, pk=pk)
+    title = (request.POST.get('title') or '').strip()[:120]
+    if not title:
+        messages.error(request, 'A title is required. Nothing was changed.')
+        return _gallery_back(request, item)
+    fields, err = _gallery_event_fields(request.POST)
+    item.title = title
+    item.caption = (request.POST.get('caption') or '').strip()[:2000]
+    for k, v in fields.items():
+        setattr(item, k, v)
+    item.save(update_fields=['title', 'caption', 'event_name', 'place', 'event_date'])
+    if err:
+        messages.error(request, err)
+    messages.success(request, f'Saved “{item.title}”.')
+    return _gallery_back(request, item)
+
+
+# ── Partner logos (odumacorp.com Partners section) ─────────────────────────────
+PARTNER_LOGO_EXT = {'png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'}
+PARTNER_LOGO_MAX_MB = 5
+
+
+def _partner_fields(request):
+    """name, website and position from a partner form, plus an error message if something is wrong."""
+    from django.core.validators import URLValidator
+    from django.core.exceptions import ValidationError
+    name = (request.POST.get('name') or '').strip()[:120]
+    website = (request.POST.get('website') or '').strip()[:300]
+    if website and not website.startswith(('http://', 'https://')):
+        website = 'https://' + website
+    err = '' if name else 'A name is required.'
+    if website:
+        try:
+            URLValidator(schemes=['http', 'https'])(website)
+        except ValidationError:
+            err = err or 'The website address does not look right. Use something like https://example.org.'
+    try:
+        position = max(0, min(9999, int(request.POST.get('position') or 0)))
+    except ValueError:
+        position = 0
+    return {'name': name, 'website': website, 'position': position}, err
+
+
+def _partner_logo_error(upload):
+    ext = upload.name.rsplit('.', 1)[-1].lower() if '.' in upload.name else ''
+    if ext not in PARTNER_LOGO_EXT:
+        return f'{upload.name}: use a PNG, JPG, WebP, SVG or GIF logo.'
+    if upload.size > PARTNER_LOGO_MAX_MB * 1024 * 1024:
+        return f'{upload.name}: logos can be up to {PARTNER_LOGO_MAX_MB} MB.'
+    return ''
+
+
+def _partners_back(item=None):
+    from django.urls import reverse
+    return redirect(reverse('partners_manage') + (f'#partner-{item.pk}' if item else ''))
+
+
+@login_required
+def partners_manage(request):
+    """Admin page: add partner logos, edit names, websites and order, show/hide, remove."""
+    from .models import Partner
+    if not _is_admin(request.user):
+        return HttpResponseForbidden('Only admins can manage partners.')
+    items = list(Partner.objects.all())
+    return render(request, 'partners_manage.html', {
+        'items': items, 'shown': sum(1 for p in items if p.is_published),
+        'next_position': (max((p.position for p in items), default=0) + 1) if items else 1,
+        'max_mb': PARTNER_LOGO_MAX_MB,
+        'accept': ','.join('.' + e for e in sorted(PARTNER_LOGO_EXT)),
+    })
+
+
+@login_required
+@require_POST
+def partner_add(request):
+    from .models import Partner
+    if not _is_admin(request.user):
+        return HttpResponseForbidden('Only admins can manage partners.')
+    fields, err = _partner_fields(request)
+    upload = request.FILES.get('logo')
+    err = err or ('Choose a logo file.' if not upload else _partner_logo_error(upload))
+    if err:
+        messages.error(request, err + ' The partner was not added.')
+        return _partners_back()
+    p = Partner.objects.create(logo=upload, is_published=request.POST.get('is_published') == 'on', **fields)
+    messages.success(request, f'Added {p.name}.')
+    return _partners_back(p)
+
+
+@login_required
+@require_POST
+def partner_update(request, pk):
+    from .models import Partner
+    if not _is_admin(request.user):
+        return HttpResponseForbidden('Only admins can manage partners.')
+    p = get_object_or_404(Partner, pk=pk)
+    fields, err = _partner_fields(request)
+    upload = request.FILES.get('logo')
+    if upload and not err:
+        err = _partner_logo_error(upload)
+    if err:
+        messages.error(request, err + ' Nothing was changed.')
+        return _partners_back(p)
+    for k, v in fields.items():
+        setattr(p, k, v)
+    if upload:
+        old = p.logo
+        p.logo = upload
+        try:
+            old.delete(save=False)
+        except Exception:
+            pass
+    p.save()
+    messages.success(request, f'Saved {p.name}.')
+    return _partners_back(p)
+
+
+@login_required
+@require_POST
+def partner_toggle(request, pk):
+    from .models import Partner
+    if not _is_admin(request.user):
+        return HttpResponseForbidden('Only admins can manage partners.')
+    p = get_object_or_404(Partner, pk=pk)
+    p.is_published = not p.is_published
+    p.save(update_fields=['is_published'])
+    messages.success(request, f'{p.name} is now shown on the website.' if p.is_published else f'{p.name} is now hidden.')
+    return _partners_back(p)
+
+
+@login_required
+@require_POST
+def partner_delete(request, pk):
+    from .models import Partner
+    if not _is_admin(request.user):
+        return HttpResponseForbidden('Only admins can manage partners.')
+    p = get_object_or_404(Partner, pk=pk)
+    try:
+        p.logo.delete(save=False)
+    except Exception:
+        pass
+    name = p.name
+    p.delete()
+    messages.success(request, f'Removed {name}.')
+    return _partners_back()
+
+
+def api_public_gallery(request):
+    """Published gallery items as JSON for the static site (odumacorp.com/gallery/ and the homepage
+    carousel), newest event first. Media files are on Cloudinary, so they load even while this app sleeps."""
+    from .models import GalleryItem
+    resp = JsonResponse({'items': [i.public_dict() for i in GalleryItem.objects.filter(is_published=True)[:500]]})
+    origin = request.headers.get('Origin')
+    if origin in PUBLIC_STATS_ORIGINS:
+        resp['Access-Control-Allow-Origin'] = origin
+        resp['Vary'] = 'Origin'
+    resp['Cache-Control'] = 'public, max-age=300'
+    return resp
 
 
 def _title_from_filename(name):
@@ -9187,13 +9398,16 @@ def gallery_add(request):
     title = (request.POST.get('title') or '').strip()[:110]
     caption = (request.POST.get('caption') or '').strip()[:2000]
     publish = request.POST.get('is_published') == 'on'
+    event, date_err = _gallery_event_fields(request.POST)
     uploads = request.FILES.getlist('file')
     if not uploads:
         messages.error(request, 'Choose at least one photo or video.')
-        return redirect('gallery')
+        return _gallery_back(request)
     if len(uploads) > GALLERY_MAX_FILES:
         messages.error(request, f'You can add up to {GALLERY_MAX_FILES} files at a time. You chose {len(uploads)}.')
-        return redirect('gallery')
+        return _gallery_back(request)
+    if date_err:
+        messages.error(request, date_err)
 
     added, skipped = 0, []
     numbered = bool(title) and len(uploads) > 1
@@ -9208,7 +9422,7 @@ def gallery_add(request):
             continue
         item_title = f'{title} {n}' if numbered else (title or _title_from_filename(upload.name))
         GalleryItem.objects.create(title=item_title, caption=caption, file=upload, media_type=media_type,
-                                   is_published=publish, created_by=request.user)
+                                   is_published=publish, created_by=request.user, **event)
         added += 1
 
     if added:
@@ -9217,7 +9431,7 @@ def gallery_add(request):
         messages.error(request, 'Not added: ' + '; '.join(skipped) +
                        '. Use photos (JPG, PNG, WebP, GIF, HEIC) up to '
                        f'{GALLERY_MAX_MB["image"]} MB or videos (MP4, MOV, WebM) up to {GALLERY_MAX_MB["video"]} MB.')
-    return redirect('gallery')
+    return _gallery_back(request)
 
 
 @login_required
@@ -9230,7 +9444,7 @@ def gallery_toggle(request, pk):
     item.is_published = not item.is_published
     item.save(update_fields=['is_published'])
     messages.success(request, 'Shown in the gallery.' if item.is_published else 'Hidden from the gallery.')
-    return redirect('gallery')
+    return _gallery_back(request, item)
 
 
 @login_required
@@ -9246,4 +9460,4 @@ def gallery_delete(request, pk):
         pass
     item.delete()
     messages.success(request, 'Removed from the gallery.')
-    return redirect('gallery')
+    return _gallery_back(request)

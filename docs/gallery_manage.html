@@ -1,0 +1,269 @@
+{% extends '_partials/base.html' %}
+{% load static %}
+
+{% block title %}Manage gallery | Oduma Corp{% endblock %}
+{% block meta_description %}Add and edit the photos and videos shown in the public gallery.{% endblock %}
+
+{% block content %}
+<style>
+.gm{--ink:#0A1628;--text:#2D3F58;--muted:#566A8A;--line:#E4EAF2;--blue:var(--oc-blue,#1B5EC7);--blue-d:var(--oc-blue-dark,#144FA8);
+  max-width:1160px;margin:0 auto;padding:16px 16px 56px;font-family:'Inter',system-ui,sans-serif;font-size:16px;line-height:1.55;color:var(--text);}
+.gm *{box-sizing:border-box;}
+.gm h1{font-family:'Space Grotesk',sans-serif;font-size:30px;line-height:1.15;color:var(--ink);margin:8px 0 4px;}
+.gm h2{font-family:'Space Grotesk',sans-serif;font-size:19px;color:var(--ink);margin:0 0 4px;}
+.gm-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px;margin-bottom:20px;}
+.gm-head p{margin:0;max-width:44em;}
+.gm-links{display:flex;flex-wrap:wrap;gap:8px;}
+.gm-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 4px rgba(10,22,40,.04);}
+.gm-add{padding:20px;margin-bottom:28px;}
+.gm-add > p{margin:0 0 16px;color:var(--muted);font-size:14px;}
+.gm-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.gm-grid .full{grid-column:1/-1;}
+.gm-grid .two{grid-column:span 2;}
+@media(max-width:760px){.gm-grid{grid-template-columns:minmax(0,1fr);}.gm-grid .two{grid-column:auto;}}
+.gm label{display:block;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.gm label span{font-weight:400;color:var(--muted);}
+.gm input[type=text],.gm input[type=date],.gm input[type=search],.gm textarea{width:100%;min-height:44px;padding:9px 12px;border:1px solid #C9D3E1;border-radius:8px;font:inherit;font-size:15px;color:var(--ink);background:#fff;}
+.gm textarea{min-height:70px;resize:vertical;}
+.gm input:focus,.gm textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,94,199,.15);}
+.pf-file-wrap{position:relative;display:flex;align-items:center;gap:12px;min-height:52px;padding:8px 12px;border:1.5px dashed #9AA8BB;border-radius:10px;background:#F8FAFD;cursor:pointer;}
+.pf-file-wrap:focus-within{outline:3px solid var(--blue);outline-offset:2px;}
+.pf-file-wrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;}
+.pf-file-btn{flex-shrink:0;padding:8px 14px;border-radius:8px;background:var(--blue);color:#fff;font-weight:700;font-size:14px;}
+.pf-file-name{font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gm-picked{margin:8px 0 0;padding:8px 12px;list-style:none;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px;max-height:180px;overflow:auto;}
+.gm-picked li{padding:3px 0;}
+.gm-picked li.is-bad{color:#A12020;}
+.gm-check{display:flex;align-items:center;gap:8px;font-size:15px;min-height:44px;font-weight:400!important;}
+.gm-check input{width:20px;height:20px;}
+.gm-small{font-size:13px;color:var(--muted);margin:4px 0 0;}
+.gm-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:9px 16px;border-radius:8px;border:1.5px solid transparent;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap;}
+.gm-btn--p{background:var(--blue);color:#fff;}
+.gm-btn--p:hover{background:var(--blue-d);color:#fff;}
+.gm-btn--p[disabled]{opacity:.7;cursor:progress;}
+.gm-btn--o{background:#fff;border-color:#C9D3E1;color:var(--ink);}
+.gm-btn--o:hover{border-color:var(--blue);color:var(--blue);}
+.gm-btn--danger{background:#fff;border-color:#F2C4C4;color:#A12020;}
+.gm-btn--danger:hover{border-color:#A12020;}
+.gm-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin:0 0 14px;}
+.gm-bar input[type=search]{max-width:340px;}
+.gm-count{font-size:14px;color:var(--muted);margin:0;}
+.gm-list{list-style:none;margin:0;padding:0;display:grid;gap:14px;}
+.gm-item{display:grid;grid-template-columns:200px minmax(0,1fr);gap:18px;padding:14px;scroll-margin-top:90px;}
+.gm-item.is-hidden{background:#FAFBFD;}
+.gm-item.is-hidden .gm-thumb img{opacity:.55;}
+.gm-item:target{box-shadow:0 0 0 3px rgba(27,94,199,.35);}
+.gm-thumb{position:relative;margin:0;border-radius:10px;overflow:hidden;background:#E6EBF2;aspect-ratio:4/3;align-self:start;}
+.gm-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.gm-thumb a{display:block;height:100%;}
+.gm-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:rgba(10,22,40,.7);color:#fff;display:flex;align-items:center;justify-content:center;}
+.gm-tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:100px;}
+.gm-tag--live{background:#DCF3E6;color:#0E5C34;}
+.gm-tag--off{background:#FEF3C7;color:#92400E;}
+.gm-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 12px;}
+.gm-fields .full{grid-column:1/-1;}
+@media(max-width:900px){.gm-item{grid-template-columns:minmax(0,1fr);}.gm-thumb{max-width:320px;}}
+@media(max-width:600px){.gm-fields{grid-template-columns:minmax(0,1fr);}}
+.gm-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:8px;}
+.gm-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;}
+.gm-actions form{margin:0;}
+.gm-actions .gm-btn{min-height:40px;padding:6px 14px;font-size:14px;}
+.gm-empty{padding:36px 22px;text-align:center;}
+.gm-none{display:none;padding:20px;text-align:center;color:var(--muted);}
+</style>
+
+<div class="gm">
+  <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
+    <ol class="oc-breadcrumbs__list">
+      <li class="oc-breadcrumbs__item"><a href="{% url 'admin_panel' %}" class="oc-breadcrumbs__link">Admin</a><span class="oc-breadcrumbs__sep">›</span></li>
+      <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Gallery</span></li>
+    </ol>
+  </nav>
+
+  <div class="gm-head">
+    <div>
+      <h1>Manage the gallery</h1>
+      <p>Photos and videos you add here appear on <a href="https://odumacorp.com/gallery/">odumacorp.com/gallery</a> and in the homepage carousel, newest event first. Only admins see this page.</p>
+    </div>
+    <div class="gm-links">
+      <a class="gm-btn gm-btn--o" href="{% url 'partners_manage' %}">Manage partners</a>
+      <a class="gm-btn gm-btn--o" href="https://odumacorp.com/gallery/" target="_blank" rel="noopener">View public gallery</a>
+      <a class="gm-btn gm-btn--p" href="#gm-add-title">Add photos or videos</a>
+    </div>
+  </div>
+
+  <section class="gm-card gm-add" aria-labelledby="gm-add-title">
+    <h2 id="gm-add-title">Add photos or videos</h2>
+    <p>The event details apply to every file you add now. You can change any item afterwards.</p>
+    <form method="post" action="{% url 'gallery_add' %}" enctype="multipart/form-data" id="gm-form">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{% url 'gallery_manage' %}">
+      <div class="gm-grid">
+        <div class="full">
+          <label for="gm-file">Photos or videos</label>
+          <div class="pf-file-wrap">
+            <input type="file" id="gm-file" name="file" accept="{{ accept }}" multiple required aria-describedby="gm-file-help">
+            <span class="pf-file-btn" aria-hidden="true">Choose files</span>
+            <span class="pf-file-name" id="gm-file-name">No files chosen</span>
+          </div>
+          <p class="gm-small" id="gm-file-help">Up to {{ max_files }} at a time. Photos up to {{ max_mb.image }} MB (JPG, PNG, WebP, GIF, HEIC). Videos up to {{ max_mb.video }} MB (MP4, MOV, WebM).</p>
+          <ul class="gm-picked" id="gm-picked" hidden></ul>
+        </div>
+        <div>
+          <label for="gm-event">Event <span>(optional)</span></label>
+          <input type="text" id="gm-event" name="event_name" maxlength="120" list="gm-events" placeholder="e.g. Nairobi Innovation Week">
+        </div>
+        <div>
+          <label for="gm-place">Place <span>(optional)</span></label>
+          <input type="text" id="gm-place" name="place" maxlength="120" list="gm-places" placeholder="e.g. Nairobi">
+        </div>
+        <div>
+          <label for="gm-date">Event date <span>(optional)</span></label>
+          <input type="date" id="gm-date" name="event_date">
+        </div>
+        <div class="two">
+          <label for="gm-title">Title <span>(optional)</span></label>
+          <input type="text" id="gm-title" name="title" maxlength="110" aria-describedby="gm-title-help">
+          <p class="gm-small" id="gm-title-help">Empty: each item is named after its file. With several files a title is numbered: “Demo day 1”, “Demo day 2”…</p>
+        </div>
+        <div>
+          <label class="gm-check" style="margin-top:22px;"><input type="checkbox" name="is_published" value="on" checked> Show publicly straight away</label>
+        </div>
+        <div class="full">
+          <label for="gm-caption">Caption <span>(optional, used for every file)</span></label>
+          <textarea id="gm-caption" name="caption" maxlength="2000"></textarea>
+        </div>
+        <div class="full">
+          <button type="submit" class="gm-btn gm-btn--p" id="gm-submit">Add to gallery</button>
+          <p class="gm-small" id="gm-status" role="status"></p>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <datalist id="gm-events">{% for e in events %}<option value="{{ e }}">{% endfor %}</datalist>
+  <datalist id="gm-places">{% for p in places %}<option value="{{ p }}">{% endfor %}</datalist>
+
+  <section aria-labelledby="gm-items-title">
+    <div class="gm-bar">
+      <div>
+        <h2 id="gm-items-title">Everything in the gallery</h2>
+        <p class="gm-count">{{ items|length }} item{{ items|length|pluralize }}, {{ shown }} shown publicly.</p>
+      </div>
+      {% if items %}<label class="sr-only" for="gm-search" style="position:absolute;left:-9999px;">Search the gallery</label>
+      <input type="search" id="gm-search" placeholder="Search by title, event or place">{% endif %}
+    </div>
+
+    {% if items %}
+    <ul class="gm-list" id="gm-list">
+      {% for item in items %}
+      <li class="gm-card gm-item{% if not item.is_published %} is-hidden{% endif %}" id="item-{{ item.pk }}" data-search="{{ item.title|lower }} {{ item.event_name|lower }} {{ item.place|lower }}">
+        <figure class="gm-thumb">
+          <a href="{{ item.large_url }}" target="_blank" rel="noopener" aria-label="Open {{ item.get_media_type_display|lower }} in a new tab: {{ item.title }}">
+            <img src="{{ item.thumb_url }}" alt="" width="640" height="480" loading="lazy" decoding="async">
+            {% if item.media_type == 'video' %}<span class="gm-play" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg></span>{% endif %}
+          </a>
+        </figure>
+        <div>
+          <div class="gm-meta">
+            {% if item.is_published %}<span class="gm-tag gm-tag--live">Shown</span>{% else %}<span class="gm-tag gm-tag--off">Hidden</span>{% endif %}
+            <span>{{ item.get_media_type_display }} · added {{ item.created_at|date:"j M Y" }}{% if item.created_by %} by {{ item.created_by.get_full_name|default:item.created_by.username }}{% endif %}</span>
+          </div>
+          <form method="post" action="{% url 'gallery_update' item.pk %}" class="gm-edit">
+            {% csrf_token %}
+            <div class="gm-fields">
+              <div class="full">
+                <label for="t-{{ item.pk }}">Title</label>
+                <input type="text" id="t-{{ item.pk }}" name="title" value="{{ item.title }}" maxlength="120" required>
+              </div>
+              <div>
+                <label for="e-{{ item.pk }}">Event</label>
+                <input type="text" id="e-{{ item.pk }}" name="event_name" value="{{ item.event_name }}" maxlength="120" list="gm-events">
+              </div>
+              <div>
+                <label for="p-{{ item.pk }}">Place</label>
+                <input type="text" id="p-{{ item.pk }}" name="place" value="{{ item.place }}" maxlength="120" list="gm-places">
+              </div>
+              <div>
+                <label for="d-{{ item.pk }}">Event date</label>
+                <input type="date" id="d-{{ item.pk }}" name="event_date" value="{{ item.event_date|date:'Y-m-d' }}">
+              </div>
+              <div class="full">
+                <label for="c-{{ item.pk }}">Caption <span>(optional)</span></label>
+                <textarea id="c-{{ item.pk }}" name="caption" maxlength="2000" rows="2">{{ item.caption }}</textarea>
+              </div>
+            </div>
+            <div class="gm-actions">
+              <button type="submit" class="gm-btn gm-btn--p">Save changes</button>
+            </div>
+          </form>
+          <div class="gm-actions">
+            <form method="post" action="{% url 'gallery_toggle' item.pk %}">{% csrf_token %}<button type="submit" class="gm-btn gm-btn--o">{% if item.is_published %}Hide from public{% else %}Show publicly{% endif %}</button></form>
+            <form method="post" action="{% url 'gallery_delete' item.pk %}" data-confirm="Remove “{{ item.title }}” from the gallery? This deletes the file.">{% csrf_token %}<button type="submit" class="gm-btn gm-btn--danger">Remove</button></form>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    <p class="gm-card gm-none" id="gm-none">Nothing matches your search.</p>
+    {% else %}
+    <div class="gm-card gm-empty"><h2>No photos or videos yet</h2><p>Add the first ones with the form above.</p></div>
+    {% endif %}
+  </section>
+</div>
+
+<script>
+(function () {
+  /* Upload: show what was picked; warn about wrong types and sizes; no double submits. */
+  var form = document.getElementById('gm-form');
+  var file = document.getElementById('gm-file'), name = document.getElementById('gm-file-name');
+  var picked = document.getElementById('gm-picked'), status = document.getElementById('gm-status'), submit = document.getElementById('gm-submit');
+  var MAX = {{ max_files }}, LIMIT = { image: {{ max_mb.image }}, video: {{ max_mb.video }} };
+  var VIDEO = /\.(mp4|webm|mov|m4v)$/i, IMAGE = /\.(jpe?g|png|gif|webp|heic)$/i;
+  function mb(n) { return (n / 1048576).toFixed(n < 10485760 ? 1 : 0) + ' MB'; }
+  file.addEventListener('change', function () {
+    var fs = [].slice.call(file.files);
+    name.textContent = !fs.length ? 'No files chosen' : fs.length === 1 ? fs[0].name : fs.length + ' files chosen';
+    picked.innerHTML = '';
+    fs.forEach(function (f) {
+      var kind = VIDEO.test(f.name) ? 'video' : IMAGE.test(f.name) ? 'image' : '';
+      var li = document.createElement('li');
+      li.textContent = f.name + ' · ' + mb(f.size);
+      if (!kind) { li.className = 'is-bad'; li.textContent += ' · not a supported type, will be skipped'; }
+      else if (f.size > LIMIT[kind] * 1048576) { li.className = 'is-bad'; li.textContent += ' · over ' + LIMIT[kind] + ' MB, will be skipped'; }
+      picked.appendChild(li);
+    });
+    picked.hidden = fs.length < 2 && !picked.querySelector('.is-bad');
+    status.textContent = fs.length > MAX ? 'Choose up to ' + MAX + ' files at a time.' : '';
+    var good = fs.length - picked.querySelectorAll('.is-bad').length;
+    submit.textContent = good > 1 ? 'Add ' + good + ' to gallery' : 'Add to gallery';
+  });
+  form.addEventListener('submit', function (e) {
+    if (submit.disabled) { e.preventDefault(); return; }
+    if (file.files.length > MAX) { e.preventDefault(); status.textContent = 'Choose up to ' + MAX + ' files at a time.'; return; }
+    setTimeout(function () {
+      if (e.defaultPrevented) return;
+      submit.disabled = true; submit.textContent = 'Uploading…';
+      status.textContent = file.files.length > 1 ? 'Uploading ' + file.files.length + ' files. Large videos can take a few minutes; keep this page open.' : '';
+    }, 0);
+  });
+  window.addEventListener('pageshow', function () { submit.disabled = false; });
+
+  /* Confirm before removing */
+  document.querySelectorAll('form[data-confirm]').forEach(function (f) {
+    f.addEventListener('submit', function (e) { if (!window.confirm(f.getAttribute('data-confirm'))) e.preventDefault(); });
+  });
+
+  /* Search */
+  var q = document.getElementById('gm-search');
+  if (q) q.addEventListener('input', function () {
+    var v = q.value.trim().toLowerCase(), n = 0;
+    document.querySelectorAll('#gm-list .gm-item').forEach(function (li) {
+      var hit = !v || li.getAttribute('data-search').indexOf(v) > -1;
+      li.hidden = !hit; if (hit) n++;
+    });
+    document.getElementById('gm-none').style.display = n ? 'none' : 'block';
+  });
+})();
+</script>
+{% endblock %}

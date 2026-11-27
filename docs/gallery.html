@@ -81,37 +81,10 @@ body dialog.gl-view{min-height:0;}   /* the app's stylesheet gives every dialog 
   </nav>
 
   <h1>Gallery</h1>
-  <p class="gl-lead">Photos and videos posted by the Oduma Corp team.</p>
+  <p class="gl-lead">Photos and videos from events Oduma Corp has taken part in, newest first.</p>
 
   {% if is_admin %}
-  <section class="gl-card gl-admin" aria-labelledby="gl-add">
-    <h2 id="gl-add">Add photos or videos</h2>
-    <form class="gl-form" method="post" action="{% url 'gallery_add' %}" enctype="multipart/form-data" id="gl-form">
-      {% csrf_token %}
-      <div>
-        <label for="gl-title">Title <span>(optional)</span></label>
-        <input type="text" id="gl-title" name="title" maxlength="110" aria-describedby="gl-title-help">
-        <p class="gl-small" id="gl-title-help">Leave it empty to name each item after its file. With several files, a title is numbered: “Demo day 1”, “Demo day 2”…</p>
-      </div>
-      <div>
-        <label for="gl-caption">Caption <span>(optional, used for every file)</span></label>
-        <textarea id="gl-caption" name="caption" maxlength="2000"></textarea>
-      </div>
-      <div>
-        <label for="gl-file">Photos or videos</label>
-        <div class="pf-file-wrap">
-          <input type="file" id="gl-file" name="file" accept="{{ accept }}" multiple required aria-describedby="gl-file-help">
-          <span class="pf-file-btn" aria-hidden="true">Choose files</span>
-          <span class="pf-file-name" id="gl-file-name">No files chosen</span>
-        </div>
-        <p class="gl-small" id="gl-file-help">Select several at once (up to {{ max_files }}). Photos up to {{ max_mb.image }} MB (JPG, PNG, WebP, GIF, HEIC). Videos up to {{ max_mb.video }} MB (MP4, MOV, WebM).</p>
-        <ul class="gl-picked" id="gl-picked" hidden></ul>
-      </div>
-      <label class="gl-check"><input type="checkbox" name="is_published" value="on" checked> Show it in the gallery straight away</label>
-      <div><button type="submit" class="gl-btn gl-btn--p" id="gl-submit">Add to gallery</button></div>
-      <p class="gl-small" id="gl-status" role="status"></p>
-    </form>
-  </section>
+  <p style="margin:0 0 24px;"><a class="gl-btn gl-btn--p" href="{% url 'gallery_manage' %}">Manage the gallery</a> <span class="gl-small" style="display:inline;">Add photos and videos, edit titles and event details.</span></p>
   {% endif %}
 
   {% if items %}
@@ -124,14 +97,8 @@ body dialog.gl-view{min-height:0;}   /* the app's stylesheet gives every dialog 
       </button>
       <div class="gl-meta">
         <strong>{{ item.title }}</strong>
-        {% if not item.is_published %}<span class="gl-tag">Hidden</span>{% endif %}
+        <span class="gl-small">{% if item.event_name %}{{ item.event_name }} · {% endif %}{% if item.place %}{{ item.place }} · {% endif %}{{ item.shown_date|date:"j M Y" }}</span>
       </div>
-      {% if is_admin %}
-      <div class="gl-tools">
-        <form method="post" action="{% url 'gallery_toggle' item.pk %}">{% csrf_token %}<button type="submit" class="gl-btn gl-btn--o">{% if item.is_published %}Hide{% else %}Show{% endif %}</button></form>
-        <form method="post" action="{% url 'gallery_delete' item.pk %}" data-confirm="Remove “{{ item.title }}” from the gallery? This deletes the file.">{% csrf_token %}<button type="submit" class="gl-btn gl-btn--danger">Remove</button></form>
-      </div>
-      {% endif %}
       <template class="gl-data" data-type="{{ item.media_type }}" data-src="{{ item.url }}" data-title="{{ item.title }}" data-caption="{{ item.caption }}"></template>
     </li>
     {% endfor %}
@@ -139,7 +106,7 @@ body dialog.gl-view{min-height:0;}   /* the app's stylesheet gives every dialog 
   {% else %}
   <div class="gl-card gl-empty">
     <h2>No photos or videos yet</h2>
-    <p>{% if is_admin %}Add the first one using the form above.{% else %}Check back soon.{% endif %}</p>
+    <p>{% if is_admin %}Add the first ones on the <a href="{% url 'gallery_manage' %}">manage page</a>.{% else %}Check back soon.{% endif %}</p>
   </div>
   {% endif %}
 
@@ -158,43 +125,6 @@ body dialog.gl-view{min-height:0;}   /* the app's stylesheet gives every dialog 
 
 <script>
 (function () {
-  /* Upload form: show the chosen file name; no double submits. */
-  var form = document.getElementById('gl-form');
-  if (form) {
-    var file = document.getElementById('gl-file'), name = document.getElementById('gl-file-name');
-    var picked = document.getElementById('gl-picked'), status = document.getElementById('gl-status');
-    var MAX = {{ max_files }}, LIMIT = { image: {{ max_mb.image }}, video: {{ max_mb.video }} };
-    var VIDEO = /\.(mp4|webm|mov|m4v)$/i, IMAGE = /\.(jpe?g|png|gif|webp|heic)$/i;
-    function mb(n) { return (n / 1048576).toFixed(n < 10485760 ? 1 : 0) + ' MB'; }
-    file.addEventListener('change', function () {
-      var fs = [].slice.call(file.files);
-      name.textContent = !fs.length ? 'No files chosen' : fs.length === 1 ? fs[0].name : fs.length + ' files chosen';
-      picked.innerHTML = '';
-      fs.forEach(function (f) {
-        var kind = VIDEO.test(f.name) ? 'video' : IMAGE.test(f.name) ? 'image' : '';
-        var li = document.createElement('li');
-        li.textContent = f.name + ' · ' + mb(f.size);
-        if (!kind) { li.className = 'is-bad'; li.textContent += ' · not a supported type, will be skipped'; }
-        else if (f.size > LIMIT[kind] * 1048576) { li.className = 'is-bad'; li.textContent += ' · over ' + LIMIT[kind] + ' MB, will be skipped'; }
-        picked.appendChild(li);
-      });
-      picked.hidden = fs.length < 2 && !picked.querySelector('.is-bad');
-      status.textContent = fs.length > MAX ? 'Choose up to ' + MAX + ' files at a time.' : '';
-      var good = fs.length - picked.querySelectorAll('.is-bad').length;
-      document.getElementById('gl-submit').textContent = good > 1 ? 'Add ' + good + ' to gallery' : 'Add to gallery';
-    });
-    form.addEventListener('submit', function (e) {
-      var b = document.getElementById('gl-submit');
-      if (b.disabled) { e.preventDefault(); return; }
-      if (file.files.length > MAX) { e.preventDefault(); status.textContent = 'Choose up to ' + MAX + ' files at a time.'; return; }
-      b.disabled = true; b.textContent = 'Uploading…';
-      status.textContent = file.files.length > 1 ? 'Uploading ' + file.files.length + ' files. Large videos can take a few minutes; keep this page open.' : '';
-    });
-  }
-  document.querySelectorAll('form[data-confirm]').forEach(function (f) {
-    f.addEventListener('submit', function (e) { if (!window.confirm(f.getAttribute('data-confirm'))) e.preventDefault(); });
-  });
-
   /* Viewer */
   var dlg = document.getElementById('gl-view'), media = document.getElementById('gl-view-media'),
       title = document.getElementById('gl-view-title'), caption = document.getElementById('gl-view-caption');

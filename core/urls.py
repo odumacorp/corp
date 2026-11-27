@@ -486,7 +486,16 @@ urlpatterns = _html_redirects + [
 
     # Public gallery; admins add, hide and remove items
     path('gallery/', views.gallery, name='gallery'),
+    path('gallery/manage/', views.gallery_manage, name='gallery_manage'),
     path('gallery/add/', views.gallery_add, name='gallery_add'),
+    path('gallery/<int:pk>/edit/', views.gallery_update, name='gallery_update'),
+    path('api/public-gallery/', views.api_public_gallery, name='api_public_gallery'),
+    # Partner logos on odumacorp.com; admins manage them
+    path('partners/manage/', views.partners_manage, name='partners_manage'),
+    path('partners/add/', views.partner_add, name='partner_add'),
+    path('partners/<int:pk>/edit/', views.partner_update, name='partner_update'),
+    path('partners/<int:pk>/toggle/', views.partner_toggle, name='partner_toggle'),
+    path('partners/<int:pk>/delete/', views.partner_delete, name='partner_delete'),
     path('gallery/<int:pk>/toggle/', views.gallery_toggle, name='gallery_toggle'),
     path('gallery/<int:pk>/delete/', views.gallery_delete, name='gallery_delete'),
 
