@@ -1,0 +1,17 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>{{ solo_title|default:"Admin sign-in" }} | Oduma Corp</title>
+<link rel="icon" href="{% static 'images/OdumaCorp-icon-small.png' %}">
+{% include '_partials/auth_style.html' %}
+<style>body{margin:0;background:#00347F}</style>
+</head>
+<body>
+<div class="au">
+  <header class="au-top">
+    <a class="au-brand" href="/"><img src="{% static 'images/OdumaCorp-icon-small.png' %}" width="60" height="60" alt=""><span><b>Oduma Corp</b><small>Admin</small></span></a>
+  </header>
+  <main class="au-solo">

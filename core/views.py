@@ -442,7 +442,50 @@ def homepage_industry_counts():
     return {r['industry']: r['cnt'] for r in rows if r['industry']}
 
 
+PUBLIC_SITE_URL = 'https://odumacorp.com/'
+
+
+def _is_production_host(request):
+    host = request.get_host().split(':')[0]
+    return host.endswith('odumacorp.com') or host.endswith('onrender.com')
+
+
+def public_site(request, path=''):
+    """Serve the static odumacorp.com site (company/public/, built by company/build.py) from this app
+    on a development host (127.0.0.1 / localhost), so the local server shows the same homepage,
+    product pages and gallery as production. Links to https://app.odumacorp.com are rewritten to this
+    server, so sign-up, login and the live feeds (/api/public-stats/, /api/public-gallery/) stay local.
+    On production hosts these addresses belong to odumacorp.com, so they redirect there."""
+    import mimetypes
+    from pathlib import Path
+    from django.conf import settings as dj_settings
+    from django.http import Http404, HttpResponse, FileResponse
+    if _is_production_host(request):
+        return redirect(PUBLIC_SITE_URL + path)
+    root = (Path(dj_settings.BASE_DIR) / 'company' / 'public').resolve()
+    target = (root / path).resolve()
+    if root not in target.parents and target != root:
+        raise Http404
+    if target.is_dir():
+        target = target / 'index.html'
+    if not target.is_file():
+        raise Http404('Run python company/build.py to build the public site.')
+    if target.suffix == '.html':
+        html = target.read_text(encoding='utf-8').replace('https://app.odumacorp.com', '')
+        return HttpResponse(html, content_type='text/html; charset=utf-8')
+    return FileResponse(open(target, 'rb'), content_type=mimetypes.guess_type(str(target))[0] or 'application/octet-stream')
+
+
 def index(request):
+    """app.odumacorp.com/: members go to their feed; everyone else to the public site, odumacorp.com,
+    which is the one homepage now. Only on the production hosts: on 127.0.0.1 / localhost (development)
+    it shows the same new homepage, served from company/public/ (see public_site)."""
+    if _is_production_host(request):
+        if request.user.is_authenticated:
+            return redirect('app')
+        return redirect(PUBLIC_SITE_URL)
+    if not request.GET.get('legacy'):          # ?legacy=1 still shows the old app template
+        return public_site(request, '')
     from .models import Project, CustomUser, UserProfile, SubscriptionPlan
     featured = homepage_projects()
     counts          = platform_counts()
@@ -1246,22 +1289,47 @@ def get_projects_data(request):
 
 
 def innovators_view(request):
+    """Innovators directory. ?industry=<key> filters, ?q= searches names, companies and projects.
+    An innovator's industry is the one on their profile, or else their latest project's, so people
+    who never set it on their profile still show under the right industry."""
     from django.db.models import Count
-    industry_filter = request.GET.get('industry')
+    from .models import INDUSTRY_CHOICES
+    labels = dict(INDUSTRY_CHOICES)
+    industry_filter = (request.GET.get('industry') or '').strip()
+    q = (request.GET.get('q') or '').strip()[:80]
     base_qs = CustomUser.objects.filter(user_type='innovator', is_active=True).select_related('userprofile')
-    innovators = base_qs.filter(userprofile__industry=industry_filter) if industry_filter else base_qs
+    if request.user.is_authenticated:
+        base_qs = base_qs.exclude(pk=request.user.pk)
+    if q:
+        base_qs = base_qs.filter(
+            Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(username__icontains=q) |
+            Q(userprofile__company__icontains=q) | Q(projects__title__icontains=q)
+        ).distinct()
 
-    for innovator in innovators:
-        innovator.first_project = innovator.projects.order_by('-created_at').first()
+    people = list(base_qs)
+    for p in people:
+        p.first_project = p.projects.order_by('-created_at').first()
+        prof = getattr(p, 'userprofile', None)
+        p.industry_key = (prof.industry if prof and prof.industry else '') or (p.first_project.industry if p.first_project else '')
+        p.industry_label = labels.get(p.industry_key, '')
+        p.like_count = p.first_project.liked_by.count() if p.first_project else 0
 
-    # Count per industry for category cards
-    counts_qs = base_qs.values('userprofile__industry').annotate(cnt=Count('id'))
-    industry_counts = {r['userprofile__industry']: r['cnt'] for r in counts_qs}
+    counts = {}
+    for p in people:
+        if p.industry_key:
+            counts[p.industry_key] = counts.get(p.industry_key, 0) + 1
+    innovators = [p for p in people if p.industry_key == industry_filter] if industry_filter else people
+    industry_chips = sorted(({'key': k, 'label': labels.get(k, k.title()), 'count': n} for k, n in counts.items()),
+                            key=lambda c: (-c['count'], c['label']))
 
     return render(request, 'innovators.html', {
         'innovators': innovators,
-        'industry_counts': industry_counts,
+        'total_count': len(people),
+        'industry_counts': counts,
+        'industry_chips': industry_chips,
         'selected_industry': industry_filter,
+        'selected_label': labels.get(industry_filter, ''),
+        'q': q,
     })
 
 
@@ -5342,9 +5410,14 @@ def _company_profile(request, company_id):
     if request.user.is_authenticated:
         from .models import ReadLater
         is_saved = ReadLater.objects.filter(user=request.user, company=company).exists()
+    jobs = company.jobs.filter(is_active=True).order_by('-id')
     return render(request, 'company_profile.html', {
         'company': company, 'media_items': media_items, 'updates': updates,
         'is_following': is_following, 'is_owner': is_owner, 'is_saved': is_saved,
+        'follower_count': company.followers.count(), 'jobs': jobs,
+        'image_items': [m for m in media_items if m.media_type == 'image'],
+        'video_items': [m for m in media_items if m.media_type == 'video'],
+        'doc_items': [m for m in media_items if m.media_type == 'document'],
     })
 
 
@@ -7901,7 +7974,7 @@ def request_consulting(request, project_id=None):
     return render(request, 'consulting_request.html', {
         'project':            project,
         'category_choices':   ConsultingRequest.CATEGORY_CHOICES,
-        'urgency_choices':    ConsultingRequest.STATUS_CHOICES,
+        'urgency_choices':    ConsultingRequest._meta.get_field('urgency').choices,
     })
 
 
@@ -8604,9 +8677,21 @@ def trigger_odu_post(request):
                 continue
 
         if not drafts:
+            joined = ' | '.join(skip_reasons)
+            low = joined.lower()
+            if 'credit balance is too low' in low:
+                msg = ("Odu can't write posts right now: the Anthropic account has run out of credit. "
+                       "Add credit in the Anthropic Console (Settings → Billing), then try again.")
+            elif 'authentication_error' in low or 'invalid x-api-key' in low or 'api_key' in low:
+                msg = "Odu can't write posts: the Anthropic API key (ANTHROPIC_API_KEY on Render) is missing or not valid."
+            elif 'overloaded' in low or 'rate_limit' in low or '529' in low or '429' in low:
+                msg = 'The AI service is busy right now. Please try again in a few minutes.'
+            else:
+                msg = "Odu couldn't write any posts this time. Please try again; if it keeps failing, check the server logs."
             return JsonResponse({
                 'ok': False,
-                'error': 'Posts skipped: ' + ' | '.join(skip_reasons),
+                'error': msg,
+                'detail': joined[:2000],
                 'reasons': skip_reasons,
             }, status=500)
 
@@ -9155,7 +9240,10 @@ GALLERY_MAX_MB = {'image': 15, 'video': 100}
 
 def gallery(request):
     """Public gallery of photos and videos posted by admins, newest event first.
-    Admins manage it at /gallery/manage/."""
+    Admins manage it at /gallery/manage/. The gallery people see is the collage on odumacorp.com/gallery/
+    (served from company/public/ on a development host); ?legacy=1 shows this app's old list."""
+    if not request.GET.get('legacy'):
+        return public_site(request, 'gallery/')
     from .models import GalleryItem
     is_admin = request.user.is_authenticated and _is_admin(request.user)
     return render(request, 'gallery.html', {
@@ -9202,7 +9290,20 @@ def gallery_manage(request):
     items = list(GalleryItem.objects.all())
     events = sorted({i.event_name for i in items if i.event_name})
     places = sorted({i.place for i in items if i.place})
+    # Event groups (by event name; items without one form a "No event" group), newest first.
+    groups = {}
+    for i in items:
+        g = groups.setdefault(i.event_name, {'name': i.event_name, 'place': '', 'date': None, 'count': 0, 'shown': 0, 'thumbs': []})
+        g['count'] += 1
+        g['shown'] += 1 if i.is_published else 0
+        g['place'] = g['place'] or i.place
+        g['date'] = g['date'] or i.event_date
+        if len(g['thumbs']) < 4:
+            g['thumbs'].append(i.thumb_url)
+    import datetime as _dt
+    group_list = sorted(groups.values(), key=lambda g: (g['name'] == '', -(g['date'] or _dt.date.min).toordinal(), g['name'].lower()))
     return render(request, 'gallery_manage.html', {
+        'groups': group_list,
         'items': items,
         'shown': sum(1 for i in items if i.is_published),
         'events': events,
@@ -9365,6 +9466,60 @@ def partner_delete(request, pk):
     p.delete()
     messages.success(request, f'Removed {name}.')
     return _partners_back()
+
+
+@login_required
+@require_POST
+def gallery_group_update(request):
+    """Admin: rename an event group, or change its place or date, for every item in it at once."""
+    from django.urls import reverse
+    from .models import GalleryItem
+    if not _is_admin(request.user):
+        return HttpResponseForbidden('Only admins can change the gallery.')
+    old = (request.POST.get('group') or '').strip()
+    fields, err = _gallery_event_fields(request.POST)
+    if err:
+        messages.error(request, err + ' Nothing was changed.')
+        return redirect(reverse('gallery_manage') + '#groups')
+    n = GalleryItem.objects.filter(event_name=old).update(**fields)
+    label = fields['event_name'] or 'No event'
+    messages.success(request, f'Updated {n} item{"s" if n != 1 else ""} in “{label}”.')
+    return redirect(reverse('gallery_manage') + '#groups')
+
+
+@login_required
+@require_POST
+def gallery_bulk(request):
+    """Admin: act on several selected items. action=assign moves them into an event (date and place
+    are only changed when given); show / hide change visibility."""
+    from django.urls import reverse
+    from .models import GalleryItem
+    if not _is_admin(request.user):
+        return HttpResponseForbidden('Only admins can change the gallery.')
+    ids = [int(x) for x in request.POST.getlist('ids') if str(x).isdigit()]
+    qs = GalleryItem.objects.filter(pk__in=ids)
+    action = request.POST.get('action')
+    if not ids or not qs.exists():
+        messages.error(request, 'Select at least one item first.')
+        return redirect('gallery_manage')
+    if action in ('show', 'hide'):
+        n = qs.update(is_published=(action == 'show'))
+        messages.success(request, f'{"Showing" if action == "show" else "Hid"} {n} item{"s" if n != 1 else ""}.')
+    elif action == 'assign':
+        fields, err = _gallery_event_fields(request.POST)
+        if err:
+            messages.error(request, err + ' Nothing was changed.')
+            return redirect('gallery_manage')
+        update = {'event_name': fields['event_name']}
+        if fields['place']:
+            update['place'] = fields['place']
+        if fields['event_date']:
+            update['event_date'] = fields['event_date']
+        n = qs.update(**update)
+        messages.success(request, f'Moved {n} item{"s" if n != 1 else ""} to “{fields["event_name"] or "No event"}”.')
+    else:
+        messages.error(request, 'Unknown action.')
+    return redirect(reverse('gallery_manage') + '#groups')
 
 
 def api_public_gallery(request):

@@ -18,7 +18,7 @@
 <style>
   :root {
     --ink: #0A1628;
-    --blue: #1B5EC7;
+    --blue: #004AAD;
     --blue-lt: #eff6ff;
     --muted: #6b7280;
     --border: #e5e7eb;
@@ -73,9 +73,9 @@
   }
   .db-hero-actions { display: flex; gap: 10px; flex-shrink: 0; position: relative; z-index: 1; }
   .db-hero-btn {
-    background: rgba(27,94,199,.08);
-    border: 1.5px solid #1B5EC7;
-    color: #1B5EC7;
+    background: rgba(0,74,173,.08);
+    border: 1.5px solid #004AAD;
+    color: #004AAD;
     padding: 9px 18px;
     border-radius: 10px;
     font-family: var(--ff-ui);
@@ -85,9 +85,9 @@
     white-space: nowrap;
     transition: background .2s;
   }
-  .db-hero-btn:hover { background: rgba(27,94,199,.15); color: #1B5EC7; text-decoration: none; }
-  .db-hero-btn--solid { background: #1B5EC7; color: #fff; border-color: #1B5EC7; }
-  .db-hero-btn--solid:hover { background: #1448a3; color: #fff; }
+  .db-hero-btn:hover { background: rgba(0,74,173,.15); color: #004AAD; text-decoration: none; }
+  .db-hero-btn--solid { background: #004AAD; color: #fff; border-color: #004AAD; }
+  .db-hero-btn--solid:hover { background: #003A8C; color: #fff; }
 
   /* ── Stats grid ── */
   .db-stats {
@@ -107,7 +107,7 @@
     display: block;
   }
   .db-stat:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(0,0,0,.1); }
-  .db-stat-icon { width:40px;height:40px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;border-radius:10px;color:#1B5EC7;background:#EEF4FF; }
+  .db-stat-icon { width:40px;height:40px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;border-radius:10px;color:#004AAD;background:#EEF4FF; }
   .db-stat-num {
     font-family: var(--ff-ui);
     font-size: 2.4rem;
@@ -146,7 +146,7 @@
   }
   .db-create-card:hover {
     border-color: var(--blue);
-    box-shadow: 0 4px 18px rgba(27,94,199,.14);
+    box-shadow: 0 4px 18px rgba(0,74,173,.14);
     transform: translateY(-2px);
     text-decoration: none;
   }
@@ -155,7 +155,7 @@
     border-radius: 14px;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.9rem;
-    color: #1B5EC7;
+    color: #004AAD;
   }
   .db-create-name {
     font-family: var(--ff-ui);
@@ -343,14 +343,14 @@
     border-bottom: 2px solid transparent; margin-bottom: -2px;
     transition: color .15s, border-color .15s; border-radius: 6px 6px 0 0;
   }
-  .db-tab-btn:hover { color: var(--blue); background: rgba(27,94,199,.04); }
-  .db-tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); background: rgba(27,94,199,.06); }
+  .db-tab-btn:hover { color: var(--blue); background: rgba(0,74,173,.04); }
+  .db-tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); background: rgba(0,74,173,.06); }
   .db-tab-badge {
     display: inline-flex; align-items: center; justify-content: center;
     background: #e5e7eb; color: #6b7280; font-size: 1.1rem; font-weight: 700;
     padding: 1px 7px; border-radius: 20px; margin-left: 5px;
   }
-  .db-tab-btn.active .db-tab-badge { background: rgba(27,94,199,.15); color: var(--blue); }
+  .db-tab-btn.active .db-tab-badge { background: rgba(0,74,173,.15); color: var(--blue); }
   .db-tab-panel { display: none; }
   .db-tab-panel.active { display: block; }
 
@@ -417,7 +417,7 @@
   .db-interest-meta { font-family: var(--ff-body); font-size: 1.2rem; color: var(--muted); }
   .db-interest-count {
     margin-left: auto; flex-shrink: 0;
-    background: #1B5EC7; color: #fff;
+    background: #004AAD; color: #fff;
     font-family: var(--ff-ui); font-size: 1.2rem; font-weight: 800;
     padding: 3px 10px; border-radius: 20px;
   }
@@ -513,7 +513,7 @@
       </div>
       <div style="display:flex;justify-content:space-between;margin-top:6px;">
         <span style="font-family:'Jaldi',sans-serif;font-size: 1.2rem;color:#9ca3af;">0%</span>
-        <a href="{% url 'update_profile' %}" style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:700;color:#1B5EC7;text-decoration:none;">
+        <a href="{% url 'update_profile' %}" style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:700;color:#004AAD;text-decoration:none;">
           {% if profile_completion < 100 %}Complete profile →{% else %}✓ Full profile{% endif %}
         </a>
         <span style="font-family:'Jaldi',sans-serif;font-size: 1.2rem;color:#9ca3af;">100%</span>
@@ -646,7 +646,7 @@
             <span class="db-interest-count">{{ alert.count }} interested</span>
           </div>
           {% endfor %}
-          <a href="{% url 'project_list' %}" style="display:block;margin-top:10px;font-family:'Jaldi',sans-serif;font-size:1.2rem;color:#1B5EC7;font-weight:700;text-decoration:none;">View all projects →</a>
+          <a href="{% url 'project_list' %}" style="display:block;margin-top:10px;font-family:'Jaldi',sans-serif;font-size:1.2rem;color:#004AAD;font-weight:700;text-decoration:none;">View all projects →</a>
         </div>
         {% endif %}
         <!-- Recent Posts -->
@@ -662,9 +662,9 @@
               </div>
             </div>
             {% endfor %}
-            <a href="{% url 'app' %}" style="display:block;margin-top:10px;font-family:'Jaldi',sans-serif;font-size:1.2rem;color:#1B5EC7;font-weight:700;text-decoration:none;">View all posts →</a>
+            <a href="{% url 'app' %}" style="display:block;margin-top:10px;font-family:'Jaldi',sans-serif;font-size:1.2rem;color:#004AAD;font-weight:700;text-decoration:none;">View all posts →</a>
           {% else %}
-            <p style="font-family:'Jaldi',sans-serif;font-size:1.2rem;color:#9ca3af;margin:0;">No posts yet. <a href="{% url 'app' %}" style="color:#1B5EC7;">Write your first →</a></p>
+            <p style="font-family:'Jaldi',sans-serif;font-size:1.2rem;color:#9ca3af;margin:0;">No posts yet. <a href="{% url 'app' %}" style="color:#004AAD;">Write your first →</a></p>
           {% endif %}
         </div>
       </div>
@@ -740,7 +740,7 @@
     </div>
     {% else %}
     <div class="db-empty">
-      <div class="db-empty-icon"><svg width="36" height="36" fill="none" stroke="#1B5EC7" stroke-width="1.5" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <div class="db-empty-icon"><svg width="36" height="36" fill="none" stroke="#004AAD" stroke-width="1.5" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
       <h3 class="db-empty-title">No projects yet</h3>
       <p class="db-empty-sub">Post your first project and connect with investors.</p>
       <a href="{% url 'create_project' %}" class="db-empty-btn">+ Create Project</a>
@@ -822,7 +822,7 @@
         {% endfor %}
       </div>
       {% else %}
-      <p style="color:#9ca3af;font-size:1.2rem;">No companies yet. <a href="{% url 'create_company' %}" style="color:#1B5EC7;font-weight:700;">Create one →</a></p>
+      <p style="color:#9ca3af;font-size:1.2rem;">No companies yet. <a href="{% url 'create_company' %}" style="color:#004AAD;font-weight:700;">Create one →</a></p>
       {% endif %}
     </div>
   </div>
@@ -859,7 +859,7 @@
         {% endfor %}
       </div>
       {% else %}
-      <p style="color:#9ca3af;font-size:1.2rem;">You haven't created any groups yet. <a href="{% url 'group_create' %}" style="color:#1B5EC7;font-weight:700;">Create one →</a></p>
+      <p style="color:#9ca3af;font-size:1.2rem;">You haven't created any groups yet. <a href="{% url 'group_create' %}" style="color:#004AAD;font-weight:700;">Create one →</a></p>
       {% endif %}
     </div>
 
@@ -916,7 +916,7 @@
         {% endfor %}
       </div>
       {% else %}
-      <p style="color:#9ca3af;font-size:1.2rem;">No pages yet. <a href="{% url 'page_create' %}" style="color:#1B5EC7;font-weight:700;">Create one →</a></p>
+      <p style="color:#9ca3af;font-size:1.2rem;">No pages yet. <a href="{% url 'page_create' %}" style="color:#004AAD;font-weight:700;">Create one →</a></p>
       {% endif %}
     </div>
 
@@ -985,7 +985,7 @@
         {% endfor %}
       </div>
       {% else %}
-      <p style="color:#9ca3af;font-size:1.2rem;">No jobs posted yet. <a href="{% url 'create_job' %}" style="color:#1B5EC7;font-weight:700;">Post one →</a></p>
+      <p style="color:#9ca3af;font-size:1.2rem;">No jobs posted yet. <a href="{% url 'create_job' %}" style="color:#004AAD;font-weight:700;">Post one →</a></p>
       {% endif %}
     </div>
 
@@ -1019,7 +1019,7 @@
         {% endfor %}
       </div>
       {% else %}
-      <p style="color:#9ca3af;font-size:1.2rem;">No meetings yet. <a href="{% url 'create_meeting' %}" style="color:#1B5EC7;font-weight:700;">Schedule one →</a></p>
+      <p style="color:#9ca3af;font-size:1.2rem;">No meetings yet. <a href="{% url 'create_meeting' %}" style="color:#004AAD;font-weight:700;">Schedule one →</a></p>
       {% endif %}
     </div>
 
@@ -1044,7 +1044,7 @@
         {% endfor %}
       </div>
       {% else %}
-      <p style="color:#9ca3af;font-size:1.2rem;">No applications yet. <a href="{% url 'jobs' %}" style="color:#1B5EC7;font-weight:700;">Browse Jobs →</a></p>
+      <p style="color:#9ca3af;font-size:1.2rem;">No applications yet. <a href="{% url 'jobs' %}" style="color:#004AAD;font-weight:700;">Browse Jobs →</a></p>
       {% endif %}
     </div>
   </div>

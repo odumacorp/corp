@@ -4,7 +4,7 @@
 
 {% block extra_head %}
 <style>
-:root{--navy:#0A1628;--blue:#1B5EC7;--blue-d:#144FA8;}
+:root{--navy:#0A1628;--blue:#004AAD;--blue-d:#003A8C;}
 .cs-page{max-width:1200px;margin:0 auto;padding:40px 28px 80px;}
 
 /* Header */
@@ -30,7 +30,7 @@
 .cs-chip--pending{background:#fef3c7;color:#b45309;}
 .cs-chip--replied{background:#dcfce7;color:#15803d;}
 
-.cs-topic-pill{display:inline-block;padding:2px 9px;border-radius:12px;font-size: 1.2rem;font-weight:700;background:#e0e8f4;color:#1B5EC7;}
+.cs-topic-pill{display:inline-block;padding:2px 9px;border-radius:12px;font-size: 1.2rem;font-weight:700;background:#e0e8f4;color:#004AAD;}
 
 /* Detail drawer */
 .cs-layout{display:grid;grid-template-columns:1fr;gap:20px;transition:grid-template-columns .25s ease;}
@@ -49,7 +49,7 @@
 .cs-info-row{display:flex;flex-direction:column;gap:2px;margin-bottom:14px;}
 .cs-info-row__lbl{font-size: 1.2rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;}
 .cs-info-row__val{font-size: 1.2rem;font-weight:600;color:#0A1628;}
-.cs-info-row__val a{color:#1B5EC7;text-decoration:none;}
+.cs-info-row__val a{color:#004AAD;text-decoration:none;}
 
 .cs-message-box{background:#f8faff;border:1px solid #e0e8f4;border-radius:9px;padding:14px 16px;font-size: 1.2rem;color:#374151;line-height:1.7;white-space:pre-wrap;word-break:break-word;margin-bottom:20px;max-height:160px;overflow-y:auto;}
 
@@ -60,15 +60,15 @@
 .cs-reply h3{font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;margin:0 0 12px;}
 
 .cs-auto-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;}
-.cs-auto-btn{background:#f0f4ff;border:1px solid #d4e0ff;border-radius:8px;padding:7px 10px;font-size: 1.2rem;font-weight:600;color:#1B5EC7;cursor:pointer;text-align:left;transition:background .15s;line-height:1.4;}
+.cs-auto-btn{background:#f0f4ff;border:1px solid #d4e0ff;border-radius:8px;padding:7px 10px;font-size: 1.2rem;font-weight:600;color:#004AAD;cursor:pointer;text-align:left;transition:background .15s;line-height:1.4;}
 .cs-auto-btn:hover{background:#e0eaff;}
-.cs-auto-btn.active{background:#1B5EC7;color:#fff;border-color:#1B5EC7;}
+.cs-auto-btn.active{background:#004AAD;color:#fff;border-color:#004AAD;}
 
 .cs-reply textarea{width:100%;border:1.5px solid #e0e6f0;border-radius:9px;padding:11px 14px;font-size: 1.2rem;font-family:inherit;color:#0A1628;line-height:1.65;resize:vertical;min-height:120px;box-sizing:border-box;background:#fafbff;outline:none;transition:border-color .18s,box-shadow .18s;margin-bottom:12px;}
-.cs-reply textarea:focus{border-color:#1B5EC7;box-shadow:0 0 0 3px rgba(27,94,199,0.1);background:#fff;}
+.cs-reply textarea:focus{border-color:#004AAD;box-shadow:0 0 0 3px rgba(0,74,173,0.1);background:#fff;}
 .cs-reply-actions{display:flex;gap:8px;}
-.cs-btn-send{flex:1;background:#1B5EC7;color:#fff;border:none;padding:11px;border-radius:9px;font-size: 1.2rem;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:background .18s;}
-.cs-btn-send:hover{background:#144FA8;}
+.cs-btn-send{flex:1;background:#004AAD;color:#fff;border:none;padding:11px;border-radius:9px;font-size: 1.2rem;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:background .18s;}
+.cs-btn-send:hover{background:#003A8C;}
 .cs-btn-clear{background:#f0f4f8;color:#6b7280;border:none;padding:11px 16px;border-radius:9px;font-size: 1.2rem;font-weight:600;cursor:pointer;transition:background .18s;}
 .cs-btn-clear:hover{background:#e0e8f4;color:#374151;}
 
@@ -149,7 +149,7 @@
               data-replied="{% if sub.is_replied %}1{% else %}0{% endif %}">
             <td style="color:#9ca3af;font-size: 1.2rem;">{{ forloop.counter }}</td>
             <td style="font-weight:700;color:#0A1628;">{{ sub.name }}</td>
-            <td><a href="mailto:{{ sub.email }}" onclick="event.stopPropagation();" style="color:#1B5EC7;text-decoration:none;font-size: 1.2rem;">{{ sub.email }}</a></td>
+            <td><a href="mailto:{{ sub.email }}" onclick="event.stopPropagation();" style="color:#004AAD;text-decoration:none;font-size: 1.2rem;">{{ sub.email }}</a></td>
             <td><span class="cs-topic-pill">{{ sub.topic|default:"General" }}</span></td>
             <td class="cs-msg">{{ sub.message }}</td>
             <td style="white-space:nowrap;font-size: 1.2rem;color:#6b7280;">{{ sub.submitted_at|date:"M d, Y" }}<br>{{ sub.submitted_at|date:"H:i" }}</td>

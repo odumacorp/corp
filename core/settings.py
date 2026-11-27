@@ -296,6 +296,15 @@ STORAGES = {
     },
 }
 
+# Local `manage.py runserver`: serve CSS/JS straight from the source folders with
+# plain file names, so edits show on refresh without collectstatic or a restart.
+# Production (gunicorn on Render) keeps the hashed, compressed files above.
+import sys as _sys
+if len(_sys.argv) > 1 and _sys.argv[1] == 'runserver':
+    STORAGES["staticfiles"] = {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}
+    WHITENOISE_USE_FINDERS = True
+    WHITENOISE_AUTOREFRESH = True
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

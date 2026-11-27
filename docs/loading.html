@@ -11,8 +11,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --blue: #1B5EC7;
-      --blue-glow: rgba(27, 94, 199, 0.35);
+      --blue: #004AAD;
+      --blue-glow: rgba(0,74,173, 0.35);
       --ink: #0A1628;
       --ink2: #0f1e36;
       --text: #e8edf5;
@@ -32,8 +32,8 @@
     .bg {
       position: fixed; inset: 0; z-index: 0;
       background:
-        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(27,94,199,0.18) 0%, transparent 70%),
-        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(27,94,199,0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,74,173,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(0,74,173,0.1) 0%, transparent 60%),
         var(--ink);
     }
 
@@ -42,8 +42,8 @@
       content: '';
       position: absolute; inset: 0;
       background-image:
-        linear-gradient(rgba(27,94,199,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(27,94,199,0.04) 1px, transparent 1px);
+        linear-gradient(rgba(0,74,173,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,74,173,0.04) 1px, transparent 1px);
       background-size: 48px 48px;
       mask-image: radial-gradient(ellipse 90% 70% at 50% 50%, black 0%, transparent 100%);
     }
@@ -91,13 +91,13 @@
     }
     .spinner-ring--outer {
       border-top-color: var(--blue);
-      border-right-color: rgba(27,94,199,0.3);
+      border-right-color: rgba(0,74,173,0.3);
       animation: spin 1.4s linear infinite;
     }
     .spinner-ring--inner {
       inset: 10px;
       border-top-color: transparent;
-      border-bottom-color: rgba(27,94,199,0.5);
+      border-bottom-color: rgba(0,74,173,0.5);
       animation: spin 1.0s linear infinite reverse;
     }
     .spinner-dot {
@@ -187,7 +187,7 @@
       transition: background 0.3s, box-shadow 0.3s;
     }
     .step.visible .step-dot { background: var(--blue); box-shadow: 0 0 6px var(--blue-glow); }
-    .step.done .step-dot { background: rgba(27,94,199,0.35); box-shadow: none; }
+    .step.done .step-dot { background: rgba(0,74,173,0.35); box-shadow: none; }
 
     /* ── Bottom ── */
     .bottom-note {
@@ -196,7 +196,7 @@
       font-size: 1.1rem; color: var(--muted);
       animation: fadeUp 0.7s 0.8s ease both;
     }
-    .bottom-note a { color: rgba(27,94,199,0.7); text-decoration: none; }
+    .bottom-note a { color: rgba(0,74,173,0.7); text-decoration: none; }
 
     /* ── Keyframes ── */
     @keyframes spin { to { transform: rotate(360deg); } }

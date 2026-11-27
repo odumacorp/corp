@@ -12,7 +12,7 @@
    app's root font size is 0.7em. Resets use :where() so app CSS can't outrank them. */
 .lp{
   --lp-ink:var(--oc-text-primary,#0A1628);--lp-text:var(--oc-text-secondary,#2D3F58);--lp-muted:#566A8A;
-  --lp-line:#E4EAF2;--lp-line-soft:#F0F4FA;--lp-blue:var(--oc-blue,#1B5EC7);--lp-blue-d:var(--oc-blue-dark,#144FA8);
+  --lp-line:#E4EAF2;--lp-line-soft:#F0F4FA;--lp-blue:var(--oc-blue,#004AAD);--lp-blue-d:var(--oc-blue-dark,#003A8C);
   --lp-pill-bg:#DBEAFE;--lp-pill:#1E40AF;--lp-green:#047857;--lp-green-bg:#ECFDF5;
   --lp-card-shadow:0 1px 4px rgba(10,22,40,.04);--lp-r:14px;
   --ff-h:'Space Grotesk',system-ui,sans-serif;--ff-b:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
@@ -61,7 +61,7 @@
 /* Cards (app: ap-card). Hover shadow is a pseudo-element so only opacity/transform animate. */
 .lp-card{position:relative;background:var(--oc-surface,#fff);border:1px solid var(--lp-line);border-radius:var(--lp-r);box-shadow:var(--lp-card-shadow);}
 .lp-card--hover{transition:transform .2s ease;}
-.lp-card--hover::after{content:'';position:absolute;inset:-1px;border-radius:inherit;box-shadow:var(--oc-shadow-md,0 4px 16px rgba(27,94,199,.10));opacity:0;transition:opacity .2s ease;pointer-events:none;}
+.lp-card--hover::after{content:'';position:absolute;inset:-1px;border-radius:inherit;box-shadow:var(--oc-shadow-md,0 4px 16px rgba(0,74,173,.10));opacity:0;transition:opacity .2s ease;pointer-events:none;}
 .lp-card--hover:hover{transform:translateY(-2px);}
 .lp-card--hover:hover::after{opacity:1;}
 
@@ -262,7 +262,7 @@ a.lp-proj-title:hover{color:var(--lp-blue);text-decoration:underline;}
 
 /* Final call to action (app: "Share Your Innovation" banner) */
 .lp-cta{padding:0 0 56px;}
-.lp-banner{border-radius:20px;padding:32px 24px;background:var(--oc-gradient-primary,linear-gradient(135deg,#1B5EC7 0%,#3D78D8 100%));color:#fff;display:grid;gap:20px;align-items:center;}
+.lp-banner{border-radius:20px;padding:32px 24px;background:var(--oc-gradient-primary,linear-gradient(135deg,#004AAD 0%,#3D78D8 100%));color:#fff;display:grid;gap:20px;align-items:center;}
 .lp-banner h2{color:#fff;font-size:28px;line-height:1.15;}
 .lp-banner p{margin-top:8px;font-size:17px;color:#fff;}
 .lp-banner__act{display:flex;flex-wrap:wrap;gap:12px;}

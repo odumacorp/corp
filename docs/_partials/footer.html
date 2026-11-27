@@ -1,104 +1,136 @@
 {% load static %}
+{# Shared app footer (wide screens; phones and tablets use the bottom nav instead — see design-system.css). Same look as odumacorp.com. #}
+<style>
+@font-face{font-family:"DM Sans";src:url({% static 'fonts/dm-sans-latin-var.woff2' %}) format("woff2");font-weight:400 700;font-style:normal;font-display:swap}
+.ocf{--blue:#004AAD;--deep:#003A8C;--tint:#E1EAF7;--ink:#0F1B33;--body:#4A5568;--muted:#5B6475;--line:#E2E6EE;
+  background:#FBFAF7;border-top:1px solid var(--line);color:var(--body);font:400 15px/1.55 "DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;padding:0 0 22px}
+.ocf *{box-sizing:border-box}
+.ocf-wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.ocf a{color:inherit;text-decoration:none}
+.ocf a:hover{color:var(--deep);text-decoration:underline}
+.ocf :focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:6px}
+.ocf-cta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;margin:36px 0 8px;padding:22px 26px;border-radius:20px;
+  background:linear-gradient(135deg,#0A5AC4,#004AAD 55%,#00347F);color:#fff;box-shadow:0 18px 40px -18px rgba(0,52,127,.6)}
+.ocf-cta b{display:block;font-size:20px;letter-spacing:-.015em}
+.ocf-cta span{opacity:.9}
+.ocf-cta .ocf-btns{display:flex;flex-wrap:wrap;gap:10px}
+.ocf-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 20px;border-radius:999px;font-weight:700;font-size:15px;white-space:nowrap}
+.ocf .ocf-btn--light{background:#fff;color:var(--deep)}
+.ocf .ocf-btn--light:hover{color:var(--ink);text-decoration:none}
+.ocf .ocf-btn--line{border:1.5px solid rgba(255,255,255,.6);color:#fff}
+.ocf .ocf-btn--line:hover{background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
+.ocf-top{display:grid;grid-template-columns:1.5fr repeat(4,minmax(0,1fr));gap:32px;padding:44px 0 28px}
+.ocf-cta + .ocf-top{padding-top:10px}
+.ocf .ocf-brand{display:flex;align-items:center;gap:12px;margin:0 0 12px;color:var(--ink);font-weight:700;font-size:20px;letter-spacing:-.015em}
+.ocf-brand img{width:52px;height:52px;border-radius:50%;box-shadow:0 4px 12px rgba(15,27,51,.15)}
+.ocf-brand:hover{text-decoration:none!important;color:var(--ink)!important}
+.ocf-about{margin:0 0 14px;max-width:24em}
+.ocf-contact{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:2px}
+.ocf-contact a,.ocf-contact span{display:inline-flex;align-items:center;gap:8px;min-height:34px}
+.ocf-contact svg{width:17px;height:17px;color:var(--deep);flex:none}
+.ocf-social{display:flex;gap:8px}
+.ocf-social a{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--ink)}
+.ocf-social a:hover{border-color:var(--blue);color:var(--deep)}
+.ocf-social svg{width:17px;height:17px}
+.ocf h2{margin:6px 0 12px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.ocf-links{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.ocf-links a{display:inline-flex;align-items:center;min-height:34px}
+.ocf-bottom{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding-top:18px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+.ocf-bottom nav{display:flex;flex-wrap:wrap;gap:4px 18px}
+.ocf-bottom a{display:inline-flex;align-items:center;gap:6px;min-height:36px}
+.ocf-bottom .up{font-weight:600;color:var(--deep)}
+@media (max-width:1100px){.ocf-top{grid-template-columns:repeat(3,minmax(0,1fr))}.ocf-top > :first-child{grid-column:1/-1}}
+@media (max-width:640px){.ocf-top{grid-template-columns:repeat(2,minmax(0,1fr))}.ocf-cta{margin-top:24px}}
+</style>
 
-<footer class="oc-footer" role="contentinfo">
-  <div class="oc-footer__grid">
-
-    <!-- Brand column -->
-    <div>
-      <a href="{% url 'index' %}" style="display:block;width:fit-content;margin-bottom:16px;line-height:0;">
-        <img src="{% static 'images/OdumaCorp-icon-small.png' %}" alt="Oduma Corp"
-             style="width:38px;height:38px;border-radius:8px;opacity:.9;">
-      </a>
-      <div class="oc-footer__brand-name">Oduma Corp</div>
-      <p class="oc-footer__brand-tagline">
-        <!-- Connecting Africa's boldest innovators with the investors who back them. Deal flow, capital, and collaboration — structured for serious players. -->
-        <!-- Oduma Corp is a unified platform where innovators showcase ideas and businesses, and investors discover, fund, and collaborate on high-potential opportunities. -->
-        Where you Showcase Ideas.Discover Opportunities.Fund the Future.
-      </p>
-      <div style="margin-top:12px;display:flex;gap:8px;">
-        <a href="#" aria-label="X / Twitter" style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);transition:.15s;"
-           onmouseenter="this.style.background='rgba(255,255,255,0.14)';this.style.color='#fff';"
-           onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.55)';">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.743l7.73-8.835L1.254 2.25H8.08l4.264 5.633 5.9-5.633Zm-1.161 17.52h1.833L7.084 4.126H5.117Z"/></svg>
-        </a>
-        <a href="https://www.linkedin.com/company/oduma-corp/" aria-label="LinkedIn" style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);transition:.15s;"
-           onmouseenter="this.style.background='rgba(255,255,255,0.14)';this.style.color='#fff';"
-           onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.55)';">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-        </a>
-        <a href="https://www.instagram.com/odumacorpltd" aria-label="Instagram" style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.55);transition:.15s;"
-           onmouseenter="this.style.background='rgba(255,255,255,0.14)';this.style.color='#fff';"
-           onmouseleave="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.55)';">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
-        </a>
+<footer class="oc-footer ocf" role="contentinfo">
+  <div class="ocf-wrap">
+    {% if not user.is_authenticated %}
+    <div class="ocf-cta">
+      <div><b>Raising money or investing?</b><span>Create a free account and put your project in front of investors.</span></div>
+      <div class="ocf-btns">
+        <a class="ocf-btn ocf-btn--light" href="{% url 'register' %}">Create free account</a>
+        <a class="ocf-btn ocf-btn--line" href="{% url 'login' %}">Log in</a>
       </div>
     </div>
+    {% endif %}
 
-    <!-- Platform column -->
-    <div>
-      <div class="oc-footer__col-title">Platform</div>
-      <ul class="oc-footer__links">
-        <li><a href="{% url 'innovators' %}">Browse Innovators</a></li>
-        <li><a href="{% url 'investors' %}">Find Investors</a></li>
-        <li><a href="{% url 'companies_list' %}">Businesses</a></li>
-        <li><a href="{% url 'jobs' %}">Jobs Board</a></li>
-        <li><a href="{% url 'events' %}">Events</a></li>
-        <li><a href="{% url 'groups_list' %}">Community</a></li>
-        {% if user.is_authenticated %}
-          <li><a href="{% url 'networks' %}">My Network</a></li>
+    <div class="ocf-top">
+      <div>
+        <a class="ocf-brand" href="{% if user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}"><img src="{% static 'images/OdumaCorp-icon-small.png' %}" width="52" height="52" alt="">Oduma Corp</a>
+        <p class="ocf-about">Connecting founders and investors, from Nairobi.</p>
+        <ul class="ocf-contact">
+          <li><a href="mailto:odumacorp@gmail.com"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg>odumacorp@gmail.com</a></li>
+          <li><a href="tel:+254182759166"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>0182 759 166</a></li>
+          <li><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Nairobi, Kenya</span></li>
+        </ul>
+        <div class="ocf-social">
+          <a href="https://www.linkedin.com/company/oduma-corp/" rel="noopener" target="_blank" aria-label="Oduma Corp on LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
+          <a href="https://www.instagram.com/odumacorpltd" rel="noopener" target="_blank" aria-label="Oduma Corp on Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+        </div>
+      </div>
+
+      <nav aria-labelledby="ocf-platform">
+        <h2 id="ocf-platform">Platform</h2>
+        <ul class="ocf-links">
+          <li><a href="{% url 'innovators' %}">Innovators</a></li>
+          <li><a href="{% url 'investors' %}">Investors</a></li>
+          <li><a href="{% url 'project_list' %}">Projects</a></li>
+          <li><a href="{% url 'companies_list' %}">Businesses</a></li>
+          <li><a href="{% url 'jobs' %}">Jobs</a></li>
+          <li><a href="{% url 'groups_list' %}">Community</a></li>
+        </ul>
+      </nav>
+
+      <nav aria-labelledby="ocf-services">
+        <h2 id="ocf-services">Services</h2>
+        <ul class="ocf-links">
+          <li><a href="{% url 'mentorship_hub' %}">Mentorship</a></li>
+          <li><a href="{% url 'training_hub' %}">Courses &amp; training</a></li>
+          <li><a href="{% url 'services' %}">Consulting</a></li>
+          <li><a href="{% url 'events' %}">Events</a></li>
+          <li><a href="{% url 'proposals_list' %}">Proposals</a></li>
+        </ul>
+      </nav>
+
+      <nav aria-labelledby="ocf-company">
+        <h2 id="ocf-company">Company</h2>
+        <ul class="ocf-links">
+          <li><a href="{% url 'about' %}">About</a></li>
+          <li><a href="{% url 'gallery' %}">Gallery</a></li>
+          <li><a href="https://odumacorp.com/products/">Products</a></li>
+          <li><a href="{% url 'contact' %}">Contact</a></li>
+          {% if pricing_enabled %}<li><a href="{% url 'subscription_plans' %}">Pricing</a></li>{% endif %}
+          <li><a href="{% url 'faq' %}">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <nav aria-labelledby="ocf-account">
+        <h2 id="ocf-account">Account</h2>
+        <ul class="ocf-links">
+          {% if user.is_authenticated %}
           <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-        {% endif %}
-      </ul>
-    </div>
-
-    <!-- Services column -->
-    <div>
-      <div class="oc-footer__col-title">Services</div>
-      <ul class="oc-footer__links">
-        <li><a href="{% url 'mentorship_hub' %}">Mentorship</a></li>
-        <li><a href="{% url 'training_hub' %}">Courses &amp; Training</a></li>
-        <li><a href="{% url 'services' %}">Consulting</a></li>
-        <li><a href="{% url 'proposals_list' %}">Proposals</a></li>
-        <li><a href="{% url 'search' %}">Search</a></li>
-      </ul>
-    </div>
-
-    <!-- Company column -->
-    <div>
-      <div class="oc-footer__col-title">Company</div>
-      <ul class="oc-footer__links">
-        <li><a href="{% url 'about' %}">About Us</a></li>
-        <li><a href="{% url 'gallery' %}">Gallery</a></li>
-        <li><a href="{% url 'contact' %}">Contact</a></li>
-        {% if pricing_enabled %}<li><a href="{% url 'subscription_plans' %}">Pricing</a></li>{% endif %}
-        <li><a href="{% url 'faq' %}">FAQ</a></li>
-        <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
-      </ul>
-    </div>
-
-    <!-- Account column -->
-    <div>
-      <div class="oc-footer__col-title">Account</div>
-      <ul class="oc-footer__links">
-        {% if user.is_authenticated %}
-          <li><a href="{% url 'profile_view' username=user.username %}">My Profile</a></li>
+          <li><a href="{% url 'profile_view' username=user.username %}">My profile</a></li>
+          <li><a href="{% url 'networks' %}">My network</a></li>
           <li><a href="{% url 'inbox' %}">Messages</a></li>
           <li><a href="{% url 'edit_profile' %}">Settings</a></li>
           <li><a href="{% url 'logout' %}">Log out</a></li>
-        {% else %}
+          {% else %}
           <li><a href="{% url 'login' %}">Log in</a></li>
-          <li><a href="{% url 'register' %}">Create account</a></li>
-        {% endif %}
-      </ul>
+          <li><a href="{% url 'register' %}?role=innovator">Join as an innovator</a></li>
+          <li><a href="{% url 'register' %}?role=investor">Join as an investor</a></li>
+          {% endif %}
+        </ul>
+      </nav>
     </div>
 
-  </div>
-
-  <div class="oc-footer__bottom">
-    <span>&copy; {% now "Y" %} Oduma Corp. All rights reserved.</span>
-    <span style="display:flex;align-items:center;gap:6px;">
-      <span style="width:6px;height:6px;border-radius:50%;background:#059669;box-shadow:0 0 6px #059669;display:inline-block;"></span>
-      Built for African innovation
-    </span>
+    <div class="ocf-bottom">
+      <span>&copy; {% now "Y" %} Oduma Corp. Made in Kenya.</span>
+      <nav aria-label="Legal">
+        <a href="{% url 'privacy_policy' %}">Privacy</a>
+        <a href="{% url 'terms' %}">Terms</a>
+        <a class="up" href="#top">Back to top <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></a>
+      </nav>
+    </div>
   </div>
 </footer>

@@ -2,506 +2,223 @@
 {% load static %}
 {% block title %}{{ profile.user.get_full_name|default:profile.user.username }} | Oduma Corp{% endblock %}
 
-{% block content %}
+{% block extra_head %}
+<link rel="preload" href="{% static 'fonts/dm-sans-latin-var.woff2' %}" as="font" type="font/woff2" crossorigin>
 <style>
-/* ── Profile Page ───────────────────────────────────────────── */
-:root {
-  --ink: #0A1628;
-  --blue: #1B5EC7;
-  --blue-lt: #e0e8f4;
-  --border: #e4eaf2;
-  --bg: #f4f6fb;
-  --radius: 14px;
+@font-face{font-family:"DM Sans";src:url({% static 'fonts/dm-sans-latin-var.woff2' %}) format("woff2");font-weight:400 700;font-style:normal;font-display:swap}
+/* ── Profile page ── */
+.pf-wrap{--blue:#004AAD;--deep:#003A8C;--tint:#E1EAF7;--warm:#F29D38;--warm-tint:#FCEBD5;--ink:#0F1B33;--body:#4A5568;--muted:#5B6475;--line:#E2E6EE;--paper:#FBFAF7;--ok:#0E5C34;
+  --shadow:0 1px 2px rgba(15,27,51,.05),0 6px 20px rgba(15,27,51,.06);--shadow-up:0 2px 4px rgba(15,27,51,.06),0 16px 36px rgba(15,27,51,.12);
+  max-width:1120px;width:100%;margin:0 auto;padding:20px 20px 56px;box-sizing:border-box;
+  font:400 16px/1.55 "DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--body);-webkit-font-smoothing:antialiased}
+.pf-wrap *,.pf-wrap *::before,.pf-wrap *::after{box-sizing:border-box}
+.pf-wrap a{color:inherit}
+.pf-wrap :focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:8px}
+.pf-wrap h1,.pf-wrap h2,.pf-wrap h3{font-family:inherit}
+@media (max-width:480px){.pf-wrap{padding:12px 12px 48px}}
+
+/* hero */
+.pf-hero{background:#fff;border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:18px}
+.pf-cover-strip{height:150px;background:radial-gradient(900px 300px at 85% -40%,rgba(255,255,255,.18),transparent 60%),linear-gradient(135deg,#0A5AC4 0%,#004AAD 45%,#00347F 100%)}
+.pf-hero-inner{padding:0 28px 24px}
+.pf-hero-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:-56px}
+.pf-avatar,.pf-avatar-init{width:116px;height:116px;border-radius:50%;border:5px solid #fff;box-shadow:0 8px 24px rgba(15,27,51,.2);display:block;object-fit:cover;background:var(--ink)}
+.pf-avatar-init{display:grid;place-items:center;color:#fff;font-size:38px;font-weight:700;letter-spacing:-.02em}
+.pf-avatar-wrap{position:relative}
+.pf-avatar-wrap img{position:absolute;inset:0}
+.pf-hero-actions{display:flex;gap:10px;flex-wrap:wrap;padding-bottom:4px}
+.pf-hero-actions form{display:inline-flex;margin:0}
+.pf-name{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:14px 0 6px;color:var(--ink);font-size:clamp(26px,1.6vw + 18px,34px);line-height:1.15;font-weight:700;letter-spacing:-.025em}
+.pf-verified{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;letter-spacing:0;padding:3px 10px 3px 6px;border-radius:999px;background:#E3F3EA;color:var(--ok)}
+.pf-verified svg{width:16px;height:16px}
+.pf-role-line{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 4px;font-size:15.5px;color:var(--muted)}
+.pf-role-chip{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:999px;background:var(--tint);color:var(--deep)}
+.pf-ind-chip{font-size:13px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--warm-tint);color:#7A4300}
+.pf-loc{display:inline-flex;align-items:center;gap:5px}
+.pf-loc svg{width:15px;height:15px}
+.pf-bio{margin:10px 0 0;max-width:46em;font-size:16px;color:#3D475A}
+.pf-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 20px;border-radius:999px;border:1.5px solid transparent;font-family:inherit;font-size:15px;font-weight:700;text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .2s,border-color .2s,transform .2s,color .2s}
+.pf-wrap .pf-btn--primary{background:var(--blue);color:#fff;box-shadow:0 6px 16px rgba(0,74,173,.25)}
+.pf-wrap .pf-btn--primary:hover{background:var(--deep);color:#fff;transform:translateY(-1px)}
+.pf-wrap .pf-btn--outline{background:#fff;border-color:#CBD3E1;color:var(--ink)}
+.pf-wrap .pf-btn--outline:hover{border-color:var(--blue);color:var(--deep)}
+.pf-wrap .pf-btn--green{background:#E3F3EA;border-color:#BFE3CD;color:var(--ok);cursor:default}
+.pf-wrap .pf-btn--pending{background:var(--warm-tint);border-color:#F3CF9C;color:#7A4300;cursor:default}
+
+/* stats */
+.pf-stats{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin-top:20px}
+.pf-stat{padding:12px 10px;border:1px solid var(--line);border-radius:16px;background:var(--paper);text-align:center}
+.pf-stat-val{color:var(--ink);font-size:22px;font-weight:700;line-height:1.1;letter-spacing:-.02em}
+.pf-stat-label{margin-top:2px;font-size:12.5px;font-weight:600;color:var(--muted)}
+@media (max-width:900px){.pf-stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:520px){
+  .pf-stats{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-left:-16px;margin-right:-16px;padding:0 16px;scroll-snap-type:x proximity}
+  .pf-stats::-webkit-scrollbar{display:none}
+  .pf-stat{flex:0 0 96px;scroll-snap-align:start}
+  .pf-stat-val{font-size:19px}
 }
 
-.pf-wrap { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0 20px 48px; box-sizing: border-box; }
+/* tabs */
+.pf-tabs-bar{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 18px;padding:6px;border:1px solid var(--line);border-radius:999px;background:#fff;box-shadow:var(--shadow);position:sticky;top:calc(var(--oc-navbar-h,62px) + 8px);z-index:10}
+.pf-tabs-bar::-webkit-scrollbar{display:none}
+.pf-tab{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border:0;border-radius:999px;background:transparent;color:var(--ink);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s,color .2s;text-decoration:none}
+.pf-tab:hover{background:#F1F4F9}
+.pf-tab.active{background:var(--blue);color:#fff}
+.pf-tab-count{font-size:12.5px;font-weight:700;padding:1px 8px;border-radius:999px;background:#EEF1F6;color:var(--muted)}
+.pf-tab.active .pf-tab-count{background:rgba(255,255,255,.22);color:#fff}
+.pf-panel{display:none;width:100%;min-width:0}
+.pf-panel.active{display:block}
 
-/* ── Back button ─────────────────────────────────────────────── */
-.pf-back-bar {
-  padding: 14px 0 0;
-  display: flex;
-  align-items: center;
-}
-.pf-back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: #fff;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  padding: 7px 16px;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--ink);
-  text-decoration: none;
-  cursor: pointer;
-  transition: all .18s;
-  font-family: inherit;
-}
-.pf-back-btn:hover {
-  border-color: var(--blue);
-  color: var(--blue);
-  background: #f0f5ff;
-}
-.pf-back-btn svg { flex-shrink: 0; }
+/* layout + cards */
+.pf-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+@media (max-width:900px){.pf-grid{grid-template-columns:minmax(0,1fr)}}
+.pf-card{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px}
+.pf-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.pf-card-title{margin:0;color:var(--ink);font-size:17px;font-weight:700;letter-spacing:-.01em}
+.pf-wrap .pf-card-link{display:inline-flex;align-items:center;min-height:40px;font-family:inherit;font-size:14.5px;font-weight:700;color:var(--deep);text-decoration:none}
+.pf-wrap .pf-card-link:hover{text-decoration:underline}
 
-/* ── Unified profile hero card ───────────────────────────────── */
-.pf-hero {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  overflow: hidden;
-  position: relative;
-  margin-bottom: 20px;
-  margin-top: 12px;
-  box-shadow: 0 2px 12px rgba(10,22,40,.07);
-}
-.pf-cover-strip {
-  height: 160px;
-  background: linear-gradient(135deg, #0A1628 0%, #1B5EC7 55%, #3b82f6 100%);
-}
-.pf-hero-inner {
-  padding: 0 28px 22px;
-}
-.pf-avatar-wrap { position: relative; display: inline-block; }
-.pf-avatar, .pf-avatar-init {
-  width: 96px; height: 96px;
-  border-radius: 50%;
-  border: 4px solid #fff;
-  box-shadow: 0 4px 16px rgba(0,0,0,.14);
-  margin-top: -48px;
-  margin-bottom: 10px;
-  display: block;
-  object-fit: cover;
-}
-.pf-avatar-init {
-  background: linear-gradient(135deg, #1B5EC7, #0A1628);
-  color: #fff;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 2.7rem;
-  font-weight: 800;
-  display: flex; align-items: center; justify-content: center;
-}
-.pf-hero-top {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  flex-wrap: wrap; gap: 12px; padding-top: 10px;
-}
-.pf-hero-left { flex: 1; min-width: 0; }
-.pf-name {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 2.0rem; font-weight: 800; color: var(--ink);
-  margin: 0 0 4px; line-height: 1.2;
-}
-.pf-role-line {
-  font-size: 2.7rem; color: #6b7280; margin-bottom: 6px;
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-}
-.pf-role-chip {
-  background: var(--blue-lt); color: var(--blue);
-  font-size: 1.2rem; font-weight: 700; padding: 2px 10px;
-  border-radius: 20px; text-transform: uppercase; letter-spacing: .04em;
-}
-.pf-bio {
-  font-size: 1.2rem; color: #374151; line-height: 1.6;
-  margin-top: 10px; max-width: 600px;
-}
-.pf-hero-actions {
-  display: flex; gap: 10px; flex-wrap: wrap;
-  align-items: flex-start; padding-top: 4px;
-}
-.pf-btn {
-  padding: 9px 22px; border-radius: 9px; font-size: 1.2rem; font-weight: 700;
-  text-decoration: none; transition: all .18s;
-  display: inline-flex; align-items: center; gap: 6px;
-  cursor: pointer; border: none; font-family: inherit;
-}
-.pf-btn--primary { background: var(--blue); color: #fff; }
-.pf-btn--primary:hover { background: #1448a3; color: #fff; }
-.pf-btn--outline { background: #fff; color: var(--ink); border: 1.5px solid #d1d5db; }
-.pf-btn--outline:hover { border-color: var(--blue); color: var(--blue); }
-.pf-btn--green { background: #f0fdf4; color: #15803d; border: 1.5px solid #bbf7d0; }
-.pf-btn--pending { background: #fefce8; color: #854d0e; border: 1.5px solid #fde68a; cursor: default; }
+.pf-post-item{padding:16px 20px;border-bottom:1px solid var(--line)}
+.pf-post-item:last-child{border-bottom:0}
+.pf-post-label{display:inline-block;margin-bottom:6px;font-size:12.5px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--tint);color:var(--deep);text-transform:capitalize}
+.pf-wrap .pf-post-title{display:block;margin-bottom:4px;color:var(--ink);font-size:16.5px;font-weight:700;text-decoration:none}
+.pf-wrap .pf-post-title:hover{color:var(--deep);text-decoration:underline}
+.pf-post-excerpt{margin:0;font-size:15px}
+.pf-post-meta{margin-top:6px;font-size:13.5px;color:var(--muted)}
 
-/* ── Stats strip ─────────────────────────────────────────────── */
-.pf-stats {
-  display: flex; gap: 0;
-  border-top: 1px solid #f0f4fa;
-  margin-top: 14px; flex-wrap: wrap;
-}
-.pf-stat {
-  flex: 1; min-width: 80px; text-align: center;
-  padding: 10px 8px 9px;
-  border-right: 1px solid #f0f4fa;
-  transition: background .15s; cursor: default;
-}
-.pf-stat:last-child { border-right: none; }
-.pf-stat:hover { background: #f9fafb; }
-.pf-stat-val {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.6rem; font-weight: 800; color: var(--ink); line-height: 1; margin-bottom: 3px;
-}
-.pf-stat-label { font-size: 1.05rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.pf-proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;padding:16px 20px 20px}
+.pf-wrap .pf-proj-card{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;text-decoration:none;transition:transform .25s,box-shadow .25s,border-color .25s}
+.pf-wrap .pf-proj-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-up);border-color:#C9D6EC}
+.pf-proj-thumb,.pf-proj-thumb-ph{width:100%;aspect-ratio:16/9;height:auto;object-fit:cover;display:block}
+.pf-proj-thumb-ph{display:grid;place-items:center;background:linear-gradient(135deg,#DCE6F7,#C9D8F2);color:rgba(0,58,140,.4)}
+.pf-proj-body{padding:12px 14px 14px;flex:1}
+.pf-proj-status{display:inline-block;margin-bottom:6px;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;background:#E3F3EA;color:var(--ok)}
+.pf-proj-name{margin:0 0 4px;color:var(--ink);font-size:16px;font-weight:700}
+.pf-proj-desc{margin:0 0 8px;font-size:14.5px}
+.pf-proj-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
 
-/* ── Tabs ────────────────────────────────────────────────────── */
-.pf-tabs-bar {
-  display: flex; gap: 2px; flex-wrap: wrap;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 5px;
-  margin-bottom: 20px;
-  position: sticky; top: 66px; z-index: 10;
-  box-shadow: 0 2px 8px rgba(10,22,40,.06);
-}
-.pf-tab {
-  padding: 8px 18px;
-  border-radius: 8px;
-  font-size: 1.2rem; font-weight: 700;
-  color: #6b7280; cursor: pointer;
-  border: none; background: transparent;
-  font-family: inherit; transition: all .18s;
-  display: flex; align-items: center; gap: 6px;
-}
-.pf-tab:hover { background: #f0f5ff; color: var(--blue); }
-.pf-tab.active { background: var(--blue); color: #fff; }
-.pf-tab-count {
-  background: rgba(255,255,255,.25);
-  font-size: 1.2rem; padding: 1px 6px; border-radius: 20px;
-}
-.pf-tab:not(.active) .pf-tab-count {
-  background: #e4eaf2; color: #6b7280;
-}
+.pf-tile-list{display:grid;gap:10px;padding:14px 16px}
+.pf-wrap .pf-tile{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;text-decoration:none;transition:border-color .2s,background .2s}
+.pf-wrap .pf-tile:hover{border-color:var(--blue);background:#F6F9FE}
+.pf-tile-img,.pf-tile-icon{flex:none;width:46px;height:46px;border-radius:12px;object-fit:cover}
+.pf-tile-icon{display:grid;place-items:center;background:var(--tint);color:var(--deep)}
+.pf-tile-info{flex:1;min-width:0}
+.pf-tile-name{color:var(--ink);font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-tile-sub{margin-top:1px;font-size:13.5px;color:var(--muted)}
+.pf-tile-badge{flex:none;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--tint);color:var(--deep);white-space:nowrap}
 
-.pf-panel { display: none; width: 100%; min-width: 0; box-sizing: border-box; }
-.pf-panel.active { display: block; }
+.pf-patent-item,.pf-proposal-item{padding:14px 20px;border-bottom:1px solid var(--line)}
+.pf-patent-item:last-child,.pf-proposal-item:last-child{border-bottom:0}
+.pf-patent-name,.pf-proposal-title{margin:0 0 4px;color:var(--ink);font-size:15.5px;font-weight:700}
+.pf-patent-desc,.pf-patent-date,.pf-proposal-meta{font-size:14px;color:var(--muted)}
+.pf-proposal-status{margin-left:8px;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px}
+.pf-proposal-status--pending{background:var(--warm-tint);color:#7A4300}
+.pf-proposal-status--accepted{background:#E3F3EA;color:var(--ok)}
+.pf-proposal-status--rejected{background:#FDECEC;color:#9B1C1C}
 
-/* ── Two-col layout ──────────────────────────────────────────── */
-.pf-grid { display: grid; grid-template-columns: 1fr 290px; gap: 20px; align-items: start; }
-@media (max-width: 860px) { .pf-grid { grid-template-columns: 1fr; } }
-@media (max-width: 600px) {
-  .pf-hero-inner { padding: 0 14px 14px; }
-  .pf-cover-strip { height: 120px; }
-  .pf-hero-top { flex-direction: column; gap: 8px; padding-top: 6px; }
-  .pf-hero-left { min-width: 0; width: 100%; }
-  .pf-hero-actions { width: 100%; flex-wrap: wrap; gap: 7px; }
-  .pf-btn { padding: 7px 16px; font-size: 1.1rem; }
-  .pf-name { font-size: 1.6rem; }
-  .pf-role-line { font-size: 1.3rem; margin-bottom: 2px; }
-  .pf-avatar, .pf-avatar-init { width: 76px; height: 76px; margin-top: -36px; margin-bottom: 6px; }
-  .pf-avatar-init { font-size: 2.2rem; }
-  .pf-stats { margin-top: 10px; }
-  .pf-stat { padding: 8px 4px 7px; }
-  .pf-stat-val { font-size: 1.4rem; }
-  .pf-stat-label { font-size: 0.95rem; }
-}
+.pf-info-row{display:flex;align-items:baseline;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line)}
+.pf-info-row:last-child{border-bottom:0}
+.pf-info-label{flex:none;min-width:110px;font-size:14px;color:var(--muted)}
+.pf-info-val{flex:1;min-width:0;font-size:15px;font-weight:600;color:var(--ink);word-break:break-word}
 
-/* ── Cards ───────────────────────────────────────────────────── */
-.pf-card {
-  background: #fff; border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: 0 1px 4px rgba(10,22,40,.04);
-  overflow: hidden; margin-bottom: 16px;
-}
-.pf-card-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 22px 14px; border-bottom: 1px solid #f0f4fa;
-}
-.pf-card-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.2rem; font-weight: 800; color: var(--ink); margin: 0;
-}
-.pf-card-link { font-size: 1.2rem; color: var(--blue); font-weight: 600; text-decoration: none; }
+.pf-empty{padding:30px 22px;text-align:center;color:var(--muted)}
+.pf-empty-icon{display:flex;justify-content:center;margin-bottom:10px;opacity:.45}
+.pf-empty-text{font-size:15.5px;font-weight:700;color:var(--ink)}
+.pf-empty-sub{margin-top:4px;font-size:14.5px}
 
-/* ── Post items ──────────────────────────────────────────────── */
-.pf-post-item {
-  padding: 16px 22px; border-bottom: 1px solid #f5f5f5;
-  transition: background .14s;
-}
-.pf-post-item:last-child { border-bottom: none; }
-.pf-post-item:hover { background: #f9fafb; }
-.pf-post-label {
-  font-size: 1.2rem; font-weight: 700;
-  background: var(--blue-lt); color: var(--blue);
-  padding: 2px 9px; border-radius: 20px; margin-bottom: 6px; display: inline-block;
-}
-.pf-post-title {
-  font-size: 1.2rem; font-weight: 700; color: var(--ink);
-  text-decoration: none; display: block; margin-bottom: 4px;
-}
-.pf-post-title:hover { color: var(--blue); }
-.pf-post-excerpt { font-size: 1.2rem; color: #6b7280; line-height: 1.5; }
-.pf-post-meta { font-size: 1.2rem; color: #6b7280; margin-top: 6px; }
+.pf-verif-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;margin-bottom:18px;box-shadow:var(--shadow)}
+.pf-verif-card--gradient{background:linear-gradient(150deg,#EEF3FC,#FCEBD5);border-color:#D6E1F4}
+.pf-verif-form-field{margin-bottom:12px}
+.pf-verif-form-field label{display:block;margin-bottom:5px;font-size:14px;font-weight:600;color:var(--ink)}
+.pf-verif-form-field input:not([type=file]),.pf-verif-form-field textarea{width:100%;min-height:44px;padding:9px 12px;border:1px solid #CFD7E4;border-radius:12px;font-family:inherit;font-size:15px;color:var(--ink);background:#fff;resize:vertical}
+.pf-verif-form-field input:not([type=file]):focus,.pf-verif-form-field textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,74,173,.18)}
+.pf-file-wrap{position:relative}
+.pf-file-wrap input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2}
+.pf-file-btn{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px dashed #B8C8E8;border-radius:12px;background:#F8FAFF}
+.pf-file-wrap:focus-within .pf-file-btn,.pf-file-btn:hover{border-color:var(--blue);background:#EEF3FD}
+.pf-file-icon{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--tint);color:var(--deep)}
+.pf-file-name{font-size:14.5px;font-weight:700;color:var(--ink)}
+.pf-file-hint{font-size:13px;color:var(--muted)}
 
-/* ── Project grid ────────────────────────────────────────────── */
-.pf-proj-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
-  gap: 14px; padding: 18px 22px;
-}
-.pf-proj-card {
-  border: 1px solid var(--border); border-radius: 10px;
-  overflow: hidden; transition: all .18s; text-decoration: none;
-  display: flex; flex-direction: column;
-  background: #fff;
-}
-.pf-proj-card:hover { border-color: var(--blue); box-shadow: 0 4px 16px rgba(27,94,199,.1); }
-.pf-proj-thumb {
-  width: 100%; height: 130px; object-fit: cover; display: block;
-}
-.pf-proj-thumb-ph {
-  width: 100%; height: 130px;
-  background: linear-gradient(135deg, #e0e8f4, #c3d4ec);
-  display: flex; align-items: center; justify-content: center;
-  color: #1B5EC7; opacity: .5;
-}
-.pf-proj-body { padding: 12px 14px; flex: 1; }
-.pf-proj-name {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.2rem; font-weight: 800; color: var(--ink); margin: 0 0 4px;
-}
-.pf-proj-desc { font-size: 1.2rem; color: #6b7280; line-height: 1.5; margin: 0 0 8px; }
-.pf-proj-meta { font-size: 1.2rem; color: #6b7280; display: flex; gap: 10px; flex-wrap: wrap; }
-.pf-proj-status {
-  font-size: 1.2rem; font-weight: 700; padding: 2px 8px;
-  border-radius: 20px; background: #e0fdf4; color: #065f46;
-  display: inline-block; margin-bottom: 4px;
-}
 
-/* ── Group / page tiles ──────────────────────────────────────── */
-.pf-tile-list { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
-.pf-tile {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 14px; border: 1px solid var(--border);
-  border-radius: 10px; text-decoration: none;
-  transition: all .18s; background: #fff;
+@media (max-width:640px){
+  .pf-cover-strip{height:110px}
+  .pf-hero-inner{padding:0 16px 18px}
+  .pf-hero-row{margin-top:-44px}
+  .pf-avatar,.pf-avatar-init{width:92px;height:92px;border-width:4px}
+  .pf-avatar-init{font-size:30px}
+  .pf-hero-actions{width:100%}
+  .pf-hero-actions > *{flex:1 1 140px}
+  .pf-hero-actions form .pf-btn{width:100%}
 }
-.pf-tile:hover { border-color: var(--blue); background: #f0f5ff; }
-.pf-tile-img {
-  width: 44px; height: 44px; border-radius: 8px;
-  object-fit: cover; flex-shrink: 0;
-}
-.pf-tile-icon {
-  width: 44px; height: 44px; border-radius: 8px;
-  background: var(--blue-lt); color: var(--blue);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.pf-tile-info { flex: 1; min-width: 0; }
-.pf-tile-name {
-  font-size: 1.2rem; font-weight: 700; color: var(--ink);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.pf-tile-sub { font-size: 1.2rem; color: #6b7280; margin-top: 2px; }
-.pf-tile-badge {
-  font-size: 1.2rem; font-weight: 700; padding: 2px 8px;
-  border-radius: 20px; background: var(--blue-lt); color: var(--blue);
-  white-space: nowrap; flex-shrink: 0;
-}
-
-/* ── Patent list ─────────────────────────────────────────────── */
-.pf-patent-item {
-  padding: 14px 22px; border-bottom: 1px solid #f5f5f5;
-  transition: background .14s;
-}
-.pf-patent-item:last-child { border-bottom: none; }
-.pf-patent-item:hover { background: #f9fafb; }
-.pf-patent-name { font-size: 1.2rem; font-weight: 700; color: var(--ink); margin: 0 0 4px; }
-.pf-patent-desc { font-size: 1.2rem; color: #6b7280; }
-.pf-patent-date { font-size: 1.2rem; color: #6b7280; margin-top: 4px; }
-
-/* ── Info rows ───────────────────────────────────────────────── */
-.pf-info-row {
-  display: flex; align-items: center;
-  padding: 12px 22px; border-bottom: 1px solid #f5f5f5; gap: 10px;
-}
-.pf-info-row:last-child { border-bottom: none; }
-.pf-info-label { font-size: 1.2rem; color: #6b7280; font-weight: 600; min-width: 110px; flex-shrink: 0; }
-.pf-info-val { font-size: 1.2rem; color: #374151; font-weight: 600; flex: 1; word-break: break-word; }
-
-/* ── Empty state ─────────────────────────────────────────────── */
-.pf-empty {
-  text-align: center; padding: 28px 22px; color: #6b7280;
-}
-.pf-empty-icon { margin-bottom: 10px; opacity: .4; color: #6b7280; display: flex; justify-content: center; }
-.pf-empty-text { font-size: 1.2rem; font-weight: 600; color: #6b7280; }
-.pf-empty-sub { font-size: 1.2rem; margin-top: 4px; }
-
-/* ── Verification card ───────────────────────────────────────── */
-.pf-verif-card {
-  background: #fff; border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 20px 22px; margin-bottom: 16px;
-}
-.pf-verif-card--gradient {
-  background: linear-gradient(135deg, #f0f5ff, #e8f0fd);
-  border-color: #c3d4ec;
-}
-.pf-verif-form-field { margin-bottom: 12px; }
-.pf-verif-form-field label {
-  display: block; font-size: 1.2rem; font-weight: 700;
-  color: #374151; margin-bottom: 5px;
-}
-.pf-verif-form-field input:not([type=file]),
-.pf-verif-form-field textarea {
-  width: 100%; border: 1.5px solid #e0e6f0; border-radius: 8px;
-  padding: 9px 12px; font-size: 1.2rem; font-family: inherit;
-  color: var(--ink); box-sizing: border-box; transition: border-color .18s; resize: vertical;
-}
-.pf-verif-form-field input:not([type=file]):focus,
-.pf-verif-form-field textarea:focus {
-  outline: none; border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(27,94,199,.08);
-}
-.pf-file-wrap { position: relative; }
-.pf-file-wrap input[type=file] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
-.pf-file-btn {
-  display: flex; align-items: center; gap: 10px;
-  border: 1.5px dashed #b8c8e8; border-radius: 8px;
-  padding: 10px 14px; background: #f8faff; cursor: pointer;
-  transition: border-color .18s, background .18s;
-}
-.pf-file-btn:hover { border-color: var(--blue); background: #eef3fd; }
-.pf-file-icon {
-  width: 32px; height: 32px; border-radius: 7px;
-  background: var(--blue-lt); color: var(--blue);
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.pf-file-text { min-width: 0; }
-.pf-file-name { font-size: 1.2rem; font-weight: 700; color: var(--ink); }
-.pf-file-hint { font-size: 1.1rem; color: #6b7280; margin-top: 1px; }
-
-/* ── Proposal item ───────────────────────────────────────────── */
-.pf-proposal-item {
-  padding: 14px 22px; border-bottom: 1px solid #f5f5f5;
-  transition: background .14s;
-}
-.pf-proposal-item:last-child { border-bottom: none; }
-.pf-proposal-item:hover { background: #f9fafb; }
-.pf-proposal-title { font-size: 1.2rem; font-weight: 700; color: var(--ink); margin: 0 0 4px; }
-.pf-proposal-meta { font-size: 1.2rem; color: #6b7280; }
-.pf-proposal-status {
-  font-size: 1.2rem; font-weight: 700; padding: 2px 8px;
-  border-radius: 20px; margin-left: 8px;
-}
-.pf-proposal-status--pending { background: #fef9c3; color: #92400e; }
-.pf-proposal-status--accepted { background: #d1fae5; color: #065f46; }
-.pf-proposal-status--rejected { background: #fee2e2; color: #991b1b; }
+@media (prefers-reduced-motion:reduce){.pf-wrap *{transition:none!important}}
 </style>
+{% endblock %}
 
+{% block content %}
 <div class="pf-wrap">
 
-  <!-- Back button -->
-  <div class="pf-back-bar">
-    <button class="pf-back-btn" onclick="history.back()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-      Back
-    </button>
-  </div>
-
-  <!-- Unified hero card -->
-  <div class="pf-hero">
+  <!-- Profile header -->
+  <section class="pf-hero" aria-labelledby="pf-name">
     <div class="pf-cover-strip"{% if profile.cover_style %} style="background:{{ profile.cover_style }}"{% endif %}></div>
-
     <div class="pf-hero-inner">
-    <!-- Avatar -->
-    <div class="pf-avatar-wrap">
-      {% if profile.profile_pics %}
-        <img src="{{ profile.profile_pics.url }}" alt="Avatar" class="pf-avatar">
-      {% else %}
-        <div class="pf-avatar-init">
-          {{ profile.user.first_name|first|upper }}{{ profile.user.last_name|first|upper }}
+      <div class="pf-hero-row">
+        <div class="pf-avatar-wrap">
+          <div class="pf-avatar-init" aria-hidden="true">{{ profile.user.first_name|first|upper }}{{ profile.user.last_name|first|upper }}</div>
+          {% if profile.profile_pics %}<img src="{{ profile.profile_pics.url }}" alt="{{ profile.user.get_full_name|default:profile.user.username }}" class="pf-avatar" onerror="this.remove()">{% endif %}
         </div>
+        <div class="pf-hero-actions">
+          {% if request.user == profile.user %}
+            <a href="{% url 'edit_profile' %}" class="pf-btn pf-btn--outline">Edit profile</a>
+            {% if profile.user.user_type != 'investor' %}
+              <a href="{% url 'innovator_dashboard' %}" class="pf-btn pf-btn--primary">Dashboard</a>
+            {% else %}
+              <a href="{% url 'investor_dashboard' %}" class="pf-btn pf-btn--primary">Dashboard</a>
+            {% endif %}
+          {% elif request.user.is_authenticated %}
+            {% if connection_status == 'accepted' %}
+              <span class="pf-btn pf-btn--green">✓ Connected</span>
+            {% elif connection_status == 'pending' %}
+              <span class="pf-btn pf-btn--pending">Request pending</span>
+            {% else %}
+              <form method="post" action="{% url 'connect_user' profile.user.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="pf-btn pf-btn--primary">Connect</button>
+              </form>
+            {% endif %}
+            <a href="{% url 'start_conversation' profile.user.pk %}" class="pf-btn pf-btn--outline">Message</a>
+          {% else %}
+            <a href="{% url 'login' %}?next={{ request.path }}" class="pf-btn pf-btn--primary">Log in to connect</a>
+            <a href="{% url 'register' %}" class="pf-btn pf-btn--outline">Create account</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <h1 class="pf-name" id="pf-name">
+        {{ profile.user.get_full_name|default:profile.user.username }}
+        {% if profile.verification_status == 'verified' %}<span class="pf-verified"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Verified</span>{% endif %}
+      </h1>
+      <p class="pf-role-line">
+        <span class="pf-role-chip">{{ profile.user.user_type|title }}</span>
+        {% if profile.industry %}<span class="pf-ind-chip">{{ profile.get_industry_display }}</span>{% endif %}
+        {% if profile.company %}<span>{{ profile.company }}</span>{% endif %}
+        {% if profile.location %}<span class="pf-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>{{ profile.location }}</span>{% endif %}
+      </p>
+      {% if profile.bio %}<p class="pf-bio">{{ profile.bio|truncatewords:60 }}</p>{% endif %}
+
+      {% if request.user.is_authenticated %}
+      <ul class="pf-stats" aria-label="Activity" style="list-style:none;padding:0;">
+        <li class="pf-stat"><div class="pf-stat-val">{{ projects_count|default:"0" }}</div><div class="pf-stat-label">Projects</div></li>
+        <li class="pf-stat"><div class="pf-stat-val">{{ posts|length }}</div><div class="pf-stat-label">Posts</div></li>
+        <li class="pf-stat"><div class="pf-stat-val">{{ inventor_connections|default:"0" }}</div><div class="pf-stat-label">Connections</div></li>
+        <li class="pf-stat"><div class="pf-stat-val">{{ groups|length }}</div><div class="pf-stat-label">Groups</div></li>
+        <li class="pf-stat"><div class="pf-stat-val">{{ likes_count|default:"0" }}</div><div class="pf-stat-label">Likes</div></li>
+        <li class="pf-stat"><div class="pf-stat-val">{{ patents_count|default:"0" }}</div><div class="pf-stat-label">Patents</div></li>
+        <li class="pf-stat"><div class="pf-stat-val">{{ profile_view_count|default:"0" }}</div><div class="pf-stat-label">Profile views</div></li>
+      </ul>
       {% endif %}
     </div>
-
-    <div class="pf-hero-top">
-      <div class="pf-hero-left">
-        <h1 class="pf-name">
-          {{ profile.user.get_full_name|default:profile.user.username }}
-          {% if profile.verification_status == 'verified' %}
-            <span style="font-size: 1.2rem;vertical-align:middle;margin-left:6px;background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:20px;font-weight:700;">✓ Verified</span>
-          {% endif %}
-        </h1>
-        <div class="pf-role-line">
-          <span class="pf-role-chip">{{ profile.user.user_type|title }}</span>
-          {% if profile.industry %}<span>{{ profile.industry }}</span>{% endif %}
-          {% if profile.company %}· <span>{{ profile.company }}</span>{% endif %}
-        </div>
-        {% if profile.bio %}
-          <p class="pf-bio">{{ profile.bio|truncatewords:50 }}</p>
-        {% endif %}
-        {% if profile.location %}
-          <p style="display:inline-flex;align-items:center;gap:5px;font-size: 1.2rem;color:#6b7280;margin-top:6px;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            {{ profile.location }}
-          </p>
-        {% endif %}
-      </div>
-
-      <div class="pf-hero-actions">
-        {% if request.user == profile.user %}
-          <a href="{% url 'edit_profile' %}" class="pf-btn pf-btn--outline">Edit Profile</a>
-          {% if profile.user.user_type != 'investor' %}
-            <a href="{% url 'innovator_dashboard' %}" class="pf-btn pf-btn--primary">Dashboard</a>
-          {% else %}
-            <a href="{% url 'investor_dashboard' %}" class="pf-btn pf-btn--primary">Dashboard</a>
-          {% endif %}
-        {% elif request.user.is_authenticated %}
-          {% if connection_status == 'accepted' %}
-            <span class="pf-btn pf-btn--green">✓ Connected</span>
-            <a href="{% url 'start_conversation' profile.user.pk %}" class="pf-btn pf-btn--outline">Message</a>
-          {% elif connection_status == 'pending' %}
-            <span class="pf-btn pf-btn--pending">Pending</span>
-            <a href="{% url 'start_conversation' profile.user.pk %}" class="pf-btn pf-btn--outline">Message</a>
-          {% else %}
-            <form method="post" action="{% url 'connect_user' profile.user.pk %}" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" class="pf-btn pf-btn--primary">+ Connect</button>
-            </form>
-            <a href="{% url 'start_conversation' profile.user.pk %}" class="pf-btn pf-btn--outline">Message</a>
-          {% endif %}
-        {% else %}
-          <a href="{% url 'login' %}?next={{ request.path }}" class="pf-btn pf-btn--primary">Sign in to Connect</a>
-          <a href="{% url 'register' %}" class="pf-btn pf-btn--outline">Create Account</a>
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- Stats strip — authenticated only -->
-    {% if request.user.is_authenticated %}
-    <div class="pf-stats">
-      <div class="pf-stat">
-        <div class="pf-stat-val">{{ profile_view_count|default:"0" }}</div>
-        <div class="pf-stat-label">Profile Views</div>
-      </div>
-      <div class="pf-stat">
-        <div class="pf-stat-val">{{ projects_count|default:"0" }}</div>
-        <div class="pf-stat-label">Projects</div>
-      </div>
-      <div class="pf-stat">
-        <div class="pf-stat-val">{{ patents_count|default:"0" }}</div>
-        <div class="pf-stat-label">Patents</div>
-      </div>
-      <div class="pf-stat">
-        <div class="pf-stat-val">{{ posts|length }}</div>
-        <div class="pf-stat-label">Posts</div>
-      </div>
-      <div class="pf-stat">
-        <div class="pf-stat-val">{{ groups|length }}</div>
-        <div class="pf-stat-label">Groups</div>
-      </div>
-      <div class="pf-stat">
-        <div class="pf-stat-val">{{ inventor_connections|default:"0" }}</div>
-        <div class="pf-stat-label">Connections</div>
-      </div>
-      <div class="pf-stat">
-        <div class="pf-stat-val">{{ likes_count|default:"0" }}</div>
-        <div class="pf-stat-label">Likes</div>
-      </div>
-    </div>
-    {% endif %}{# end stats strip auth gate #}
-    </div><!-- /pf-hero-inner -->
-  </div><!-- /pf-hero -->
+  </section>
 
 
   <!-- ── Tabs bar ─────────────────────────────────────────────── -->
@@ -520,7 +237,7 @@
   <!-- Guest: projects-only tab bar -->
   <div class="pf-tabs-bar">
     <button class="pf-tab active" data-tab="projects">Projects <span class="pf-tab-count">{{ projects_count }}</span></button>
-    <a href="{% url 'login' %}?next={{ request.path }}" class="pf-tab" style="color:#1B5EC7;font-weight:600;text-decoration:none;">
+    <a href="{% url 'login' %}?next={{ request.path }}" class="pf-tab" style="color:#004AAD;font-weight:600;text-decoration:none;">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       Sign in to see more
     </a>

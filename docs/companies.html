@@ -16,8 +16,8 @@
 </button>
 <style>
 :root {
-  --cl-blue:   #1B5EC7;
-  --cl-blue-dk:#1448a3;
+  --cl-blue:   #004AAD;
+  --cl-blue-dk:#003A8C;
   --cl-blue-lt:#e0e8f4;
   --cl-ink:    #0A1628;
   --cl-muted:  #6b7280;
@@ -36,7 +36,7 @@
 
 /* CTA Banner */
 .cl-cta {
-  background: linear-gradient(135deg, #1B5EC7 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #004AAD 0%, #3b82f6 100%);
   border-radius: 16px; padding: 22px 28px;
   display: flex; align-items: center; justify-content: space-between;
   gap: 16px; flex-wrap: wrap; margin-bottom: 28px;
@@ -71,8 +71,8 @@
 
 /* Industry category cards */
 .iv-cat-card { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; background: #fff; border: 1.5px solid var(--cl-border); border-radius: 12px; padding: 12px; text-decoration: none; cursor: pointer; transition: border-color .18s, box-shadow .18s, background .18s; }
-.iv-cat-card:hover { border-color: var(--cl-blue); box-shadow: 0 4px 16px rgba(27,94,199,.1); }
-.iv-cat-card--active { background: var(--cl-blue); border-color: var(--cl-blue); box-shadow: 0 4px 18px rgba(27,94,199,.28); }
+.iv-cat-card:hover { border-color: var(--cl-blue); box-shadow: 0 4px 16px rgba(0,74,173,.1); }
+.iv-cat-card--active { background: var(--cl-blue); border-color: var(--cl-blue); box-shadow: 0 4px 18px rgba(0,74,173,.28); }
 .iv-cat-icon { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: #4b6cb7; }
 .iv-cat-card--active .iv-cat-icon { color: rgba(255,255,255,.85); }
 .iv-cat-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 800; color: var(--cl-ink); line-height: 1.2; }
@@ -89,8 +89,8 @@
   overflow: hidden; display: flex; flex-direction: column;
   transition: border-color .18s, box-shadow .18s;
 }
-.cl-card:hover { border-color: var(--cl-blue); box-shadow: 0 6px 24px rgba(27,94,199,.12); }
-.cl-card-cover { height: 90px; background: linear-gradient(135deg, #1B5EC7 0%, #3b82f6 100%); position: relative; }
+.cl-card:hover { border-color: var(--cl-blue); box-shadow: 0 6px 24px rgba(0,74,173,.12); }
+.cl-card-cover { height: 90px; background: linear-gradient(135deg, #004AAD 0%, #3b82f6 100%); position: relative; }
 .cl-card-cover img { width: 100%; height: 100%; object-fit: cover; }
 .cl-card-logo {
   width: 56px; height: 56px; border-radius: 10px; border: 3px solid #fff;
@@ -157,7 +157,7 @@
   transition: border-color .18s, box-shadow .18s; user-select: none;
 }
 .cl-dd-trigger:hover { border-color: #c3d4ec; }
-.cl-dd-trigger.open { border-color: var(--cl-blue); box-shadow: 0 0 0 3px rgba(27,94,199,.1); }
+.cl-dd-trigger.open { border-color: var(--cl-blue); box-shadow: 0 0 0 3px rgba(0,74,173,.1); }
 .cl-dd-trigger.active { border-color: var(--cl-blue); color: var(--cl-blue); font-weight: 700; background: var(--cl-blue-lt); }
 .cl-dd-val { flex: 1; }
 .cl-dd-chevron { width: 14px; height: 14px; flex-shrink: 0; color: #9ca3af; transition: transform .18s; pointer-events: none; }
@@ -190,7 +190,7 @@
 }
 .cl-tab-btn.active { color: var(--cl-blue); border-bottom-color: var(--cl-blue); }
 .cl-tab-badge { font-size: 1.1rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-left: 6px; }
-.cl-tab-btn.active .cl-tab-badge { background: rgba(27,94,199,.12); color: var(--cl-blue); }
+.cl-tab-btn.active .cl-tab-badge { background: rgba(0,74,173,.12); color: var(--cl-blue); }
 .cl-tab-btn:not(.active) .cl-tab-badge { background: #f3f4f6; color: var(--cl-muted); }
 
 /* Result count */
@@ -202,12 +202,63 @@
   font-size: 1.2rem; grid-column: 1 / -1;
 }
 .cl-empty-icon { margin-bottom: 12px; color: #c7d2fe; }
+
+/* ══ 2026-11 restyle ══ */
+.cl-page { max-width:1200px !important; padding:12px 24px 64px !important; font-family:'DM Sans',system-ui,sans-serif; }
+.cl-page .cl-search-bar { display:flex; gap:8px; padding:6px; margin-bottom:12px; border:1px solid #D5DCE6; border-radius:999px; background:#fff; box-shadow:0 1px 2px rgba(15,27,51,.04); }
+.cl-page .cl-search-bar:focus-within { border-color:#004AAD; box-shadow:0 0 0 3px rgba(0,74,173,.16); }
+.cl-page .cl-search-input { flex:1; min-width:0; min-height:44px; padding:0 18px; border:0 !important; border-radius:999px; background:transparent !important; box-shadow:none !important; outline:none; font-family:inherit; font-size:16px; color:#0F1B33; }
+.cl-page .cl-search-btn { min-width:0; min-height:44px; padding:0 22px; border:0; border-radius:999px; background:#004AAD; color:#fff; font-family:inherit; font-size:15px; font-weight:700; display:inline-flex; align-items:center; gap:8px; }
+.cl-page .cl-search-btn:hover { background:#003A8C; }
+.cl-page .cl-filter-bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:22px; }
+.cl-page .cl-dd-trigger, .cl-page .cl-filter-select, .cl-page .oc-combo, .cl-page [data-combo-filter] + * { min-height:42px; border-radius:999px !important; border:1px solid #D5DCE6 !important; background:#fff !important; font-family:inherit; font-size:14.5px; font-weight:600; color:#0F1B33; }
+.cl-page .cl-filter-bar > *:not(.cl-dd):not(a) { flex:0 1 240px !important; max-width:260px; width:auto !important; }
+.cl-page .cl-filter-bar input { border:0 !important; box-shadow:none !important; background:transparent !important; min-height:38px; }
+.cl-page .cl-dd-trigger.active, .cl-page .cl-filter-select.active { border-color:#004AAD !important; color:#004AAD; background:#E1EAF7 !important; }
+.cl-page .cl-dd-list { border-radius:16px; border:1px solid #E2E6EE; box-shadow:0 18px 40px -12px rgba(15,27,51,.3); padding:6px; }
+.cl-page .cl-dd-option { border-radius:10px; }
+.cl-page .cl-filter-clear { min-height:42px; display:inline-flex; align-items:center; padding:0 14px; border-radius:999px; color:#B42318; font-weight:700; text-decoration:none; }
+.cl-page .cl-result-count { font-size:14.5px; color:#5B6475; margin:0 0 14px; }
+.cl-page .cl-tabs { display:inline-flex; gap:4px; padding:5px; margin:0 0 18px; background:#EBEFF5; border:1px solid #E2E6EE; border-radius:999px; }
+.cl-page .cl-tab-btn { min-height:44px; padding:0 18px; border:0; border-radius:999px; background:transparent; color:#5B6475; font-family:inherit; font-size:15px; font-weight:700; box-shadow:none; }
+.cl-page .cl-tab-btn.active, .cl-page .cl-tab-btn--active { background:#004AAD; color:#fff; }
+.cl-page .cl-grid { gap:16px; }
+.cl-page .cl-card { border:1px solid #E2E6EE; border-radius:22px; overflow:hidden; background:#fff; box-shadow:0 1px 2px rgba(15,27,51,.04); transition:transform .18s, box-shadow .18s, border-color .18s; }
+.cl-page .cl-card:hover { transform:translateY(-3px); border-color:#C9D6EC; box-shadow:0 20px 40px -22px rgba(15,27,51,.4); }
+.cl-page .cl-card-cover { background:radial-gradient(260px 120px at 90% 0%, rgba(242,157,56,.35), transparent 65%), linear-gradient(135deg,#0A5AC4,#004AAD 60%,#00347F); }
+.cl-page .cl-card-logo { border-radius:18px; border:4px solid #fff; background:linear-gradient(135deg,#0A5AC4,#004AAD); color:#fff; overflow:hidden; }
+.cl-page .cl-card-logo-ph { color:#fff; }
+.cl-page .cl-card-logo { display:grid; place-items:center; font-size:22px; font-weight:700; }
+.cl-page .cl-card-name { font-family:inherit; font-size:17px; font-weight:700; letter-spacing:-.01em; color:#0F1B33; }
+.cl-page .cl-card-tagline { font-size:14.5px; line-height:1.5; color:#4A5568; }
+.cl-page .cl-industry-badge { border-radius:999px; background:#E1EAF7; color:#003A8C; font-weight:700; }
+.cl-page .cl-follower-meta { color:#5B6475; }
+.cl-page .cl-card-actions { border-top:1px solid #EEF1F5; gap:8px; }
+.cl-page .cl-btn { min-height:40px; border-radius:999px; font-family:inherit; font-weight:700; }
+.cl-page .cl-btn--primary { background:#004AAD; color:#fff; border-color:#004AAD; }
+.cl-page .cl-btn--primary:hover { background:#003A8C; }
+.cl-page .cl-rl-btn { background:#fff; border:1px solid #CFDBF1; color:#004AAD; }
+.cl-page .cl-rl-saved { background:#E1EAF7; }
+.cl-page .cl-empty { border:1px dashed #CFD8E6; border-radius:22px; background:#fff; }
+@media (max-width:600px) { .cl-page { padding:10px 14px 48px !important; } .cl-page .cl-filter-bar > *:not(.cl-dd):not(a) { flex:1 1 100% !important; max-width:none; } }
 </style>
 
 <div class="cl-page">
 
-  <h1 class="cl-page-title">Companies</h1>
-  <p class="cl-page-sub">Discover businesses and organisations on Oduma Corp.</p>
+  <header class="ocx-hero">
+    <div>
+      <p class="ocx-eyebrow">Directory</p>
+      <h1 class="ocx-title">Companies</h1>
+      <p class="ocx-sub">Discover businesses and organisations building across Africa. Follow them for updates, jobs and partnership news.</p>
+    </div>
+    {% if user.is_authenticated %}
+    <aside class="ocx-cta">
+      <strong>Register your business</strong>
+      <span>Create a company page to attract talent, investors and partners.</span>
+      <a href="{% url 'create_company' %}" class="ocx-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Create company page</a>
+    </aside>
+    {% endif %}
+  </header>
 
   {% if user.is_authenticated and my_companies %}
   <!-- ── Tab bar ── -->
@@ -270,10 +321,10 @@
            data-industry="{{ company.industry }}"
            data-created="{{ company.created_at|date:'U' }}">
         <div class="cl-card-cover">
-          {% if company.cover_image %}<img src="{{ company.cover_image.url }}" alt="{{ company.name }} cover">{% endif %}
+          {% if company.cover_image %}<img src="{{ company.cover_image.url }}" alt="" onerror="this.remove()">{% endif %}
           <div class="cl-card-logo">
             {% if company.logo %}
-              <img src="{{ company.logo.url }}" alt="{{ company.name }} logo">
+              <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" onerror="this.replaceWith(document.createTextNode('{{ company.name|first|upper|escapejs }}'))">
             {% else %}
               <span class="cl-card-logo-ph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span>
             {% endif %}
@@ -309,16 +360,6 @@
   <div id="cl-panel-all" style="display:none;">
   {% else %}
   {% if user.is_authenticated %}
-  <div class="cl-cta">
-    <div class="cl-cta-text">
-      <strong>Register Your Business</strong>
-      <span>Create a company page to attract talent, investors, and partners.</span>
-    </div>
-    <a href="{% url 'create_company' %}" class="cl-cta-btn">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-      Create Company Page
-    </a>
-  </div>
   {% endif %}
   <div id="cl-panel-all">
   {% endif %}
@@ -326,7 +367,7 @@
   <!-- ── Search + Filters ── -->
   <form method="get" action="{% url 'companies_list' %}" id="cl-filter-form">
     <div class="cl-search-bar">
-      <input type="text" name="q" id="cl-q" value="{{ q }}" placeholder="Search companies by name or tagline…" class="cl-search-input">
+      <input type="text" name="q" id="cl-q" value="{{ q }}" placeholder="Search companies by name or tagline…" class="cl-search-input" aria-label="Search companies">
       <button type="submit" class="cl-search-btn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         Search
@@ -380,53 +421,53 @@
   </form>
 
   <!-- Industry category cards -->
-  <div style="margin-bottom:28px;">
-    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:800;color:var(--cl-ink);margin:0 0 10px;">Browse by Industry</h2>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;">
+  <div>
+    <h2 class="ocx-section-h">Browse by industry</h2>
+    <div class="ocx-cats">
       <a href="?{% if q %}q={{ q }}&{% endif %}{% if date_sort != 'newest' %}date_sort={{ date_sort }}&{% endif %}{% if owner_filter %}owner_id={{ owner_filter }}&{% endif %}" class="iv-cat-card {% if not selected_industry %}iv-cat-card--active{% endif %}">
         <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
         <span class="iv-cat-name">All</span>
-        <span class="iv-cat-count">All companies</span>
+        
       </a>
       <a href="?industry=tech{% if q %}&q={{ q }}{% endif %}{% if date_sort != 'newest' %}&date_sort={{ date_sort }}{% endif %}{% if owner_filter %}&owner_id={{ owner_filter }}{% endif %}" class="iv-cat-card {% if selected_industry == 'tech' %}iv-cat-card--active{% endif %}">
         <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
         <span class="iv-cat-name">Technology</span>
-        <span class="iv-cat-count">{{ industry_counts.tech|default:0 }} companies</span>
+        <span class="iv-cat-count">{{ industry_counts.tech|default:0 }}</span>
       </a>
       <a href="?industry=finance{% if q %}&q={{ q }}{% endif %}{% if date_sort != 'newest' %}&date_sort={{ date_sort }}{% endif %}{% if owner_filter %}&owner_id={{ owner_filter }}{% endif %}" class="iv-cat-card {% if selected_industry == 'finance' %}iv-cat-card--active{% endif %}">
         <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
         <span class="iv-cat-name">Finance</span>
-        <span class="iv-cat-count">{{ industry_counts.finance|default:0 }} companies</span>
+        <span class="iv-cat-count">{{ industry_counts.finance|default:0 }}</span>
       </a>
       <a href="?industry=health{% if q %}&q={{ q }}{% endif %}{% if date_sort != 'newest' %}&date_sort={{ date_sort }}{% endif %}{% if owner_filter %}&owner_id={{ owner_filter }}{% endif %}" class="iv-cat-card {% if selected_industry == 'health' %}iv-cat-card--active{% endif %}">
         <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
         <span class="iv-cat-name">Healthcare</span>
-        <span class="iv-cat-count">{{ industry_counts.health|default:0 }} companies</span>
+        <span class="iv-cat-count">{{ industry_counts.health|default:0 }}</span>
       </a>
       <a href="?industry=edu{% if q %}&q={{ q }}{% endif %}{% if date_sort != 'newest' %}&date_sort={{ date_sort }}{% endif %}{% if owner_filter %}&owner_id={{ owner_filter }}{% endif %}" class="iv-cat-card {% if selected_industry == 'edu' %}iv-cat-card--active{% endif %}">
         <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
         <span class="iv-cat-name">Education</span>
-        <span class="iv-cat-count">{{ industry_counts.edu|default:0 }} companies</span>
+        <span class="iv-cat-count">{{ industry_counts.edu|default:0 }}</span>
       </a>
       <a href="?industry=energy{% if q %}&q={{ q }}{% endif %}{% if date_sort != 'newest' %}&date_sort={{ date_sort }}{% endif %}{% if owner_filter %}&owner_id={{ owner_filter }}{% endif %}" class="iv-cat-card {% if selected_industry == 'energy' %}iv-cat-card--active{% endif %}">
         <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
         <span class="iv-cat-name">Energy</span>
-        <span class="iv-cat-count">{{ industry_counts.energy|default:0 }} companies</span>
+        <span class="iv-cat-count">{{ industry_counts.energy|default:0 }}</span>
       </a>
       <a href="?industry=agriculture{% if q %}&q={{ q }}{% endif %}{% if date_sort != 'newest' %}&date_sort={{ date_sort }}{% endif %}{% if owner_filter %}&owner_id={{ owner_filter }}{% endif %}" class="iv-cat-card {% if selected_industry == 'agriculture' %}iv-cat-card--active{% endif %}">
         <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 22"/><path d="M9.73 16.5c1.18 1.07 2.55 1.4 3.99 1.5 2.08.14 4.28-.25 5.78-1.75 2.53-2.53 1.5-8-.5-12-1.5 3-2 5-5 6.5z"/></svg></span>
         <span class="iv-cat-name">Agriculture</span>
-        <span class="iv-cat-count">{{ industry_counts.agriculture|default:0 }} companies</span>
+        <span class="iv-cat-count">{{ industry_counts.agriculture|default:0 }}</span>
       </a>
       <a href="?industry=manufacturing{% if q %}&q={{ q }}{% endif %}{% if date_sort != 'newest' %}&date_sort={{ date_sort }}{% endif %}{% if owner_filter %}&owner_id={{ owner_filter }}{% endif %}" class="iv-cat-card {% if selected_industry == 'manufacturing' %}iv-cat-card--active{% endif %}">
         <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><circle cx="12" cy="12" r="7"/></svg></span>
         <span class="iv-cat-name">Manufacturing</span>
-        <span class="iv-cat-count">{{ industry_counts.manufacturing|default:0 }} companies</span>
+        <span class="iv-cat-count">{{ industry_counts.manufacturing|default:0 }}</span>
       </a>
       <a href="?industry=other{% if q %}&q={{ q }}{% endif %}{% if date_sort != 'newest' %}&date_sort={{ date_sort }}{% endif %}{% if owner_filter %}&owner_id={{ owner_filter }}{% endif %}" class="iv-cat-card {% if selected_industry == 'other' %}iv-cat-card--active{% endif %}">
         <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
         <span class="iv-cat-name">Other</span>
-        <span class="iv-cat-count">{{ industry_counts.other|default:0 }} companies</span>
+        <span class="iv-cat-count">{{ industry_counts.other|default:0 }}</span>
       </a>
     </div>
   </div>
@@ -443,10 +484,10 @@
     {% for company in companies %}
     <div class="cl-card" data-name="{{ company.name|lower }}" data-tagline="{{ company.tagline|lower|default:'' }}">
       <div class="cl-card-cover">
-        {% if company.cover_image %}<img src="{{ company.cover_image.url }}" alt="{{ company.name }} cover">{% endif %}
+        {% if company.cover_image %}<img src="{{ company.cover_image.url }}" alt="" onerror="this.remove()">{% endif %}
         <div class="cl-card-logo">
           {% if company.logo %}
-            <img src="{{ company.logo.url }}" alt="{{ company.name }} logo">
+            <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" onerror="this.replaceWith(document.createTextNode('{{ company.name|first|upper|escapejs }}'))">
           {% else %}
             <span class="cl-card-logo-ph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span>
           {% endif %}

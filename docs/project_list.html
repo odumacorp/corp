@@ -186,7 +186,7 @@
 }
 .pl-card:hover {
   border-color: var(--blue);
-  box-shadow: 0 6px 24px rgba(27,94,199,.12);
+  box-shadow: 0 6px 24px rgba(0,74,173,.12);
 }
 
 /* Thumb */
@@ -324,31 +324,73 @@
   .pl-filter-sep { display: none; }
   .pl-result-count { margin-left: 0; }
 }
+
+/* ══ 2026-11 restyle ══ */
+.pl-bg { min-height:100vh; }
+.pl-wrap { max-width:1200px !important; padding:12px 24px 64px !important; font-family:'DM Sans',system-ui,sans-serif; }
+.pl-wrap .pl-search-bar { display:flex; gap:8px; padding:6px; margin-bottom:22px; border:1px solid #D5DCE6; border-radius:999px; background:#fff; box-shadow:0 1px 2px rgba(15,27,51,.04); }
+.pl-wrap .pl-search-bar:focus-within { border-color:#004AAD; box-shadow:0 0 0 3px rgba(0,74,173,.16); }
+.pl-wrap .pl-search-input { flex:1; min-width:0; min-height:44px; padding:0 18px; border:0 !important; border-radius:999px; background:transparent !important; box-shadow:none !important; outline:none; font-family:inherit; font-size:16px; color:#0F1B33; }
+.pl-wrap .pl-search-btn { min-width:0; min-height:44px; padding:0 22px; border:0; border-radius:999px; background:#004AAD; color:#fff; font-family:inherit; font-size:15px; font-weight:700; display:inline-flex; align-items:center; gap:8px; }
+.pl-wrap .pl-search-btn:hover { background:#003A8C; }
+.pl-wrap .pl-search-bar > a { padding:0 14px 0 4px; font-weight:700; color:#5B6475 !important; }
+.pl-wrap .pl-clear { min-height:36px; display:inline-flex; align-items:center; padding:0 14px; margin-bottom:12px; border-radius:999px; border:1px solid #F1C9C9; background:#fff; color:#B42318; font-size:14px; font-weight:700; text-decoration:none; }
+.pl-wrap .pl-filter-bar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:10px; margin-bottom:22px; border:1px solid #E2E6EE; border-radius:22px; background:#fff; box-shadow:0 1px 2px rgba(15,27,51,.04); }
+.pl-wrap .pl-filter-group { display:flex; align-items:center; gap:8px; padding:0 4px 0 12px; min-height:46px; border:1px solid #E2E6EE; border-radius:999px; background:#F8FAFD; }
+.pl-wrap .pl-filter-label { font-size:12.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#5B6475; }
+.pl-wrap .pl-filter-sep { display:none; }
+.pl-wrap .oc-fb-dd-trigger { min-height:38px; border-radius:999px !important; border:1px solid #D5DCE6 !important; background:#fff !important; font-family:inherit; font-size:14.5px; font-weight:700; color:#0F1B33; }
+.pl-wrap .oc-fb-dd-list { border-radius:16px; border:1px solid #E2E6EE; box-shadow:0 18px 40px -12px rgba(15,27,51,.3); }
+.pl-wrap .pl-result-count { margin-left:auto; padding:0 14px; min-height:36px; display:inline-flex; align-items:center; border-radius:999px; background:#E1EAF7; color:#003A8C; font-size:14px; font-weight:700; }
+.pl-wrap .pl-grid { gap:18px; }
+.pl-wrap .pl-card { border:1px solid #E2E6EE; border-radius:22px; overflow:hidden; background:#fff; box-shadow:0 1px 2px rgba(15,27,51,.04); transition:transform .18s, box-shadow .18s, border-color .18s; }
+.pl-wrap .pl-card:hover { transform:translateY(-3px); border-color:#C9D6EC; box-shadow:0 20px 40px -22px rgba(15,27,51,.4); }
+.pl-wrap .pl-card-thumb-ph { color:rgba(255,255,255,.75); background:radial-gradient(260px 120px at 90% 0%, rgba(242,157,56,.35), transparent 65%), linear-gradient(135deg,#0A5AC4,#004AAD 60%,#00347F); }
+.pl-wrap .pl-card-body { padding:16px 18px 18px; }
+.pl-wrap .pl-tag { border-radius:999px; font-weight:700; font-size:12.5px; }
+.pl-wrap .pl-tag--industry { background:#E1EAF7; color:#003A8C; }
+.pl-wrap .pl-tag--status-draft { background:#F1F4F9; color:#4A5568; }
+.pl-wrap .pl-card-title { font-family:inherit; font-size:18px; font-weight:700; letter-spacing:-.015em; color:#0F1B33; }
+.pl-wrap .pl-card-desc { font-size:14.5px; line-height:1.55; color:#4A5568; }
+.pl-wrap .pl-card-owner { border-top:1px solid #EEF1F5; padding-top:12px; }
+.pl-wrap .pl-card-avatar-init { background:linear-gradient(135deg,#0A5AC4,#004AAD); color:#fff; }
+.pl-wrap .pl-card-owner-name { font-weight:600; color:#0F1B33; }
+.pl-wrap .pl-card-stat { color:#5B6475; }
+.pl-wrap .pl-card-ribbon { border-radius:999px; background:#F29D38; color:#3A2203; font-weight:700; }
+@media (max-width:600px) {
+  .pl-wrap { padding:10px 14px 48px !important; }
+  .pl-wrap #filter-form .pl-filter-bar { display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)) !important; gap:8px !important; padding:8px !important; border-radius:20px; }
+  .pl-wrap #filter-form .pl-filter-group { display:flex !important; flex-direction:column !important; align-items:stretch !important; width:auto !important; gap:4px; min-height:0; padding:8px !important; border-radius:16px; }
+  .pl-wrap .pl-filter-label { font-size:11.5px; padding-left:4px; }
+  .pl-wrap .oc-fb-dd, .pl-wrap .oc-fb-dd-trigger { width:100%; min-width:0; }
+  .pl-wrap .oc-fb-dd-trigger { padding:0 10px; justify-content:space-between; }
+  .pl-wrap .pl-result-count { grid-column:1 / -1; justify-self:start; margin-left:0; }
+  .pl-wrap #plf-sort .oc-fb-dd-list { left:auto !important; right:0 !important; }
+}
 </style>
 
-<div style="background:#f0f4ff; min-height:100vh;">
+<div class="pl-bg">
 <div class="pl-wrap">
 
-  <h1 class="pl-page-title">Explore Projects</h1>
-  <p class="pl-page-sub">Discover innovations across Africa — connect, collaborate, and invest.</p>
-
-  <!-- CTA Banner -->
-  {% if user.is_authenticated and user.user_type != 'investor' %}
-  <div class="pl-cta">
-    <div class="pl-cta-text">
-      <strong>Share Your Innovation</strong>
-      <span>Post your project to connect with investors and collaborators across Africa.</span>
+  <header class="ocx-hero">
+    <div>
+      <p class="ocx-eyebrow">Explore</p>
+      <h1 class="ocx-title">Projects</h1>
+      <p class="ocx-sub">Discover what founders across Africa are building, then connect, collaborate or invest.</p>
     </div>
-    <a href="{% url 'create_project' %}" class="pl-cta-btn">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      New Project
-    </a>
-  </div>
-  {% endif %}
+    {% if user.is_authenticated and user.user_type != 'investor' %}
+    <aside class="ocx-cta">
+      <strong>Share your innovation</strong>
+      <span>Post your project to reach investors and collaborators.</span>
+      <a href="{% url 'create_project' %}" class="ocx-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New project</a>
+    </aside>
+    {% endif %}
+  </header>
+
 
   <!-- Search -->
   <form method="get" action="" class="pl-search-bar">
-    <input type="text" name="q" value="{{ current_query }}" placeholder="Search projects, keywords…" class="pl-search-input">
+    <input type="text" name="q" value="{{ current_query }}" placeholder="Search projects, keywords…" class="pl-search-input" aria-label="Search projects">
     {% if current_status  %}<input type="hidden" name="status"   value="{{ current_status }}">{% endif %}
     {% if current_stage   %}<input type="hidden" name="stage"    value="{{ current_stage }}">{% endif %}
     {% if current_sort    %}<input type="hidden" name="sort"     value="{{ current_sort }}">{% endif %}
@@ -362,70 +404,67 @@
   </form>
 
   <!-- Industry Categories -->
-  <div style="margin-bottom:28px;">
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
-      <div>
-        <h2 style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;margin:0 0 3px;">Browse by Industry</h2>
-        <p style="font-size: 1.2rem;color:#6b7280;margin:0;">{{ total_count }} project{{ total_count|pluralize }} found</p>
-      </div>
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <h2 class="ocx-section-h">Browse by industry</h2>
       {% if current_industry %}
-      <a href="{% url 'project_list' %}{% if current_query %}?q={{ current_query }}{% endif %}" style="font-size: 1.2rem;font-weight:700;color:#ef4444;text-decoration:none;padding:5px 12px;border-radius:20px;background:#fff1f1;border:1px solid #fecaca;white-space:nowrap;">Clear filter</a>
+      <a href="{% url 'project_list' %}{% if current_query %}?q={{ current_query }}{% endif %}" class="pl-clear">Clear filter</a>
       {% endif %}
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;">
+    <div class="ocx-cats">
 
       <a href="{% url 'project_list' %}{% if current_query %}?q={{ current_query }}{% endif %}" class="pl-cat-card {% if not current_industry %}pl-cat-card--active{% endif %}">
         <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
         <span class="pl-cat-name">All</span>
-        <span class="pl-cat-count">All projects</span>
+        
       </a>
 
       <a href="?industry=tech{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'tech' %}pl-cat-card--active{% endif %}">
         <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
         <span class="pl-cat-name">Technology</span>
-        <span class="pl-cat-count">{{ industry_counts.tech|default:0 }} projects</span>
+        <span class="pl-cat-count">{{ industry_counts.tech|default:0 }}</span>
       </a>
 
       <a href="?industry=finance{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'finance' %}pl-cat-card--active{% endif %}">
         <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
         <span class="pl-cat-name">Finance</span>
-        <span class="pl-cat-count">{{ industry_counts.finance|default:0 }} projects</span>
+        <span class="pl-cat-count">{{ industry_counts.finance|default:0 }}</span>
       </a>
 
       <a href="?industry=health{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'health' %}pl-cat-card--active{% endif %}">
         <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
         <span class="pl-cat-name">Healthcare</span>
-        <span class="pl-cat-count">{{ industry_counts.health|default:0 }} projects</span>
+        <span class="pl-cat-count">{{ industry_counts.health|default:0 }}</span>
       </a>
 
       <a href="?industry=edu{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'edu' %}pl-cat-card--active{% endif %}">
         <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
         <span class="pl-cat-name">Education</span>
-        <span class="pl-cat-count">{{ industry_counts.edu|default:0 }} projects</span>
+        <span class="pl-cat-count">{{ industry_counts.edu|default:0 }}</span>
       </a>
 
       <a href="?industry=energy{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'energy' %}pl-cat-card--active{% endif %}">
         <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
         <span class="pl-cat-name">Energy</span>
-        <span class="pl-cat-count">{{ industry_counts.energy|default:0 }} projects</span>
+        <span class="pl-cat-count">{{ industry_counts.energy|default:0 }}</span>
       </a>
 
       <a href="?industry=agriculture{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'agriculture' %}pl-cat-card--active{% endif %}">
         <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 22"/><path d="M9.73 16.5c1.18 1.07 2.55 1.4 3.99 1.5 2.08.14 4.28-.25 5.78-1.75 2.53-2.53 1.5-8-.5-12-1.5 3-2 5-5 6.5z"/></svg></span>
         <span class="pl-cat-name">Agriculture</span>
-        <span class="pl-cat-count">{{ industry_counts.agriculture|default:0 }} projects</span>
+        <span class="pl-cat-count">{{ industry_counts.agriculture|default:0 }}</span>
       </a>
 
       <a href="?industry=manufacturing{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'manufacturing' %}pl-cat-card--active{% endif %}">
         <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><circle cx="12" cy="12" r="7"/></svg></span>
         <span class="pl-cat-name">Manufacturing</span>
-        <span class="pl-cat-count">{{ industry_counts.manufacturing|default:0 }} projects</span>
+        <span class="pl-cat-count">{{ industry_counts.manufacturing|default:0 }}</span>
       </a>
 
       <a href="?industry=other{% if current_query %}&q={{ current_query }}{% endif %}" class="pl-cat-card {% if current_industry == 'other' %}pl-cat-card--active{% endif %}">
         <span class="pl-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
         <span class="pl-cat-name">Other</span>
-        <span class="pl-cat-count">{{ industry_counts.other|default:0 }} projects</span>
+        <span class="pl-cat-count">{{ industry_counts.other|default:0 }}</span>
       </a>
 
     </div>
@@ -537,7 +576,7 @@
         <!-- Owner + stats -->
         <div class="pl-card-owner">
           {% if proj.owner.profile_pics %}
-            <img src="{{ proj.owner.profile_pics.url }}" alt="{{ proj.owner.get_full_name }}" class="pl-card-avatar">
+            <img src="{{ proj.owner.profile_pics.url }}" alt="" class="pl-card-avatar" onerror="this.onerror=null;this.src='/static/images/avatar_default.png'">
           {% else %}
             <div class="pl-card-avatar-init">
               {{ proj.owner.first_name|first|upper }}{{ proj.owner.last_name|first|upper }}

@@ -35,7 +35,7 @@
 .ib-avatar{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #e8edf4;}
 .ib-avatar-initials{
   width:46px;height:46px;border-radius:50%;
-  background:linear-gradient(135deg,#1B5EC7,#0A1628);
+  background:linear-gradient(135deg,#004AAD,#0A1628);
   display:flex;align-items:center;justify-content:center;
   font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#fff;
   flex-shrink:0;
@@ -64,7 +64,7 @@
 
 /* Project tile */
 .ib-tile--project{ background:#eef4ff; border:1px solid #e8edf4; }
-.ib-tile--project:hover{ background:#e4eeff; box-shadow:0 4px 20px rgba(27,94,199,0.09); }
+.ib-tile--project:hover{ background:#e4eeff; box-shadow:0 4px 20px rgba(0,74,173,0.09); }
 
 /* Post tile */
 .ib-tile--post{ background:#fffbeb; border:1px solid #e8edf4; }
@@ -80,8 +80,8 @@
 
 /* Unread dot */
 .ib-dot{
-  width:9px;height:9px;border-radius:50%;background:#1B5EC7;
-  flex-shrink:0;box-shadow:0 0 5px rgba(27,94,199,0.4);
+  width:9px;height:9px;border-radius:50%;background:#004AAD;
+  flex-shrink:0;box-shadow:0 0 5px rgba(0,74,173,0.4);
 }
 
 /* Pin button */
@@ -94,7 +94,7 @@
   cursor:pointer;transition:border-color .15s,color .15s,background .15s;
   font-size:.9rem;
 }
-.ib-pin-btn:hover,.ib-pin-btn.pinned{border-color:#1B5EC7;color:#1B5EC7;background:#eef4ff;}
+.ib-pin-btn:hover,.ib-pin-btn.pinned{border-color:#004AAD;color:#004AAD;background:#eef4ff;}
 
 /* Empty */
 .ib-empty{
@@ -109,12 +109,12 @@
 .ib-compose-btn{
   display:inline-flex;align-items:center;gap:7px;
   padding:9px 20px;border-radius:24px;border:none;cursor:pointer;
-  /* background:linear-gradient(135deg,#1B5EC7,#0A1628); */
-  background: #1B5EC7;
+  /* background:linear-gradient(135deg,#004AAD,#0A1628); */
+  background: #004AAD;
   color:#fff;
 
   font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:700;
-  box-shadow:0 2px 12px rgba(27,94,199,.28);transition:opacity .15s,transform .1s;
+  box-shadow:0 2px 12px rgba(0,74,173,.28);transition:opacity .15s,transform .1s;
 }
 .ib-compose-btn:hover{opacity:.9;transform:translateY(-1px);}
 
@@ -162,8 +162,8 @@
   transition:border-color .18s,box-shadow .18s;
 }
 .ib-compose-search input:focus{
-  border-color:#1B5EC7;background:#fff;
-  box-shadow:0 0 0 3px rgba(27,94,199,.1);
+  border-color:#004AAD;background:#fff;
+  box-shadow:0 0 0 3px rgba(0,74,173,.1);
 }
 .ib-compose-search-icon{
   position:absolute;left:28px;top:50%;transform:translateY(-50%);
@@ -193,7 +193,7 @@
 }
 .ib-user-av-init{
   width:42px;height:42px;border-radius:50%;
-  background:linear-gradient(135deg,#1B5EC7,#0A1628);
+  background:linear-gradient(135deg,#004AAD,#0A1628);
   display:flex;align-items:center;justify-content:center;
   font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#fff;flex-shrink:0;
 }
@@ -259,7 +259,7 @@
       {% if item.other_user %}
         {% with prof=item.other_user.userprofile %}
           {% if prof.profile_pics %}
-            <img src="{{ prof.profile_pics.url }}" alt="{{ item.other_user.get_full_name }}" class="ib-avatar">
+            <img src="{{ prof.profile_pics.url }}" alt="" class="ib-avatar" onerror="var d=document.createElement('div');d.className='ib-avatar-initials';d.textContent='{{ item.other_user.first_name|first|upper|escapejs }}{{ item.other_user.last_name|first|upper|escapejs }}';this.replaceWith(d)">
           {% else %}
             <div class="ib-avatar-initials">
               {{ item.other_user.first_name|first|upper }}{{ item.other_user.last_name|first|upper }}

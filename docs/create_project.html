@@ -22,8 +22,8 @@
 
   <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:12px;">
     <a href="{% url 'project_list' %}"
-       style="display:inline-flex;align-items:center;gap:7px;padding:8px 18px;background:#fff;border:1.5px solid #e0e8f4;border-radius:9px;font-size:1.2rem;font-weight:700;color:#1B5EC7;text-decoration:none;transition:all .15s;"
-       onmouseover="this.style.background='#eef4ff';this.style.borderColor='#1B5EC7';"
+       style="display:inline-flex;align-items:center;gap:7px;padding:8px 18px;background:#fff;border:1.5px solid #e0e8f4;border-radius:9px;font-size:1.2rem;font-weight:700;color:#004AAD;text-decoration:none;transition:all .15s;"
+       onmouseover="this.style.background='#eef4ff';this.style.borderColor='#004AAD';"
        onmouseout="this.style.background='#fff';this.style.borderColor='#e0e8f4';">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9" y1="14.5" x2="15" y2="14.5"/></svg>
       Browse Projects
@@ -368,7 +368,7 @@
               </label>
               <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
                 <input id="img-selected-kw" type="text"
-                       style="flex:1;min-width:180px;border:1.5px solid #1B5EC7;border-radius:8px;padding:9px 12px;font-size:1.2rem;box-sizing:border-box;"
+                       style="flex:1;min-width:180px;border:1.5px solid #004AAD;border-radius:8px;padding:9px 12px;font-size:1.2rem;box-sizing:border-box;"
                        placeholder="Edit keyword…">
                 <button type="button" id="img-gen-btn" onclick="fetchImageForKeyword()"
                         style="background:linear-gradient(135deg,#004AAD,#0066ff);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:1.2rem;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;">
@@ -595,7 +595,7 @@
             <div class="pb-progress-ring">
               <svg width="52" height="52" viewBox="0 0 52 52">
                 <circle cx="26" cy="26" r="21" fill="none" stroke="#e5e7eb" stroke-width="5"/>
-                <circle id="pb-ring-fill" cx="26" cy="26" r="21" fill="none" stroke="#1B5EC7" stroke-width="5"
+                <circle id="pb-ring-fill" cx="26" cy="26" r="21" fill="none" stroke="#004AAD" stroke-width="5"
                   stroke-dasharray="131.9" stroke-dashoffset="131.9" stroke-linecap="round"
                   transform="rotate(-90 26 26)" style="transition:stroke-dashoffset .4s;"/>
               </svg>
@@ -807,7 +807,7 @@
   border-radius: 14px; padding: 18px 22px; margin-bottom: 20px; color: #0A1628;
 }
 .pb-header__left { display: flex; align-items: center; gap: 14px; }
-.pb-header__icon { width:44px; height:44px; border-radius:12px; background:rgba(27,94,199,.12); display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+.pb-header__icon { width:44px; height:44px; border-radius:12px; background:rgba(0,74,173,.12); display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
 .pb-header__title { font-family: 'Jacques Francois', serif; font-size: 1.2rem; font-weight: 700; }
 .pb-header__sub { font-family: 'Jaldi', sans-serif; font-size: 1.2rem; color: #93c5fd; margin-top: 2px; }
 .pb-header__sub strong { color: #60a5fa; }
@@ -823,8 +823,8 @@
   transition: border-color .2s, box-shadow .2s;
 }
 .pb-slide:focus-within {
-  /* border-color: #1B5EC7;  */
-  box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+  /* border-color: #004AAD;  */
+  box-shadow: 0 0 0 3px rgba(0,74,173,.1);
 }
 .pb-slide.pb-slide--filled { border-color: #10b981; }
 
@@ -864,7 +864,7 @@
 .pb-slide:focus-within .pb-textarea {
   background: #fff !important;
   /* outline: unset; */
-  /* box-shadow: 0 0 0 3px rgba(27,94,199,.1); */
+  /* box-shadow: 0 0 0 3px rgba(0,74,173,.1); */
   border:unset;
   }
 
@@ -877,10 +877,10 @@
   cursor: pointer; text-align: left; transition: border-color .15s;
 }
 .pm-dd-trigger:hover { border-color: #c3d4ec; }
-.pm-dd-trigger.open { border-color: #1B5EC7; box-shadow: 0 0 0 3px rgba(27,94,199,.08); }
+.pm-dd-trigger.open { border-color: #004AAD; box-shadow: 0 0 0 3px rgba(0,74,173,.08); }
 .pm-dd-trigger .pm-dd-val { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pm-dd-chevron { width: 16px; height: 16px; flex-shrink: 0; color: #9ca3af; transition: transform .18s, color .15s; }
-.pm-dd-trigger.open .pm-dd-chevron { transform: rotate(180deg); color: #1B5EC7; }
+.pm-dd-trigger.open .pm-dd-chevron { transform: rotate(180deg); color: #004AAD; }
 .pm-dd-list {
   display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0;
   background: #fff; border: 1.5px solid #e4eaf2; border-radius: 10px;
@@ -893,10 +893,10 @@
   padding: 10px 14px; font-size: .9rem; font-weight: 500; color: #374151;
   cursor: pointer; transition: background .12s;
 }
-.pm-dd-option:hover { background: #f0f5ff; color: #1B5EC7; }
-.pm-dd-option.selected { background: #eef4ff; color: #1B5EC7; font-weight: 700; }
+.pm-dd-option:hover { background: #f0f5ff; color: #004AAD; }
+.pm-dd-option.selected { background: #eef4ff; color: #004AAD; font-weight: 700; }
 .pm-dd-option .pm-dd-check { display: none; flex-shrink: 0; }
-.pm-dd-option.selected .pm-dd-check { display: block; color: #1B5EC7; }
+.pm-dd-option.selected .pm-dd-check { display: block; color: #004AAD; }
 
 /* ── Doc file input ── */
 .cp-file-wrap { position: relative; }
@@ -910,7 +910,7 @@
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   text-align: left; min-height: 42px;
 }
-.cp-file-btn:hover { border-color: #1B5EC7; background: #eef3fd; }
+.cp-file-btn:hover { border-color: #004AAD; background: #eef3fd; }
 .cp-file-btn.has-file { color: #374151; }
 .cp-file-btn svg { flex-shrink: 0; color: #9ca3af; }
 </style>
@@ -942,7 +942,7 @@ function pbUpdate() {
   if (ring) {
     var circumference = 131.9;
     ring.style.strokeDashoffset = circumference - (circumference * pct / 100);
-    ring.style.stroke = pct === 100 ? '#10b981' : '#1B5EC7';
+    ring.style.stroke = pct === 100 ? '#10b981' : '#004AAD';
   }
   if (pctEl) pctEl.textContent = pct + '%';
 }
@@ -1369,8 +1369,8 @@ function generateImageIdeas() {
         chip.type = 'button';
         chip.textContent = kw;
         chip.dataset.kw = kw;
-        chip.style.cssText = 'background:#fff;border:1.5px solid #c7d9ff;border-radius:20px;padding:6px 14px;font-size:1.2rem;color:#1B5EC7;cursor:pointer;font-weight:600;transition:all .15s;touch-action:manipulation;';
-        chip.onmouseenter = function(){ if (!this.classList.contains('img-chip-selected')){ this.style.background='#eef4ff'; this.style.borderColor='#1B5EC7'; } };
+        chip.style.cssText = 'background:#fff;border:1.5px solid #c7d9ff;border-radius:20px;padding:6px 14px;font-size:1.2rem;color:#004AAD;cursor:pointer;font-weight:600;transition:all .15s;touch-action:manipulation;';
+        chip.onmouseenter = function(){ if (!this.classList.contains('img-chip-selected')){ this.style.background='#eef4ff'; this.style.borderColor='#004AAD'; } };
         chip.onmouseleave = function(){ if (!this.classList.contains('img-chip-selected')){ this.style.background='#fff'; this.style.borderColor='#c7d9ff'; } };
         chip.onclick = function(e) { e.stopPropagation(); selectKeyword(this, wrap, ta); };
         chipRow.appendChild(chip);
@@ -1428,12 +1428,12 @@ function selectSection(wrap, ta) {
     c.classList.remove('img-chip-selected');
     c.style.background = '#fff';
     c.style.borderColor = '#c7d9ff';
-    c.style.color = '#1B5EC7';
+    c.style.color = '#004AAD';
   });
 
   // Activate this section
   wrap.classList.add('img-sec-active');
-  wrap.style.borderColor = '#1B5EC7';
+  wrap.style.borderColor = '#004AAD';
   wrap.style.background = '#f0f5ff';
   ta.style.borderColor = '#93bbfd';
   ta.style.background = '#fff';
@@ -1456,11 +1456,11 @@ function selectKeyword(chip, wrap, ta) {
     c.classList.remove('img-chip-selected');
     c.style.background = '#fff';
     c.style.borderColor = '#c7d9ff';
-    c.style.color = '#1B5EC7';
+    c.style.color = '#004AAD';
   });
   chip.classList.add('img-chip-selected');
-  chip.style.background = '#1B5EC7';
-  chip.style.borderColor = '#1B5EC7';
+  chip.style.background = '#004AAD';
+  chip.style.borderColor = '#004AAD';
   chip.style.color = '#fff';
 
   // Override the input with the shorter keyword (not the full concept)

@@ -28,9 +28,11 @@
       /* One group per event (name + place); items without an event are grouped by month. */
       var order = [], map = {};
       list.forEach(function (it) {
-        var key = it.event ? 'e|' + it.event + '|' + (it.place || '') : 'm|' + it.date.slice(0, 7);
-        if (!map[key]) { map[key] = { key: key, items: [], first: it }; order.push(map[key]); }
-        map[key].items.push(it);
+        var key = it.event ? 'e|' + it.event : 'm|' + it.date.slice(0, 7);   /* same grouping as the admin page: by event name */
+        if (!map[key]) { map[key] = { key: key, items: [], first: it, place: '', date_label: '' }; order.push(map[key]); }
+        var g = map[key]; g.items.push(it);
+        if (!g.place && it.place) g.place = it.place;
+        if (!g.date_label && it.dated) g.date_label = it.date_label;
       });
       return order;
     }
@@ -56,25 +58,56 @@
       }
       render('all');
       var m = /^#item-(\d+)$/.exec(location.hash);
-      if (m) { var t = document.getElementById('gp-' + m[1]); if (t) { t.scrollIntoView({ block: 'center' }); open(+t.getAttribute('data-i'), t); } }
+      if (m) {
+        var t = document.getElementById('gp-' + m[1]);
+        if (t) {
+          var sec = t.closest('.gev'); if (sec && t.closest('.fold')) sec.classList.remove('folded');
+          t.scrollIntoView({ block: 'center' }); open(+t.getAttribute('data-i'), t);
+        }
+      }
     }
+
+    /* Collage shapes: a large lead photo, then a rhythm of small, tall and wide tiles. Small groups get
+       shapes that fill the row exactly. Values are "columns x rows" on a 4-column grid. */
+    var SHAPES = { 1: ['2x2'], 2: ['2x2', '2x2'], 3: ['2x2', '2x1', '2x1'], 4: ['2x2', '1x1', '1x1', '2x1'], 5: ['2x2', '1x1', '1x1', '1x1', '1x1'] };
+    var RHYTHM = ['2x2', '1x1', '1x2', '1x1', '1x1', '2x1', '1x1', '1x1'];
+    var shape = function (n, i) { return (SHAPES[n] || RHYTHM)[n <= 5 ? i : i % RHYTHM.length]; };
+    var FOLD = 8;   /* groups with more items start folded, with "+N more" on the last visible tile */
 
     function render(year) {
       shown = items.filter(function (it) { return year === 'all' || it.date.slice(0, 4) === year; });
       var n = 0;
-      groupsEl.innerHTML = groupsOf(shown).map(function (g) {
-        var f = g.first, photos = g.items.filter(function (i) { return i.type !== 'video'; }).length, videos = g.items.length - photos;
+      groupsEl.innerHTML = groupsOf(shown).map(function (g, gi) {
+        var f = g.first, total = g.items.length, photos = g.items.filter(function (i) { return i.type !== 'video'; }).length, videos = total - photos;
         var title = f.event || new Date(f.date + 'T00:00:00').toLocaleDateString('en-KE', { month: 'long', year: 'numeric' });
-        var sub = [f.event ? meta(f) : '', photos ? plural(photos, 'photo') : '', videos ? plural(videos, 'video') : ''].filter(Boolean).join(' · ');
-        return '<section class="gev rv in"><header class="gev-head"><h2>' + esc(title) + '</h2><p>' + esc(sub) + '</p></header><ul class="gp-grid">' +
-          g.items.map(function (it) {
-            var i = n++;
-            return '<li><button type="button" class="gp-tile" id="gp-' + it.id + '" data-i="' + i + '" aria-label="Open ' + (it.type === 'video' ? 'video' : 'photo') + ': ' + esc(it.title) + '">' +
+        var sub = [f.event ? [g.place, g.date_label || f.date_label].filter(Boolean).join(' · ') : '', photos ? plural(photos, 'photo') : '', videos ? plural(videos, 'video') : ''].filter(Boolean).join(' · ');
+        var folded = total > FOLD;
+        return '<section class="gev rv in' + (folded ? ' folded' : '') + '" id="gev-' + gi + '"><header class="gev-head"><h2>' + esc(title) + '</h2><p>' + esc(sub) + '</p></header><ul class="gp-grid collage">' +
+          g.items.map(function (it, k) {
+            var i = n++, s = shape(total, k).split('x');
+            var more = folded && k === FOLD - 1 ? '<button type="button" class="gp-more" data-expand="gev-' + gi + '" aria-expanded="false" aria-label="Show all ' + total + ' from ' + esc(title) + '">+' + (total - FOLD + 1) + ' more</button>' : '';
+            return '<li class="c' + s[0] + ' r' + s[1] + (folded && k >= FOLD ? ' fold' : '') + '"><button type="button" class="gp-tile" id="gp-' + it.id + '" data-i="' + i + '" aria-label="Open ' + (it.type === 'video' ? 'video' : 'photo') + ': ' + esc(it.title) + '">' +
               '<img src="' + esc(it.thumb) + '" alt="" width="640" height="480" loading="lazy" decoding="async">' + (it.type === 'video' ? PLAY : '') +
-              '<span class="gp-cap"><b>' + esc(it.title) + '</b></span></button></li>';
-          }).join('') + '</ul></section>';
+              '<span class="gp-cap"><b>' + esc(it.title) + '</b></span></button>' + more + '</li>';
+          }).join('') + '</ul>' +
+          (folded ? '<p class="gev-less"><button type="button" class="linkish" data-collapse="gev-' + gi + '">Show fewer</button></p>' : '') + '</section>';
       }).join('');
     }
+
+    /* Expand / fold a group */
+    groupsEl.addEventListener('click', function (e) {
+      var ex = e.target.closest('[data-expand]'), co = e.target.closest('[data-collapse]');
+      if (ex) {
+        var sec = document.getElementById(ex.getAttribute('data-expand'));
+        sec.classList.remove('folded'); ex.setAttribute('aria-expanded', 'true');
+        var next = sec.querySelectorAll('.gp-tile')[FOLD - 1]; if (next) next.focus({ preventScroll: true });
+        e.stopPropagation();
+      } else if (co) {
+        var s2 = document.getElementById(co.getAttribute('data-collapse'));
+        s2.classList.add('folded'); var m = s2.querySelector('[data-expand]'); if (m) { m.setAttribute('aria-expanded', 'false'); m.focus({ preventScroll: true }); }
+        s2.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
+    }, true);
 
     /* ── Viewer (photos and videos) ── */
     if (!lb || !lb.showModal) return;

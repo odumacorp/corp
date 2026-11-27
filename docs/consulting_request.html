@@ -14,71 +14,46 @@
   <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
   Back
 </button>
-<div style="max-width:600px;margin:48px auto;padding:0 24px 64px;">
-
-  <a href="{% if project %}{{ project.get_absolute_url }}{% else %}{% url 'services' %}{% endif %}"
-     style="font-size: 1.2rem;color:#1B5EC7;text-decoration:none;display:inline-block;margin-bottom:20px;">← Back</a>
-
-  <div style="background:linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);border-radius:16px;padding:32px 36px;color:#fff;margin-bottom:28px;">
-    <div style="margin-bottom:10px;color:#1B5EC7;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
-    <h1 style="font-family:'Space Grotesk',sans-serif;font-size: 2.0rem;font-weight:800;margin:0 0 8px;color:#0A1628;">Innovation Consulting</h1>
-    <p style="font-size: 1.2rem;margin:0;color:#6b7280;">Tell us your challenge. Our consultants will reach out within 48 hours.</p>
-  </div>
+<div class="ocx-page ocx-page--narrow">
+  <header class="ocx-hero ocx-hero--solo">
+    <div>
+      <span class="ocx-hero-ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/><path d="M9 10h6M9 13.5h4"/></svg></span>
+      <p class="ocx-eyebrow">Services</p>
+      <h1 class="ocx-title">Innovation consulting</h1>
+      <p class="ocx-sub">Tell us your challenge. A consultant will reach out within 48 hours.</p>
+    </div>
+  </header>
 
   {% if project %}
-  <div style="background:#f0f9f4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size: 1.2rem;color:#166534;">
-    <strong>Project:</strong> {{ project.title }}
-  </div>
+  <div class="ocx-note ocx-note--green"><strong>Project:</strong> {{ project.title }}</div>
   {% endif %}
 
-  <div style="background:#fff;border:1px solid #e0e8f4;border-radius:14px;padding:28px 32px;">
-    <form method="post">
-      {% csrf_token %}
+  <form method="post" class="ocx-card ocx-form">
+    {% csrf_token %}
+    <div class="ocx-field">
+      <label class="ocx-label" for="cr-category">Support category <span class="ocx-req">*</span></label>
+      <select id="cr-category" name="category" required class="ocx-input">
+        {% for key, label in category_choices %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+      </select>
+    </div>
 
-      <div style="margin-bottom:18px;">
-        <label style="display:block;font-size: 1.2rem;font-weight:700;color:#374151;margin-bottom:6px;">Support Category *</label>
-        <select name="category" required
-          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:10px 12px;font-size: 1.2rem;background:#fff;font-family:inherit;">
-          {% for key, label in category_choices %}
-          <option value="{{ key }}">{{ label }}</option>
-          {% endfor %}
-        </select>
+    <fieldset class="ocx-field">
+      <legend class="ocx-label">How urgent is it?</legend>
+      <div class="ocx-seg">
+        {% for key, label in urgency_choices %}
+        <label class="ocx-seg-opt"><input type="radio" name="urgency" value="{{ key }}" {% if key == 'medium' %}checked{% endif %}><span>{{ label }}</span></label>
+        {% endfor %}
       </div>
+    </fieldset>
 
-      <div style="margin-bottom:18px;">
-        <label style="display:block;font-size: 1.2rem;font-weight:700;color:#374151;margin-bottom:6px;">Urgency</label>
-        <div style="display:flex;gap:10px;">
-          {% for key, label in urgency_choices %}
-          <label style="display:flex;align-items:center;gap:6px;font-size: 1.2rem;cursor:pointer;
-            flex:1;border:1.5px solid #d1d5db;border-radius:8px;padding:9px 14px;transition:all .2s;"
-            onclick="this.parentNode.querySelectorAll('label').forEach(l=>l.style.borderColor='#d1d5db');this.style.borderColor='#1B5EC7';">
-            <input type="radio" name="urgency" value="{{ key }}" {% if key == 'medium' %}checked{% endif %}
-              style="accent-color:#1B5EC7;"> {{ label }}
-          </label>
-          {% endfor %}
-        </div>
-      </div>
+    <div class="ocx-field">
+      <label class="ocx-label" for="cr-desc">Describe your challenge <span class="ocx-req">*</span></label>
+      <textarea id="cr-desc" name="description" rows="6" required class="ocx-input" placeholder="What are you facing, and what outcome do you want?"></textarea>
+    </div>
 
-      <div style="margin-bottom:22px;">
-        <label style="display:block;font-size: 1.2rem;font-weight:700;color:#374151;margin-bottom:6px;">
-          Describe your challenge or support needed *
-        </label>
-        <textarea name="description" rows="5" required
-          placeholder="" data-example="What specific challenge are you facing and what outcome do you want?"
-          style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:10px 12px;
-          font-size: 1.2rem;resize:vertical;box-sizing:border-box;font-family:inherit;line-height:1.5;"></textarea>
-      </div>
+    <button type="submit" class="ocx-btn ocx-btn--block">Submit request</button>
+  </form>
 
-      <button type="submit"
-        style="width:100%;background:#1B5EC7;color:#fff;border:none;padding:13px;border-radius:10px;
-        font-size: 1.2rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s;">
-        Submit Support Request
-      </button>
-    </form>
-  </div>
-
-  <div style="margin-top:20px;padding:16px 20px;background:#f4f7fb;border-radius:10px;font-size: 1.2rem;color:#6b7280;text-align:center;">
-    Our team typically responds within <strong>1–2 business days</strong>. You can track your requests at <a href="{% url 'my_consulting_requests' %}" style="color:#1B5EC7;">My Requests</a>.
-  </div>
+  <p class="ocx-note">We usually reply within <strong>1–2 business days</strong>. Track your requests in <a href="{% url 'my_consulting_requests' %}">My requests</a>.</p>
 </div>
 {% endblock %}

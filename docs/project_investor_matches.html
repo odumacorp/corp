@@ -16,7 +16,7 @@
   Back
 </button>
 <div style="max-width:800px;margin:40px auto;padding:0 24px 64px;">
-  <a href="{{ project.get_absolute_url }}" style="font-size: 1.2rem;color:#1B5EC7;text-decoration:none;display:inline-block;margin-bottom:16px;">← Back to project</a>
+  <a href="{{ project.get_absolute_url }}" style="font-size: 1.2rem;color:#004AAD;text-decoration:none;display:inline-block;margin-bottom:16px;">← Back to project</a>
 
   <div style="background:linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);border-radius:16px;padding:28px 36px;color:#0A1628;margin-bottom:28px;">
     <div style="font-size: 1.2rem;font-weight:700;opacity:.7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Intelligent Matching</div>
@@ -29,7 +29,7 @@
   <div style="background:#fff;border:1px solid #e0e8f4;border-radius:14px;padding:20px 24px;
        display:flex;gap:18px;align-items:center;margin-bottom:14px;
        transition:box-shadow .2s,transform .2s;"
-       onmouseenter="this.style.boxShadow='0 8px 28px rgba(27,94,199,.12)';this.style.transform='translateY(-2px)'"
+       onmouseenter="this.style.boxShadow='0 8px 28px rgba(0,74,173,.12)';this.style.transform='translateY(-2px)'"
        onmouseleave="this.style.boxShadow='';this.style.transform=''">
     <!-- Score circle -->
     <div style="width:60px;height:60px;border-radius:50%;flex-shrink:0;
@@ -57,7 +57,7 @@
           {% if ip.verification_status == 'verified' %}
           <span class="oc-verified-badge">✓ Verified Investor</span>
           {% endif %}
-          <span style="background:#e0e8f4;color:#1B5EC7;font-size: 1.2rem;font-weight:700;padding:2px 8px;border-radius:20px;">{{ match.label }}</span>
+          <span style="background:#e0e8f4;color:#004AAD;font-size: 1.2rem;font-weight:700;padding:2px 8px;border-radius:20px;">{{ match.label }}</span>
         {% endwith %}
       </div>
       {% with ip=match.investor.userprofile %}
@@ -75,7 +75,7 @@
     <!-- Actions -->
     <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
       <a href="{% url 'profile_view' username=match.investor.username %}"
-         style="background:#1B5EC7;color:#0A1628;padding:7px 16px;border-radius:8px;font-size: 1.2rem;font-weight:700;text-decoration:none;text-align:center;">View Profile</a>
+         style="background:#004AAD;color:#0A1628;padding:7px 16px;border-radius:8px;font-size: 1.2rem;font-weight:700;text-decoration:none;text-align:center;">View Profile</a>
       <a href="{% url 'message_investor' investor_id=match.investor.id %}"
          style="background:#fff;color:#374151;border:1.5px solid #d1d5db;padding:7px 16px;border-radius:8px;font-size: 1.2rem;font-weight:700;text-decoration:none;text-align:center;">Message</a>
     </div>
@@ -86,7 +86,7 @@
     <p style="margin-bottom:8px;color:#9ca3af;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></p>
     <p style="font-weight:700;">No investor matches found</p>
     <p style="font-size: 1.2rem;">Complete your project pitch profile to improve matching accuracy.</p>
-    <a href="{% url 'edit_project' project.pk %}" style="color:#1B5EC7;font-weight:600;font-size: 1.2rem;">Complete Profile →</a>
+    <a href="{% url 'edit_project' project.pk %}" style="color:#004AAD;font-weight:600;font-size: 1.2rem;">Complete Profile →</a>
   </div>
   {% endif %}
 </div>

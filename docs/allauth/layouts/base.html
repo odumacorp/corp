@@ -1,13 +1,21 @@
+{% load static %}
 {% load i18n static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>/* theme: apply saved choice before first paint */try{if(localStorage.getItem('oc-theme')==='dark')document.documentElement.classList.add('oc-dark')}catch(e){}</script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block head_title %}OdumaCorp{% endblock %} | OdumaCorp</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Jacques+Francois&family=Jaldi:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Same self-hosted DM Sans as the rest of the app, under the names this layout uses */
+    @font-face{font-family:'Jacques Francois';src:url({% static 'fonts/dm-sans-latin-var.woff2' %}) format('woff2');font-weight:100 1000;font-display:swap}
+    @font-face{font-family:'Jaldi';src:url({% static 'fonts/dm-sans-latin-var.woff2' %}) format('woff2');font-weight:100 1000;font-display:swap}
+    @font-face{font-family:'DM Sans';src:url({% static 'fonts/dm-sans-latin-var.woff2' %}) format('woff2');font-weight:100 1000;font-display:swap}
+  </style>
   {% block extra_head %}{% endblock %}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

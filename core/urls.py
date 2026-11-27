@@ -489,7 +489,14 @@ urlpatterns = _html_redirects + [
     path('gallery/manage/', views.gallery_manage, name='gallery_manage'),
     path('gallery/add/', views.gallery_add, name='gallery_add'),
     path('gallery/<int:pk>/edit/', views.gallery_update, name='gallery_update'),
+    path('gallery/group/', views.gallery_group_update, name='gallery_group_update'),
+    path('gallery/bulk/', views.gallery_bulk, name='gallery_bulk'),
     path('api/public-gallery/', views.api_public_gallery, name='api_public_gallery'),
+    # The static odumacorp.com site, served by this app on a development host (see views.public_site)
+    path('products/', views.public_site, {'path': 'products/'}, name='public_products'),
+    path('products/<slug:slug>/', lambda r, slug: views.public_site(r, f'products/{slug}/'), name='public_product'),
+    path('img/<path:path>', lambda r, path: views.public_site(r, f'img/{path}')),
+    path('fonts/<path:path>', lambda r, path: views.public_site(r, f'fonts/{path}')),
     # Partner logos on odumacorp.com; admins manage them
     path('partners/manage/', views.partners_manage, name='partners_manage'),
     path('partners/add/', views.partner_add, name='partner_add'),

@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>/* theme: apply saved choice before first paint */try{if(localStorage.getItem('oc-theme')==='dark')document.documentElement.classList.add('oc-dark')}catch(e){}</script>
+
    <!-- Google Analytics — odumacorp.com (G-11WRZ5D231) -->
    <script async src="https://www.googletagmanager.com/gtag/js?id=G-11WRZ5D231"></script>
    <script>
@@ -20,7 +22,7 @@
   <!-- Android Chrome -->
   <meta name="mobile-web-app-capable" content="yes">
   <!-- Windows tile -->
-  <meta name="msapplication-TileColor" content="#1B5EC7">
+  <meta name="msapplication-TileColor" content="#004AAD">
   <meta name="msapplication-TileImage" content="{% static 'images/OdumaCorp-icon.png' %}">
   <!-- Color scheme (prefers-color-scheme awareness) -->
   <meta name="color-scheme" content="light">
@@ -42,10 +44,9 @@
 
  
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Jacques+Francois&family=Jaldi:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Font: DM Sans, self-hosted (one variable file, also used by odumacorp.com). design-system.css maps the
+       older names (Space Grotesk, Inter, Jacques Francois, Jaldi) still written in some templates to it. -->
+  <link rel="preload" href="{% static 'fonts/dm-sans-latin-var.woff2' %}" as="font" type="font/woff2" crossorigin>
 
   <!-- Bootstrap 5 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -63,7 +64,7 @@
 
   <!-- PWA -->
   <link rel="manifest" href="{% static 'manifest.json' %}">
-  <meta name="theme-color" content="#1B5EC7">
+  <meta name="theme-color" content="#004AAD">
 
   {% block extra_head %}{% endblock %}
 
@@ -87,6 +88,8 @@
   }
   </script>
 
+  <script>/* Flaticon uicons: some older pages use <i class="fi fi-rr-…">; load the font only where needed */
+  document.addEventListener('DOMContentLoaded',function(){if(document.querySelector('i.fi,span.fi,[class^="fi fi-"],[class*=" fi-rr-"]')){var l=document.createElement('link');l.rel='stylesheet';l.href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css';document.head.appendChild(l);}});</script>
 </head>
 <body{% if hide_navbar %} class="no-navbar"{% endif %}>
 
@@ -228,42 +231,56 @@
 
   <!-- ── Feedback Button (appears after 1/3 scroll) ── -->
   <style>
+    /* Feedback side button + the tab that tucks it away (2026-11 restyle; same classes, same script) */
     .oc-feedback-btn {
       position: fixed; bottom: calc(58px + 14px); right: 20px; z-index: 1400;
-      background: #fff; color: var(--oc-primary, #1B5EC7);
-      border: 1.5px solid var(--oc-primary, #1B5EC7);
-      border-radius: 20px; padding: 7px 14px;
-      font-family: "Jaldi", sans-serif; font-size:1.2rem; font-weight: 700;
-      cursor: pointer; box-shadow: 0 2px 12px rgba(0,74,173,0.15);
-      opacity: 1; transform: translateX(0);
-      transition: background 0.2s, color 0.2s, transform 0.35s ease, opacity 0.35s ease;
-      pointer-events: auto;
-      margin-bottom: 10px;
+      display: inline-flex; align-items: center; gap: 8px;
+      min-height: 44px; padding: 0 18px 0 14px; margin-bottom: 10px;
+      background: #fff; color: #003A8C; border: 1px solid #D5DCE6; border-radius: 999px;
+      font: 700 15px/1 'DM Sans', system-ui, sans-serif; letter-spacing: 0;
+      cursor: pointer; pointer-events: auto; opacity: 1; transform: translateX(0);
+      box-shadow: 0 2px 4px rgba(15,27,51,.08), 0 12px 28px -8px rgba(15,27,51,.35);
+      transition: background .2s, color .2s, border-color .2s, box-shadow .2s, transform .35s ease, opacity .35s ease;
     }
-    .oc-feedback-btn:hover { background: var(--oc-primary, #004AAD); color: #fff; }
+    .oc-feedback-btn svg { flex: none; }
+    .oc-feedback-btn:hover { background: #004AAD; border-color: #004AAD; color: #fff; transform: translateY(-2px);
+      box-shadow: 0 2px 4px rgba(0,52,127,.12), 0 16px 32px -8px rgba(0,52,127,.45); }
+    .oc-feedback-btn:focus-visible, .oc-dock-tab:focus-visible { outline: 3px solid #004AAD; outline-offset: 3px; }
     .oc-feedback-btn.oc-docked { transform: translateX(calc(100% + 24px)); opacity: 0; pointer-events: none; }
-    /* ── Dock toggle tab ── */
-    .oc-dock-tab {
-      position: fixed; right: -29px; bottom: 108px; z-index: 1600;
-      width: 2px; height: 46px;
-      background: linear-gradient(160deg, #2563eb, #1B5EC7); color: #fff;
-      /* font-size: 3rem; */
-      border: none; border-radius: 16px; cursor: pointer;
-      display: flex; align-items: center; justify-content: start;
-      box-shadow: -2px 2px 8px rgba(27,94,199,0.35);
-      transition: right 0.2s ease, box-shadow 0.2s ease, transform 0.35s ease, opacity 0.35s ease;
-      padding: 15px;
-      opacity: 0.8;
+    /* Tab that brings the Feedback and chat buttons back: a slim white handle on the screen edge.
+       ID selectors so the app-wide button rules (min-width 70px, hover lift + grey shadow) don't apply. */
+    #oc-dock-tab.oc-dock-tab {
+      position: fixed; right: 0; bottom: 108px; z-index: 1600;
+      width: 34px; min-width: 0; height: 56px; padding: 0 2px 0 0; margin: 0;
+      display: grid; place-items: center;
+      background: linear-gradient(160deg, #0A5AC4, #004AAD); color: #fff;
+      border: 0; border-radius: 16px 0 0 16px;
+      cursor: pointer; opacity: 1; transform: none;
+      box-shadow: -2px 2px 4px rgba(0,52,127,.15), -10px 12px 28px -8px rgba(0,52,127,.55);
+      transition: width .2s ease, background .2s ease, color .2s ease, transform .35s ease, opacity .35s ease;
     }
-    .oc-dock-tab:hover { right: -20px; box-shadow: -3px 3px 14px rgba(27,94,199,0.5); opacity: 1; }
-    .oc-dock-tab.oc-tab-hidden { transform: translateX(120%); opacity: 0; pointer-events: none; }
-    .oc-dock-tab svg { transition: transform 0.35s ease; flex-shrink: 0; opacity: 1; size: 3px;}
-    @media (max-width: 900px) { .oc-dock-tab { bottom: calc(58px + 72px); } }
+    #oc-dock-tab.oc-dock-tab::before {      /* small grip line, so it reads as a handle */
+      content: ""; position: absolute; left: 7px; top: 50%; width: 3px; height: 18px; margin-top: -9px;
+      border-radius: 3px; background: rgba(255,255,255,.45); transition: background .2s ease;
+    }
+    #oc-dock-tab.oc-dock-tab:hover { width: 40px; background: #00347F; color: #fff; transform: none;
+      box-shadow: -2px 2px 4px rgba(0,52,127,.12), -10px 14px 30px -10px rgba(0,52,127,.5); }
+    #oc-dock-tab.oc-dock-tab:hover::before { background: rgba(255,255,255,.6); }
+    #oc-dock-tab.oc-dock-tab.oc-tab-hidden { transform: translateX(120%); opacity: 0; pointer-events: none; }
+    /* Always ‹ : clicking slides the buttons back in from the right (the script's rotation is overridden) */
+    #oc-dock-tab.oc-dock-tab svg { width: 14px; height: 14px; margin-left: 6px; flex-shrink: 0; transform: none !important; }
+    #oc-feedback-btn.oc-feedback-btn { min-width: 0; }
+    @media (max-width: 1050px) { #oc-dock-tab.oc-dock-tab { bottom: calc(58px + 72px + env(safe-area-inset-bottom, 0px)); } }
+    /* Visitors who aren't logged in have no Odu launcher: Feedback takes its spot */
+    body:not(:has(#odu-fab)) #oc-feedback-btn.oc-feedback-btn { right: 24px; bottom: 24px; margin: 0; }
+    @media (max-width: 1050px) { body:not(:has(#odu-fab)) #oc-feedback-btn.oc-feedback-btn { right: 16px; bottom: calc(58px + 16px + env(safe-area-inset-bottom, 0px)); } }
+    @media (prefers-reduced-motion: reduce) { .oc-feedback-btn, #oc-dock-tab.oc-dock-tab, #oc-dock-tab.oc-dock-tab svg, #oc-dock-tab.oc-dock-tab::before { transition: none; } }
   </style>
-  <button class="oc-feedback-btn" id="oc-feedback-btn" onclick="document.getElementById('oc-feedback-modal').classList.add('open')">
+  <button type="button" class="oc-feedback-btn" id="oc-feedback-btn" aria-haspopup="dialog" aria-controls="oc-feedback-modal" onclick="document.getElementById('oc-feedback-modal').classList.add('open')">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
     Feedback
   </button>
-  <button class="oc-dock-tab" id="oc-dock-tab" title="Toggle widgets" aria-label="Toggle widgets">
+  <button type="button" class="oc-dock-tab" id="oc-dock-tab" title="Show Feedback and chat" aria-label="Show Feedback and chat buttons">
     <svg id="oc-dock-arrow" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
   </button>
   <style>
@@ -291,7 +308,7 @@
   .oc-fb-head-left { display: flex; align-items: center; gap: 10px; }
   .oc-fb-head-icon {
     width: 36px; height: 36px; border-radius: 10px;
-    background: #eef4ff; color: #1B5EC7;
+    background: #eef4ff; color: #004AAD;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .oc-fb-title {
@@ -325,7 +342,7 @@
     transition: border-color .15s, box-shadow .15s;
   }
   .oc-fb-input:focus, .oc-fb-textarea:focus {
-    border-color: #1B5EC7; box-shadow: 0 0 0 3px rgba(27,94,199,.1); background: #fff;
+    border-color: #004AAD; box-shadow: 0 0 0 3px rgba(0,74,173,.1); background: #fff;
   }
   .oc-fb-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
   /* Custom dropdowns */
@@ -342,8 +359,8 @@
   }
   .oc-fb-dd-trigger:hover { border-color: #c3d4ec; }
   .oc-fb-dd-trigger.open {
-    border-color: #1B5EC7; background: #fff;
-    box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+    border-color: #004AAD; background: #fff;
+    box-shadow: 0 0 0 3px rgba(0,74,173,.1);
   }
   .oc-fb-dd-trigger:focus { outline: none; }
   .oc-fb-dd-ic { flex-shrink: 0; color: #6b7280; pointer-events: none; }
@@ -353,7 +370,7 @@
     width: 14px; height: 14px; color: #9ca3af; pointer-events: none;
     transition: transform .18s;
   }
-  .oc-fb-dd-trigger.open .oc-fb-dd-chev { transform: translateY(-50%) rotate(180deg); color: #1B5EC7; }
+  .oc-fb-dd-trigger.open .oc-fb-dd-chev { transform: translateY(-50%) rotate(180deg); color: #004AAD; }
   .oc-fb-dd-list {
     display: none; position: absolute; top: calc(100% + 5px); left: 0; right: 0;
     background: #fff; border: 1.5px solid #e0e8f4; border-radius: 10px;
@@ -371,8 +388,8 @@
     display: flex; align-items: center; gap: 9px;
     transition: background .1s, color .1s;
   }
-  .oc-fb-dd-opt:hover { background: #f0f5ff; color: #1B5EC7; }
-  .oc-fb-dd-opt.sel { background: #eef4ff; color: #1B5EC7; font-weight: 600; }
+  .oc-fb-dd-opt:hover { background: #f0f5ff; color: #004AAD; }
+  .oc-fb-dd-opt.sel { background: #eef4ff; color: #004AAD; font-weight: 600; }
   .oc-fb-dd-opt .oc-fb-opt-ic { flex-shrink: 0; }
   .oc-fb-dd-opt .oc-fb-chk { display: none; margin-left: auto; flex-shrink: 0; }
   .oc-fb-dd-opt.sel .oc-fb-chk { display: block; }
@@ -380,12 +397,12 @@
   .oc-fb-actions { display: flex; gap: 10px; margin-top: 18px; }
   .oc-fb-submit {
     flex: 1; padding: 10px 16px; border-radius: 10px;
-    background: #1B5EC7; color: #fff; border: none;
+    background: #004AAD; color: #fff; border: none;
     font-family: 'Space Grotesk', sans-serif; font-size: .95rem; font-weight: 700;
     cursor: pointer; transition: background .15s;
     display: flex; align-items: center; justify-content: center; gap: 7px;
   }
-  .oc-fb-submit:hover { background: #1448a3; }
+  .oc-fb-submit:hover { background: #003A8C; }
   .oc-fb-cancel {
     padding: 10px 18px; border-radius: 10px;
     background: #f3f4f6; border: 1.5px solid #e5e7eb;
@@ -398,10 +415,64 @@
     font-family: 'Space Grotesk', sans-serif; font-size: 1rem;
     font-weight: 700; color: #059669;
   }
+  /* ══ 2026-11 restyle: same look as the new login card (logo blue, DM Sans, pill buttons) ══ */
+  .oc-fb-modal-overlay { background: rgba(15,27,51,.45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .oc-fb-card { max-width: 480px; border-radius: 24px; font-family: 'DM Sans', system-ui, sans-serif;
+    box-shadow: 0 1px 2px rgba(10,25,60,.10), 0 8px 16px -4px rgba(10,25,60,.14), 0 32px 48px -16px rgba(10,25,60,.38); }
+  .oc-fb-head { padding: 22px 24px 18px; border-bottom: 1px solid #E2E6EE; }
+  .oc-fb-head-left { gap: 14px; }
+  .oc-fb-head-icon { width: 46px; height: 46px; border-radius: 14px; background: #E1EAF7; color: #004AAD; }
+  .oc-fb-head-icon svg { width: 22px; height: 22px; }
+  .oc-fb-title { font: 700 20px/1.2 'DM Sans', system-ui, sans-serif; letter-spacing: -.015em; color: #0F1B33; }
+  .oc-fb-sub { margin-top: 2px; font-size: 14.5px; color: #5B6475; }
+  .oc-fb-close { width: 44px; height: 44px; border-radius: 12px; color: #5B6475; }
+  .oc-fb-close:hover { background: #EEF1F6; color: #0F1B33; }
+  .oc-fb-close svg { width: 18px; height: 18px; }
+  .oc-fb-close:focus-visible, .oc-fb-dd-trigger:focus-visible, .oc-fb-submit:focus-visible, .oc-fb-cancel:focus-visible { outline: 3px solid #004AAD; outline-offset: 2px; }
+  .oc-fb-body { padding: 20px 24px 24px; }
+  .oc-fb-row { gap: 14px; margin-bottom: 16px; }
+  .oc-fb-field { gap: 6px; margin-bottom: 16px; }
+  .oc-fb-label { font: 600 14px 'DM Sans', system-ui, sans-serif; letter-spacing: 0; text-transform: none; color: #0F1B33; }
+  .oc-fb-label .oc-fb-opt { font-size: 14px; color: #5B6475; }
+  .oc-fb-input, .oc-fb-textarea, .oc-fb-dd-trigger {
+    min-height: 48px; border: 1px solid #D5DCE6; border-radius: 12px; background: #fff;
+    font: 400 16px 'DM Sans', system-ui, sans-serif; color: #0F1B33; }
+  .oc-fb-input { padding: 0 14px; }
+  .oc-fb-input[readonly] { background: #F6F8FB; color: #5B6475; }
+  .oc-fb-textarea { padding: 12px 14px; min-height: 120px; line-height: 1.55; }
+  .oc-fb-textarea::placeholder, .oc-fb-input::placeholder { color: #8A94A6; }
+  .oc-fb-input:focus, .oc-fb-textarea:focus, .oc-fb-dd-trigger.open { border-color: #004AAD; box-shadow: 0 0 0 3px rgba(0,74,173,.18); background: #fff; }
+  .oc-fb-dd-trigger { padding: 0 40px 0 14px; gap: 10px; }
+  .oc-fb-dd-trigger:hover { border-color: #9DB2D6; }
+  .oc-fb-dd-ic { color: #5B6475; }
+  .oc-fb-dd-chev { right: 14px; width: 16px; height: 16px; color: #8A94A6; }
+  .oc-fb-dd-trigger.open .oc-fb-dd-chev { color: #004AAD; }
+  .oc-fb-dd-list { top: calc(100% + 6px); border: 1px solid #E2E6EE; border-radius: 14px; padding: 6px; box-shadow: 0 18px 40px -12px rgba(15,27,51,.3); }
+  .oc-fb-dd-opt { min-height: 42px; padding: 0 12px; border-radius: 10px; font: 500 15px 'DM Sans', system-ui, sans-serif; color: #3D475A; }
+  .oc-fb-dd-opt:hover { background: #F1F4F9; color: #0F1B33; }
+  .oc-fb-dd-opt.sel { background: #E1EAF7; color: #003A8C; font-weight: 600; }
+  .oc-fb-actions { gap: 10px; margin-top: 20px; }
+  .oc-fb-submit { min-height: 50px; border-radius: 999px; background: #004AAD; font: 700 16px 'DM Sans', system-ui, sans-serif;
+    box-shadow: 0 6px 16px rgba(0,74,173,.28); }
+  .oc-fb-submit:hover { background: #003A8C; }
+  .oc-fb-cancel { min-height: 50px; padding: 0 22px; border-radius: 999px; background: transparent; border: 1.5px solid #CBD3E1;
+    font: 700 16px 'DM Sans', system-ui, sans-serif; color: #0F1B33; }
+  .oc-fb-cancel:hover { background: #F6F8FB; border-color: #004AAD; }
+  .oc-fb-thanks { font: 700 16px 'DM Sans', system-ui, sans-serif; color: #0E5C34; }
+  /* Phones: open as a bottom sheet */
+  @media (max-width: 600px) {
+    .oc-fb-modal-overlay { align-items: flex-end; padding: 0; }
+    .oc-fb-card { max-width: none; border-radius: 24px 24px 0 0; max-height: 92vh; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom); animation: fbSheet .22s ease; }
+    .oc-fb-row { grid-template-columns: 1fr; }
+    .oc-fb-head { position: relative; padding-top: 26px; }
+    .oc-fb-head::before { content: ""; position: absolute; top: 9px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 4px; background: #D5DCE6; }
+  }
+  @keyframes fbSheet { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .oc-fb-card { animation: none !important; } }
   </style>
 
   <div id="oc-feedback-modal" class="oc-fb-modal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
-    <div class="oc-fb-card">
+    <div class="oc-fb-card" role="dialog" aria-modal="true" aria-labelledby="oc-fb-title">
 
       <!-- Header -->
       <div class="oc-fb-head">
@@ -410,7 +481,7 @@
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
           </div>
           <div>
-            <p class="oc-fb-title">Share your feedback</p>
+            <p class="oc-fb-title" id="oc-fb-title">Share your feedback</p>
             <p class="oc-fb-sub">Help us make Oduma Corp better.</p>
           </div>
         </div>
@@ -1182,34 +1253,206 @@
       transition: background .15s;
     }
     .odu-chip:hover { background: #dbeafe; }
+
+    /* ══ 2026-11 restyle: logo blue, DM Sans, same card language as the rest of the new design ══ */
+    /* Odu launcher: a dark pill with Odu's face (the round logo) and an online dot. Distinct from the white Feedback pill. */
+    #odu-fab.odu-fab { right: 24px; bottom: 24px; width: auto; height: 54px; min-width: 0; margin: 0; padding: 0 20px 0 7px; gap: 10px; border: 0; border-radius: 999px;
+      display: inline-flex; align-items: center; justify-content: flex-start;
+      background: #0F1B33; color: #fff; font: 700 15.5px/1 'DM Sans', system-ui, sans-serif; letter-spacing: -.005em;
+      box-shadow: 0 2px 4px rgba(15,27,51,.18), 0 14px 30px -8px rgba(15,27,51,.55);
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
+    #odu-fab.odu-fab:hover { background: #1A2A4A; transform: translateY(-2px); box-shadow: 0 2px 4px rgba(15,27,51,.2), 0 18px 36px -8px rgba(15,27,51,.6); }
+    #odu-fab.odu-fab:focus-visible { outline: 3px solid #004AAD; outline-offset: 3px; }
+    #odu-fab.odu-fab.oc-docked { transform: translateX(calc(100% + 28px)); pointer-events: none; }
+    #odu-fab .odu-fab-av { position: relative; flex: none; width: 40px; height: 40px; border-radius: 50%; background: #fff; padding: 2px; }
+    #odu-fab .odu-fab-av { display: grid; place-items: center; padding: 0; box-shadow: inset 0 0 0 1px rgba(15,27,51,.06); }
+    #odu-fab .odu-fab-av .odu-bot { width: 30px; height: 30px; display: block; }
+    .odu-bot .odu-eyes { transform-box: fill-box; transform-origin: center; animation: oduBlink 4.5s infinite; }
+    @keyframes oduBlink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+    @media (prefers-reduced-motion: reduce) { .odu-bot .odu-eyes { animation: none; } }
+    #odu-fab .odu-fab-av i { position: absolute; right: -1px; bottom: 0; width: 12px; height: 12px; border-radius: 50%; background: #34C77B; border: 2px solid #0F1B33; }
+    #odu-fab .odu-fab-x { display: none; flex: none; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.14); place-items: center; }
+    #odu-fab .odu-l-close { display: none; }
+    #odu-fab.is-open { background: #004AAD; }
+    #odu-fab.is-open .odu-fab-av { display: none; }
+    #odu-fab.is-open .odu-fab-x { display: grid; }
+    #odu-fab.is-open .odu-l-open { display: none; }
+    #odu-fab.is-open .odu-l-close { display: inline; }
+    /* Feedback pill sits above it, same right edge */
+    #oc-feedback-btn.oc-feedback-btn { right: 24px; bottom: calc(24px + 54px + 12px); margin: 0; }
+    @media (max-width: 1050px) {
+      #odu-fab.odu-fab { bottom: calc(58px + 16px + env(safe-area-inset-bottom, 0px)); }
+      #oc-feedback-btn.oc-feedback-btn { bottom: calc(58px + 16px + 54px + 12px + env(safe-area-inset-bottom, 0px)); }
+    }
+    @media (max-width: 1050px) { body #odu-panel.odu-panel { bottom: calc(58px + 16px + 54px + 14px + env(safe-area-inset-bottom, 0px)); max-height: calc(100vh - 230px); } }
+    /* While the chat is open, the Feedback pill steps aside */
+    body:has(#odu-panel.open) #oc-feedback-btn.oc-feedback-btn { opacity: 0; pointer-events: none; transform: translateY(8px); }
+    @media (max-width: 600px) {   /* phones: just Odu's face */
+      #odu-fab .odu-fab-av .odu-bot { width: 34px; height: 34px; }
+      #odu-fab.odu-fab { right: 16px; width: 56px; height: 56px; padding: 0; justify-content: center; }
+      #odu-fab .odu-fab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      #odu-fab .odu-fab-av { width: 46px; height: 46px; }
+      #oc-feedback-btn.oc-feedback-btn { right: 16px; bottom: calc(58px + 16px + 56px + 12px + env(safe-area-inset-bottom, 0px)); }
+    }
+    #odu-panel.odu-panel { bottom: calc(24px + 54px + 14px); right: 24px; width: 380px; max-height: min(560px, calc(100vh - 140px));
+      border-radius: 24px; border: 1px solid rgba(15,27,51,.08); font-family: 'DM Sans', system-ui, sans-serif;
+      box-shadow: 0 1px 2px rgba(10,25,60,.10), 0 8px 16px -4px rgba(10,25,60,.14), 0 32px 48px -16px rgba(10,25,60,.38); }
+    #odu-panel.odu-panel.open { animation: oduIn .2s ease-out; }
+    @keyframes oduIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+    #odu-panel .odu-panel-head { padding: 16px 16px 16px 18px; gap: 12px; font-family: inherit;
+      background: radial-gradient(500px 200px at 90% -40%, rgba(255,255,255,.18), transparent 60%), linear-gradient(135deg, #0A5AC4, #004AAD 55%, #00347F); }
+    #odu-panel .odu-avatar { width: 42px; height: 42px; background: #fff; padding: 1px; box-shadow: 0 0 0 2px rgba(255,255,255,.35); }
+    #odu-panel .odu-avatar { display: grid; place-items: center; padding: 0; }
+    #odu-panel .odu-avatar .odu-bot { width: 32px; height: 32px; display: block; }
+    #odu-panel .odu-head-name { font-size: 17px; font-weight: 700; letter-spacing: -.01em; line-height: 1.2; }
+    #odu-panel .odu-head-sub { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; opacity: .9; }
+    #odu-panel .odu-dot { width: 8px; height: 8px; border-radius: 50%; background: #7CE0A3; box-shadow: 0 0 0 3px rgba(124,224,163,.25); }
+    #odu-panel .odu-panel-head-close { width: 38px; height: 38px; min-width: 0; display: grid; place-items: center; border-radius: 12px; color: #fff; background: rgba(255,255,255,.12); }
+    #odu-panel .odu-panel-head-close:hover { background: rgba(255,255,255,.24); transform: none; box-shadow: none; }
+    #odu-panel .odu-panel-head-close:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+    #odu-panel .odu-messages { padding: 16px 14px 8px; gap: 10px; background: #FBFAF7; }
+    #odu-panel .odu-msg { max-width: 86%; padding: 10px 14px; border-radius: 18px; font-family: inherit; font-size: 15px; line-height: 1.5; }
+    #odu-panel .odu-msg.bot { background: #fff; color: #0F1B33; border: 1px solid #E2E6EE; border-bottom-left-radius: 6px; }
+    #odu-panel .odu-msg.user { background: #004AAD; color: #fff; border-bottom-right-radius: 6px; box-shadow: 0 4px 12px -4px rgba(0,74,173,.45); }
+    #odu-panel .odu-msg.typing { color: #5B6475; font-style: normal; }
+    #odu-panel .odu-link { display: inline-flex; align-items: center; gap: 4px; margin: 4px 0; padding: 6px 14px; border-radius: 999px;
+      background: #004AAD; color: #fff; font-size: 14px; font-weight: 700; text-decoration: none; }
+    #odu-panel .odu-link:hover { background: #003A8C; color: #fff; }
+    #odu-panel .odu-chips { padding: 10px 14px 2px; gap: 6px; background: #FBFAF7; }
+    #odu-panel .odu-chip { min-width: 0; min-height: 34px; padding: 0 12px; border-radius: 999px; background: #fff; border: 1px solid #CFDBF1;
+      color: #003A8C; font-family: inherit; font-size: 13.5px; font-weight: 600; }
+    #odu-panel .odu-chip:hover { background: #E1EAF7; border-color: #9DB2D6; transform: none; box-shadow: none; }
+    #odu-panel .odu-input-row { padding: 12px 14px 14px; gap: 8px; border-top: 1px solid #E2E6EE; background: #fff; }
+    #odu-panel .odu-input { min-height: 46px; padding: 0 16px; border: 1px solid #D5DCE6; border-radius: 999px; font-family: inherit; font-size: 15.5px; color: #0F1B33; background: #fff; }
+    #odu-panel .odu-input::placeholder { color: #8A94A6; }
+    #odu-panel .odu-input:focus { border-color: #004AAD; box-shadow: 0 0 0 3px rgba(0,74,173,.16); }
+    #odu-panel .odu-send { width: 46px; height: 46px; min-width: 0; padding: 0; border-radius: 50%; background: #004AAD; box-shadow: 0 6px 14px -4px rgba(0,74,173,.55); }
+    #odu-panel .odu-send:hover { background: #003A8C; transform: none; }
+    #odu-panel .odu-send:focus-visible { outline: 3px solid #004AAD; outline-offset: 2px; }
+    @media (max-width: 600px) {
+      body #odu-panel.odu-panel { left: 10px; right: 10px; width: auto; max-width: none; bottom: calc(58px + 16px + 56px + 12px + env(safe-area-inset-bottom, 0px)); max-height: calc(100vh - 230px); }
+    }
+    @media (prefers-reduced-motion: reduce) { #odu-panel.odu-panel.open { animation: none; } #odu-fab.odu-fab { transition: none; } }
+
+    /* ══ Chat window, round 2: welcome screen, quick actions, avatar rows, typing dots, one-box composer ══ */
+    #odu-panel.odu-panel { width: 392px; height: min(620px, calc(100vh - 140px)); max-height: none; }
+    #odu-panel .odu-panel-head { padding: 14px 12px 14px 16px; gap: 12px; }
+    #odu-panel .odu-head-text { flex: 1; min-width: 0; }
+    #odu-panel .odu-panel-head-btn, #odu-panel .odu-panel-head-close { width: 38px; height: 38px; min-width: 0; padding: 0; margin: 0; display: grid; place-items: center;
+      border: 0; border-radius: 12px; color: #fff; background: rgba(255,255,255,.12); cursor: pointer; }
+    #odu-panel .odu-panel-head-btn:hover, #odu-panel .odu-panel-head-close:hover { background: rgba(255,255,255,.24); transform: none; box-shadow: none; }
+    #odu-panel .odu-panel-head-btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+    #odu-panel .odu-panel-head-close { margin-left: 0; }
+    #odu-panel .odu-messages { flex: 1; padding: 18px 16px 10px; gap: 12px; background: linear-gradient(180deg, #F3F6FC 0%, #FBFAF7 140px); }
+    #odu-panel .odu-welcome { text-align: center; padding: 10px 8px 4px; }
+    #odu-panel .odu-welcome[hidden], #odu-panel .odu-chips[hidden] { display: none; }
+    #odu-panel .odu-welcome-bot { width: 72px; height: 72px; margin: 0 auto 12px; border-radius: 50%; background: #fff; display: grid; place-items: center;
+      box-shadow: 0 0 0 6px rgba(0,74,173,.07), 0 10px 24px -8px rgba(0,52,127,.4); }
+    #odu-panel .odu-welcome-bot .odu-bot { width: 50px; height: 50px; }
+    #odu-panel .odu-welcome-title { margin: 0 0 6px; font: 700 19px/1.25 'DM Sans', system-ui, sans-serif; letter-spacing: -.015em; color: #0F1B33; }
+    #odu-panel .odu-welcome-sub { margin: 0 auto; max-width: 28em; font-size: 14.5px; line-height: 1.5; color: #5B6475; }
+    #odu-panel .odu-chips { display: grid; gap: 8px; padding: 6px 0 4px; background: transparent; }
+    #odu-panel .odu-chips-label { margin: 6px 2px 2px; font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #5B6475; }
+    #odu-panel .odu-qa { display: flex; align-items: center; gap: 12px; width: 100%; min-width: 0; min-height: 52px; margin: 0; padding: 0 12px;
+      border: 1px solid #E2E6EE; border-radius: 14px; background: #fff; color: #0F1B33; text-align: left; cursor: pointer;
+      font: 600 15px 'DM Sans', system-ui, sans-serif; box-shadow: 0 1px 2px rgba(15,27,51,.04); transition: border-color .15s, background .15s, transform .15s; }
+    #odu-panel .odu-qa:hover { border-color: #9DB2D6; background: #F7FAFF; transform: translateX(2px); box-shadow: 0 1px 2px rgba(15,27,51,.04); }
+    #odu-panel .odu-qa:focus-visible { outline: 3px solid #004AAD; outline-offset: 2px; }
+    #odu-panel .odu-qa-ic { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: #E1EAF7; color: #004AAD; }
+    #odu-panel .odu-qa-t { flex: 1; min-width: 0; }
+    #odu-panel .odu-qa-go { flex: none; color: #8A94A6; }
+    #odu-panel .odu-qa:hover .odu-qa-go { color: #004AAD; }
+    #odu-panel .odu-row { display: flex; align-items: flex-end; gap: 8px; }
+    #odu-panel .odu-row.user { justify-content: flex-end; }
+    #odu-panel .odu-row-av { flex: none; width: 30px; height: 30px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 0 0 1px #E2E6EE; }
+    #odu-panel .odu-row-av .odu-bot { width: 22px; height: 22px; }
+    #odu-panel .odu-row .odu-msg { max-width: 80%; }
+    #odu-panel .odu-dots { display: inline-flex; gap: 4px; padding: 4px 2px; }
+    #odu-panel .odu-dots i { width: 7px; height: 7px; border-radius: 50%; background: #8A94A6; animation: oduDot 1.2s infinite ease-in-out; }
+    #odu-panel .odu-dots i:nth-child(2) { animation-delay: .15s; } #odu-panel .odu-dots i:nth-child(3) { animation-delay: .3s; }
+    @keyframes oduDot { 0%, 60%, 100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-4px); opacity: 1; } }
+    #odu-panel .odu-input-row { display: block; padding: 10px 12px 10px; border-top: 1px solid #E2E6EE; background: #fff; }
+    #odu-panel .odu-compose { display: flex; align-items: center; gap: 6px; padding: 5px 5px 5px 16px; border: 1px solid #D5DCE6; border-radius: 999px; background: #F6F8FB;
+      transition: border-color .15s, box-shadow .15s, background .15s; }
+    #odu-panel .odu-compose:focus-within { border-color: #004AAD; background: #fff; box-shadow: 0 0 0 3px rgba(0,74,173,.16); }
+    #odu-panel .odu-compose .odu-input { flex: 1; min-width: 0; min-height: 40px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; outline: none; }
+    #odu-panel .odu-compose .odu-input:focus { box-shadow: none; }
+    #odu-panel .odu-compose .odu-send { width: 40px; height: 40px; }
+    #odu-panel .odu-note { margin: 7px 0 0; text-align: center; font-size: 12px; color: #5B6475; }
+    @media (prefers-reduced-motion: reduce) { #odu-panel .odu-dots i { animation: none; opacity: .8; } #odu-panel .odu-qa { transition: none; } }
+    @media (max-width: 600px) { body #odu-panel.odu-panel { height: auto; max-height: calc(100vh - 230px); } }
   </style>
 
-  <button class="odu-fab" id="odu-fab" title="Chat with Odu" aria-label="Open Odu chat assistant">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <button type="button" class="odu-fab" id="odu-fab" title="Chat with Odu" aria-label="Open Odu chat assistant" aria-controls="odu-panel" aria-expanded="false">
+    <span class="odu-fab-av" aria-hidden="true"><svg class="odu-bot" viewBox="0 0 32 32" aria-hidden="true">
+        <defs><linearGradient id="odu-g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1D6FE0"/><stop offset=".55" stop-color="#004AAD"/><stop offset="1" stop-color="#00347F"/></linearGradient></defs>
+        <line x1="16" y1="4.6" x2="16" y2="8.6" stroke="#00347F" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="16" cy="3.6" r="2.2" fill="#F29D38"/>
+        <rect x="3" y="14" width="3" height="7" rx="1.5" fill="#00347F"/>
+        <rect x="26" y="14" width="3" height="7" rx="1.5" fill="#00347F"/>
+        <rect x="5.5" y="8.5" width="21" height="18" rx="7" fill="url(#odu-g1)"/>
+        <rect x="8.5" y="12" width="15" height="10.5" rx="5" fill="#EAF1FD"/>
+        <g class="odu-eyes"><circle cx="12.8" cy="16.6" r="1.9" fill="#004AAD"/><circle cx="19.2" cy="16.6" r="1.9" fill="#004AAD"/>
+        <circle cx="13.4" cy="16" r=".6" fill="#fff"/><circle cx="19.8" cy="16" r=".6" fill="#fff"/></g>
+        <path d="M13.6 19.6c1.5 1.2 3.3 1.2 4.8 0" fill="none" stroke="#004AAD" stroke-width="1.5" stroke-linecap="round"/>
+      </svg><i></i></span>
+    <span class="odu-fab-x" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
+    <span class="odu-fab-label"><span class="odu-l-open">Ask Odu</span><span class="odu-l-close">Close</span></span>
   </button>
 
-  <div class="odu-panel" id="odu-panel">
+  <div class="odu-panel" id="odu-panel" role="dialog" aria-label="Chat with Odu, the Oduma Corp assistant">
     <div class="odu-panel-head">
-      <div class="odu-avatar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 2v4"/><circle cx="12" cy="6" r="2"/><path d="M7 11V8a5 5 0 0 1 10 0v3"/><circle cx="9" cy="15" r="1" fill="currentColor"/><circle cx="15" cy="15" r="1" fill="currentColor"/></svg></div>
-      <div>
-        <div>Odu</div>
-        <div style="font-size: 1.2rem;font-weight:400;opacity:0.85;">Oduma Corp Assistant</div>
+      <div class="odu-avatar"><svg class="odu-bot" viewBox="0 0 32 32" aria-hidden="true">
+        <defs><linearGradient id="odu-g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1D6FE0"/><stop offset=".55" stop-color="#004AAD"/><stop offset="1" stop-color="#00347F"/></linearGradient></defs>
+        <line x1="16" y1="4.6" x2="16" y2="8.6" stroke="#00347F" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="16" cy="3.6" r="2.2" fill="#F29D38"/>
+        <rect x="3" y="14" width="3" height="7" rx="1.5" fill="#00347F"/>
+        <rect x="26" y="14" width="3" height="7" rx="1.5" fill="#00347F"/>
+        <rect x="5.5" y="8.5" width="21" height="18" rx="7" fill="url(#odu-g2)"/>
+        <rect x="8.5" y="12" width="15" height="10.5" rx="5" fill="#EAF1FD"/>
+        <g class="odu-eyes"><circle cx="12.8" cy="16.6" r="1.9" fill="#004AAD"/><circle cx="19.2" cy="16.6" r="1.9" fill="#004AAD"/>
+        <circle cx="13.4" cy="16" r=".6" fill="#fff"/><circle cx="19.8" cy="16" r=".6" fill="#fff"/></g>
+        <path d="M13.6 19.6c1.5 1.2 3.3 1.2 4.8 0" fill="none" stroke="#004AAD" stroke-width="1.5" stroke-linecap="round"/>
+      </svg></div>
+      <div class="odu-head-text">
+        <div class="odu-head-name">Odu</div>
+        <div class="odu-head-sub"><span class="odu-dot" aria-hidden="true"></span>Online · Oduma Corp assistant</div>
       </div>
-      <button class="odu-panel-head-close" id="odu-close" aria-label="Close chat">✕</button>
+      <button type="button" class="odu-panel-head-btn" id="odu-reset" title="New chat" aria-label="Start a new chat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+      <button type="button" class="odu-panel-head-close" id="odu-close" aria-label="Close chat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </div>
-    <div class="odu-messages" id="odu-messages">
-      <div class="odu-msg bot">Hey {{ user.first_name|default:user.username }}! I'm <strong>Odu</strong>, your Oduma Corp assistant.<br><br>I can help you with <strong>navigation</strong>, <strong>projects</strong>, <strong>finding investors</strong>, <strong>meetings</strong>, <strong>groups</strong>, and more.<br><br>Try asking: <em>"How do I create a project?"</em> or <em>"How do I find investors?"</em></div>
-    </div>
-    <div class="odu-chips" id="odu-chips">
-      <button class="odu-chip" onclick="oduChip(this)">Create a project</button>
-      <button class="odu-chip" onclick="oduChip(this)">Find investors</button>
-      <button class="odu-chip" onclick="oduChip(this)">Schedule a meeting</button>
-      <button class="odu-chip" onclick="oduChip(this)">Join a group</button>
-      <button class="odu-chip" onclick="oduChip(this)">My dashboard</button>
+    <div class="odu-messages" id="odu-messages" aria-live="polite">
+      <div class="odu-welcome" id="odu-welcome">
+        <div class="odu-welcome-bot"><svg class="odu-bot" viewBox="0 0 32 32" aria-hidden="true">
+        <defs><linearGradient id="odu-g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1D6FE0"/><stop offset=".55" stop-color="#004AAD"/><stop offset="1" stop-color="#00347F"/></linearGradient></defs>
+        <line x1="16" y1="4.6" x2="16" y2="8.6" stroke="#00347F" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="16" cy="3.6" r="2.2" fill="#F29D38"/>
+        <rect x="3" y="14" width="3" height="7" rx="1.5" fill="#00347F"/>
+        <rect x="26" y="14" width="3" height="7" rx="1.5" fill="#00347F"/>
+        <rect x="5.5" y="8.5" width="21" height="18" rx="7" fill="url(#odu-g3)"/>
+        <rect x="8.5" y="12" width="15" height="10.5" rx="5" fill="#EAF1FD"/>
+        <g class="odu-eyes"><circle cx="12.8" cy="16.6" r="1.9" fill="#004AAD"/><circle cx="19.2" cy="16.6" r="1.9" fill="#004AAD"/>
+        <circle cx="13.4" cy="16" r=".6" fill="#fff"/><circle cx="19.8" cy="16" r=".6" fill="#fff"/></g>
+        <path d="M13.6 19.6c1.5 1.2 3.3 1.2 4.8 0" fill="none" stroke="#004AAD" stroke-width="1.5" stroke-linecap="round"/>
+      </svg></div>
+        <h2 class="odu-welcome-title">Hi {{ user.first_name|default:user.username }}, how can I help?</h2>
+        <p class="odu-welcome-sub">Ask me about projects, investors, meetings, groups or anything on Oduma Corp.</p>
+      </div>
+      <div class="odu-chips" id="odu-chips" role="group" aria-label="Suggested questions">
+        <p class="odu-chips-label">Popular questions</p>
+          <button type="button" class="odu-qa" data-q="How do I create a project?" onclick="oduChip(this)"><span class="odu-qa-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span class="odu-qa-t">Create a project</span><svg class="odu-qa-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          <button type="button" class="odu-qa" data-q="How do I find investors?" onclick="oduChip(this)"><span class="odu-qa-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span><span class="odu-qa-t">Find investors</span><svg class="odu-qa-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          <button type="button" class="odu-qa" data-q="How do I schedule a meeting?" onclick="oduChip(this)"><span class="odu-qa-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/></svg></span><span class="odu-qa-t">Schedule a meeting</span><svg class="odu-qa-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          <button type="button" class="odu-qa" data-q="How do I join a group?" onclick="oduChip(this)"><span class="odu-qa-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-.5A5.5 5.5 0 0 1 8 14h2a5.5 5.5 0 0 1 5.5 5.5v.5M16 4.5a3.5 3.5 0 0 1 0 7M18 14a5 5 0 0 1 3.5 5v1"/></svg></span><span class="odu-qa-t">Join a group</span><svg class="odu-qa-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          <button type="button" class="odu-qa" data-q="Where is my dashboard?" onclick="oduChip(this)"><span class="odu-qa-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg></span><span class="odu-qa-t">Open my dashboard</span><svg class="odu-qa-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
     </div>
     <div class="odu-input-row">
-      <input class="odu-input" id="odu-input" type="text" placeholder="Ask Odu anything…" autocomplete="off">
-      <button class="odu-send" id="odu-send" title="Send"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      <div class="odu-compose">
+      <input class="odu-input" id="odu-input" type="text" placeholder="Ask Odu anything…" autocomplete="off" aria-label="Message to Odu" maxlength="1000">
+      <button type="button" class="odu-send" id="odu-send" title="Send" aria-label="Send"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      </div>
+      <p class="odu-note">Odu can make mistakes. Check important details.</p>
     </div>
   </div>
 
@@ -1225,10 +1468,11 @@
     var CSRF     = '{{ csrf_token }}';
 
     function oduOpen() {
-      panel.classList.add('open');
+      panel.classList.add('open'); fab.classList.add('is-open'); fab.setAttribute('aria-expanded', 'true');
       setTimeout(function() { input.focus(); }, 80);
     }
-    function oduClose() { panel.classList.remove('open'); }
+    function oduClose() { panel.classList.remove('open'); fab.classList.remove('is-open'); fab.setAttribute('aria-expanded', 'false'); }
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && panel.classList.contains('open')) { oduClose(); fab.focus(); } });
     window.oduOpen = oduOpen;
     window.oduClose = oduClose;
 
@@ -1249,31 +1493,47 @@
         .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
         .replace(/`([^`]+)`/g,'<code style="background:#f0f4f8;padding:1px 5px;border-radius:4px;font-size:.85em;">$1</code>')
         // [label](url) → button link
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="display:inline-flex;align-items:center;gap:4px;background:#1B5EC7;color:#fff;padding:4px 12px;border-radius:6px;font-size:.88em;font-weight:700;text-decoration:none;margin:2px 0;" target="_self">$1 →</a>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a class="odu-link" href="$2" target="_self">$1 →</a>')
         .replace(/^[•\-]\s+/gm,'<span style="margin-right:4px;">•</span>')
         .replace(/\n/g,'<br>');
       return s;
     }
 
+    var BOT_AV = document.querySelector('#odu-panel .odu-avatar').innerHTML.replace(/odu-g2/g, 'odu-g4');
     function addMsg(text, role) {
+      var row = document.createElement('div');
+      var isBot = role.indexOf('bot') === 0;
+      row.className = 'odu-row ' + (isBot ? 'bot' : 'user');
       var d = document.createElement('div');
       d.className = 'odu-msg ' + role;
-      if (role === 'bot') {
+      if (role.indexOf('typing') > -1) {
+        d.innerHTML = '<span class="odu-dots" aria-label="Odu is typing"><i></i><i></i><i></i></span>';
+      } else if (isBot) {
         d.innerHTML = fmtOdu(text);
       } else {
         d.textContent = text;
       }
-      msgs.appendChild(d);
+      if (isBot) { var av = document.createElement('span'); av.className = 'odu-row-av'; av.setAttribute('aria-hidden', 'true'); av.innerHTML = BOT_AV; row.appendChild(av); }
+      row.appendChild(d);
+      msgs.appendChild(row);
       msgs.scrollTop = msgs.scrollHeight;
-      return d;
+      return row;
     }
+    var welcome = document.getElementById('odu-welcome'), chips = document.getElementById('odu-chips');
+    function startConversation() { if (welcome) welcome.hidden = true; if (chips) chips.hidden = true; }
+    document.getElementById('odu-reset').addEventListener('click', function() {
+      [].slice.call(msgs.querySelectorAll('.odu-row')).forEach(function(r) { r.remove(); });
+      if (welcome) welcome.hidden = false; if (chips) chips.hidden = false;
+      input.value = ''; input.focus();
+    });
 
     function sendMessage() {
       var text = input.value.trim();
       if (!text) return;
       input.value = '';
+      startConversation();
       addMsg(text, 'user');
-      var typing = addMsg('Odu is typing…', 'bot typing');
+      var typing = addMsg('', 'bot typing');
 
       var fd = new FormData();
       fd.append('message', text);
@@ -1295,8 +1555,7 @@
     input.addEventListener('keydown', function(e) { if (e.key === 'Enter') sendMessage(); });
 
     window.oduChip = function(btn) {
-      input.value = btn.textContent;
-      document.getElementById('odu-chips').style.display = 'none';
+      input.value = (btn.getAttribute('data-q') || btn.textContent).trim();
       sendMessage();
     };
   })();
@@ -1337,7 +1596,7 @@
   }
   .qm-head-av-init{
     width:40px;height:40px;border-radius:50%;
-    background:linear-gradient(135deg,#1B5EC7,#0A1628);
+    background:linear-gradient(135deg,#004AAD,#0A1628);
     display:flex;align-items:center;justify-content:center;
     font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:800;color:#fff;
     flex-shrink:0;border:2px solid rgba(255,255,255,.15);
@@ -1347,7 +1606,7 @@
   .qm-head-label{
     display:inline-flex;align-items:center;gap:4px;margin-top:2px;
     font-size:1.2rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
-    background:rgba(27,94,199,.4);color:#93c5fd;padding:2px 8px;border-radius:20px;
+    background:rgba(0,74,173,.4);color:#93c5fd;padding:2px 8px;border-radius:20px;
   }
   .qm-close{
     width:28px;height:28px;border-radius:8px;border:none;
@@ -1369,7 +1628,7 @@
     background:#fafbff;outline:none;
     transition:border-color .18s,box-shadow .18s;
   }
-  .qm-textarea:focus{border-color:#1B5EC7;box-shadow:0 0 0 3px rgba(27,94,199,.1);background:#fff;}
+  .qm-textarea:focus{border-color:#004AAD;box-shadow:0 0 0 3px rgba(0,74,173,.1);background:#fff;}
   .qm-textarea::placeholder{color:#b0bbd0;}
 
   /* Footer */
@@ -1382,15 +1641,15 @@
     display:flex;align-items:center;gap:4px;
     transition:color .15s;
   }
-  .qm-open-link:hover{color:#1B5EC7;}
+  .qm-open-link:hover{color:#004AAD;}
   .qm-send-btn{
-    background:#1B5EC7;color:#fff;border:none;cursor:pointer;
+    background:#004AAD;color:#fff;border:none;cursor:pointer;
     padding:9px 20px;border-radius:12px;
     font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:700;
     display:flex;align-items:center;gap:6px;
     transition:background .18s,transform .12s;
   }
-  .qm-send-btn:hover{background:#144FA8;}
+  .qm-send-btn:hover{background:#003A8C;}
   .qm-send-btn:active{transform:scale(.97);}
   .qm-send-btn:disabled{background:#9ca3af;cursor:not-allowed;}
 
@@ -1410,7 +1669,7 @@
     text-decoration:none;display:inline-flex;align-items:center;gap:6px;
     transition:background .18s;
   }
-  .qm-sent-link:hover{background:#1B5EC7;color:#fff;}
+  .qm-sent-link:hover{background:#004AAD;color:#fff;}
 
   @media(max-width:480px){
     #qm-panel{bottom:16px;right:16px;width:calc(100vw - 32px);}

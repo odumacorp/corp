@@ -17,7 +17,7 @@
 <style>
 :root {
   --ink:    #0A1628;
-  --blue:   #1B5EC7;
+  --blue:   #004AAD;
   --blue-lt:#e0e8f4;
   --border: #e4eaf2;
   --bg:     #f4f6fb;
@@ -67,7 +67,7 @@
   transition: border-color .18s, background .18s;
 }
 .iv-search-input::placeholder { color: #9ca3af; }
-.iv-search-input:focus { border-color: #1B5EC7; background: #fff; }
+.iv-search-input:focus { border-color: #004AAD; background: #fff; }
 .iv-search-btn {
   padding: 11px 24px;
   background: #fff; color: var(--blue);
@@ -109,8 +109,8 @@
   text-decoration: none; cursor: pointer;
   transition: border-color .18s, box-shadow .18s, background .18s;
 }
-.iv-cat-card:hover { border-color: var(--blue); box-shadow: 0 4px 16px rgba(27,94,199,.1); }
-.iv-cat-card--active { background: var(--blue); border-color: var(--blue); box-shadow: 0 4px 18px rgba(27,94,199,.28); }
+.iv-cat-card:hover { border-color: var(--blue); box-shadow: 0 4px 16px rgba(0,74,173,.1); }
+.iv-cat-card--active { background: var(--blue); border-color: var(--blue); box-shadow: 0 4px 18px rgba(0,74,173,.28); }
 .iv-cat-icon { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: #4b6cb7; }
 .iv-cat-card--active .iv-cat-icon { color: rgba(255,255,255,.85); }
 .iv-cat-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 800; color: var(--ink); line-height: 1.2; }
@@ -134,14 +134,14 @@
   display: flex; flex-direction: column;
   transition: border-color .18s, box-shadow .18s;
 }
-.iv-card:hover { border-color: var(--blue); box-shadow: 0 6px 24px rgba(27,94,199,.12); }
+.iv-card:hover { border-color: var(--blue); box-shadow: 0 6px 24px rgba(0,74,173,.12); }
 .iv-card-strip { height: 6px; }
 
 .iv-card-profile { display: flex; align-items: flex-start; gap: 14px; padding: 18px 18px 14px; }
 .iv-avatar { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--blue-lt); }
 .iv-avatar-ph {
   width: 54px; height: 54px; border-radius: 50%;
-  background: linear-gradient(135deg, #1B5EC7, #3b82f6);
+  background: linear-gradient(135deg, #004AAD, #3b82f6);
   display: flex; align-items: center; justify-content: center;
   font-size: 1.8rem; font-weight: 800; color: #e7eaee; flex-shrink: 0;
 }
@@ -184,7 +184,7 @@
   white-space: nowrap;
 }
 .iv-btn--primary { background: var(--blue); color: #fff; }
-.iv-btn--primary:hover { background: #1448a3; color: #fff; }
+.iv-btn--primary:hover { background: #003A8C; color: #fff; }
 .iv-btn--outline { background: transparent; color: var(--blue); border: 1.5px solid var(--blue-lt); }
 .iv-btn--outline:hover { background: var(--blue-lt); }
 .iv-btn--ghost { background: #f3f4f6; color: #374151; border: 1.5px solid transparent; }

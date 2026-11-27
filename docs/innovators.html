@@ -1,590 +1,243 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-
 {% block title %}Innovators | Oduma Corp{% endblock %}
+{% block meta_description %}Founders on Oduma Corp and the projects they're building. Message them or connect.{% endblock %}
+
+{% block extra_head %}
+<link rel="preload" href="{% static 'fonts/dm-sans-latin-var.woff2' %}" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"DM Sans";src:url({% static 'fonts/dm-sans-latin-var.woff2' %}) format("woff2");font-weight:400 700;font-style:normal;font-display:swap}
+.dir{--blue:#004AAD;--deep:#003A8C;--tint:#E1EAF7;--warm:#F29D38;--warm-tint:#FCEBD5;--ink:#0F1B33;--body:#4A5568;--muted:#5B6475;--line:#E2E6EE;--paper:#FBFAF7;--ok:#0E5C34;
+  --shadow:0 1px 2px rgba(15,27,51,.05),0 6px 20px rgba(15,27,51,.06);--shadow-up:0 2px 4px rgba(15,27,51,.06),0 16px 36px rgba(15,27,51,.12);
+  font:400 16px/1.55 "DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--body);-webkit-font-smoothing:antialiased;padding-bottom:56px}
+.dir *,.dir *::before,.dir *::after{box-sizing:border-box}
+.dir a{color:inherit}
+.dir :focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:8px}
+.dir-wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+@media (max-width:480px){.dir-wrap{padding:0 16px}}
+
+/* hero */
+.dir-hero{background:linear-gradient(160deg,#EEF3FC 0%,#F5F2EC 60%,#FCEBD5 100%);border-bottom:1px solid rgba(15,27,51,.06);padding:36px 0 30px}
+.dir-eyebrow{display:block;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--deep);margin-bottom:8px}
+.dir-hero h1{margin:0 0 8px;color:var(--ink);font:700 clamp(30px,3vw + 16px,44px)/1.08 inherit;font-family:inherit;letter-spacing:-.03em}
+.dir-hero p{margin:0 0 20px;font-size:17px;max-width:38em;color:#3D475A}
+.dir-search{display:flex;gap:10px;max-width:640px}
+.dir-search label{position:relative;flex:1;min-width:0}
+.dir-search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:#7A8599;pointer-events:none}
+.dir .dir-search input{width:100%;height:50px;padding:0 14px 0 42px;border:1px solid #CFD7E4;border-radius:999px;background:#fff;color:var(--ink);font-family:inherit;font-size:16px;box-shadow:var(--shadow)}
+.dir .dir-search input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,74,173,.18)}
+.dir-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 18px;border-radius:999px;border:1.5px solid transparent;font-family:inherit;font-size:15px;font-weight:700;text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .2s,border-color .2s,transform .2s,color .2s}
+.dir .dir-btn--solid{background:var(--blue);color:#fff;box-shadow:0 6px 16px rgba(0,74,173,.25)}
+.dir-btn--solid:hover{background:var(--deep);color:#fff;transform:translateY(-1px)}
+.dir .dir-btn--ghost{background:#fff;border-color:#CBD3E1;color:var(--ink)}
+.dir-btn--ghost:hover{border-color:var(--blue);color:var(--deep)}
+.dir .dir-btn--quiet{background:transparent;border-color:#F0C9C9;color:#9B1C1C}
+.dir-btn--quiet:hover{border-color:#9B1C1C}
+.dir-search .dir-btn{height:50px;padding:0 24px}
+
+/* chips */
+.dir-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin:26px 0 18px}
+.dir-count{margin:0;font-size:15px;color:var(--muted)}
+.dir-count b{color:var(--ink)}
+.dir-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px;margin:0 -2px 6px;-webkit-overflow-scrolling:touch}
+.dir-chips::-webkit-scrollbar{display:none}
+.dir-chip{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:14.5px;font-weight:600;text-decoration:none;transition:border-color .2s,background .2s}
+.dir-chip:hover{border-color:var(--blue)}
+.dir-chip small{font-size:12.5px;font-weight:700;color:var(--muted);background:#F1F4F9;border-radius:999px;padding:1px 8px}
+.dir-chip[aria-current="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.dir-chip[aria-current="true"] small{background:rgba(255,255,255,.22);color:#fff}
+
+/* cards */
+.dir-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+@media (max-width:1024px){.dir-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.dir-grid{grid-template-columns:minmax(0,1fr)}}
+.dir-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;transition:transform .25s,box-shadow .25s}
+.dir-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-up)}
+.dir-cover{position:relative;height:118px;background:linear-gradient(135deg,#DCE6F7,#C9D8F2);overflow:hidden}
+.dir-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.dir-cover .ph{position:absolute;inset:0;display:grid;place-items:center;color:rgba(0,58,140,.35)}
+.dir-head{display:flex;gap:12px;align-items:flex-end;padding:0 18px;margin-top:-30px;position:relative}
+.dir-av{position:relative;flex:none;width:64px;height:64px;border-radius:50%;border:3px solid #fff;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:22px;overflow:hidden;box-shadow:0 4px 12px rgba(15,27,51,.18)}
+.dir-av img{width:100%;height:100%;object-fit:cover}
+.dir-who{min-width:0;padding-bottom:2px}
+.dir-name{display:flex;align-items:center;gap:6px;margin:0;color:var(--ink);font-size:17.5px;font-weight:700;line-height:1.25}
+.dir-name a{text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dir-name a:hover{color:var(--deep);text-decoration:underline}
+.dir-name .ok{flex:none;width:18px;height:18px;color:var(--blue)}
+.dir-company{margin:0;font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dir-body{padding:12px 18px 0;flex:1;display:flex;flex-direction:column}
+.dir-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.dir-tag{font-size:12.5px;font-weight:600;border-radius:999px;padding:3px 10px;background:var(--tint);color:var(--deep)}
+.dir-bio{margin:0 0 12px;font-size:15px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dir-proj{display:block;margin-top:auto;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--paper);text-decoration:none}
+.dir-proj:hover{border-color:#B9C8E3}
+.dir-proj small{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.dir-proj b{display:block;color:var(--ink);font-size:15.5px;margin:2px 0}
+.dir-proj span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14px}
+.dir-noproj{margin-top:auto;padding:12px 14px;border:1.5px dashed var(--line);border-radius:14px;font-size:14px;color:var(--muted)}
+.dir-engage{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 18px 0}
+.dir-like{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.dir-like:hover,.dir-like.liked{border-color:#E7A1A1;color:#B42318;background:#FFF6F6}
+.dir-stars{display:inline-flex;gap:0;flex:none}
+.dir .dir-star{flex:none;width:30px;min-width:0;height:30px;margin:0;border:0;background:none;box-shadow:none;padding:0;font-size:20px;line-height:1;color:#D4DAE5;cursor:pointer}
+.dir .dir-star.on{color:#F29D38}
+.dir-acts{display:flex;gap:8px;padding:14px 18px 18px}
+.dir-acts form{display:flex;flex:1;margin:0}
+.dir-acts .dir-btn{flex:1;min-height:42px;padding:0 12px;font-size:14.5px}
+.dir-acts .icon{flex:0 0 44px;padding:0}
+.dir-acts .icon svg{width:18px;height:18px}
+.dir-empty{padding:40px 22px;border:1.5px dashed #C3CDE0;border-radius:20px;text-align:center;color:var(--muted)}
+.dir-empty h2{margin:0 0 6px;color:var(--ink);font-size:20px}
+@media (prefers-reduced-motion:reduce){.dir *{transition:none!important}}
+</style>
+{% endblock %}
 
 {% block content %}
-<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
-  <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Innovators</span></li>
-  </ol>
-</nav>
-<button onclick="history.back()" class="oc-back-btn">
-  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-  Back
-</button>
-<style>
-:root {
-  --ink:    #0A1628;
-  --blue:   #1B5EC7;
-  --blue-lt:#e0e8f4;
-  --border: #e4eaf2;
-  --bg:     #f4f6fb;
-  --radius: 14px;
-}
-
-.iv-wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 48px; }
-
-/* ── Hero ───────────────────────────────────────────────────────── */
-.iv-hero {
-  background: linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
-  border-radius: 0 0 16px 16px;
-  padding: 22px 22px 20px;
-  margin-bottom: 18px;
-  position: relative;
-  overflow: hidden;
-}
-.iv-hero::after {
-  content: '';
-  position: absolute; right: -60px; top: -60px;
-  width: 260px; height: 260px; border-radius: 50%;
-  background: rgba(255,255,255,.06);
-  pointer-events: none;
-}
-.iv-hero-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(1.4rem, 3vw, 2rem);
-  font-weight: 800; color: #0A1628; margin: 0 0 6px;
-}
-.iv-hero-sub { font-size: 1.2rem; color: #6b7280; margin: 0 0 14px; }
-
-/* Search */
-.iv-search-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.iv-search-wrap { flex: 1; min-width: 220px; position: relative; }
-.iv-search-wrap svg {
-  position: absolute; left: 14px; top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280; pointer-events: none;
-}
-.iv-search-input {
-  width: 100%; box-sizing: border-box;
-  padding: 11px 14px 11px 42px;
-  background: rgba(255,255,255,.15);
-  border: 1.5px solid rgba(255,255,255,.25);
-  border-radius: 11px;
-  font-size: 1.2rem; font-family: inherit; color: #0A1628; outline: none;
-  transition: border-color .18s, background .18s;
-}
-.iv-search-input::placeholder { color: #9ca3af; }
-.iv-search-input:focus { border-color: #1B5EC7; background: #fff; }
-.iv-search-btn {
-  padding: 11px 24px;
-  background: #fff; color: var(--blue);
-  border: none; border-radius: 11px;
-  font-size: 1.2rem; font-weight: 700;
-  font-family: inherit; cursor: pointer; white-space: nowrap;
-  transition: background .15s;
-}
-.iv-search-btn:hover { background: #f0f5ff; }
-
-/* ── Filter bar ─────────────────────────────────────────────────── */
-.iv-filter-bar {
-  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 16px;
-  margin-bottom: 22px;
-  box-shadow: 0 1px 4px rgba(10,22,40,.04);
-}
-.iv-filter-label {
-  font-size: 1.2rem; font-weight: 700;
-  color: #9ca3af; text-transform: uppercase; letter-spacing: .04em;
-  white-space: nowrap;
-}
-.iv-filter-select {
-  padding: 6px 10px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  font-size: 1.2rem; font-family: inherit; color: var(--ink);
-  background: #fafbff; outline: none; cursor: pointer;
-  transition: border-color .15s;
-}
-.iv-filter-select:focus { border-color: var(--blue); }
-.iv-filter-sep { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
-.iv-result-count { margin-left: auto; font-size: 1.2rem; color: #6b7280; font-weight: 600; }
-
-/* ── Grid ───────────────────────────────────────────────────────── */
-.iv-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
-}
-
-/* ── Card ───────────────────────────────────────────────────────── */
-.iv-card {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-  display: flex; flex-direction: column;
-  transition: border-color .18s, box-shadow .18s;
-}
-.iv-card:hover {
-  border-color: var(--blue);
-  box-shadow: 0 6px 24px rgba(27,94,199,.12);
-}
-
-/* Card top strip */
-.iv-card-strip {
-  height: 6px;
-  /* background: linear-gradient(90deg, #1B5EC7, #3b82f6); */
-}
-
-/* Profile section */
-.iv-card-profile {
-  display: flex; align-items: flex-start; gap: 14px;
-  padding: 18px 18px 14px;
-}
-.iv-avatar {
-  width: 54px; height: 54px; border-radius: 50%;
-  object-fit: cover; flex-shrink: 0;
-  border: 2px solid var(--blue-lt);
-}
-.iv-avatar-ph {
-  width: 54px; height: 54px; border-radius: 50%;
-  /* background: linear-gradient(135deg, #1B5EC7, #3b82f6); */
-  background: linear-gradient(0deg, #1B5EC7, #3b82f6);
-
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.8rem; font-weight: 800; color: #e7eaee;
-  flex-shrink: 0;
-}
-.iv-card-name {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.2rem; font-weight: 800; color: var(--ink);
-  margin: 0 0 4px; line-height: 1.2;
-}
-.iv-card-meta {
-  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 5px;
-}
-.iv-tag {
-  font-size: 1.2rem; font-weight: 700; padding: 2px 9px;
-  border-radius: 20px; white-space: nowrap;
-}
-.iv-tag--industry { background: var(--blue-lt); color: var(--blue); }
-.iv-tag--verified { background: #d1fae5; color: #065f46; }
-.iv-tag--company  { background: #f3f4f6; color: #374151; }
-.iv-card-company  { font-size: 1.2rem; color: #6b7280; }
-
-/* Bio */
-.iv-card-bio {
-  padding: 0 18px 14px;
-  font-size: 1.2rem; color: #4b5563; line-height: 1.55;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Project teaser */
-.iv-project {
-  margin: 0 18px 14px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 11px 13px;
-  display: flex; gap: 10px; align-items: flex-start;
-}
-.iv-project-thumb {
-  width: 44px; height: 44px; border-radius: 7px;
-  object-fit: cover; flex-shrink: 0;
-}
-.iv-project-thumb-ph {
-  width: 44px; height: 44px; border-radius: 7px;
-  background: linear-gradient(135deg, #e0e8f4, #c3d4ec);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.2rem; flex-shrink: 0;
-}
-.iv-project-title {
-  font-size: 1.2rem; font-weight: 700; color: var(--ink);
-  margin: 0 0 3px; line-height: 1.2;
-}
-.iv-project-desc {
-  font-size: 1.2rem; color: #6b7280;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  overflow: hidden; line-height: 1.4;
-}
-
-/* Like & rating row */
-.iv-card-engage {
-  padding: 0 18px 14px;
-  display: flex; align-items: center; gap: 12px;
-}
-.iv-like-btn {
-  display: flex; align-items: center; gap: 5px;
-  padding: 5px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: 20px;
-  background: transparent; cursor: pointer;
-  font-size: 1.2rem; color: #6b7280;
-  font-family: inherit;
-  transition: border-color .15s, color .15s, background .15s;
-}
-.iv-like-btn.liked { border-color: #ef4444; color: #ef4444; background: #fff5f5; }
-.iv-like-btn:hover:not(.liked) { border-color: #ef4444; color: #ef4444; }
-.iv-stars { display: flex; gap: 2px; }
-.iv-star {
-  font-size: 1.2rem; cursor: pointer; color: #d1d5db;
-  transition: color .1s;
-}
-.iv-star.active { color: #f59e0b; }
-
-/* Action buttons */
-.iv-card-actions {
-  padding: 12px 18px 18px;
-  display: flex; gap: 8px; flex-wrap: wrap;
-  margin-top: auto;
-  border-top: 1px solid var(--border);
-}
-.iv-btn {
-  flex: 1; min-width: 80px;
-  padding: 8px 12px;
-  border-radius: 9px; border: none;
-  font-size: 1.2rem; font-weight: 700;
-  font-family: inherit; cursor: pointer; text-align: center;
-  text-decoration: none; display: inline-flex;
-  align-items: center; justify-content: center; gap: 5px;
-  transition: background .15s, color .15s;
-  white-space: nowrap;
-}
-.iv-btn--primary { background: var(--blue); color: #fff; }
-.iv-btn--primary:hover { background: #1448a3; color: #fff; }
-.iv-btn--outline {
-  background: transparent; color: var(--blue);
-  border: 1.5px solid var(--blue-lt);
-}
-.iv-btn--outline:hover { background: var(--blue-lt); }
-.iv-btn--ghost {
-  background: #f3f4f6; color: #374151;
-  border: 1.5px solid transparent;
-}
-.iv-btn--ghost:hover { background: #e5e7eb; }
-.iv-btn--danger { background: #fee2e2; color: #dc2626; border: 1.5px solid transparent; }
-.iv-btn--danger:hover { background: #fecaca; }
-
-/* Empty state */
-.iv-empty {
-  text-align: center; padding: 40px 20px;
-  color: #9ca3af;
-}
-.iv-empty-icon { font-size: 4.1rem; margin-bottom: 12px; }
-.iv-empty h3 { font-family: 'Space Grotesk', sans-serif; color: var(--ink); margin: 0 0 6px; }
-
-/* ── Industry Categories ─────────────────────────────────────────── */
-.iv-cats-section { margin-bottom: 28px; }
-.iv-cats-header {
-  display: flex; align-items: flex-end; justify-content: space-between;
-  gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
-}
-.iv-cats-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.2rem; font-weight: 800; color: var(--ink); margin: 0 0 3px;
-}
-.iv-cats-sub { font-size: 1.2rem; color: #6b7280; margin: 0; }
-.iv-cats-clear {
-  font-size: 1.2rem; font-weight: 700; color: #ef4444;
-  text-decoration: none; padding: 5px 12px; border-radius: 20px;
-  background: #fff1f1; border: 1px solid #fecaca;
-  transition: background .15s; white-space: nowrap;
-}
-.iv-cats-clear:hover { background: #fee2e2; }
-.iv-cats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 10px;
-}
-.iv-cat-card {
-  display: flex; flex-direction: column; align-items: flex-start;
-  gap: 4px;
-  background: #fff; border: 1.5px solid var(--border);
-  border-radius: 12px; padding: 12px 12px;
-  text-decoration: none; cursor: pointer;
-  transition: border-color .18s, box-shadow .18s, background .18s;
-}
-.iv-cat-card:hover {
-  border-color: var(--blue);
-  box-shadow: 0 4px 16px rgba(27,94,199,.1);
-}
-.iv-cat-card--active {
-  background: var(--blue); border-color: var(--blue);
-  box-shadow: 0 4px 18px rgba(27,94,199,.28);
-}
-.iv-cat-icon { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: #4b6cb7; }
-.iv-cat-card--active .iv-cat-icon { color: rgba(255,255,255,.85); }
-.iv-cat-name {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.15rem; font-weight: 800; color: var(--ink); line-height: 1.2;
-}
-.iv-cat-card--active .iv-cat-name { color: #fff; }
-.iv-cat-count { font-size: 1.1rem; color: #6b7280; font-weight: 600; }
-.iv-cat-card--active .iv-cat-count { color: rgba(255,255,255,.75); }
-</style>
-
-<div class="iv-wrap">
-
-  <!-- Hero -->
-  <div class="iv-hero">
-    <h1 class="iv-hero-title">Innovators Directory</h1>
-    <p class="iv-hero-sub">Discover Africa's boldest builders — connect, collaborate, and invest.</p>
-    <form method="get" action="">
-      <div class="iv-search-row">
-        <div class="iv-search-wrap">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input type="text" name="q" class="iv-search-input"
-                 placeholder="Search by name, industry…"
-                 value="{{ request.GET.q }}">
-        </div>
+<div class="dir">
+  <section class="dir-hero" aria-labelledby="dir-title">
+    <div class="dir-wrap">
+      <span class="dir-eyebrow">Directory</span>
+      <h1 id="dir-title">Innovators</h1>
+      <p>Founders on Oduma Corp and the projects they're building. Open a profile, send a message or connect.</p>
+      <form class="dir-search" method="get" action="" role="search">
+        <label><span class="sr-only" style="position:absolute;left:-9999px;">Search innovators</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="M21 21l-4.6-4.6"/></svg>
+          <input type="search" name="q" value="{{ q }}" placeholder="Search by name, company or project" autocomplete="off">
+        </label>
         {% if selected_industry %}<input type="hidden" name="industry" value="{{ selected_industry }}">{% endif %}
-        <button type="submit" class="iv-search-btn">Search</button>
-      </div>
-    </form>
-  </div>
-
-  <!-- Industry Categories -->
-  <div class="iv-cats-section">
-    <div class="iv-cats-header">
-      <div>
-        <h2 class="iv-cats-title">Browse by Industry</h2>
-        <p class="iv-cats-sub">{{ innovators|length }} innovator{{ innovators|length|pluralize }} {{ selected_industry|default:"across all industries" }}</p>
-      </div>
-      {% if selected_industry %}
-      <a href="?{% if request.GET.q %}q={{ request.GET.q }}{% endif %}" class="iv-cats-clear">✕ Clear filter</a>
-      {% endif %}
+        <button type="submit" class="dir-btn dir-btn--solid">Search</button>
+      </form>
     </div>
-    <div class="iv-cats-grid">
-      <a href="?{% if request.GET.q %}q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if not selected_industry %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
-        <span class="iv-cat-name">All</span>
-        <span class="iv-cat-count">{{ innovators|length }} total</span>
-      </a>
-      <a href="?industry=tech{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'tech' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
-        <span class="iv-cat-name">Technology</span>
-        <span class="iv-cat-count">{{ industry_counts.tech|default:0 }} members</span>
-      </a>
-      <a href="?industry=finance{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'finance' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
-        <span class="iv-cat-name">Finance</span>
-        <span class="iv-cat-count">{{ industry_counts.finance|default:0 }} members</span>
-      </a>
-      <a href="?industry=health{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'health' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
-        <span class="iv-cat-name">Healthcare</span>
-        <span class="iv-cat-count">{{ industry_counts.health|default:0 }} members</span>
-      </a>
-      <a href="?industry=edu{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'edu' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
-        <span class="iv-cat-name">Education</span>
-        <span class="iv-cat-count">{{ industry_counts.edu|default:0 }} members</span>
-      </a>
-      <a href="?industry=energy{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'energy' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
-        <span class="iv-cat-name">Energy</span>
-        <span class="iv-cat-count">{{ industry_counts.energy|default:0 }} members</span>
-      </a>
-      <a href="?industry=agriculture{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'agriculture' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 22"/><path d="M9.73 16.5c1.18 1.07 2.55 1.4 3.99 1.5 2.08.14 4.28-.25 5.78-1.75 2.53-2.53 1.5-8-.5-12-1.5 3-2 5-5 6.5z"/></svg></span>
-        <span class="iv-cat-name">Agriculture</span>
-        <span class="iv-cat-count">{{ industry_counts.agriculture|default:0 }} members</span>
-      </a>
-      <a href="?industry=manufacturing{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'manufacturing' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><circle cx="12" cy="12" r="7"/></svg></span>
-        <span class="iv-cat-name">Manufacturing</span>
-        <span class="iv-cat-count">{{ industry_counts.manufacturing|default:0 }} members</span>
-      </a>
-      <a href="?industry=other{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'other' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
-        <span class="iv-cat-name">Other</span>
-        <span class="iv-cat-count">{{ industry_counts.other|default:0 }} members</span>
-      </a>
-    </div>
-  </div>
+  </section>
 
-  <!-- Grid -->
-  {% if innovators %}
-  <div class="iv-grid">
-    {% for innovator in innovators %}
-    {% if request.user != innovator %}
-
-    <div class="iv-card">
-      <div class="iv-card-strip"></div>
-
-      <!-- Profile -->
-      <div class="iv-card-profile">
-        {% if innovator.userprofile.profile_pics %}
-          <img src="{{ innovator.userprofile.profile_pics.url }}" alt="{{ innovator.get_full_name }}" class="iv-avatar">
+  <div class="dir-wrap">
+    <div class="dir-bar">
+      <p class="dir-count" aria-live="polite">
+        {% if q or selected_industry %}
+          <b>{{ innovators|length }}</b> of {{ total_count }} innovator{{ total_count|pluralize }}{% if selected_label %} in {{ selected_label }}{% endif %}{% if q %} matching “{{ q }}”{% endif %}
+          · <a href="?">Clear</a>
         {% else %}
-          <div class="iv-avatar-ph">{{ innovator.first_name|first|upper }}</div>
+          <b>{{ total_count }}</b> innovator{{ total_count|pluralize }}
         {% endif %}
-        <div style="flex:1;min-width:0;">
-          <div class="iv-card-name">{{ innovator.get_full_name|default:innovator.username }}</div>
-          <div class="iv-card-meta">
-            {% if innovator.userprofile.industry %}
-              <span class="iv-tag iv-tag--industry">{{ innovator.userprofile.get_industry_display }}</span>
-            {% endif %}
-            {% if innovator.userprofile.verification_status == 'verified' %}
-              <span class="iv-tag iv-tag--verified">✓ Verified</span>
-            {% endif %}
+      </p>
+    </div>
+    {% if industry_chips %}
+    <nav class="dir-chips" aria-label="Filter by industry">
+      <a class="dir-chip" href="?{% if q %}q={{ q|urlencode }}{% endif %}" aria-current="{% if not selected_industry %}true{% else %}false{% endif %}">All <small>{{ total_count }}</small></a>
+      {% for c in industry_chips %}
+      <a class="dir-chip" href="?industry={{ c.key }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}" aria-current="{% if selected_industry == c.key %}true{% else %}false{% endif %}">{{ c.label }} <small>{{ c.count }}</small></a>
+      {% endfor %}
+    </nav>
+    {% endif %}
+
+    {% if innovators %}
+    <ul class="dir-grid" style="margin-top:14px;">
+      {% for p in innovators %}
+      {% with prof=p.userprofile proj=p.first_project %}
+      <li class="dir-card">
+        <div class="dir-cover">
+          {% if proj and proj.get_main_image_url %}<img src="{{ proj.get_main_image_url }}" alt="" loading="lazy" decoding="async" onerror="this.remove()">{% endif %}
+          <span class="ph" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></span>
+        </div>
+        <div class="dir-head">
+          <span class="dir-av" aria-hidden="true">{{ p.first_name|first|upper }}{{ p.last_name|first|upper }}{% if prof.profile_pics %}<img src="{{ prof.profile_pics.url }}" alt="" loading="lazy" onerror="this.remove()" style="position:absolute;inset:0;border-radius:50%;">{% endif %}</span>
+          <div class="dir-who">
+            <h2 class="dir-name"><a href="{% url 'profile_view' username=p.username %}">{{ p.get_full_name|default:p.username }}</a>{% if prof.verification_status == 'verified' %}<svg class="ok" viewBox="0 0 24 24" fill="currentColor" aria-label="Verified" role="img"><path d="M12 2l2.4 2.1 3.2-.3.9 3.1 2.8 1.6-1.2 3 1.2 3-2.8 1.6-.9 3.1-3.2-.3L12 22l-2.4-2.1-3.2.3-.9-3.1-2.8-1.6 1.2-3-1.2-3 2.8-1.6.9-3.1 3.2.3z"/><path d="M8.5 12.5l2.3 2.3 4.7-5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endif %}</h2>
+            {% if prof.company %}<p class="dir-company">{{ prof.company }}</p>{% endif %}
           </div>
-          {% if innovator.userprofile.company %}
-            <div class="iv-card-company">{{ innovator.userprofile.company }}</div>
+        </div>
+        <div class="dir-body">
+          {% if p.industry_label %}<div class="dir-tags"><span class="dir-tag">{{ p.industry_label }}</span></div>{% endif %}
+          {% if prof.bio %}<p class="dir-bio">{{ prof.bio }}</p>{% endif %}
+          {% if proj %}
+          <a class="dir-proj" href="{{ proj.get_absolute_url }}"><small>Latest project</small><b>{{ proj.title }}</b><span>{{ proj.description|striptags|truncatechars:160 }}</span></a>
+          {% else %}
+          <p class="dir-noproj">No project listed yet.</p>
           {% endif %}
         </div>
-      </div>
-
-      <!-- Bio -->
-      {% if innovator.userprofile.bio %}
-        <div class="iv-card-bio">{{ innovator.userprofile.bio }}</div>
-      {% endif %}
-
-      <!-- Project teaser -->
-      {% if innovator.first_project %}
-      <div class="iv-project">
-        {% if innovator.first_project.get_main_image_url %}
-          <img src="{{ innovator.first_project.get_main_image_url }}" alt="" class="iv-project-thumb">
-        {% else %}
-          <div class="iv-project-thumb-ph"><svg width="20" height="20" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.5" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-        {% endif %}
-        <div style="flex:1;min-width:0;">
-          <div class="iv-project-title">{{ innovator.first_project.title }}</div>
-          <div class="iv-project-desc">{{ innovator.first_project.description }}</div>
+        {% if request.user.is_authenticated and proj %}
+        <div class="dir-engage">
+          {% if request.user in proj.liked_by.all %}
+          <button type="button" class="dir-like liked" data-like="{{ proj.id }}" aria-pressed="true"><span aria-hidden="true">♥</span><span data-n>{{ p.like_count }}</span><span style="position:absolute;left:-9999px;"> likes. Like this project</span></button>
+          {% else %}
+          <button type="button" class="dir-like" data-like="{{ proj.id }}" aria-pressed="false"><span aria-hidden="true">♡</span><span data-n>{{ p.like_count }}</span><span style="position:absolute;left:-9999px;"> likes. Like this project</span></button>
+          {% endif %}
+          <div class="dir-stars" role="group" aria-label="Rate {{ proj.title }}" data-rate="{{ proj.id }}">
+            {% for i in "12345" %}<button type="button" class="dir-star{% if proj.rating and i|add:0 <= proj.rating|add:0 %} on{% endif %}" data-v="{{ i }}" aria-label="{{ i }} star{{ i|pluralize }}">★</button>{% endfor %}
+          </div>
         </div>
-      </div>
-      {% endif %}
-
-      <!-- Like & Stars -->
-      {% if request.user.is_authenticated and innovator.first_project %}
-      <div class="iv-card-engage">
-        <button class="iv-like-btn {% if request.user in innovator.first_project.liked_by.all %}liked{% endif %}"
-                id="like-btn-{{ innovator.first_project.id }}"
-                data-project-id="{{ innovator.first_project.id }}">
-          <span>{% if request.user in innovator.first_project.liked_by.all %}♥{% else %}♡{% endif %}</span>
-          <span id="like-label-{{ innovator.first_project.id }}">{% if request.user in innovator.first_project.liked_by.all %}Liked{% else %}Like{% endif %}</span>
-        </button>
-        <div class="iv-stars rating-container" data-project-id="{{ innovator.first_project.id }}">
-          {% for i in "12345" %}
-            <span class="iv-star star {% if innovator.first_project.rating and i|add:0 <= innovator.first_project.rating|add:0 %}active{% endif %}"
-                  data-rating="{{ i }}">★</span>
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
-      <!-- Actions -->
-      <div class="iv-card-actions">
-        <a href="{% url 'profile_view' username=innovator.username %}" class="iv-btn iv-btn--ghost">
-          View Profile
-        </a>
-        {% if request.user.is_authenticated %}
-        <button class="iv-btn iv-btn--outline" style="flex:1;"
-          onclick="openQuickChat({{ innovator.id }},'{{ innovator.get_full_name|escapejs }}','{{ innovator.first_name|first|upper }}{{ innovator.last_name|first|upper }}','{% if innovator.userprofile.profile_pics %}{{ innovator.userprofile.profile_pics.url }}{% endif %}')">
-          Message
-        </button>
         {% endif %}
-        {% if request.user.is_authenticated %}
-        {% with request.user.userprofile as cp %}
-          {% with innovator.userprofile as tp %}
-            <form method="POST" action="{% url 'connect_innovator' innovator.id %}" style="flex:1;display:flex;">
-              {% csrf_token %}
-              {% if cp not in tp.connected_users.all %}
-                <button type="submit" class="iv-btn iv-btn--primary" style="flex:1;">Connect</button>
-              {% else %}
-                <button type="submit" class="iv-btn iv-btn--danger" style="flex:1;">Disconnect</button>
-              {% endif %}
-            </form>
+        <div class="dir-acts">
+          <a class="dir-btn dir-btn--ghost" href="{% url 'profile_view' username=p.username %}">View profile</a>
+          {% if request.user.is_authenticated %}
+          <button type="button" class="dir-btn dir-btn--ghost icon" aria-label="Message {{ p.get_full_name|default:p.username }}"
+            onclick="openQuickChat({{ p.id }},'{{ p.get_full_name|escapejs }}','{{ p.first_name|first|upper }}{{ p.last_name|first|upper }}','{% if prof.profile_pics %}{{ prof.profile_pics.url }}{% endif %}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/></svg>
+          </button>
+          {% with cp=request.user.userprofile %}
+          <form method="POST" action="{% url 'connect_innovator' p.id %}">
+            {% csrf_token %}
+            {% if cp not in prof.connected_users.all %}
+            <button type="submit" class="dir-btn dir-btn--solid">Connect</button>
+            {% else %}
+            <button type="submit" class="dir-btn dir-btn--quiet">Disconnect</button>
+            {% endif %}
+          </form>
           {% endwith %}
-        {% endwith %}
-        {% endif %}
-      </div>
+          {% else %}
+          <a class="dir-btn dir-btn--solid" href="{% url 'register' %}?role=investor">Join to connect</a>
+          {% endif %}
+        </div>
+      </li>
+      {% endwith %}
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="dir-empty" style="margin-top:14px;">
+      <h2>No innovators found</h2>
+      <p>{% if q or selected_industry %}Try a different search or <a href="?">show everyone</a>.{% else %}Check back soon.{% endif %}</p>
     </div>
-
     {% endif %}
-    {% empty %}
-    {% endfor %}
   </div>
-  {% else %}
-  <div class="iv-empty">
-    <div class="iv-empty-icon"><svg width="40" height="40" fill="none" stroke="#9ca3af" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-    <h3>No innovators found</h3>
-    <p>Try adjusting your search or filters.</p>
-  </div>
-  {% endif %}
 
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  // Like buttons
-  document.querySelectorAll('.iv-like-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-      const id = this.dataset.projectId;
-      fetch(`/like_project/${id}/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-        body: JSON.stringify({ project_id: id })
-      })
-      .then(r => r.json())
-      .then(data => {
-        const label = document.getElementById(`like-label-${id}`);
-        if (data.liked) {
-          this.classList.add('liked');
-          this.querySelector('span').textContent = '♥';
-          label.textContent = 'Liked';
-        } else {
-          this.classList.remove('liked');
-          this.querySelector('span').textContent = '♡';
-          label.textContent = 'Like';
-        }
-      });
+(function () {
+  var csrf = '{{ csrf_token }}';
+  /* Like */
+  document.querySelectorAll('.dir-like').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var id = b.getAttribute('data-like');
+      fetch('/like_project/' + id + '/', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf }, body: JSON.stringify({ project_id: id }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var on = !!d.liked, n = b.querySelector('[data-n]');
+          b.classList.toggle('liked', on); b.setAttribute('aria-pressed', String(on));
+          b.firstElementChild.textContent = on ? '♥' : '♡';
+          if (typeof d.likes_count === 'number') n.textContent = d.likes_count;
+          else n.textContent = Math.max(0, (+n.textContent || 0) + (on ? 1 : -1));
+        });
     });
   });
-
-  // Star ratings
-  document.querySelectorAll('.rating-container').forEach(container => {
-    const stars = container.querySelectorAll('.iv-star');
-    const id = container.dataset.projectId;
-
-    stars.forEach(star => {
-      star.addEventListener('mouseover', () => highlight(stars, parseInt(star.dataset.rating)));
-      star.addEventListener('mouseout',  () => {
-        const active = container.querySelectorAll('.iv-star.active').length;
-        highlight(stars, active);
-      });
-      star.addEventListener('click', () => {
-        const rating = parseInt(star.dataset.rating);
-        fetch(`/rate_project/${id}/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-          body: JSON.stringify({ rating })
-        })
-        .then(r => r.json())
-        .then(data => { if (data.rating) highlight(stars, data.rating, true); });
+  /* Rating */
+  document.querySelectorAll('.dir-stars').forEach(function (g) {
+    var stars = g.querySelectorAll('.dir-star'), id = g.getAttribute('data-rate');
+    var paint = function (n) { stars.forEach(function (s) { s.classList.toggle('on', +s.getAttribute('data-v') <= n); }); };
+    var saved = g.querySelectorAll('.dir-star.on').length;
+    stars.forEach(function (s) {
+      var v = +s.getAttribute('data-v');
+      s.addEventListener('mouseenter', function () { paint(v); });
+      s.addEventListener('focus', function () { paint(v); });
+      s.addEventListener('click', function () {
+        fetch('/rate_project/' + id + '/', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf }, body: JSON.stringify({ rating: v }) })
+          .then(function (r) { return r.json(); })
+          .then(function (d) { saved = d.rating || v; paint(saved); });
       });
     });
-
-    function highlight(stars, n, persist) {
-      stars.forEach(s => {
-        const v = parseInt(s.dataset.rating);
-        if (persist) s.classList.toggle('active', v <= n);
-        else         s.style.color = v <= n ? '#f59e0b' : '';
-      });
-    }
+    g.addEventListener('mouseleave', function () { paint(saved); });
+    g.addEventListener('focusout', function (e) { if (!g.contains(e.relatedTarget)) paint(saved); });
   });
-
-  // Client-side name filter (instant)
-  const searchInput = document.querySelector('.iv-search-input');
-  if (searchInput && !searchInput.value) {
-    searchInput.addEventListener('input', function () {
-      const q = this.value.toLowerCase();
-      document.querySelectorAll('.iv-card').forEach(card => {
-        const name = card.querySelector('.iv-card-name')?.textContent.toLowerCase() || '';
-        card.style.display = name.includes(q) ? '' : 'none';
-      });
-    });
-  }
-});
+})();
 </script>
-
 {% endblock %}

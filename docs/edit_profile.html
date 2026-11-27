@@ -5,7 +5,7 @@
 {% block extra_head %}
 <style>
 :root {
-  --ink:#0A1628; --blue:#1B5EC7; --blue-d:#144FA8;
+  --ink:#0A1628; --blue:#004AAD; --blue-d:#003A8C;
   --blue-lt:#eff6ff; --muted:#6b7280; --border:#e5e7eb;
   --ff:'Space Grotesk',sans-serif;
 }
@@ -69,7 +69,7 @@
 }
 .ep-avatar-initials {
   width: 84px; height: 84px; border-radius: 50%;
-  background: #1B5EC7; border: 3px solid #b8d0f0;
+  background: #004AAD; border: 3px solid #b8d0f0;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--ff); font-size: 2.3rem; font-weight: 800; color: #fff;
 }
@@ -89,12 +89,12 @@
 }
 .ep-change-photo-btn {
   display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(27,94,199,.08); border: 1px solid #b8d0f0;
-  color: #1B5EC7; font-family: var(--ff); font-size: 1.2rem; font-weight: 700;
+  background: rgba(0,74,173,.08); border: 1px solid #b8d0f0;
+  color: #004AAD; font-family: var(--ff); font-size: 1.2rem; font-weight: 700;
   padding: 6px 14px; border-radius: 8px; cursor: pointer;
   transition: background .18s;
 }
-.ep-change-photo-btn:hover { background: rgba(27,94,199,.15); }
+.ep-change-photo-btn:hover { background: rgba(0,74,173,.15); }
 
 /* Background picker */
 .ep-bg-picker { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.12); }
@@ -107,7 +107,7 @@
   background: #fff;
 }
 .ep-bg-swatch:hover { border-color: rgba(255,255,255,.6); transform: scale(1.12); }
-.ep-bg-swatch--active { border-color: #fff !important; box-shadow: 0 0 0 2px rgba(27,94,199,.6); }
+.ep-bg-swatch--active { border-color: #fff !important; box-shadow: 0 0 0 2px rgba(0,74,173,.6); }
 .ep-bg-swatch--none { background: #fff; color: #d1d5db; }
 .ep-bg-swatch--custom { background: #fff; color: #6b7280; overflow: hidden; }
 .ep-bg-match-btn {
@@ -203,7 +203,7 @@
 .ep-field select:focus,
 .ep-field textarea:focus {
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(27,94,199,.08);
+  box-shadow: 0 0 0 3px rgba(0,74,173,.08);
   background: #fff;
 }
 .ep-field textarea { resize: vertical; line-height: 1.65; }
@@ -326,7 +326,7 @@
               <button type="button" class="ep-bg-swatch" style="background:#ede9fe;" data-bg="#ede9fe" onclick="epSetBg(this,'#ede9fe')" title="Lavender"></button>
               <button type="button" class="ep-bg-swatch" style="background:#fef3c7;" data-bg="#fef3c7" onclick="epSetBg(this,'#fef3c7')" title="Lemon"></button>
               <button type="button" class="ep-bg-swatch" style="background:#fce7f3;" data-bg="#fce7f3" onclick="epSetBg(this,'#fce7f3')" title="Rose"></button>
-              <button type="button" class="ep-bg-swatch" style="background:linear-gradient(135deg,#0a1628,#1B5EC7);" data-bg="linear-gradient(135deg,#0a1628,#1B5EC7)" onclick="epSetBg(this,'linear-gradient(135deg,#0a1628,#1B5EC7)')" title="Navy gradient"></button>
+              <button type="button" class="ep-bg-swatch" style="background:linear-gradient(135deg,#0a1628,#004AAD);" data-bg="linear-gradient(135deg,#0a1628,#004AAD)" onclick="epSetBg(this,'linear-gradient(135deg,#0a1628,#004AAD)')" title="Navy gradient"></button>
               <button type="button" class="ep-bg-swatch" style="background:linear-gradient(135deg,#7c3aed,#3b82f6);" data-bg="linear-gradient(135deg,#7c3aed,#3b82f6)" onclick="epSetBg(this,'linear-gradient(135deg,#7c3aed,#3b82f6)')" title="Purple gradient"></button>
               <label class="ep-bg-swatch ep-bg-swatch--custom" title="Custom color">
                 <input type="color" id="ep-bg-custom-color" style="opacity:0;position:absolute;width:0;height:0;" oninput="epSetBg(null, this.value)">

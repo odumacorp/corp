@@ -1,0 +1,25 @@
+  </main>
+  <footer class="au-bottom">&copy; {% now "Y" %} Oduma Corp &middot; Admin accounts are protected with two-factor sign-in.</footer>
+</div>
+<script>
+(function () {
+  /* Code boxes: digits only; submit as soon as 6 digits are in (typed, pasted or filled from SMS/autofill) */
+  document.querySelectorAll('.au-in.code input').forEach(function (inp) {
+    inp.addEventListener('input', function () {
+      var v = inp.value.replace(/\D/g, '').slice(0, 6);
+      if (v !== inp.value) inp.value = v;
+      if (v.length === 6 && !inp.form.dataset.sent) { inp.form.dataset.sent = '1'; inp.form.requestSubmit ? inp.form.requestSubmit() : inp.form.submit(); }
+    });
+  });
+  /* Copy the setup key */
+  document.querySelectorAll('[data-copy]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = document.getElementById(b.getAttribute('data-copy')).textContent.trim();
+      (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 2000); }, function () {});
+    });
+  });
+})();
+</script>
+{% include '_partials/auth_script.html' %}
+</body>
+</html>

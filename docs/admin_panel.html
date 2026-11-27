@@ -237,7 +237,7 @@
   .epo-dd-trigger { display:flex; align-items:center; justify-content:space-between; padding:9px 12px; border:1.5px solid var(--border); border-radius:9px; background:#fff; color:var(--text); font-family:var(--ff-sans); font-size:1.2rem; cursor:pointer; transition:border-color .2s; user-select:none; }
   .epo-dd-trigger:hover, .epo-dd.open .epo-dd-trigger { border-color:var(--blue); }
   .epo-dd.open .epo-dd-trigger svg { transform:rotate(180deg); }
-  .epo-dd-list { display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:#fff; border:1.5px solid var(--blue); border-radius:9px; box-shadow:0 8px 24px rgba(27,94,199,.12); z-index:400; overflow:hidden; }
+  .epo-dd-list { display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:#fff; border:1.5px solid var(--blue); border-radius:9px; box-shadow:0 8px 24px rgba(0,74,173,.12); z-index:400; overflow:hidden; }
   .epo-dd.open .epo-dd-list { display:block; }
   .epo-dd-opt { padding:9px 14px; font-family:var(--ff-sans); font-size:1.2rem; color:var(--text); cursor:pointer; transition:background .12s; display:flex; align-items:center; justify-content:space-between; }
   .epo-dd-opt:hover { background:#f0f5ff; color:var(--blue); }
@@ -286,7 +286,7 @@
   .adm-tab-btn:hover i { opacity: 0.9; }
   .adm-tab-btn.active {
     color: var(--blue); font-weight: 700;
-    background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.13), 0 0 0 1px rgba(27,94,199,0.1);
+    background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.13), 0 0 0 1px rgba(0,74,173,0.1);
   }
   .adm-tab-btn.active i { opacity: 1; }
   /* compact inline badge inside tabs — overrides the global adm-nav-count for tab context */
@@ -342,6 +342,28 @@
     .adm-nav-link .nav-icon + span { display: block; font-size: 0.95rem; line-height: 1.2; text-align: center; }
     .adm-nav-count { display: none; }
   }
+
+  /* ---- Phone layout (2026-11): one swipeable row per menu, no duplicate breadcrumb, actions that wrap ---- */
+  .adm-main > .oc-breadcrumb { display: none; }            /* the page breadcrumb above already says Home › Admin */
+  @media (max-width: 860px) {
+    .adm-sidebar { flex-wrap: nowrap; align-items: center; gap: 8px; padding: 10px 12px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .adm-sidebar::-webkit-scrollbar { display: none; }
+    .adm-sidebar-logo { display: none; }
+    .adm-sidebar .adm-nav-group { margin: 0 !important; gap: 6px; flex-wrap: nowrap; }
+    .adm-sidebar .adm-nav-link { flex-direction: row !important; align-items: center !important; gap: 6px !important; padding: 8px 12px !important; min-height: 40px;
+      white-space: nowrap !important; border: 1px solid var(--border); border-radius: 999px; background: #fff; font-size: 1.25rem; }
+    .adm-sidebar .adm-nav-link .nav-icon { width: auto; font-size: 1.3rem; }
+    .adm-sidebar .adm-nav-link .nav-icon + span { display: inline !important; font-size: 1.25rem !important; line-height: 1.2; text-align: left; }
+    .adm-sidebar .adm-nav-count { display: inline-flex !important; }
+    .adm-tab-bar { gap: 6px; }
+    .adm-tab-row { display: flex !important; flex-wrap: nowrap !important; overflow-x: auto; gap: 6px; padding: 6px !important; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
+    .adm-tab-row::-webkit-scrollbar { display: none; }
+    .adm-tab-row .adm-tab-btn { flex: none !important; width: auto !important; min-width: 0 !important; padding: 6px 12px !important; font-size: 1.25rem !important; white-space: nowrap; min-height: 38px; scroll-snap-align: start; }
+    .adm-page-header { flex-wrap: wrap; gap: 10px; align-items: flex-start; }
+    .adm-page-header > div { flex-wrap: wrap; width: 100%; }
+    #odu-login-btn, #odu-trigger-btn { flex: 1 1 160px; justify-content: center; min-height: 44px; }
+    .adm-badge-admin { flex: none; }
+  }
 </style>
 
 <!-- ===== Set Password modal ===== -->
@@ -396,10 +418,10 @@
     <div class="adm-modal-actions">
       <button class="adm-modal-cancel" onclick="closeOduPreview()">Cancel</button>
       <button id="odu-regen-btn" class="adm-modal-cancel"
-              style="border-color:#1B5EC7;color:#1B5EC7;"
+              style="border-color:#004AAD;color:#004AAD;"
               onclick="regenerateOduPosts()">Regenerate</button>
       <button id="odu-publish-btn" class="adm-modal-confirm"
-              style="background:#1B5EC7;"
+              style="background:#004AAD;"
               onclick="publishOduPosts()">Save as Draft</button>
     </div>
   </div>
@@ -506,12 +528,12 @@
           <span class="adm-badge-admin">Admin</span>
           <button type="button" id="odu-login-btn" onclick="loginAsOdu()"
              style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;background:#0A1628;color:#fff;border:none;border-radius:9px;font-size:1.2rem;font-weight:700;cursor:pointer;transition:background .15s;"
-             onmouseover="this.style.background='#1B5EC7'" onmouseout="this.style.background='#0A1628'">
+             onmouseover="this.style.background='#004AAD'" onmouseout="this.style.background='#0A1628'">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Login as Odu Bot
           </button>
           <button id="odu-trigger-btn" onclick="triggerOduPost()"
-             style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;background:#1B5EC7;color:#fff;border:none;border-radius:9px;font-size:1.2rem;font-weight:700;cursor:pointer;transition:background .15s;">
+             style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;background:#004AAD;color:#fff;border:none;border-radius:9px;font-size:1.2rem;font-weight:700;cursor:pointer;transition:background .15s;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             Post Now (Odu)
           </button>
@@ -696,8 +718,8 @@
       .fdd { position:relative; display:inline-block; }
       .fdd-trigger { display:flex; align-items:center; gap:7px; padding:7px 12px; border:1.5px solid var(--border); border-radius:9px; background:var(--card-bg); color:var(--text); font-family:var(--ff-sans); font-size:1.2rem; cursor:pointer; white-space:nowrap; transition:border-color .2s,box-shadow .2s; user-select:none; }
       .fdd-trigger:hover { border-color:var(--blue); color:var(--blue); }
-      .fdd.open .fdd-trigger { border-color:var(--blue); background:#fff; box-shadow:0 0 0 3px rgba(27,94,199,.09); color:var(--blue); }
-      .fdd-list { display:none; position:absolute; top:calc(100% + 5px); left:0; min-width:100%; background:#fff; border:1.5px solid var(--blue); border-radius:9px; box-shadow:0 8px 24px rgba(27,94,199,.12); z-index:300; overflow:hidden; }
+      .fdd.open .fdd-trigger { border-color:var(--blue); background:#fff; box-shadow:0 0 0 3px rgba(0,74,173,.09); color:var(--blue); }
+      .fdd-list { display:none; position:absolute; top:calc(100% + 5px); left:0; min-width:100%; background:#fff; border:1.5px solid var(--blue); border-radius:9px; box-shadow:0 8px 24px rgba(0,74,173,.12); z-index:300; overflow:hidden; }
       .fdd.open .fdd-list { display:block; }
       .fdd-opt { padding:8px 14px; font-family:var(--ff-sans); font-size:1.2rem; color:var(--text); cursor:pointer; white-space:nowrap; transition:background .12s; display:flex; align-items:center; justify-content:space-between; gap:8px; }
       .fdd-opt:hover { background:#f0f5ff; color:var(--blue); }
@@ -1150,7 +1172,7 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 Reject
               </button>
-              <button type="button" class="adm-act-btn" style="background:#f0f4ff;color:#1b5ec7;border:1px solid #c7d8f8;" onclick="pprToggleEdit({{ p.id }})">
+              <button type="button" class="adm-act-btn" style="background:#f0f4ff;color:#004AAD;border:1px solid #c7d8f8;" onclick="pprToggleEdit({{ p.id }})">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 Edit
               </button>
@@ -2471,7 +2493,7 @@
       <!-- 2FA Management -->
       <div class="adm-broadcast-card" style="margin-bottom:24px;">
         <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:8px;">
-          <svg width="16" height="16" fill="none" stroke="#1B5EC7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <svg width="16" height="16" fill="none" stroke="#004AAD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           Two-Factor Authentication (2FA)
         </h3>
         <div style="display:flex;flex-direction:column;gap:10px;">
@@ -2594,7 +2616,7 @@
           <!-- Granted privilege badges -->
           <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;min-height:24px;">
             {% if perms %}
-              {% if perms.is_superadmin %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:700;font-family:var(--ff-sans);background:rgba(27,94,199,0.12);color:var(--blue);">Super Admin</span>{% endif %}
+              {% if perms.is_superadmin %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:700;font-family:var(--ff-sans);background:rgba(0,74,173,0.12);color:var(--blue);">Super Admin</span>{% endif %}
               {% if perms.can_manage_users %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:600;font-family:var(--ff-sans);background:#f0fdf4;color:#166534;">Users</span>{% endif %}
               {% if perms.can_manage_projects %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:600;font-family:var(--ff-sans);background:#f0fdf4;color:#166534;">Projects</span>{% endif %}
               {% if perms.can_manage_posts %}<span style="padding:3px 10px;border-radius:20px;font-size:1.1rem;font-weight:600;font-family:var(--ff-sans);background:#f0fdf4;color:#166534;">Posts</span>{% endif %}
@@ -2683,7 +2705,7 @@
       <div class="an-card" style="margin-bottom:16px;">
         <div class="an-card-hd">
           <div class="an-card-title">
-            <span class="an-dot" style="background:#1B5EC7;"></span>Daily Traffic
+            <span class="an-dot" style="background:#004AAD;"></span>Daily Traffic
           </div>
           <div class="an-card-actions">
             <div class="an-tabs">
@@ -2809,7 +2831,7 @@
       <div class="an-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
         <div class="an-card">
           <div class="an-card-hd">
-            <div class="an-card-title"><span class="an-dot" style="background:#1B5EC7;"></span>Most Viewed Projects</div>
+            <div class="an-card-title"><span class="an-dot" style="background:#004AAD;"></span>Most Viewed Projects</div>
             <button class="an-expand-btn" onclick="anDrillDown('project_views')">↗ expand</button>
           </div>
           <div id="an-project-views-table" style="padding:0 18px 18px;"></div>
@@ -3057,12 +3079,12 @@
 
       <script>
       window._surveyChartData = {
-        catLabels:  {{ survey.category_labels|safe }},
-        catData:    {{ survey.category_data|safe }},
-        recLabels:  {{ survey.recommend_labels|safe }},
-        recData:    {{ survey.recommend_data|safe }},
-        pgLabels:   {{ survey.page_labels|safe }},
-        pgData:     {{ survey.page_data|safe }},
+        catLabels:  {{ survey.category_labels|default:"[]"|safe }},
+        catData:    {{ survey.category_data|default:"[]"|safe }},
+        recLabels:  {{ survey.recommend_labels|default:"[]"|safe }},
+        recData:    {{ survey.recommend_data|default:"[]"|safe }},
+        pgLabels:   {{ survey.page_labels|default:"[]"|safe }},
+        pgData:     {{ survey.page_data|default:"[]"|safe }},
       };
       </script>
 
@@ -3283,7 +3305,7 @@
         .shs-btn-ghost { background:transparent;border:1.5px solid; }
         .shs-link-row { display:flex;align-items:center;gap:6px;background:#f8fafc;border-radius:8px;padding:6px 8px;border:1px solid #e8edf4; }
         .shs-link-box { flex:1;font-family:monospace;font-size:.95rem;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
-        .shs-copy-btn { flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#1B5EC7;color:#fff;border:none;border-radius:6px;font-family:var(--ff-sans);font-size:1.05rem;font-weight:700;cursor:pointer;transition:background .15s;white-space:nowrap; }
+        .shs-copy-btn { flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#004AAD;color:#fff;border:none;border-radius:6px;font-family:var(--ff-sans);font-size:1.05rem;font-weight:700;cursor:pointer;transition:background .15s;white-space:nowrap; }
         .shs-copy-btn:hover { background:#154ea8; }
       </style>
 
@@ -3390,7 +3412,7 @@
                 {% if msg.message_type == 'post_share' %}
                   <span style="background:#ede9fe;color:#7c3aed;padding:2px 8px;border-radius:8px;font-size:1.1rem;font-weight:600;">Post</span>
                 {% else %}
-                  <span style="background:#dbeafe;color:#1B5EC7;padding:2px 8px;border-radius:8px;font-size:1.1rem;font-weight:600;">Project</span>
+                  <span style="background:#dbeafe;color:#004AAD;padding:2px 8px;border-radius:8px;font-size:1.1rem;font-weight:600;">Project</span>
                 {% endif %}
               </td>
               <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
@@ -3432,7 +3454,7 @@
         </div>
         <!-- View toggle -->
         <div style="display:flex;background:#f0f4fa;border-radius:9px;padding:3px;gap:2px;">
-          <button id="loc-btn-map"   onclick="locShowView('map')"   style="border:none;border-radius:7px;padding:6px 16px;font-family:var(--ff-sans);font-size:1.15rem;cursor:pointer;background:#fff;color:#1B5EC7;font-weight:600;box-shadow:0 1px 4px rgba(10,22,40,.10);">
+          <button id="loc-btn-map"   onclick="locShowView('map')"   style="border:none;border-radius:7px;padding:6px 16px;font-family:var(--ff-sans);font-size:1.15rem;cursor:pointer;background:#fff;color:#004AAD;font-weight:600;box-shadow:0 1px 4px rgba(10,22,40,.10);">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map
           </button>
           <button id="loc-btn-table" onclick="locShowView('table')" style="border:none;border-radius:7px;padding:6px 16px;font-family:var(--ff-sans);font-size:1.15rem;cursor:pointer;background:none;color:#6b7280;font-weight:600;">
@@ -3450,7 +3472,7 @@
           <span style="width:12px;height:12px;border-radius:50%;background:#059669;display:inline-block;"></span> Investors
         </span>
         <span style="display:flex;align-items:center;gap:6px;font-size:1.15rem;color:#374151;">
-          <span style="width:12px;height:12px;border-radius:50%;background:#1B5EC7;display:inline-block;"></span> Both
+          <span style="width:12px;height:12px;border-radius:50%;background:#004AAD;display:inline-block;"></span> Both
         </span>
         <span style="display:flex;align-items:center;gap:6px;font-size:1.15rem;color:#9ca3af;margin-left:auto;" id="loc-geocode-status"></span>
       </div>
@@ -3485,18 +3507,18 @@
                 <td style="padding:10px 16px;color:#9ca3af;font-size:1.1rem;">{{ forloop.counter }}</td>
                 <td style="padding:10px 16px;font-weight:600;color:#0A1628;">
                   <span style="display:inline-flex;align-items:center;gap:7px;">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1B5EC7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#004AAD" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                     {{ loc }}
                   </span>
                 </td>
-                <td style="padding:10px 16px;text-align:center;font-weight:700;color:#1B5EC7;">{{ data.total }}</td>
+                <td style="padding:10px 16px;text-align:center;font-weight:700;color:#004AAD;">{{ data.total }}</td>
                 <td style="padding:10px 16px;text-align:center;color:#374151;">{{ data.innovators }}</td>
                 <td style="padding:10px 16px;text-align:center;color:#374151;">{{ data.investors }}</td>
                 <td style="padding:10px 16px;min-width:140px;">
                   <div style="display:flex;align-items:center;gap:8px;">
                     <div style="flex:1;background:#e0e8f4;border-radius:4px;height:8px;overflow:hidden;">
                       {% if total_with_location %}
-                      <div style="background:#1B5EC7;height:100%;width:{% widthratio data.total total_with_location 100 %}%;border-radius:4px;transition:width .4s;"></div>
+                      <div style="background:#004AAD;height:100%;width:{% widthratio data.total total_with_location 100 %}%;border-radius:4px;transition:width .4s;"></div>
                       {% endif %}
                     </div>
                     <span style="font-size:1.1rem;color:#6b7280;white-space:nowrap;min-width:32px;text-align:right;">{% if total_with_location %}{% widthratio data.total total_with_location 100 %}%{% endif %}</span>
@@ -3552,10 +3574,10 @@
       var bMap   = document.getElementById('loc-btn-map');
       var bTable = document.getElementById('loc-btn-table');
       bMap.style.background   = isMap  ? '#fff' : 'none';
-      bMap.style.color        = isMap  ? '#1B5EC7' : '#6b7280';
+      bMap.style.color        = isMap  ? '#004AAD' : '#6b7280';
       bMap.style.boxShadow    = isMap  ? '0 1px 4px rgba(10,22,40,.10)' : 'none';
       bTable.style.background = !isMap ? '#fff' : 'none';
-      bTable.style.color      = !isMap ? '#1B5EC7' : '#6b7280';
+      bTable.style.color      = !isMap ? '#004AAD' : '#6b7280';
       bTable.style.boxShadow  = !isMap ? '0 1px 4px rgba(10,22,40,.10)' : 'none';
       if (isMap) {
         if (!_locMapInited) {
@@ -3595,7 +3617,7 @@
 
       function addMarker(item, lat, lng) {
         var r = Math.max(12, Math.min(38, 10 + item.total * 5));
-        var color = item.investors > 0 && item.innovators > 0 ? '#1B5EC7'
+        var color = item.investors > 0 && item.innovators > 0 ? '#004AAD'
                   : item.investors > 0 ? '#059669' : '#C9A44A';
         var circle = L.circleMarker([lat, lng], {
           radius: r, fillColor: color,
@@ -3605,7 +3627,7 @@
           '<div style="min-width:160px;">' +
           '<strong style="font-size:1.2rem;color:#0A1628;">' + item.location + '</strong><br>' +
           '<div style="margin-top:5px;font-size:1.15rem;color:#374151;line-height:1.7;">' +
-          '<b style="color:#1B5EC7;">' + item.total + '</b> user' + (item.total !== 1 ? 's' : '') +
+          '<b style="color:#004AAD;">' + item.total + '</b> user' + (item.total !== 1 ? 's' : '') +
           (item.innovators ? '<br>' + item.innovators + ' innovator' + (item.innovators !== 1 ? 's' : '') : '') +
           (item.investors  ? '<br>' + item.investors  + ' investor'  + (item.investors  !== 1 ? 's' : '') : '') +
           '</div></div>'
@@ -3786,7 +3808,7 @@
   transition: background 0.14s;
   white-space: nowrap;
 }
-.an-expand-btn:hover { background: rgba(27,94,199,0.08); }
+.an-expand-btn:hover { background: rgba(0,74,173,0.08); }
 /* Legacy fmt-btn kept for any stragglers */
 .an-fmt-btn {
   background: var(--card-bg); border: 1.5px solid var(--border);
@@ -5269,7 +5291,7 @@ var _oduCurrentDrafts = [];
 function _oduResetBtn() {
   var btn = document.getElementById('odu-trigger-btn');
   btn.disabled = false;
-  btn.style.background = '#1B5EC7';
+  btn.style.background = '#004AAD';
   btn.style.opacity = '1';
   btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Post Now (Odu)';
 }
@@ -5285,9 +5307,34 @@ function _oduGenerate() {
 
   return fetch('{% url "trigger_odu_post" %}', { method: 'POST', body: fd })
     .then(function(r) {
-      if (!r.ok) return r.text().then(function(t) { throw new Error('HTTP ' + r.status + ': ' + t.slice(0, 200)); });
+      if (!r.ok) return r.text().then(function(t) {
+        var msg = '';
+        try { var j = JSON.parse(t); msg = j.error || ''; if (j.detail) console.warn('Odu post details:', j.detail); } catch (_) {}
+        throw new Error(msg || ('The server returned an error (' + r.status + '). Please try again.'));
+      });
       return r.json();
     });
+}
+
+/* Errors go in a readable notice, not inside the button. */
+function _oduNotify(msg) {
+  var box = document.getElementById('odu-error');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'odu-error';
+    box.setAttribute('role', 'alert');
+    box.style.cssText = 'position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3000;width:min(520px,calc(100% - 24px));' +
+      'display:flex;gap:12px;align-items:flex-start;padding:14px 14px 14px 16px;border-radius:14px;background:#FFF;color:#5A1212;border:1px solid #F3C6C6;' +
+      'box-shadow:0 12px 36px rgba(10,22,40,.22);font:500 15px/1.45 Inter,system-ui,sans-serif;';
+    document.body.appendChild(box);
+  }
+  box.innerHTML = '';
+  var t = document.createElement('div'); t.style.flex = '1'; t.textContent = msg;
+  var x = document.createElement('button'); x.type = 'button'; x.textContent = '×'; x.setAttribute('aria-label', 'Close');
+  x.style.cssText = 'flex:none;width:36px;height:36px;border:0;border-radius:8px;background:#FBEAEA;color:#5A1212;font-size:20px;cursor:pointer;';
+  x.onclick = function () { box.remove(); };
+  box.appendChild(t); box.appendChild(x);
+  clearTimeout(box._t); box._t = setTimeout(function () { if (box.parentNode) box.remove(); }, 15000);
 }
 
 function triggerOduPost() {
@@ -5302,7 +5349,8 @@ function triggerOduPost() {
     var btn = document.getElementById('odu-trigger-btn');
     btn.style.background = '#DC2626';
     btn.style.opacity = '1';
-    btn.innerHTML = e.message || 'Request failed';
+    btn.innerHTML = 'Failed';
+    _oduNotify(e.message || 'Request failed');
     setTimeout(_oduResetBtn, 4000);
     console.error('triggerOduPost:', e);
   });
@@ -5348,7 +5396,7 @@ function _oduShowPreview(drafts) {
       + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>'
       + 'Edit Image</button>'
       + '<button onclick="_oduGenerateImage(' + i + ')"'
-      + ' style="display:flex;align-items:center;gap:6px;padding:5px 11px;background:#1B5EC7;color:#fff;border:none;border-radius:7px;font-size:.95rem;font-family:var(--ff-sans);cursor:pointer;">'
+      + ' style="display:flex;align-items:center;gap:6px;padding:5px 11px;background:#004AAD;color:#fff;border:none;border-radius:7px;font-size:.95rem;font-family:var(--ff-sans);cursor:pointer;">'
       + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
       + 'Generate AI</button>'
       + '<button onclick="document.getElementById(\'odu-file-' + i + '\').click()"'
@@ -5366,7 +5414,7 @@ function _oduShowPreview(drafts) {
       + ' oninput="_oduCurrentDrafts[' + i + '].image_query=this.value"'
       + ' onkeydown="if(event.key===\'Enter\')_oduRefreshImage(' + i + ')">'
       + '<button onclick="_oduRefreshImage(' + i + ')"'
-      + ' style="padding:5px 12px;background:#1B5EC7;color:#fff;border:none;border-radius:6px;font-size:1rem;cursor:pointer;white-space:nowrap;"'
+      + ' style="padding:5px 12px;background:#004AAD;color:#fff;border:none;border-radius:6px;font-size:1rem;cursor:pointer;white-space:nowrap;"'
       + '>Search</button>'
       + '</div>';
 
@@ -5515,7 +5563,10 @@ function publishOduPosts() {
     body: JSON.stringify({ drafts: _oduCurrentDrafts })
   })
   .then(function(r) {
-    if (!r.ok) return r.text().then(function(t) { throw new Error('HTTP ' + r.status + ': ' + t.slice(0,200)); });
+    if (!r.ok) return r.text().then(function(t) {
+      var msg = ''; try { msg = JSON.parse(t).error || ''; } catch (_) {}
+      throw new Error(msg || ('The server returned an error (' + r.status + ').'));
+    });
     return r.json();
   })
   .then(function(data) {
@@ -5530,7 +5581,7 @@ function publishOduPosts() {
         + data.saved + ' draft' + (data.saved !== 1 ? 's' : '') + ' saved — review in Posts tab';
       setTimeout(_oduResetBtn, 5000);
     } else {
-      alert('Publish failed: ' + (data.error || 'Unknown'));
+      _oduNotify('Saving the drafts failed: ' + (data.error || 'unknown error'));
     }
   })
   .catch(function(e) {
@@ -5538,7 +5589,7 @@ function publishOduPosts() {
     publishBtn.disabled = false;
     regenBtn.disabled   = false;
     publishBtn.textContent = 'Save as Draft';
-    alert('Save failed: ' + (e.message || 'Request error'));
+    _oduNotify('Saving the drafts failed: ' + (e.message || 'request error'));
     console.error('publishOduPosts:', e);
   });
 }

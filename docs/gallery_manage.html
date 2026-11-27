@@ -6,7 +6,7 @@
 
 {% block content %}
 <style>
-.gm{--ink:#0A1628;--text:#2D3F58;--muted:#566A8A;--line:#E4EAF2;--blue:var(--oc-blue,#1B5EC7);--blue-d:var(--oc-blue-dark,#144FA8);
+.gm{--ink:#0A1628;--text:#2D3F58;--muted:#566A8A;--line:#E4EAF2;--blue:var(--oc-blue,#004AAD);--blue-d:var(--oc-blue-dark,#003A8C);
   max-width:1160px;margin:0 auto;padding:16px 16px 56px;font-family:'Inter',system-ui,sans-serif;font-size:16px;line-height:1.55;color:var(--text);}
 .gm *{box-sizing:border-box;}
 .gm h1{font-family:'Space Grotesk',sans-serif;font-size:30px;line-height:1.15;color:var(--ink);margin:8px 0 4px;}
@@ -25,7 +25,7 @@
 .gm label span{font-weight:400;color:var(--muted);}
 .gm input[type=text],.gm input[type=date],.gm input[type=search],.gm textarea{width:100%;min-height:44px;padding:9px 12px;border:1px solid #C9D3E1;border-radius:8px;font:inherit;font-size:15px;color:var(--ink);background:#fff;}
 .gm textarea{min-height:70px;resize:vertical;}
-.gm input:focus,.gm textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,94,199,.15);}
+.gm input:focus,.gm textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,74,173,.15);}
 .pf-file-wrap{position:relative;display:flex;align-items:center;gap:12px;min-height:52px;padding:8px 12px;border:1.5px dashed #9AA8BB;border-radius:10px;background:#F8FAFD;cursor:pointer;}
 .pf-file-wrap:focus-within{outline:3px solid var(--blue);outline-offset:2px;}
 .pf-file-wrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;}
@@ -52,7 +52,7 @@
 .gm-item{display:grid;grid-template-columns:200px minmax(0,1fr);gap:18px;padding:14px;scroll-margin-top:90px;}
 .gm-item.is-hidden{background:#FAFBFD;}
 .gm-item.is-hidden .gm-thumb img{opacity:.55;}
-.gm-item:target{box-shadow:0 0 0 3px rgba(27,94,199,.35);}
+.gm-item:target{box-shadow:0 0 0 3px rgba(0,74,173,.35);}
 .gm-thumb{position:relative;margin:0;border-radius:10px;overflow:hidden;background:#E6EBF2;aspect-ratio:4/3;align-self:start;}
 .gm-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
 .gm-thumb a{display:block;height:100%;}
@@ -70,6 +70,28 @@
 .gm-actions .gm-btn{min-height:40px;padding:6px 14px;font-size:14px;}
 .gm-empty{padding:36px 22px;text-align:center;}
 .gm-none{display:none;padding:20px;text-align:center;color:var(--muted);}
+.gm-groups{margin-bottom:28px;scroll-margin-top:90px;}
+.gm-glist{list-style:none;margin:0;padding:0;display:grid;gap:12px;}
+.gm-group{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px;padding:12px 14px;align-items:start;}
+.gm-gthumbs{display:grid;grid-template-columns:1fr 1fr;gap:4px;border-radius:10px;overflow:hidden;aspect-ratio:4/3;background:#E6EBF2;}
+.gm-gthumbs img{width:100%;height:100%;object-fit:cover;display:block;}
+.gm-gthumbs img:only-child{grid-column:1/-1;grid-row:span 2;}
+.gm-gname{font-family:'Space Grotesk',sans-serif;font-size:17px;color:var(--ink);}
+.gm-gedit summary{cursor:pointer;color:var(--blue);font-weight:600;font-size:14px;min-height:40px;display:inline-flex;align-items:center;}
+.gm-gedit[open] summary{color:var(--ink);}
+@media(max-width:760px){.gm-group{grid-template-columns:minmax(0,1fr);}.gm-gthumbs{max-width:260px;}}
+.gm-pick{display:inline-flex!important;align-items:center;gap:6px;margin:0!important;padding:4px 10px 4px 6px;border:1px solid var(--line);border-radius:999px;font-weight:600!important;font-size:13px!important;color:var(--ink)!important;cursor:pointer;min-height:32px;}
+.gm-pick input{width:18px;height:18px;margin:0;}
+.gm-item.is-picked{box-shadow:0 0 0 2px var(--blue);}
+.gm-bulk{position:fixed;left:50%;transform:translateX(-50%);width:min(1128px,calc(100% - 24px));bottom:calc(84px + env(safe-area-inset-bottom));z-index:900;margin:0;}
+.gm{padding-bottom:180px!important;}
+.gm-bulk-in{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;background:#0A1628;color:#fff;border-radius:14px;box-shadow:0 12px 30px rgba(10,22,40,.3);}
+.gm-bulk-in strong{font-family:'Space Grotesk',sans-serif;margin-right:4px;}
+.gm-bulk-in input{flex:1 1 140px;min-height:40px!important;padding:6px 10px!important;border-radius:8px!important;border:0!important;}
+.gm-bulk-in input[type=date]{flex:0 1 160px;}
+.gm-bulk-in .gm-btn{min-height:40px;padding:6px 14px;font-size:14px;}
+.gm-bulk-in .gm-btn--o{background:transparent;color:#fff;border-color:#3A4D6B;}
+.gm-bulk-in .gm-btn--o:hover{border-color:#fff;color:#fff;}
 </style>
 
 <div class="gm">
@@ -144,6 +166,63 @@
   <datalist id="gm-events">{% for e in events %}<option value="{{ e }}">{% endfor %}</datalist>
   <datalist id="gm-places">{% for p in places %}<option value="{{ p }}">{% endfor %}</datalist>
 
+  {% if groups %}
+  <section class="gm-groups" id="groups" aria-labelledby="gm-groups-title">
+    <h2 id="gm-groups-title">Event groups</h2>
+    <p class="gm-count" style="margin:0 0 14px;">The public gallery groups photos by event, newest date first. Change a group's name, place or date here and every item in it is updated. Items with no event appear by month.</p>
+    <ul class="gm-glist">
+      {% for g in groups %}
+      <li class="gm-card gm-group">
+        <div class="gm-gthumbs" aria-hidden="true">{% for t in g.thumbs %}<img src="{{ t }}" alt="" width="160" height="120" loading="lazy" decoding="async">{% endfor %}</div>
+        <div>
+          <div class="gm-meta">
+            <strong class="gm-gname">{% if g.name %}{{ g.name }}{% else %}No event{% endif %}</strong>
+            <span>{{ g.count }} item{{ g.count|pluralize }} · {{ g.shown }} shown{% if g.date %} · {{ g.date|date:"j M Y" }}{% endif %}{% if g.place %} · {{ g.place }}{% endif %}</span>
+          </div>
+          <details class="gm-gedit">
+            <summary>{% if g.name %}Rename or change date{% else %}Give these items an event{% endif %}</summary>
+            <form method="post" action="{% url 'gallery_group_update' %}" class="gm-fields" style="margin-top:10px;">
+              {% csrf_token %}
+              <input type="hidden" name="group" value="{{ g.name }}">
+              <div>
+                <label for="gn-{{ forloop.counter }}">Event name</label>
+                <input type="text" id="gn-{{ forloop.counter }}" name="event_name" value="{{ g.name }}" maxlength="120" list="gm-events">
+              </div>
+              <div>
+                <label for="gp-{{ forloop.counter }}">Place</label>
+                <input type="text" id="gp-{{ forloop.counter }}" name="place" value="{{ g.place }}" maxlength="120" list="gm-places">
+              </div>
+              <div>
+                <label for="gd-{{ forloop.counter }}">Event date</label>
+                <input type="date" id="gd-{{ forloop.counter }}" name="event_date" value="{{ g.date|date:'Y-m-d' }}">
+              </div>
+              <div class="full gm-actions" style="margin-top:2px;">
+                <button type="submit" class="gm-btn gm-btn--p">Update all {{ g.count }} item{{ g.count|pluralize }}</button>
+                <span class="gm-small">Using an existing event's name merges the two groups.</span>
+              </div>
+            </form>
+          </details>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <form method="post" action="{% url 'gallery_bulk' %}" id="gm-bulk" class="gm-bulk" hidden>
+    {% csrf_token %}
+    <div class="gm-bulk-in">
+      <strong id="gm-bulk-n">0 selected</strong>
+      <input type="text" name="event_name" maxlength="120" list="gm-events" placeholder="Event name" aria-label="Event to move the selected items to">
+      <input type="text" name="place" maxlength="120" list="gm-places" placeholder="Place (optional)" aria-label="Place (optional)">
+      <input type="date" name="event_date" aria-label="Event date (optional)">
+      <button type="submit" name="action" value="assign" class="gm-btn gm-btn--p">Move to event</button>
+      <button type="submit" name="action" value="show" class="gm-btn gm-btn--o">Show</button>
+      <button type="submit" name="action" value="hide" class="gm-btn gm-btn--o">Hide</button>
+      <button type="button" class="gm-btn gm-btn--o" id="gm-bulk-clear">Clear</button>
+    </div>
+  </form>
+
   <section aria-labelledby="gm-items-title">
     <div class="gm-bar">
       <div>
@@ -166,6 +245,7 @@
         </figure>
         <div>
           <div class="gm-meta">
+            <label class="gm-pick"><input type="checkbox" name="ids" value="{{ item.pk }}" form="gm-bulk"> <span>Select</span></label>
             {% if item.is_published %}<span class="gm-tag gm-tag--live">Shown</span>{% else %}<span class="gm-tag gm-tag--off">Hidden</span>{% endif %}
             <span>{{ item.get_media_type_display }} · added {{ item.created_at|date:"j M Y" }}{% if item.created_by %} by {{ item.created_by.get_full_name|default:item.created_by.username }}{% endif %}</span>
           </div>
@@ -253,6 +333,22 @@
   document.querySelectorAll('form[data-confirm]').forEach(function (f) {
     f.addEventListener('submit', function (e) { if (!window.confirm(f.getAttribute('data-confirm'))) e.preventDefault(); });
   });
+
+  /* Select several items → bar to move them into an event or show/hide them */
+  var bulk = document.getElementById('gm-bulk'), bulkN = document.getElementById('gm-bulk-n');
+  var boxes = [].slice.call(document.querySelectorAll('input[name=ids][form=gm-bulk]'));
+  function syncBulk() {
+    var n = 0;
+    boxes.forEach(function (b) { b.closest('.gm-item').classList.toggle('is-picked', b.checked); if (b.checked) n++; });
+    bulk.hidden = !n; bulkN.textContent = n + ' selected';
+  }
+  boxes.forEach(function (b) { b.addEventListener('change', syncBulk); });
+  document.getElementById('gm-bulk-clear').addEventListener('click', function () { boxes.forEach(function (b) { b.checked = false; }); syncBulk(); });
+  bulk.addEventListener('submit', function (e) {
+    var act = e.submitter && e.submitter.value;
+    if (act === 'assign' && !bulk.event_name.value.trim() && !window.confirm('No event name given: the selected items will be taken out of their event. Continue?')) e.preventDefault();
+  });
+  syncBulk();
 
   /* Search */
   var q = document.getElementById('gm-search');

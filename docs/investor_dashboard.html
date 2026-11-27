@@ -6,7 +6,7 @@
 {% block content %}
 <style>
   :root {
-    --id-blue:    #1B5EC7;
+    --id-blue:    #004AAD;
     --id-navy:    #092147;
     --id-ink:     #0A1628;
     --id-green:   #16a34a;
@@ -98,7 +98,7 @@
   /* ── Quick stats strip ── */
   .id-qs-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:24px; }
   .id-qs { background:#fff; border:1.5px solid var(--id-border); border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; transition:box-shadow .15s,border-color .15s; cursor:pointer; text-decoration:none; }
-  .id-qs:hover { box-shadow:0 4px 16px rgba(27,94,199,.1); border-color:#c3d4ec; }
+  .id-qs:hover { box-shadow:0 4px 16px rgba(0,74,173,.1); border-color:#c3d4ec; }
   .id-qs-icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .id-qs-val { font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:800; color:var(--id-ink); line-height:1; }
   .id-qs-label { font-size:1.05rem; color:var(--id-muted); font-weight:600; margin-top:2px; }
@@ -124,7 +124,7 @@
     box-shadow: 0 1px 6px rgba(0,0,0,.05); cursor: pointer;
     transition: box-shadow .2s, transform .15s;
   }
-  .id-stat:hover { box-shadow: 0 4px 16px rgba(27,94,199,.12); transform: translateY(-2px); }
+  .id-stat:hover { box-shadow: 0 4px 16px rgba(0,74,173,.12); transform: translateY(-2px); }
   .id-stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 800; color: var(--id-blue); line-height: 1; margin-bottom: 4px; }
   .id-stat-label { font-size: 1.2rem; color: var(--id-muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
 
@@ -150,8 +150,8 @@
     margin-bottom: 12px;
   }
   .id-filter-search:focus {
-    border-color: #1B5EC7; background: #fff;
-    box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+    border-color: #004AAD; background: #fff;
+    box-shadow: 0 0 0 3px rgba(0,74,173,.1);
   }
   .id-filter-search::placeholder { color: #9ca3af; }
   /* re-use pm- dropdown styles */
@@ -171,15 +171,15 @@
   }
   .id-filter-bar .pm-dd-trigger:hover { border-color: #c3d4ec; }
   .id-filter-bar .pm-dd-trigger.open {
-    border-color: #1B5EC7; background: #fff;
-    box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+    border-color: #004AAD; background: #fff;
+    box-shadow: 0 0 0 3px rgba(0,74,173,.1);
   }
   .id-filter-bar .pm-dd-val { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .id-filter-bar .pm-dd-chevron {
     width:16px; height:16px; flex-shrink:0; color:#9ca3af;
     transition:transform .18s; pointer-events:none;
   }
-  .id-filter-bar .pm-dd-trigger.open .pm-dd-chevron { transform:rotate(180deg); color:#1B5EC7; }
+  .id-filter-bar .pm-dd-trigger.open .pm-dd-chevron { transform:rotate(180deg); color:#004AAD; }
   .id-filter-bar .pm-dd-list {
     display:none; position:absolute; top:calc(100% + 6px); left:0; right:0;
     background:#fff; border:1.5px solid #e0e6f0; border-radius:10px;
@@ -192,10 +192,10 @@
     color:#374151; cursor:pointer; transition:background .1s,color .1s;
     display:flex; align-items:center; justify-content:space-between;
   }
-  .id-filter-bar .pm-dd-option:hover { background:#f0f5ff; color:#1B5EC7; }
-  .id-filter-bar .pm-dd-option.selected { background:#eef4ff; color:#1B5EC7; font-weight:700; }
+  .id-filter-bar .pm-dd-option:hover { background:#f0f5ff; color:#004AAD; }
+  .id-filter-bar .pm-dd-option.selected { background:#eef4ff; color:#004AAD; font-weight:700; }
   .id-filter-bar .pm-dd-option .pm-dd-check { display:none; }
-  .id-filter-bar .pm-dd-option.selected .pm-dd-check { display:block; color:#1B5EC7; }
+  .id-filter-bar .pm-dd-option.selected .pm-dd-check { display:block; color:#004AAD; }
   .id-filter-bar .pm-select-hidden { display:none; }
   .id-filter-footer {
     display: flex; align-items: center; justify-content: flex-end; gap: 10px;
@@ -207,7 +207,7 @@
     font-weight: 700; cursor: pointer; font-family: inherit;
     transition: background .15s;
   }
-  .id-filter-btn:hover { background: #144FA8; }
+  .id-filter-btn:hover { background: #003A8C; }
   .id-filter-clear {
     font-size: 1.15rem; color: var(--id-muted); text-decoration: none;
   }
@@ -233,7 +233,7 @@
     box-shadow: 0 2px 10px rgba(0,0,0,.05);
     transition: box-shadow .2s, border-color .2s;
   }
-  .id-rec-card:hover { border-color: var(--id-blue); box-shadow: 0 6px 22px rgba(27,94,199,.12); }
+  .id-rec-card:hover { border-color: var(--id-blue); box-shadow: 0 6px 22px rgba(0,74,173,.12); }
   .id-rec-head { display: flex; align-items: flex-start; gap: 10px; }
   .id-rec-score {
     flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%;
@@ -271,14 +271,14 @@
     border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;
     box-shadow: 0 2px 10px rgba(0,0,0,.05); transition: box-shadow .2s, transform .15s, border-color .2s;
   }
-  .id-df-card:hover { box-shadow: 0 8px 28px rgba(27,94,199,.12); transform: translateY(-2px); border-color: #c3d4ec; }
+  .id-df-card:hover { box-shadow: 0 8px 28px rgba(0,74,173,.12); transform: translateY(-2px); border-color: #c3d4ec; }
 
   /* card banner */
   .id-df-banner { position: relative; }
   .id-df-img { width: 100%; height: 140px; object-fit: cover; display: block; }
   .id-df-img-placeholder {
     width: 100%; height: 140px; display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, #0d1e3d 0%, #1B5EC7 100%); font-size: 3.4rem;
+    background: linear-gradient(135deg, #0d1e3d 0%, #004AAD 100%); font-size: 3.4rem;
   }
   .id-df-match-badge {
     position: absolute; top: 10px; right: 10px;
@@ -288,7 +288,7 @@
     backdrop-filter: blur(4px);
   }
   .id-df-match-badge--high   { background: rgba(22,163,74,.9); border: 2px solid #16a34a; }
-  .id-df-match-badge--medium { background: rgba(27,94,199,.9); border: 2px solid #1B5EC7; }
+  .id-df-match-badge--medium { background: rgba(0,74,173,.9); border: 2px solid #004AAD; }
   .id-df-match-badge--low    { background: rgba(107,114,128,.9); border: 2px solid #9ca3af; }
   .id-df-match-num { font-size: 1.2rem; font-weight: 900; color: #fff; line-height: 1; }
   .id-df-match-lbl { font-size: 1.2rem; font-weight: 700; color: rgba(255,255,255,.8); text-transform: uppercase; }
@@ -373,7 +373,7 @@
     display: inline-block; padding: 2px 10px; border-radius: 20px;
     font-size: 1.2rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap;
   }
-  .id-b-blue   { background: rgba(27,94,199,.1); color: var(--id-blue); }
+  .id-b-blue   { background: rgba(0,74,173,.1); color: var(--id-blue); }
   .id-b-green  { background: rgba(22,163,74,.1); color: var(--id-green); }
   .id-b-yellow { background: rgba(217,119,6,.12); color: var(--id-amber); }
   .id-b-red    { background: rgba(220,38,38,.1); color: var(--id-red); }
@@ -406,11 +406,11 @@
     border-radius: 14px; padding: 20px 16px 16px; text-align: center;
     box-shadow: 0 2px 8px rgba(0,0,0,.05); transition: box-shadow .2s, transform .15s;
   }
-  .id-conn-card:hover { box-shadow: 0 6px 20px rgba(27,94,199,.1); transform: translateY(-2px); }
+  .id-conn-card:hover { box-shadow: 0 6px 20px rgba(0,74,173,.1); transform: translateY(-2px); }
   .id-conn-av { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 10px; }
   .id-conn-av-init {
     width: 56px; height: 56px; border-radius: 50%;
-    background: linear-gradient(135deg, #1B5EC7, #3D78D8); color: #fff;
+    background: linear-gradient(135deg, #004AAD, #3D78D8); color: #fff;
     display: flex; align-items: center; justify-content: center;
     font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800;
     margin: 0 auto 10px;
@@ -452,11 +452,11 @@
   }
   .id-pf-input:focus, .id-pf-textarea:focus, .id-pf-select:focus {
     outline: none; border-color: var(--id-blue); background: #fff;
-    box-shadow: 0 0 0 3px rgba(27,94,199,.1);
+    box-shadow: 0 0 0 3px rgba(0,74,173,.1);
   }
   .id-pf-textarea { resize: vertical; min-height: 90px; }
   .id-pf-save { background: var(--id-blue); color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-size: 1.2rem; font-weight: 700; cursor: pointer; font-family: inherit; }
-  .id-pf-save:hover { background: #144FA8; }
+  .id-pf-save:hover { background: #003A8C; }
 
   /* ── Pitch request modal ── */
   .id-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 9000; display: none; align-items: center; justify-content: center; }
@@ -598,7 +598,7 @@
   <!-- ══════ QUICK STATS ══════ -->
   <div class="id-qs-row">
     <a class="id-qs" href="#" onclick="switchPanel('dealflow', document.querySelectorAll('.id-sb-link')[0]); return false;" data-panel="dealflow">
-      <div class="id-qs-icon" style="background:#eef4ff;color:#1B5EC7;">
+      <div class="id-qs-icon" style="background:#eef4ff;color:#004AAD;">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
       </div>
       <div><div class="id-qs-val">{{ deal_flow_count }}</div><div class="id-qs-label">Deal Flow</div></div>
@@ -633,7 +633,7 @@
   {% if pinned_chats or pinned_posts or pinned_projects %}
   <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px 22px;margin-bottom:22px;">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1B5EC7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 00-1.11-1.79l-1.78-.9A2 2 0 0115 10.76V6h1a2 2 0 000-4H8a2 2 0 000 4h1v4.76a2 2 0 01-1.11 1.79l-1.78.9A2 2 0 005 15.24V17z"/></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#004AAD" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 00-1.11-1.79l-1.78-.9A2 2 0 0115 10.76V6h1a2 2 0 000-4H8a2 2 0 000 4h1v4.76a2 2 0 01-1.11 1.79l-1.78.9A2 2 0 005 15.24V17z"/></svg>
       <span style="font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:800;color:#092147;">Pinned</span>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;">
@@ -641,7 +641,7 @@
       {% for pin in pinned_chats %}
       {% with conv=pin.conversation %}
       <a href="{% url 'chat_page' slug=conv.slug %}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;text-decoration:none;color:inherit;background:#f8faff;">
-        <span style="width:30px;height:30px;border-radius:50%;background:#eef4ff;color:#1B5EC7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span style="width:30px;height:30px;border-radius:50%;background:#eef4ff;color:#004AAD;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         </span>
         <div style="min-width:0;">
@@ -855,7 +855,7 @@
             {% if proj.get_main_image_url %}
               <img src="{{ proj.get_main_image_url }}" alt="{{ proj.title }}" class="id-df-img">
             {% else %}
-              <div class="id-df-img-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#1B5EC7;opacity:.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+              <div class="id-df-img-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#004AAD;opacity:.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
             {% endif %}
 
             <!-- Match score badge -->
@@ -1023,7 +1023,7 @@
           {% for match in top_matches %}
           {% with p=match.project %}
           <div style="display:flex;gap:14px;align-items:center;padding:12px 14px;border:1px solid #e0e8f4;border-radius:10px;background:#fff;transition:box-shadow .2s,transform .2s;"
-               onmouseenter="this.style.boxShadow='0 4px 18px rgba(27,94,199,.1)';this.style.transform='translateY(-1px)'"
+               onmouseenter="this.style.boxShadow='0 4px 18px rgba(0,74,173,.1)';this.style.transform='translateY(-1px)'"
                onmouseleave="this.style.boxShadow='';this.style.transform=''">
             <!-- Score badge -->
             <div style="width:46px;height:46px;border-radius:50%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -1039,12 +1039,12 @@
             <div style="flex:1;min-width:0;">
               <a href="{{ p.get_absolute_url }}" style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;text-decoration:none;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.title }}</a>
               <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;">
-                <span style="background:#e0e8f4;color:#1B5EC7;font-size: 1.2rem;font-weight:700;padding:2px 7px;border-radius:20px;">{{ p.industry }}</span>
+                <span style="background:#e0e8f4;color:#004AAD;font-size: 1.2rem;font-weight:700;padding:2px 7px;border-radius:20px;">{{ p.industry }}</span>
                 <span style="background:#f3f4f6;color:#6b7280;font-size: 1.2rem;font-weight:700;padding:2px 7px;border-radius:20px;">{{ match.label }}</span>
               </div>
             </div>
             <!-- CTA -->
-            <a href="{{ p.get_absolute_url }}" style="background:#1B5EC7;color:#fff;padding:6px 14px;border-radius:7px;font-size: 1.2rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;">View →</a>
+            <a href="{{ p.get_absolute_url }}" style="background:#004AAD;color:#fff;padding:6px 14px;border-radius:7px;font-size: 1.2rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;">View →</a>
           </div>
           {% endwith %}
           {% endfor %}
@@ -1088,7 +1088,7 @@
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
 
           <a href="{% url 'mentorship_hub' %}" style="display:flex;flex-direction:column;gap:6px;padding:16px;background:linear-gradient(135deg,#f0f7ff,#e8f2ff);border:1.5px solid #c3d4ec;border-radius:12px;text-decoration:none;transition:box-shadow .2s;"
-             onmouseenter="this.style.boxShadow='0 4px 16px rgba(27,94,199,.12)'" onmouseleave="this.style.boxShadow=''">
+             onmouseenter="this.style.boxShadow='0 4px 16px rgba(0,74,173,.12)'" onmouseleave="this.style.boxShadow=''">
             <span style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#dbeafe;color:#1d4ed8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span>
             <span style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;">Mentorship</span>
             <span style="font-size: 1.2rem;color:#6b7280;">Connect with domain experts</span>
@@ -1149,7 +1149,7 @@
           {% for item in saved|slice:":3" %}{% if item.project %}
           <div class="id-df-card">
             {% if item.project.get_main_image_url %}<img src="{{ item.project.get_main_image_url }}" alt="" class="id-df-img">
-            {% else %}<div class="id-df-img-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#1B5EC7;opacity:.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>{% endif %}
+            {% else %}<div class="id-df-img-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#004AAD;opacity:.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>{% endif %}
             <div class="id-df-body">
               <a href="{{ item.project.get_absolute_url }}" class="id-df-title">{{ item.project.title }}</a>
               <p class="id-df-problem">{{ item.project.description|truncatewords:15 }}</p>
@@ -1240,7 +1240,7 @@
         {% for item in saved %}{% if item.project %}
         <div class="id-df-card">
           {% if item.project.get_main_image_url %}<img src="{{ item.project.get_main_image_url }}" alt="" class="id-df-img">
-          {% else %}<div class="id-df-img-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#1B5EC7;opacity:.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>{% endif %}
+          {% else %}<div class="id-df-img-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#004AAD;opacity:.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>{% endif %}
           <div class="id-df-body">
             <div class="id-df-tags">
               <span class="id-df-tag id-df-tag--industry">{{ item.project.industry }}</span>

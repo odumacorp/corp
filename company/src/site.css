@@ -614,3 +614,22 @@ html:not(.js) .car-ctrl{display:none}
 /* About sits on mist; when there are no partners yet, keep the alternating backgrounds */
 #partners[hidden] + #about{background:var(--paper)}
 .logo-tile img{height:52px}
+
+/* ── Gallery collage (per event) ── */
+.gp-grid.collage{grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:190px;grid-auto-flow:dense;gap:12px}
+.gp-grid.collage li{position:relative;min-width:0}
+.gp-grid.collage .c2{grid-column:span 2}.gp-grid.collage .r2{grid-row:span 2}
+.gp-grid.collage .gp-tile{aspect-ratio:auto;height:100%;border-radius:14px}
+.gev.folded .fold{display:none}
+.gp-more{position:absolute;inset:0;z-index:2;display:grid;place-items:center;border:0;border-radius:14px;background:rgba(15,27,51,.62);color:#fff;font:inherit;font-size:clamp(20px,2vw + 10px,30px);font-weight:700;letter-spacing:-.01em;cursor:pointer;transition:background .2s}
+.gp-more:hover{background:rgba(15,27,51,.72)}
+.gp-more:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.gev:not(.folded) .gp-more{display:none}
+.gev-less{margin:12px 0 0;text-align:right}
+.gev.folded .gev-less{display:none}
+@media (max-width:1024px){.gp-grid.collage{grid-auto-rows:160px}}
+@media (max-width:640px){
+  .gp-grid.collage{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:130px;gap:8px}
+  .gp-grid.collage .c2{grid-column:span 2}
+  .gp-grid.collage .c1.r2{grid-row:span 2}
+}

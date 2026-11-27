@@ -19,7 +19,7 @@
 .hf-hero::after {
   content: ''; position: absolute; right: -40px; top: -40px;
   width: 220px; height: 220px; border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(27,94,199,.12) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(0,74,173,.12) 0%, transparent 70%);
   pointer-events: none;
 }
 .hf-tag {
@@ -27,11 +27,11 @@
   font-size: clamp(1.6rem, 4vw, 2.4rem);
   font-weight: 900; color: #0A1628; margin: 0 0 8px;
 }
-.hf-tag span { color: #1B5EC7; }
+.hf-tag span { color: #004AAD; }
 .hf-sub { font-size: 1.2rem; color: #4b5e7a; margin: 0 0 18px; }
 .hf-total {
   display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(27,94,199,.12); color: #1B5EC7;
+  background: rgba(0,74,173,.12); color: #004AAD;
   font-size: 1.2rem; font-weight: 700; padding: 5px 14px;
   border-radius: 20px;
 }
@@ -41,10 +41,10 @@
 .hf-rel-tag {
   padding: 5px 13px; border-radius: 20px;
   background: #fff; border: 1.5px solid #e0e8f4;
-  font-size: 1.2rem; font-weight: 700; color: #0057FF;
+  font-size: 1.2rem; font-weight: 700; color: #004AAD;
   text-decoration: none; transition: all .15s;
 }
-.hf-rel-tag:hover { background: #0057FF; color: #fff; border-color: #0057FF; }
+.hf-rel-tag:hover { background: #004AAD; color: #fff; border-color: #004AAD; }
 
 /* Section headers */
 .hf-section-title {
@@ -55,7 +55,7 @@
 }
 .hf-section-count {
   font-size: 1.2rem; font-weight: 700;
-  background: #e8f0ff; color: #0057FF;
+  background: #e8f0ff; color: #004AAD;
   padding: 2px 9px; border-radius: 20px;
 }
 
@@ -105,7 +105,7 @@
 }
 .hf-proj-body { padding: 14px 16px; }
 .hf-proj-industry {
-  font-size: 1.2rem; font-weight: 700; color: #0057FF;
+  font-size: 1.2rem; font-weight: 700; color: #004AAD;
   text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px;
 }
 .hf-proj-title {
@@ -127,7 +127,7 @@
   transition: box-shadow .15s;
 }
 .hf-disc:hover { box-shadow: 0 4px 16px rgba(0,87,255,.1); border-color: #c3d7ff; }
-.hf-disc-group { font-size: 1.2rem; font-weight: 800; color: #0057FF; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.hf-disc-group { font-size: 1.2rem; font-weight: 800; color: #004AAD; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
 .hf-disc-title { font-size: 1.2rem; font-weight: 700; color: #0A1628; margin-bottom: 4px; }
 .hf-disc-meta { font-size: 1.2rem; color: #9ca3af; }
 
@@ -165,7 +165,7 @@
     </div>
     <p style="font-size: 1.2rem;font-weight:700;color:#374151;margin:0 0 6px;">No results for #{{ tag }}</p>
     <p style="font-size: 1.2rem;margin:0;">Be the first — use <strong>#{{ tag }}</strong> in a post or project!</p>
-    <a href="{% url 'app' %}" style="display:inline-block;margin-top:18px;background:#0057FF;color:#fff;padding:10px 24px;border-radius:9px;font-weight:700;font-size: 1.2rem;text-decoration:none;">Post Something</a>
+    <a href="{% url 'app' %}" style="display:inline-block;margin-top:18px;background:#004AAD;color:#fff;padding:10px 24px;border-radius:9px;font-weight:700;font-size: 1.2rem;text-decoration:none;">Post Something</a>
   </div>
   {% endif %}
 

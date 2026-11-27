@@ -6,7 +6,7 @@
 
 {% block content %}
 <style>
-.pm{--ink:#0A1628;--text:#2D3F58;--muted:#566A8A;--line:#E4EAF2;--blue:var(--oc-blue,#1B5EC7);--blue-d:var(--oc-blue-dark,#144FA8);
+.pm{--ink:#0A1628;--text:#2D3F58;--muted:#566A8A;--line:#E4EAF2;--blue:var(--oc-blue,#004AAD);--blue-d:var(--oc-blue-dark,#003A8C);
   max-width:1160px;margin:0 auto;padding:16px 16px 56px;font-family:'Inter',system-ui,sans-serif;font-size:16px;line-height:1.55;color:var(--text);}
 .pm *{box-sizing:border-box;}
 .pm h1{font-family:'Space Grotesk',sans-serif;font-size:30px;line-height:1.15;color:var(--ink);margin:8px 0 4px;}
@@ -22,7 +22,7 @@
 .pm label{display:block;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px;}
 .pm label span{font-weight:400;color:var(--muted);}
 .pm input[type=text],.pm input[type=url],.pm input[type=number]{width:100%;min-height:44px;padding:9px 12px;border:1px solid #C9D3E1;border-radius:8px;font:inherit;font-size:15px;color:var(--ink);background:#fff;}
-.pm input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,94,199,.15);}
+.pm input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,74,173,.15);}
 .pf-file-wrap{position:relative;display:flex;align-items:center;gap:12px;min-height:52px;padding:8px 12px;border:1.5px dashed #9AA8BB;border-radius:10px;background:#F8FAFD;cursor:pointer;}
 .pf-file-wrap:focus-within{outline:3px solid var(--blue);outline-offset:2px;}
 .pf-file-wrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;}
@@ -48,7 +48,7 @@
 .pm-item{display:grid;grid-template-columns:220px minmax(0,1fr);gap:18px;padding:14px;scroll-margin-top:90px;}
 .pm-item.is-hidden{background:#FAFBFD;}
 .pm-item.is-hidden .pm-logo img{opacity:.5;}
-.pm-item:target{box-shadow:0 0 0 3px rgba(27,94,199,.35);}
+.pm-item:target{box-shadow:0 0 0 3px rgba(0,74,173,.35);}
 .pm-logo{display:flex;align-items:center;justify-content:center;height:110px;margin:0;border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px;}
 .pm-logo img{max-height:56px;max-width:100%;object-fit:contain;}
 @media(max-width:800px){.pm-item{grid-template-columns:minmax(0,1fr);}}
