@@ -1,0 +1,26 @@
+<script>
+(function () {
+  /* Show / hide password */
+  document.querySelectorAll('.au [data-show]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var inp = document.getElementById(b.getAttribute('aria-controls'));
+      var show = inp.type === 'password';
+      inp.type = show ? 'text' : 'password';
+      b.textContent = show ? 'Hide' : 'Show';
+      b.setAttribute('aria-pressed', String(show));
+    });
+  });
+  /* One submit only: the app may take a few seconds to answer */
+  document.querySelectorAll('.au form').forEach(function (f) {
+    f.addEventListener('submit', function (e) {
+      var btn = f.querySelector('button[type=submit]');
+      /* after every other handler (e.g. the app's form validator) has had its say */
+      setTimeout(function () { if (btn && !e.defaultPrevented) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); } }, 0);
+    });
+  });
+  /* Coming back with the browser's Back button: buttons usable again */
+  window.addEventListener('pageshow', function () {
+    document.querySelectorAll('.au button[type=submit]').forEach(function (b) { b.disabled = false; b.removeAttribute('aria-busy'); });
+  });
+})();
+</script>

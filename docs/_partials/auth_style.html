@@ -1,0 +1,116 @@
+{% load static %}
+{# Shared look for login.html and register.html, matching phone-book.odumacorp.com and odumacorp.com. Sizes in px: the app's root font size is small. #}
+<link rel="preload" href="{% static 'fonts/dm-sans-latin-var.woff2' %}" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"DM Sans";src:url({% static 'fonts/dm-sans-latin-var.woff2' %}) format("woff2");font-weight:400 700;font-style:normal;font-display:swap}
+.oc-bottom-nav,.oc-footer{display:none!important}
+body.no-navbar{padding-top:0!important;background:#00347F}
+/* Blues taken from the round logo (#004AAD) */
+.au{--blue:#004AAD;--deep:#003A8C;--tint:#E1EAF7;--warm:#F29D38;--warm-tint:#FCEBD5;--ink:#0F1B33;--body:#4A5568;--muted:#5B6475;--line:#D5DCE6;--ok:#0E5C34;
+  min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;color:#fff;
+  background:radial-gradient(1100px 600px at 85% -10%,rgba(255,255,255,.12),transparent 60%),linear-gradient(160deg,#0A5AC4 0%,#004AAD 42%,#00347F 100%);
+  font:400 16px/1.55 "DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.au *,.au *::before,.au *::after{box-sizing:border-box}
+.au a{color:inherit}
+.au :focus-visible{outline:3px solid #fff;outline-offset:3px;border-radius:8px}
+.au-top{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1200px;width:100%;margin:0 auto;padding:16px 24px}
+.au-brand{display:flex;align-items:center;gap:14px;text-decoration:none;min-height:44px}
+.au-brand img{width:60px;height:60px;border-radius:50%;box-shadow:0 6px 18px rgba(0,20,60,.35),0 0 0 2px rgba(255,255,255,.4)}
+.au-brand b{display:block;font-size:21px;line-height:1.1;letter-spacing:-.015em}
+.au-brand small{display:block;font-size:13.5px;opacity:.85}
+.au-pill{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:999px;border:1.5px solid rgba(255,255,255,.55);text-decoration:none;font-weight:600;font-size:15px;transition:background .2s}
+.au-pill:hover{background:rgba(255,255,255,.12);color:#fff}
+.au-main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,460px);gap:56px;align-items:center;max-width:1200px;width:100%;margin:0 auto;padding:12px 24px 32px}
+.au-main.wide{grid-template-columns:minmax(0,1fr) minmax(0,520px)}
+
+/* left: the platform's pitch */
+.au-aside h1{font-size:clamp(34px,3.6vw + 12px,54px);line-height:1.04;letter-spacing:-.035em;font-weight:700;margin:0 0 16px;color:#fff;font-family:inherit}
+.au-aside .lead{font-size:18px;line-height:1.55;margin:0 0 22px;max-width:30em;color:rgba(255,255,255,.92)}
+.au-ticks{list-style:none;margin:0 0 30px;padding:0;display:grid;gap:12px}
+.au-ticks li{display:flex;align-items:center;gap:12px;font-weight:600;font-size:17px}
+.au-ticks .t{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warm);color:var(--ink);display:grid;place-items:center}
+.au-ticks .t svg{width:15px;height:15px}
+.au-art{position:relative;width:min(100%,420px);height:290px}
+.au-photo{position:absolute;left:0;top:0;width:230px;height:288px;border-radius:24px;overflow:hidden;box-shadow:0 24px 50px rgba(7,20,60,.35);border:3px solid rgba(255,255,255,.85);margin:0}
+.au-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.au-note{position:absolute;right:0;top:46px;width:250px;background:#FFFFFE;color:var(--ink);border-radius:18px;padding:14px 16px;box-shadow:0 18px 40px rgba(7,20,60,.3);font-size:14px}
+.au-note.n2{top:auto;bottom:8px;right:20px;width:232px;display:flex;align-items:center;gap:12px}
+.au-note b{display:block;font-size:15px}
+.au-note small{display:block;color:var(--muted);font-size:13px;line-height:1.4}
+.au-note .bubble{margin-top:8px;padding:9px 11px;border-radius:12px;background:#EEF3FC;font-size:13.5px;line-height:1.4}
+.au-ex{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--warm-tint);color:#7A4300;vertical-align:middle;margin-left:4px}
+.au-ring{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px;color:var(--ink);background:radial-gradient(closest-side,#FFFFFE 76%,transparent 78%),conic-gradient(var(--blue) 0 82%,var(--tint) 82% 100%)}
+.au-count{display:inline-flex;align-items:center;gap:8px;margin-top:26px;padding:8px 16px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);font-size:14.5px;font-weight:600}
+.au-count .dot{width:8px;height:8px;border-radius:50%;background:#7CE0A3}
+
+/* right: the card */
+.au-card{background:#FFFFFE;color:var(--body);border-radius:22px;padding:34px 34px 28px;box-shadow:0 1px 2px rgba(10,25,60,.10),0 8px 16px -4px rgba(10,25,60,.14),0 32px 48px -16px rgba(10,25,60,.38)}
+.au-card :focus-visible{outline-color:var(--blue)}
+.au-card h2{margin:0 0 6px;text-align:center;color:var(--ink);font-weight:700;font-size:30px;line-height:1.15;font-family:inherit;letter-spacing:-.025em}
+.au-card .sub{margin:0 0 24px;text-align:center;font-size:15.5px;color:var(--body)}
+.au-err{background:#FDECEC;border:1px solid #F5C2C2;color:#9B1C1C;border-radius:12px;padding:10px 14px;font-size:14.5px;margin-bottom:18px}
+.au-err ul{margin:0;padding-left:18px}
+.au-f{margin-bottom:16px}
+.au-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.au-f label,.au-legend{display:block;font-size:14.5px;font-weight:600;color:var(--ink);margin:0 0 6px}
+.au-f label span{font-weight:400;color:var(--muted)}
+.au-in{position:relative}
+.au .au-in input{display:block;width:100%;height:48px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-weight:400;font-size:16px;font-family:inherit;box-shadow:none;transition:border-color .15s,box-shadow .15s;margin:0}
+.au .au-in input::placeholder{color:#97A1B2}
+.au .au-in input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,74,173,.2)}
+.au .au-in.pw input{padding-right:68px}
+.au-show{position:absolute;right:6px;top:6px;height:36px;min-width:52px;padding:0 10px;border:0;border-radius:9px;background:transparent;color:var(--deep);font-weight:600;font-size:14px;font-family:inherit;cursor:pointer}
+.au-show:hover{background:var(--tint)}
+.au-hint{margin:6px 0 0;font-size:13px;color:var(--muted)}
+.au-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 18px;font-size:14.5px}
+.au-meta label{display:flex;align-items:center;gap:8px;cursor:pointer;min-height:44px;color:var(--body)}
+.au-meta input{width:18px;height:18px;accent-color:var(--blue);margin:0}
+.au-link{color:var(--deep)!important;font-weight:600;text-decoration:none}
+.au-link:hover{text-decoration:underline}
+.au-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;border:0;border-radius:12px;background:var(--blue);color:#fff;font-weight:700;font-size:16px;font-family:inherit;cursor:pointer;box-shadow:0 6px 16px rgba(0,74,173,.3);transition:background .2s,transform .2s}
+.au-btn:hover{background:var(--deep);transform:translateY(-1px)}
+.au-btn[disabled]{opacity:.7;cursor:progress;transform:none}
+.au-or{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted);font-size:14px}
+.au-or::before,.au-or::after{content:"";flex:1;height:1px;background:#E2E6EE}
+.au-google{margin:0}
+.au-google button{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:50px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-weight:600;font-size:16px;font-family:inherit;cursor:pointer;transition:background .15s,border-color .15s}
+.au-google button:hover{background:#F5F8FE;border-color:#B8C6DC}
+.au-foot{margin:20px 0 0;text-align:center;font-size:15px}
+.au-terms{margin:12px 0 0;text-align:center;font-size:13px;color:var(--muted);line-height:1.5}
+.au-terms a{color:var(--deep);text-decoration:underline;text-underline-offset:2px}
+.au-choice{margin:0 0 16px;border:0;padding:0;min-width:0}
+.au-choice legend{padding:0;float:left;width:100%}
+.au-opts{clear:both;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.au-opt{position:relative;display:block;cursor:pointer}
+.au-opt input{position:absolute;opacity:0;width:1px;height:1px}
+.au-opt span{display:block;height:100%;padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:#fff;transition:border-color .15s,background .15s}
+.au-opt b{display:block;color:var(--ink);font-size:15.5px}
+.au-opt small{display:block;color:var(--muted);font-size:13px;line-height:1.35}
+.au-opt:hover span{border-color:#8FA9D6}
+.au-opt input:checked+span{border-color:var(--blue);background:#E8EFFA;box-shadow:inset 0 0 0 1px var(--blue)}
+.au-opt input:checked+span b{color:var(--deep)}
+.au-opt input:focus-visible+span{outline:3px solid var(--blue);outline-offset:2px}
+.au .oc-field-err{margin-top:6px}
+.au-bottom{text-align:center;padding:10px 16px 22px;font-size:13.5px;color:rgba(255,255,255,.85)}
+.au-bottom a{text-decoration:none;padding:4px 6px;display:inline-block}
+.au-bottom a:hover{text-decoration:underline}
+
+@media (max-width:960px){
+  .au-main,.au-main.wide{grid-template-columns:minmax(0,1fr);gap:28px;max-width:560px}
+  .au-aside{order:2}
+  .au-card-wrap{order:1}
+  .au-mob-head{display:block!important}
+}
+.au-mob-head{display:none;text-align:center;margin:0 0 4px}
+.au-mob-head p{margin:0;font-size:15.5px;opacity:.92}
+@media (max-width:960px){.au-aside h1{font-size:32px}.au-aside .lead{font-size:16.5px}}
+@media (max-width:520px){
+  .au-top{padding:12px 16px}.au-main{padding:6px 16px 24px}
+  .au-card{padding:26px 18px 22px;border-radius:18px}
+  .au-card h2{font-size:26px}
+  .au-row{grid-template-columns:1fr;gap:0}
+  .au-art{height:300px}.au-photo{width:200px;height:250px}.au-note{width:220px;top:30px}.au-note.n2{right:0;width:210px}
+  .au-brand small{display:none}.au-brand img{width:48px;height:48px}.au-brand b{font-size:19px}
+}
+@media (prefers-reduced-motion:reduce){.au *{transition:none!important}}
+</style>

@@ -1,0 +1,26 @@
+{% load static %}
+{# Left column of the login / sign-up pages: what Oduma Corp is for, in the same words as odumacorp.com. #}
+<aside class="au-aside" aria-label="About Oduma Corp">
+  <h1>Put your project in front of investors.</h1>
+  <p class="lead">Publish your project, get proposals and book meetings with angel investors in Africa. Investing? Browse projects and contact founders directly.</p>
+  <ul class="au-ticks">
+    <li><span class="t" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>Free to join</li>
+    <li><span class="t" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>One app for founders and investors</li>
+    <li><span class="t" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>Proposals and meetings built in</li>
+    <li><span class="t" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>Based in Nairobi, Kenya</li>
+  </ul>
+  <div class="au-art">
+    <figure class="au-photo"><img src="{% static 'images/auth/pitch-480.webp' %}" srcset="{% static 'images/auth/pitch-480.webp' %} 480w, {% static 'images/auth/pitch-800.webp' %} 800w" sizes="230px" width="480" height="600" alt="A founder presents growth charts on a whiteboard." decoding="async"></figure>
+    <div class="au-note" aria-hidden="true">
+      <b>New proposal <span class="au-ex">Example</span></b>
+      <div class="bubble">KSh 1M for 8% equity. Can we meet on Thursday?</div>
+    </div>
+    <div class="au-note n2" aria-hidden="true">
+      <span class="au-ring">82</span>
+      <span><b>Strong match</b><small>Industry, stage and region fit</small></span>
+    </div>
+  </div>
+  {% if innovator_count or investor_count %}
+  <p class="au-count"><span class="dot" aria-hidden="true"></span>{{ innovator_count }} innovator{{ innovator_count|pluralize }} and {{ investor_count }} investor{{ investor_count|pluralize }} so far</p>
+  {% endif %}
+</aside>

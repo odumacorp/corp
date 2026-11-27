@@ -3138,10 +3138,20 @@ from .forms import CustomUserCreationForm
 from .models import UserProfile
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+def _google_ready():
+    """True when Google sign-in is set up (the SocialApp row exists; on Render it is synced at deploy).
+    Without it {% provider_login_url 'google' %} raises, so the pages hide the Google button instead."""
+    try:
+        from allauth.socialaccount.models import SocialApp
+        return SocialApp.objects.filter(provider='google').exists()
+    except Exception:
+        return False
+
+
 @ensure_csrf_cookie
 def register(request):
     if request.user.is_authenticated:
-        return render(request, 'register.html', {'already_logged_in': True, **platform_counts()})
+        return render(request, 'register.html', {'already_logged_in': True, 'hide_navbar': True, **platform_counts()})
     context = {"page_title": "App Center"}
     # Where to go after signing up (e.g. ?next=/projects/create/ from "Create Project"). Same-site paths only.
     from django.utils.http import url_has_allowed_host_and_scheme
@@ -3221,7 +3231,7 @@ def register(request):
         role = request.GET.get('role')
         form = CustomUserCreationForm(initial={'user_type': role} if role in ('innovator', 'investor') else None)
 
-    return render(request, "register.html", {"form": form, "next": next_url, **platform_counts()})
+    return render(request, "register.html", {"form": form, "next": next_url, "hide_navbar": True, "google_ready": _google_ready(), **platform_counts()})
 
 # User login
 def login_view(request):
@@ -3255,7 +3265,7 @@ def login_view(request):
         else:
             messages.error(request, "Invalid credentials, try again.")
 
-    return render(request, 'login.html', {'form': form, **platform_counts()})
+    return render(request, 'login.html', {'form': form, 'hide_navbar': True, 'google_ready': _google_ready(), **platform_counts()})
 
 # User Logout
 @login_required
