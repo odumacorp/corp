@@ -1,0 +1,45 @@
+<nav class="crumbs" aria-label="Breadcrumb">
+  <div class="wrap"><ol><li><a href="/">Home</a></li><li><a href="/products/">Products</a></li><li aria-current="page">{{NAME}}</li></ol></div>
+</nav>
+
+<section class="hero hero-prod" aria-labelledby="h-prod">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">A product by Oduma Corp · {{CATEGORY}}</span>
+      <h1 id="h-prod">{{NAME}}</h1>
+      <p class="lead">{{SUMMARY}}</p>
+      <div class="cta-row">
+{{HERO_BUTTONS}}
+      </div>
+{{HERO_EXTRA}}
+    </div>
+{{ART}}
+  </div>
+</section>
+
+<section aria-labelledby="h-feat">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">What it does</span>
+      <h2 id="h-feat">{{FEATURES_TITLE}}</h2>
+    </div>
+    <div class="feats">
+{{FEATURES}}
+    </div>
+  </div>
+</section>
+
+{{EXTRA}}
+
+{{OTHER}}
+
+<section class="band" aria-labelledby="h-band">
+  <div class="wrap rv">
+    <h2 id="h-band">Building something too?</h2>
+    <p>Oduma Corp connects founders with investors, mentors and partners. List your project for free.</p>
+    <div class="cta-row">
+      <a class="btn btn-light" href="https://app.odumacorp.com/register/?role=innovator&amp;next=/projects/create/">List your project <svg class="i" aria-hidden="true" focusable="false"><use href="#i-arrow"/></svg></a>
+      <a class="btn btn-line" href="/">About Oduma Corp</a>
+    </div>
+  </div>
+</section>

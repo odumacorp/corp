@@ -1,0 +1,32 @@
+{
+  "_help": "One entry per product built by Oduma Corp. Each one gets a card on the homepage (#products), a card on /products/, a link in the footer, and its own page at /products/<slug>/. Fields: slug, name, category, status (e.g. Live, Beta, Coming soon), tagline (one line for cards), summary (page intro), cover (image in company/public/img/products/, 1200x750 is ideal), icon (sprite name), website, buttons [{label, url, style: solid|ghost}], features_title, features [{icon, title, text}], art (optional HTML file in src/products/ for the hero picture; default is the cover), extra (optional HTML file in src/products/ placed after the features), demo (true loads the USSD simulator script), try_label (text for the card's second link, e.g. 'Try the demo').",
+  "products": [
+    {
+      "slug": "remote-phonebook",
+      "name": "Remote Phonebook",
+      "category": "Telecommunications",
+      "status": "Live",
+      "tagline": "Your contacts on any phone, even a basic one with no internet. Dial *384*88041#.",
+      "summary": "Lost your phone, or the battery died? Dial *384*88041# from any phone, even a basic one with no internet, and your contacts are there. Organisations put the right contacts, notices and reminders in every member's phone book.",
+      "cover": "remote-phonebook.webp",
+      "icon": "phone",
+      "website": "https://phone-book.odumacorp.com/",
+      "buttons": [
+        {"label": "Try the demo", "url": "#try", "style": "solid"},
+        {"label": "Visit the website", "url": "https://phone-book.odumacorp.com/", "style": "ghost"}
+      ],
+      "hero_extra": "<a class=\"dial-chip\" href=\"tel:*384*88041%23\"><span class=\"dot\"><svg class=\"i\" aria-hidden=\"true\" focusable=\"false\"><use href=\"#i-phone\"/></svg></span><span>Tap to dial <code>*384*88041#</code></span></a>",
+      "features_title": "Your phone book, safe and reachable from anywhere",
+      "features": [
+        {"icon": "mobile", "title": "Works on any phone", "text": "USSD works on every phone in Kenya, from a kabambe to the newest smartphone."},
+        {"icon": "wifi-off", "title": "No internet needed", "text": "Dial the code and your contacts are there. No data bundle, no app download."},
+        {"icon": "building", "title": "For organisations", "text": "Schools, SACCOs, companies, law firms and insurers put the right contacts, notices and reminders in every member's phone book."},
+        {"icon": "globe", "title": "On every channel", "text": "USSD on any phone, the Android app, the website and an organisation platform. The iPhone app is coming soon."}
+      ],
+      "art": "remote-phonebook-art.html",
+      "extra": "remote-phonebook-try.html",
+      "demo": true,
+      "try_label": "Try the demo"
+    }
+  ]
+}
