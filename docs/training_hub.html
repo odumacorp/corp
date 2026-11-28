@@ -21,7 +21,7 @@
 .th-hero::after { content:''; position:absolute; right:-60px; top:-60px; width:280px; height:280px;
   background:rgba(0,74,173,.06); border-radius:50%; }
 .th-hero h1 { font-family:'Space Grotesk',sans-serif; font-size: 2.7rem; font-weight:800; margin:0 0 8px; color:#0A1628; }
-.th-hero p  { font-size: 1.2rem; margin:0; color:#6b7280; }
+.th-hero p  { font-size: 1.2rem; margin:0; color:#5B6475; }
 .th-filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:28px; }
 .th-filter-btn { padding:7px 18px; border-radius:20px; font-size: 1.2rem; font-weight:600;
   text-decoration:none; border:1.5px solid #d1d5db; color:#374151; background:#fff;
@@ -43,7 +43,7 @@
   letter-spacing:.05em; margin-bottom:6px; }
 .th-card-title { font-family:'Space Grotesk',sans-serif; font-size: 1.2rem; font-weight:700;
   color:var(--th-navy); margin:0 0 8px; line-height:1.3; }
-.th-card-meta { font-size: 1.2rem; color:#6b7280; margin-bottom:12px; }
+.th-card-meta { font-size: 1.2rem; color:#5B6475; margin-bottom:12px; }
 .th-card-actions { display:flex; gap:8px; align-items:center; }
 .th-progress-bar { height:5px; background:#e0e8f4; border-radius:3px; flex:1; overflow:hidden; }
 .th-progress-fill { height:100%; background:var(--th-blue); border-radius:3px; transition:width .4s; }
@@ -52,7 +52,7 @@
 .th-enroll-btn:hover { background:#003A8C; color:#fff; }
 .th-enrolled-tag { font-size: 1.2rem; color:#059669; font-weight:700; }
 .th-empty { background:#f4f7fb; border:1.5px dashed #c3d4ec; border-radius:12px;
-  padding:40px; text-align:center; color:#6b7280; }
+  padding:40px; text-align:center; color:#5B6475; }
 /* My Progress section */
 .th-my-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; margin-bottom:36px; }
 .th-my-card { background:#fff; border:1px solid #e0e8f4; border-radius:12px; padding:18px;
@@ -66,7 +66,8 @@
 <div class="th-wrap">
   <!-- Hero -->
   <div class="th-hero">
-    <h1>Training Hub</h1>
+    <p class="ocx-eyebrow">Learn</p>
+    <h1>Training hub</h1>
     <p>Skill up with expert-led courses on entrepreneurship, fundraising, technology, and more.</p>
   </div>
 
@@ -81,7 +82,7 @@
         <span class="th-my-status th-my-status--{{ enr.status }}">{{ enr.get_status_display }}</span>
       </div>
       <div>
-        <div style="display:flex;justify-content:space-between;font-size: 1.2rem;color:#6b7280;margin-bottom:4px;">
+        <div style="display:flex;justify-content:space-between;font-size: 1.2rem;color:#5B6475;margin-bottom:4px;">
           <span>Progress</span><span>{{ enr.progress }}%</span>
         </div>
         <div class="th-progress-bar"><div class="th-progress-fill" style="width:{{ enr.progress }}%;"></div></div>
@@ -112,7 +113,7 @@
   <!-- Course Grid -->
   <p class="th-section-title">
     {% if active_category or active_level %}Filtered Courses{% else %}All Courses{% endif %}
-    <span style="font-size: 1.2rem;color:#6b7280;font-weight:400;">({{ courses|length }})</span>
+    <span style="font-size: 1.2rem;color:#5B6475;font-weight:400;">({{ courses|length }})</span>
   </p>
 
   {% if courses %}
@@ -149,7 +150,7 @@
   </div>
   {% else %}
   <div class="th-empty">
-    <p style="margin-bottom:8px;opacity:.4;color:#6b7280;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></p>
+    <p style="margin-bottom:8px;opacity:.4;color:#5B6475;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></p>
     <p style="font-weight:700;margin-bottom:4px;">No courses available yet</p>
     <p style="font-size: 1.2rem;">Check back soon — the Oduma Corp team is adding new content regularly.</p>
   </div>

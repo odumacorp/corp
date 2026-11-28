@@ -1,83 +1,96 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-
 {% block title %}Jobs | Oduma Corp{% endblock %}
+{% block meta_description %}Jobs posted by companies and innovators on Oduma Corp.{% endblock %}
+
+{% block extra_head %}
+{% include '_partials/directory_css.html' %}
+{% endblock %}
 
 {% block content %}
-<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
-  <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Jobs</span></li>
-  </ol>
-</nav>
-<button onclick="history.back()" class="oc-back-btn">
-  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-  Back
-</button>
-<div class="oc-container" style="padding-top:16px;padding-bottom:40px;">
-
-  <!-- Page header -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;">
-    <div>
-      <h1 style="font-size: 2.4rem;font-weight:700;color:var(--oc-text-primary);margin-bottom:4px;">Jobs</h1>
-      <p style="font-size: 1.2rem;color:var(--oc-text-muted);">Opportunities posted by companies and innovators on Oduma Corp.</p>
+<div class="dir">
+  <section class="dir-hero" aria-labelledby="dir-title">
+    <div class="dir-wrap">
+      <span class="dir-eyebrow">Opportunities</span>
+      <h1 id="dir-title">Jobs</h1>
+      <p>Roles posted by companies and innovators on Oduma Corp. Find your next team.</p>
+      <div class="dir-hero-row">
+        <form class="dir-search" method="get" action="" role="search" style="flex:1;">
+          <label><span class="sr-only" style="position:absolute;left:-9999px;">Search jobs</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="M21 21l-4.6-4.6"/></svg>
+            <input type="search" name="q" value="{{ q }}" placeholder="Search by role, company or location" autocomplete="off">
+          </label>
+          {% if selected_type %}<input type="hidden" name="type" value="{{ selected_type }}">{% endif %}
+          <button type="submit" class="dir-btn dir-btn--solid">Search</button>
+        </form>
+        {% if user_has_company %}
+        <a class="dir-btn dir-btn--ghost" href="{% url 'create_job' %}" style="height:50px;padding:0 22px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Post a job</a>
+        {% elif user.is_authenticated %}
+        <a class="dir-btn dir-btn--ghost" href="{% url 'create_company' %}" style="height:50px;padding:0 22px;" title="Register a business to post jobs">Register a business to post jobs</a>
+        {% endif %}
+      </div>
     </div>
-    {% if user_has_company %}
-      <a href="{% url 'create_job' %}" class="oc-btn oc-btn-primary oc-btn-sm">+ Post a Job</a>
-    {% elif user.is_authenticated %}
-      <a href="{% url 'create_company' %}" class="oc-btn oc-btn-outline oc-btn-sm" title="Register a business to post jobs">Register a Business</a>
+  </section>
+
+  <div class="dir-wrap">
+    <div class="dir-bar">
+      <p class="dir-count" aria-live="polite">
+        {% if q or selected_type %}
+          <b>{{ jobs|length }}</b> of {{ total_count }} job{{ total_count|pluralize }}{% if selected_label %} · {{ selected_label }}{% endif %}{% if q %} matching “{{ q }}”{% endif %}
+          · <a href="?">Clear</a>
+        {% else %}
+          <b>{{ total_count }}</b> open job{{ total_count|pluralize }}
+        {% endif %}
+      </p>
+    </div>
+    {% if type_chips %}
+    <nav class="dir-chips" aria-label="Filter by job type">
+      <a class="dir-chip" href="?{% if q %}q={{ q|urlencode }}{% endif %}" aria-current="{% if not selected_type %}true{% else %}false{% endif %}">All <small>{{ total_count }}</small></a>
+      {% for c in type_chips %}
+      <a class="dir-chip" href="?type={{ c.key }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}" aria-current="{% if selected_type == c.key %}true{% else %}false{% endif %}">{{ c.label }} <small>{{ c.count }}</small></a>
+      {% endfor %}
+    </nav>
+    {% endif %}
+
+    {% if jobs %}
+    <ul class="dir-grid" style="margin-top:14px;">
+      {% for job in jobs %}
+      <li class="dir-card dir-card--flat">
+        <div class="dir-head dir-head--flat">
+          <span class="dir-av dir-logo" aria-hidden="true">{{ job.company|first|upper|default:"J" }}{% if job.company_page.logo %}<img src="{{ job.company_page.logo.url }}" alt="" loading="lazy" onerror="this.remove()" style="position:absolute;inset:0;border-radius:15px;background:#fff;">{% endif %}</span>
+          <div class="dir-who">
+            <h2 class="dir-name"><a href="{{ job.get_absolute_url }}">{{ job.title }}</a></h2>
+            {% if job.company %}<p class="dir-company">{% if job.company_page %}<a href="{{ job.company_page.get_absolute_url }}">{{ job.company }}</a>{% else %}{{ job.company }}{% endif %}</p>{% endif %}
+          </div>
+        </div>
+        <div class="dir-body">
+          <div class="dir-tags">
+            <span class="dir-tag">{{ job.get_job_type_display }}</span>
+            {% if job.salary_range %}<span class="dir-tag dir-tag--ok">{{ job.salary_range }}</span>{% endif %}
+          </div>
+          {% if job.description %}<p class="dir-bio">{{ job.description|striptags|truncatechars:180 }}</p>{% endif %}
+          <p class="dir-meta" style="margin-top:auto;">
+            {% if job.location %}<span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="vertical-align:-2px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> {{ job.location }}</span>{% endif %}
+            <span>Posted {{ job.created_at|timesince }} ago</span>
+          </p>
+        </div>
+        <div class="dir-acts">
+          {% if user.is_authenticated %}
+          <a class="dir-btn dir-btn--ghost" href="{{ job.get_absolute_url }}">Details</a>
+          <a class="dir-btn dir-btn--solid" href="{{ job.get_absolute_url }}">Apply</a>
+          {% else %}
+          <a class="dir-btn dir-btn--solid" href="{% url 'login' %}?next={{ job.get_absolute_url|urlencode }}">Sign in to apply</a>
+          {% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="dir-empty" style="margin-top:14px;">
+      <h2>{% if q or selected_type %}No jobs match{% else %}No jobs posted yet{% endif %}</h2>
+      <p>{% if q or selected_type %}Try a different search or <a href="?">see all jobs</a>.{% elif user_has_company %}<a href="{% url 'create_job' %}">Post the first opportunity</a> for the community.{% else %}Check back soon.{% endif %}</p>
+    </div>
     {% endif %}
   </div>
-
-  {% if jobs %}
-    <div style="display:flex;flex-direction:column;gap:16px;">
-      {% for job in jobs %}
-      <div class="oc-card" style="padding:24px;display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
-        <!-- Company logo placeholder -->
-        <div style="width:52px;height:52px;border-radius:10px;background:#eef4ff;color:#004AAD;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-        </div>
-        <div style="flex:1;min-width:200px;">
-          <h3 style="font-size: 1.2rem;font-weight:700;color:var(--oc-text-primary);margin-bottom:4px;">{{ job.title }}</h3>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-            {% if job.company %}
-              <span style="font-size: 1.2rem;color:var(--oc-text-muted);display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> {{ job.company }}</span>
-            {% endif %}
-            {% if job.location %}
-              <span style="font-size: 1.2rem;color:var(--oc-text-muted);display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> {{ job.location }}</span>
-            {% endif %}
-            {% if job.job_type %}
-              <span style="font-size: 1.2rem;background:var(--oc-bg-subtle);color:var(--oc-primary);padding:2px 10px;border-radius:99px;font-weight:600;">{{ job.job_type }}</span>
-            {% endif %}
-          </div>
-          {% if job.description %}
-            <p style="font-size: 1.2rem;color:var(--oc-text-secondary);line-height:1.6;margin-bottom:0;">
-              {{ job.description|truncatewords:30 }}
-            </p>
-          {% endif %}
-        </div>
-        <div style="flex-shrink:0;">
-          {% if user.is_authenticated %}
-            <a href="{{ job.get_absolute_url }}" class="oc-btn oc-btn-primary oc-btn-sm">Apply</a>
-          {% else %}
-            <a href="{% url 'login' %}" class="oc-btn oc-btn-outline oc-btn-sm">View</a>
-          {% endif %}
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <div class="oc-card" style="text-align:center;padding:60px 20px;color:var(--oc-text-muted);">
-      <div style="display:flex;justify-content:center;color:#9ca3af;margin-bottom:16px;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
-      <h3 style="font-size: 1.2rem;font-weight:600;color:var(--oc-text-primary);margin-bottom:8px;">No jobs posted yet</h3>
-      <p style="font-size: 1.2rem;">Be the first to post an opportunity for the community.</p>
-      {% if user_has_company %}
-        <a href="{% url 'create_job' %}" class="oc-btn oc-btn-primary" style="margin-top:16px;">Post a Job</a>
-      {% elif user.is_authenticated %}
-        <a href="{% url 'create_company' %}" class="oc-btn oc-btn-outline" style="margin-top:16px;">Register a Business to Post Jobs</a>
-      {% endif %}
-    </div>
-  {% endif %}
-
 </div>
 {% endblock %}

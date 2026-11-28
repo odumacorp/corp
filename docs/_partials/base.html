@@ -90,6 +90,8 @@
 
   <script>/* Flaticon uicons: some older pages use <i class="fi fi-rr-…">; load the font only where needed */
   document.addEventListener('DOMContentLoaded',function(){if(document.querySelector('i.fi,span.fi,[class^="fi fi-"],[class*=" fi-rr-"]')){var l=document.createElement('link');l.rel='stylesheet';l.href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css';document.head.appendChild(l);}});</script>
+  <script>/* broken profile photos → default avatar (site-wide) */
+  document.addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&!t.dataset.ocFb&&/avatar|profile|pf-|-av\b|-av-|ch-hdr|ch-msg|ch-panel-av|ap-profile|ap-author|ap-comment|ib-avatar|pl-card-avatar|cpx-owner/i.test((t.className||'')+' '+(t.parentNode&&t.parentNode.className||''))){t.dataset.ocFb='1';t.alt='';t.src='{% static "images/avatar_default.png" %}';}},true);</script>
 </head>
 <body{% if hide_navbar %} class="no-navbar"{% endif %}>
 
@@ -1984,7 +1986,7 @@
       function showGhost() {
         el.value = example;
         el.classList.add('cp-ghost-text');
-        el.style.color = '#9ca3af';   /* inline style beats any CSS class rule */
+        el.style.color = '#6B7385';   /* inline style beats any CSS class rule; 4.5:1 on light inputs */
         hint.style.display = 'none';
       }
       function clearGhost() {

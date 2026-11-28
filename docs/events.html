@@ -1,71 +1,102 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-
 {% block title %}Events | Oduma Corp{% endblock %}
+{% block meta_description %}Demo days, investor meetups, workshops and webinars across the Oduma Corp network.{% endblock %}
+
+{% block extra_head %}
+{% include '_partials/directory_css.html' %}
+{% endblock %}
 
 {% block content %}
-<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
-  <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Events</span></li>
-  </ol>
-</nav>
-<button onclick="history.back()" class="oc-back-btn">
-  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-  Back
-</button>
-<div class="oc-container" style="padding-top:16px;padding-bottom:40px;">
-
-  <!-- Page header -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;">
-    <div>
-      <h1 style="font-size: 2.4rem;font-weight:700;color:var(--oc-text-primary);margin-bottom:4px;">Events</h1>
-      <p style="font-size: 1.2rem;color:var(--oc-text-muted);">Discover upcoming events across the Oduma Corp network.</p>
+<div class="dir">
+  <section class="dir-hero" aria-labelledby="dir-title">
+    <div class="dir-wrap">
+      <span class="dir-eyebrow">Community</span>
+      <h1 id="dir-title">Events</h1>
+      <p>Demo days, investor meetups, workshops and webinars across the Oduma Corp network.</p>
+      <div class="dir-hero-row">
+        <form class="dir-search" method="get" action="" role="search" style="flex:1;">
+          <label><span class="sr-only" style="position:absolute;left:-9999px;">Search events</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="M21 21l-4.6-4.6"/></svg>
+            <input type="search" name="q" value="{{ q }}" placeholder="Search by name, place or organiser" autocomplete="off">
+          </label>
+          {% if selected_type %}<input type="hidden" name="type" value="{{ selected_type }}">{% endif %}
+          {% if when == 'past' %}<input type="hidden" name="when" value="past">{% endif %}
+          <button type="submit" class="dir-btn dir-btn--solid">Search</button>
+        </form>
+        {% if user.is_authenticated %}
+        <a class="dir-btn dir-btn--ghost" href="{% url 'events_hub' %}" style="height:50px;padding:0 22px;">Events hub &amp; registration</a>
+        {% endif %}
+      </div>
     </div>
-    {% if user.is_authenticated and user.user_type == 'admin' %}
-      <a href="{% url 'admin_panel' %}" class="oc-btn oc-btn-primary oc-btn-sm">+ Add Event</a>
+  </section>
+
+  <div class="dir-wrap">
+    <div class="dir-bar">
+      <p class="dir-count" aria-live="polite">
+        {% if q or selected_type %}
+          <b>{{ events|length }}</b> of {{ total_count }} {{ when }} event{{ total_count|pluralize }}{% if selected_label %} · {{ selected_label }}{% endif %}{% if q %} matching “{{ q }}”{% endif %}
+          · <a href="?{% if when == 'past' %}when=past{% endif %}">Clear</a>
+        {% else %}
+          <b>{{ total_count }}</b> {{ when }} event{{ total_count|pluralize }}
+        {% endif %}
+      </p>
+      <nav class="dir-sort" aria-label="When">
+        <a href="?{% if q %}q={{ q|urlencode }}{% endif %}" aria-current="{% if when != 'past' %}true{% else %}false{% endif %}">Upcoming</a>
+        <a href="?when=past{% if q %}&amp;q={{ q|urlencode }}{% endif %}" aria-current="{% if when == 'past' %}true{% else %}false{% endif %}">Past</a>
+      </nav>
+    </div>
+    {% if type_chips %}
+    <nav class="dir-chips" aria-label="Filter by event type">
+      <a class="dir-chip" href="?{% if q %}q={{ q|urlencode }}&amp;{% endif %}{% if when == 'past' %}when=past{% endif %}" aria-current="{% if not selected_type %}true{% else %}false{% endif %}">All <small>{{ total_count }}</small></a>
+      {% for c in type_chips %}
+      <a class="dir-chip" href="?type={{ c.key }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}{% if when == 'past' %}&amp;when=past{% endif %}" aria-current="{% if selected_type == c.key %}true{% else %}false{% endif %}">{{ c.label }} <small>{{ c.count }}</small></a>
+      {% endfor %}
+    </nav>
+    {% endif %}
+
+    {% if events %}
+    <ul class="dir-grid" style="margin-top:14px;">
+      {% for event in events %}
+      <li class="dir-card">
+        <div class="dir-cover">
+          {% if event.image %}<img src="{{ event.image.url }}" alt="" loading="lazy" decoding="async" onerror="this.remove()">{% endif %}
+          <span class="ph" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+          {% if event.is_featured %}<span class="dir-flag">Featured</span>{% endif %}
+        </div>
+        <div class="dir-head">
+          <span class="dir-av dir-date" aria-hidden="true"><b>{{ event.date|date:"j" }}</b><small>{{ event.date|date:"M" }}</small></span>
+          <div class="dir-who">
+            <h2 class="dir-name"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ event.name }}</span></h2>
+            <p class="dir-company"><time datetime="{{ event.date|date:'Y-m-d' }}">{{ event.date|date:"l, j F Y" }}</time></p>
+          </div>
+        </div>
+        <div class="dir-body">
+          <div class="dir-tags"><span class="dir-tag">{{ event.get_event_type_display }}</span></div>
+          {% if event.description %}<p class="dir-bio">{{ event.description|striptags|truncatechars:160 }}</p>{% endif %}
+          <p class="dir-meta" style="margin-top:auto;">
+            {% if event.location %}<span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="vertical-align:-2px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> {{ event.location }}</span>{% endif %}
+            {% if event.organizer %}<span>By {{ event.organizer }}</span>{% endif %}
+          </p>
+        </div>
+        <div class="dir-acts">
+          {% if when == 'past' %}
+          <span class="dir-btn dir-btn--ghost" aria-disabled="true" style="cursor:default;">Event ended</span>
+          {% elif user.is_authenticated %}
+          <a class="dir-btn dir-btn--solid" href="{% url 'events_hub' %}">Register</a>
+          {% else %}
+          <a class="dir-btn dir-btn--solid" href="{% url 'login' %}?next={% url 'events_hub' %}">Sign in to register</a>
+          {% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="dir-empty" style="margin-top:14px;">
+      <h2>{% if q or selected_type %}No events match{% elif when == 'past' %}No past events{% else %}No upcoming events{% endif %}</h2>
+      <p>{% if q or selected_type %}Try a different search or <a href="?">see all events</a>.{% else %}Check back soon. Events appear here as they're scheduled.{% endif %}</p>
+    </div>
     {% endif %}
   </div>
-
-  {% if events %}
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
-      {% for event in events %}
-      <div class="oc-card" style="padding:0;overflow:hidden;">
-        <!-- Coloured date banner -->
-        <div style="background:var(--oc-primary);padding:18px 20px;display:flex;align-items:center;gap:16px;">
-          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:10px 16px;text-align:center;min-width:52px;">
-            <div style="font-size: 2.0rem;font-weight:700;color:#fff;line-height:1;">{{ event.date|date:"d" }}</div>
-            <div style="font-size: 1.2rem;font-weight:600;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.04em;">{{ event.date|date:"M" }}</div>
-          </div>
-          <div>
-            <div style="font-size: 1.2rem;font-weight:700;color:#fff;">{{ event.name }}</div>
-            <div style="font-size: 1.2rem;color:rgba(255,255,255,.75);margin-top:2px;">{{ event.date|date:"l, F j, Y" }}</div>
-          </div>
-        </div>
-        <div style="padding:18px 20px;">
-          {% if event.location %}
-            <div style="display:flex;align-items:center;gap:6px;font-size: 1.2rem;color:var(--oc-text-muted);margin-bottom:10px;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> {{ event.location }}
-            </div>
-          {% endif %}
-          {% if event.description %}
-            <p style="font-size: 1.2rem;color:var(--oc-text-secondary);line-height:1.6;margin-bottom:0;">
-              {{ event.description|truncatewords:25 }}
-            </p>
-          {% endif %}
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <div class="oc-card" style="text-align:center;padding:60px 20px;color:var(--oc-text-muted);">
-      <div style="width:56px;height:56px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:#eef4ff;color:#004AAD;">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      </div>
-      <h3 style="font-size: 1.2rem;font-weight:600;color:var(--oc-text-primary);margin-bottom:8px;">No upcoming events</h3>
-      <p style="font-size: 1.2rem;">Check back soon — events will appear here as they're scheduled.</p>
-    </div>
-  {% endif %}
-
 </div>
 {% endblock %}

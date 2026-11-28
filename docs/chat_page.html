@@ -191,7 +191,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
 .ch-post-strip--article      { background: linear-gradient(90deg, #6b7280, #9ca3af); }
 .ch-post-strip--update       { background: linear-gradient(90deg, #004AAD, #3b82f6); }
 .ch-post-strip--announcement { background: linear-gradient(90deg, #059669, #10b981); }
-.ch-post-strip--question     { background: linear-gradient(90deg, #7c3aed, #8b5cf6); }
+.ch-post-strip--question     { background: linear-gradient(90deg, #004AAD, #2F6FD0); }
 
 .ch-post-img { width: 100%; height: 120px; object-fit: cover; display: block; }
 
@@ -220,7 +220,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
 .ch-post-type-pill--article      { background: #f3f4f6; color: #374151; }
 .ch-post-type-pill--update       { background: #dbeafe; color: #1e40af; }
 .ch-post-type-pill--announcement { background: #dcfce7; color: #166534; }
-.ch-post-type-pill--question     { background: #f3e8ff; color: #6d28d9; }
+.ch-post-type-pill--question     { background: #f3e8ff; color: #003A8C; }
 
 .ch-post-title {
   font-family: 'Space Grotesk', sans-serif;
@@ -985,47 +985,47 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
 /* ══ Admin chat styles ══ */
 .ch-shell--admin{ background:#fff; }
 
-.ch-shell--admin .ch-header{ background:#fff; border-bottom:1px solid #ede9fe; }
+.ch-shell--admin .ch-header{ background:#fff; border-bottom:1px solid #E1EAF7; }
 
 /* Admin banner strip */
 .ch-admin-banner{
   display:flex; align-items:center; gap:14px;
   padding:11px 18px;
-  background:#f5f3ff;
-  border-bottom:1px solid #ede9fe;
+  background:#F3F7FE;
+  border-bottom:1px solid #E1EAF7;
   flex-shrink:0;
 }
 .ch-admin-banner-icon{
   width:38px; height:38px; border-radius:10px; flex-shrink:0;
-  background:linear-gradient(135deg,#7c3aed,#a855f7);
+  background:linear-gradient(135deg,#004AAD,#a855f7);
   display:flex; align-items:center; justify-content:center;
   font-size: 1.2rem;
 }
 .ch-admin-banner-label{
   font-size: 1.2rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em;
-  color:#a78bfa; margin-bottom:1px;
+  color:#6F9BE0; margin-bottom:1px;
 }
 .ch-admin-banner-title{
   font-family:'Space Grotesk',sans-serif; font-size: 1.2rem; font-weight:800; color:#3b0764;
 }
 .ch-admin-banner-sub{
-  font-size: 1.2rem; color:#7c3aed; margin-top:1px;
+  font-size: 1.2rem; color:#004AAD; margin-top:1px;
 }
 .ch-admin-badge{
   margin-left:auto; font-size: 1.2rem; font-weight:800; text-transform:uppercase;
   letter-spacing:.06em; padding:3px 10px; border-radius:20px;
-  background:#ede9fe; color:#6d28d9;
-  border:1px solid #ddd6fe; flex-shrink:0;
+  background:#E1EAF7; color:#003A8C;
+  border:1px solid #CFDBF1; flex-shrink:0;
 }
 
 /* Admin bubbles ("theirs" = from admin) */
 .ch-shell--admin .ch-row--theirs .ch-bubble{
-  background:#f5f3ff;
+  background:#F3F7FE;
   color:#3b0764;
-  border:1px solid #ede9fe;
+  border:1px solid #E1EAF7;
 }
 .ch-shell--admin .ch-msg-initials{
-  background:linear-gradient(135deg,#7c3aed,#a855f7);
+  background:linear-gradient(135deg,#004AAD,#a855f7);
 }
 
 /* Resolved banner */
@@ -1075,11 +1075,11 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
 /* Quick reply suggestions */
 .ch-suggestions{
   flex-shrink:0; padding:10px 14px 6px;
-  background:#fff; border-top:1px solid #ede9fe;
+  background:#fff; border-top:1px solid #E1EAF7;
 }
 .ch-suggestions-label{
   font-size: 1.2rem; font-weight:800; text-transform:uppercase;
-  letter-spacing:.07em; color:#7c3aed; margin-bottom:7px;
+  letter-spacing:.07em; color:#004AAD; margin-bottom:7px;
   display:flex; align-items:center; gap:5px;
 }
 .ch-suggestions-scroll{
@@ -1091,14 +1091,14 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
   display:inline-flex; align-items:center; gap:5px;
   white-space:nowrap; flex-shrink:0;
   padding:6px 13px; border-radius:20px;
-  background:#f5f3ff; color:#5b21b6;
-  border:1.5px solid #ddd6fe;
+  background:#F3F7FE; color:#003A8C;
+  border:1.5px solid #CFDBF1;
   font-size: 1.2rem; font-weight:600;
   cursor:pointer;
   transition:background .15s, border-color .15s, transform .1s;
 }
 .ch-suggestion-chip:hover{
-  background:#ede9fe; border-color:#7c3aed; transform:translateY(-1px);
+  background:#E1EAF7; border-color:#004AAD; transform:translateY(-1px);
 }
 .ch-suggestion-chip svg{ flex-shrink:0; }
 
@@ -1261,6 +1261,46 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
 .ch-panel-proj-ask{
   font-size: 1.2rem;font-weight:700;color:#059669;white-space:nowrap;flex-shrink:0;
 }
+
+/* ══ 2026-11 restyle: chat ══ */
+body:has(.ch-shell) { background:#F4F6FA; }
+body:has(.ch-shell) .oc-footer, body:has(.ch-shell) footer.ocf, body:has(.ch-shell) #oc-feedback-btn, body:has(.ch-shell) #odu-fab, body:has(.ch-shell) #oc-dock-tab { display:none !important; }
+.ch-shell { max-width:920px !important; background:#fff !important; box-shadow:0 0 0 1px #E2E6EE, 0 30px 60px -40px rgba(15,27,51,.35) !important; font-family:'DM Sans',system-ui,sans-serif; }
+.ch-header { min-height:72px; padding:12px 18px !important; gap:12px; background:#fff !important; border-bottom:1px solid #E2E6EE !important; }
+.ch-back { width:40px; height:40px; min-width:0; border-radius:12px !important; display:grid !important; place-items:center; background:#F1F4F9 !important; color:#0F1B33 !important; }
+.ch-back:hover { background:#E4E9F1 !important; }
+.ch-hdr-avatar, .ch-hdr-initials { width:46px !important; height:46px !important; border-radius:50% !important; object-fit:cover; background:linear-gradient(135deg,#0A5AC4,#004AAD) !important; color:#fff !important; font-size:16px !important; font-weight:700; flex:none; }
+.ch-hdr-name { font-size:18px !important; font-weight:700 !important; letter-spacing:-.01em; color:#0F1B33 !important; }
+.ch-hdr-sub { font-size:13.5px !important; color:#5B6475 !important; }
+.ch-icon-btn { width:40px; height:40px; min-width:0; border-radius:12px !important; color:#4A5568 !important; }
+.ch-icon-btn:hover, .ch-icon-btn.active { background:#E1EAF7 !important; color:#004AAD !important; }
+.ch-admin-banner { padding:12px 18px !important; background:#F3F7FE !important; border-bottom:1px solid #D6E1F3 !important; }
+.ch-admin-banner-icon { border-radius:12px !important; background:#004AAD !important; color:#fff !important; }
+.ch-admin-banner-label { color:#004AAD !important; font-weight:700; letter-spacing:.08em; }
+.ch-admin-banner-title { color:#0F1B33 !important; font-size:15px !important; }
+.ch-admin-badge { border-radius:999px !important; background:#fff !important; border:1px solid #CFDBF1 !important; color:#004AAD !important; }
+.ch-messages { background:#F8FAFD !important; padding:18px 22px !important; }
+.ch-date-sep { color:#5B6475 !important; font-size:12.5px !important; font-weight:700; }
+.ch-bubble { border-radius:20px !important; font-size:15.5px !important; line-height:1.55 !important; padding:11px 15px !important; }
+.ch-row--theirs .ch-bubble { background:#fff !important; color:#0F1B33 !important; border:1px solid #E2E6EE !important; border-bottom-left-radius:6px !important; box-shadow:0 1px 2px rgba(15,27,51,.04) !important; }
+.ch-row--mine .ch-bubble { background:#004AAD !important; color:#fff !important; border:0 !important; border-bottom-right-radius:6px !important; box-shadow:0 8px 18px -12px rgba(0,52,127,.7) !important; }
+.ch-row--mine .ch-bubble a { color:#fff !important; }
+.ch-row--theirs .ch-bubble a { color:#004AAD !important; }
+.ch-msg-avatar, .ch-msg-initials { width:32px !important; height:32px !important; border-radius:50% !important; object-fit:cover; background:linear-gradient(135deg,#0A5AC4,#004AAD) !important; color:#fff !important; }
+.ch-time { font-size:12px !important; color:#5B6475 !important; }
+.ch-suggestions, .ch-admin-replies { padding:10px 18px 4px !important; background:#fff !important; border-top:1px solid #EEF1F5 !important; }
+.ch-suggestions-label, .ch-admin-replies-label { color:#5B6475 !important; font-size:12.5px !important; font-weight:700; letter-spacing:.06em; }
+.ch-suggestion-chip, .ch-admin-reply-chip { min-height:38px; padding:0 14px !important; border-radius:999px !important; border:1px solid #CFDBF1 !important; background:#fff !important; color:#003A8C !important; font-family:inherit; font-size:14px !important; font-weight:600 !important; }
+.ch-suggestion-chip:hover, .ch-admin-reply-chip:hover { background:#E1EAF7 !important; }
+.ch-inputbar { gap:8px !important; padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)) !important; background:#fff !important; border-top:1px solid #E2E6EE !important; align-items:center; }
+.ch-inputbar textarea, .ch-inputbar input[type=text] { min-height:48px; padding:12px 18px !important; border:1px solid #D5DCE6 !important; border-radius:24px !important; background:#F6F8FB !important; font-family:inherit !important; font-size:16px !important; color:#0F1B33 !important; }
+.ch-inputbar textarea:focus, .ch-inputbar input[type=text]:focus { outline:none; border-color:#004AAD !important; background:#fff !important; box-shadow:0 0 0 3px rgba(0,74,173,.16) !important; }
+.ch-attach-btn { width:46px !important; height:46px !important; min-width:0; border-radius:50% !important; background:#F1F4F9 !important; color:#4A5568 !important; border:0 !important; }
+.ch-attach-btn:hover { background:#E1EAF7 !important; color:#004AAD !important; }
+.ch-send { width:48px !important; height:48px !important; min-width:0; padding:0 !important; border-radius:50% !important; background:#004AAD !important; color:#fff !important; box-shadow:0 8px 18px -10px rgba(0,52,127,.8) !important; display:grid !important; place-items:center; }
+.ch-send:hover { background:#003A8C !important; }
+.ch-attach-menu, .ch-ctx-menu, .ch-emoji-picker, .ch-share-box, .ch-feed-box, .ch-dl-box, .ch-panel { border-radius:20px !important; border:1px solid #E2E6EE !important; font-family:'DM Sans',system-ui,sans-serif; }
+@media (max-width:600px) { .ch-messages { padding:14px 12px !important; } .ch-header { padding:10px 12px !important; } .ch-bubble { font-size:15px !important; } }
 </style>
 {% endblock %}
 
@@ -2076,7 +2116,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
             </span> Video
           </button>
           <button type="button" class="ch-attach-item" onclick="chOpenPicker('doc')">
-            <span class="ch-attach-item-icon" style="background:#f3e8ff;color:#7c3aed;">
+            <span class="ch-attach-item-icon" style="background:#f3e8ff;color:#004AAD;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             </span> Document / File
           </button>
@@ -2169,7 +2209,7 @@ border-bottom:1px solid #e8edf4;flex-shrink:0;box-shadow:0 1px 6px rgba(10,22,40
   <div class="ch-feed-box">
     <div class="ch-feed-hdr">
       <span class="ch-feed-hdr-title">Post to feed</span>
-      <button class="ch-feed-close-btn" onclick="chCloseFeedModal()">
+      <button class="ch-feed-close-btn" aria-label="Close" onclick="chCloseFeedModal()">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>

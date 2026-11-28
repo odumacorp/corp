@@ -196,27 +196,34 @@ from .models import Interest
 
 def investors_view(request):
     from django.db.models import Count, Q
-    industry_filter = request.GET.get('industry')
-    search_q = request.GET.get('q', '').strip()
+    industry_filter = (request.GET.get('industry') or '').strip()
+    search_q = (request.GET.get('q') or '').strip()[:80]
     base_qs = CustomUser.objects.filter(user_type='investor', is_active=True).select_related('userprofile')
-    investors = base_qs
-    if industry_filter:
-        investors = investors.filter(userprofile__industry=industry_filter)
+    if request.user.is_authenticated:
+        base_qs = base_qs.exclude(pk=request.user.pk)
     if search_q:
-        investors = investors.filter(
+        base_qs = base_qs.filter(
             Q(first_name__icontains=search_q) | Q(last_name__icontains=search_q) |
             Q(userprofile__bio__icontains=search_q) | Q(userprofile__company__icontains=search_q)
         )
+    investors = base_qs.filter(userprofile__industry=industry_filter) if industry_filter else base_qs
 
     industries = UserProfile.INDUSTRY_CHOICES
+    labels = dict(industries)
     counts_qs = base_qs.values('userprofile__industry').annotate(cnt=Count('id'))
-    industry_counts = {r['userprofile__industry']: r['cnt'] for r in counts_qs}
+    industry_counts = {r['userprofile__industry']: r['cnt'] for r in counts_qs if r['userprofile__industry']}
+    industry_chips = sorted(({'key': k, 'label': labels.get(k, k.title()), 'count': n} for k, n in industry_counts.items()),
+                            key=lambda c: (-c['count'], c['label']))
 
     return render(request, 'investors.html', {
         'investors': investors,
+        'total_count': base_qs.count(),
         'industries': industries,
         'selected_industry': industry_filter,
+        'selected_label': labels.get(industry_filter, ''),
         'industry_counts': industry_counts,
+        'industry_chips': industry_chips,
+        'q': search_q,
     })
 
 def investors_by_industry(request):
@@ -999,17 +1006,50 @@ def project_images(request, project_id):
 
 ##events.html
 def events(request):
-    context = {"page_title": "Event and News", "page_name": "Event and News"}
+    """Events directory. ?type= filters by event type, ?when=past shows past events, ?q= searches."""
+    from .models import Event
+    from django.utils import timezone
+    labels = dict(Event.EVENT_TYPES)
+    q = (request.GET.get('q') or '').strip()[:80]
+    type_filter = (request.GET.get('type') or '').strip()
+    when = 'past' if request.GET.get('when') == 'past' else 'upcoming'
+    today = timezone.localdate()
+    base = Event.objects.filter(is_hidden=False)
+    base = base.filter(date__lt=today).order_by('-date') if when == 'past' else base.filter(date__gte=today).order_by('date')
+    if q:
+        base = base.filter(Q(name__icontains=q) | Q(location__icontains=q) | Q(organizer__icontains=q))
+    counts = {}
+    for t in base.values_list('event_type', flat=True):
+        counts[t] = counts.get(t, 0) + 1
+    chips = sorted(({'key': k, 'label': labels.get(k, k.title()), 'count': n} for k, n in counts.items()),
+                   key=lambda c: (-c['count'], c['label']))
+    events_qs = base.filter(event_type=type_filter) if type_filter else base
+    context = {"page_title": "Events", "page_name": "Events", "events": events_qs,
+               "total_count": base.count(), "type_chips": chips, "selected_type": type_filter,
+               "selected_label": labels.get(type_filter, ''), "q": q, "when": when}
     return render(request, 'events.html', context)
 ##jobs.html
 def jobs(request):
     from .models import Job, Company
-    jobs_qs = Job.objects.filter(is_active=True, is_hidden=False).order_by('-created_at')
+    labels = dict(Job.JOB_TYPE_CHOICES)
+    q = (request.GET.get('q') or '').strip()[:80]
+    type_filter = (request.GET.get('type') or '').strip()
+    base = Job.objects.filter(is_active=True, is_hidden=False).select_related('company_page').order_by('-created_at')
+    if q:
+        base = base.filter(Q(title__icontains=q) | Q(company__icontains=q) | Q(location__icontains=q))
+    counts = {}
+    for t in base.values_list('job_type', flat=True):
+        counts[t] = counts.get(t, 0) + 1
+    chips = sorted(({'key': k, 'label': labels.get(k, k.replace('_', ' ').title()), 'count': n} for k, n in counts.items()),
+                   key=lambda c: (-c['count'], c['label']))
+    jobs_qs = base.filter(job_type=type_filter) if type_filter else base
     user_has_company = (
         request.user.is_authenticated and
         Company.objects.filter(owner=request.user).exists()
     )
-    context = {"page_title": "Jobs", "page_name": "Jobs", "jobs": jobs_qs, "user_has_company": user_has_company}
+    context = {"page_title": "Jobs", "page_name": "Jobs", "jobs": jobs_qs, "user_has_company": user_has_company,
+               "total_count": base.count(), "type_chips": chips, "selected_type": type_filter,
+               "selected_label": labels.get(type_filter, ''), "q": q}
     return render(request, 'jobs.html', context)
 ##messages.html
 def user_messages(request):
@@ -5378,6 +5418,10 @@ def companies_list(request):
         'company_owners': company_owners,
         'user_company': user_company,
         'rl_company_ids': rl_company_ids,
+        'total_count': base_qs.exclude(owner=request.user).count() if request.user.is_authenticated else base_qs.count(),
+        'industry_chips': sorted(({'key': k, 'label': dict(Company.INDUSTRY_CHOICES).get(k, (k or '').title()), 'count': n}
+                                  for k, n in industry_counts.items() if k), key=lambda c: (-c['count'], c['label'])),
+        'selected_label': dict(Company.INDUSTRY_CHOICES).get(industry_filter, ''),
     })
 
 

@@ -2,292 +2,111 @@
 {% load static %}
 {% block title %}About | Oduma Corp{% endblock %}
 
-{% block content %}
-<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
-  <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">About</span></li>
-  </ol>
-</nav>
-<button onclick="history.back()" class="oc-back-btn">
-  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-  Back
-</button>
-
+{% block extra_head %}
+{% include '_partials/directory_css.html' %}
 <style>
-:root {
-  --ab-ink:    #0A1628;
-  --ab-blue:   #004AAD;
-  --ab-border: #e4eaf2;
-  --ab-bg:     #f4f7fb;
-}
-
-.ab-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
-
-/* Hero */
-.ab-hero {
-  background: linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
-  border-radius: 0 0 24px 24px;
-  padding: 64px 40px 56px;
-  text-align: center;
-  position: relative; overflow: hidden;
-  margin-bottom: 0;
-}
-.ab-hero::before, .ab-hero::after {
-  content: ''; position: absolute; border-radius: 50%;
-  background: rgba(255,255,255,.06); pointer-events: none;
-}
-.ab-hero::before { width: 340px; height: 340px; right: -80px; top: -100px; }
-.ab-hero::after  { width: 220px; height: 220px; left: -60px; bottom: -60px; }
-.ab-hero-label {
-  font-size: 1.2rem; font-weight: 800; letter-spacing: .1em;
-  text-transform: uppercase; color: #6b7280; margin-bottom: 12px;
-}
-.ab-hero h1 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(1.6rem, 4vw, 2.6rem);
-  font-weight: 800; color: #0A1628; margin: 0 0 14px; line-height: 1.15;
-  max-width: 700px; margin-inline: auto;
-}
-.ab-hero p {
-  font-size: 1.2rem; color: rgba(55,55,55,.8);
-  max-width: 520px; margin: 0 auto 28px; line-height: 1.7;
-}
-.ab-hero-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-.ab-btn-white {
-  padding: 11px 26px; 
-  background: #fff; 
-  color: var(--ab-blue);
-  border: none; border-radius: 10px; font-size: 1.2rem; font-weight: 700;
-  font-family: inherit; cursor: pointer; text-decoration: none; transition: background .15s;
-  /* background: #4b5563; */
-}
-.ab-btn-white:hover { background: #f0f5ff; color: var(--ab-blue); }
-.ab-btn-outline {
-  padding: 11px 26px; background: transparent; color: #004AAD;
-  border: 1.5px solid rgba(255,255,255,.45); border-radius: 10px;
-  font-size: 1.2rem; font-weight: 700; font-family: inherit;
-  cursor: pointer; text-decoration: none; transition: all .15s;
-}
-.ab-btn-outline:hover { background: #EBF2FF; border-color: #004AAD; }
-
-/* Stats bar */
-.ab-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  background: #fff;
-  border: 1px solid var(--ab-border);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(10,22,40,.07);
-  margin: -28px 24px 56px;
-  position: relative; z-index: 2;
-  overflow: hidden;
-}
-@media (max-width: 700px) { .ab-stats { grid-template-columns: repeat(2,1fr); margin: -20px 12px 40px; } }
-.ab-stat {
-  padding: 24px 20px; text-align: center;
-  border-right: 1px solid var(--ab-border);
-}
-.ab-stat:last-child { border-right: none; }
-.ab-stat-num {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 2.4rem; font-weight: 800; color: var(--ab-blue);
-  line-height: 1; margin-bottom: 4px;
-}
-.ab-stat-label { font-size: 1.2rem; color: #6b7280; font-weight: 600; }
-
-/* Sections */
-.ab-section { padding: 56px 0 0; }
-.ab-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 56px; align-items: center;
-}
-@media (max-width: 768px) { .ab-grid { grid-template-columns: 1fr; gap: 28px; } }
-.ab-img {
-  width: 100%; border-radius: 16px;
-  object-fit: cover; max-height: 360px;
-  box-shadow: 0 8px 32px rgba(10,22,40,.1);
-}
-.ab-eyebrow {
-  font-size: 1.2rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: .1em; color: var(--ab-blue); margin-bottom: 10px;
-}
-.ab-section-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(1.3rem, 2.5vw, 1.75rem);
-  font-weight: 800; color: var(--ab-ink);
-  margin: 0 0 16px; line-height: 1.25;
-}
-.ab-body {
-  font-size: 1.2rem; color: #4b5563;
-  line-height: 1.8; margin-bottom: 14px;
-}
-.ab-body:last-child { margin-bottom: 0; }
-
-/* Values */
-.ab-values-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 18px;
-  margin-top: 40px;
-}
-.ab-value {
-  background: #fff;
-  border: 1px solid var(--ab-border);
-  border-radius: 14px;
-  padding: 28px 22px;
-  text-align: center;
-  transition: border-color .18s, box-shadow .18s, transform .18s;
-}
-.ab-value:hover {
-  border-color: var(--ab-blue);
-  box-shadow: 0 6px 20px rgba(0,74,173,.1);
-  transform: translateY(-2px);
-}
-.ab-value-icon { width:48px;height:48px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:#eef4ff;color:#004AAD; }
-.ab-value h3 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.2rem; font-weight: 800;
-  color: var(--ab-ink); margin: 0 0 8px;
-}
-.ab-value p { font-size: 1.2rem; color: #6b7280; line-height: 1.6; margin: 0; }
-
-/* CTA */
-.ab-cta {
-  background: linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
-  border-radius: 20px;
-  padding: 52px 40px;
-  text-align: center;
-  margin-top: 56px;
-}
-.ab-cta h2 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
-  font-weight: 800; color: #0A1628; margin: 0 0 10px;
-}
-.ab-cta p {
-  font-size: 1.2rem; color: rgba(105,105,105,.8);
-  max-width: 460px; margin: 0 auto 28px; line-height: 1.7;
-}
-.ab-cta-btns { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.ab-kpis{display:flex;flex-wrap:wrap;gap:10px;margin:0}
+.ab-kpis>div{min-width:150px;padding:12px 18px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 2px rgba(15,27,51,.05)}
+.ab-kpis dt{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ab-kpis dd{margin:2px 0 0;font-size:26px;font-weight:700;color:var(--ink);letter-spacing:-.02em}
+.ab-acts{display:flex;gap:8px;flex-wrap:wrap}
+.ab-acts .dir-btn{height:50px;padding:0 22px}
+.ab-split{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:44px}
+.ab-split img{width:100%;max-height:380px;object-fit:cover;border-radius:20px;box-shadow:var(--shadow-up);display:block}
+.ab-split h2{margin:0 0 14px;color:var(--ink);font-size:26px;line-height:1.2;font-weight:700;letter-spacing:-.02em}
+.ab-split p{margin:0 0 14px;font-size:16.5px;line-height:1.7}
+.ab-split p.dir-eyebrow{margin-bottom:8px;font-size:13px}
+@media (max-width:820px){.ab-split{grid-template-columns:1fr;gap:22px}.ab-split--rev img{order:-1}}
+.ab-values{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+@media (max-width:1024px){.ab-values{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.ab-values{grid-template-columns:minmax(0,1fr)}}
+.ab-value{padding:22px 20px}
+.ab-value-ic{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:var(--tint);color:var(--blue);margin-bottom:14px}
+.ab-value h3{margin:0 0 6px;color:var(--ink);font-size:17.5px;font-weight:700}
+.ab-value p{margin:0;font-size:15px}
+.ab-cta{margin-top:44px;padding:30px 32px;border-radius:24px;background:linear-gradient(160deg,#EEF3FC 0%,#F5F2EC 60%,#FCEBD5 100%);border:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px 24px}
+.ab-cta h2{margin:0 0 6px;color:var(--ink);font-size:24px;font-weight:700;letter-spacing:-.02em}
+.ab-cta p{margin:0;max-width:34em;color:#3D475A}
 </style>
+{% endblock %}
 
-<!-- Hero -->
-<div class="ab-hero">
-  <div class="ab-hero-label">Our Story</div>
-  <h1>Connecting Africa's Boldest Innovators with Investors Who Believe in Their Vision</h1>
-  <p>Oduma Corp is a platform built for the dreamers, builders, and backers shaping Africa's future.</p>
-  <div class="ab-hero-actions">
-    {% if user.is_authenticated %}<a href="{% url 'app' %}" class="ab-btn-white">Go to Dashboard</a>{% else %}<a href="{% url 'register' %}" class="ab-btn-white">Get Started Free</a>{% endif %}
-    <a href="{% url 'contact' %}" class="ab-btn-outline">Contact Us</a>
-  </div>
-</div>
-
-<div class="ab-wrap">
-
-  <!-- Stats bar -->
-  <div class="ab-stats">
-    <div class="ab-stat">
-      <div class="ab-stat-num">Free</div>
-      <div class="ab-stat-label">To join</div>
-    </div>
-    <div class="ab-stat">
-      <div class="ab-stat-num">{{ innovator_count }}</div>
-      <div class="ab-stat-label">Innovator{{ innovator_count|pluralize }} on the platform</div>
-    </div>
-    <div class="ab-stat">
-      <div class="ab-stat-num">{{ investor_count }}</div>
-      <div class="ab-stat-label">Investor{{ investor_count|pluralize }} on the platform</div>
-    </div>
-    <div class="ab-stat">
-      <div class="ab-stat-num">{{ project_count }}</div>
-      <div class="ab-stat-label">Project{{ project_count|pluralize }} posted</div>
-    </div>
-  </div>
-
-  <!-- Our Story -->
-  <div class="ab-section">
-    <div class="ab-grid">
-      <div>
-        <p class="ab-eyebrow">Our Story</p>
-        <h2 class="ab-section-title">Built from a passion for African innovation</h2>
-        <p class="ab-body">
-          Founded by Austin Oduma, an entrepreneur with a passion for creating positive global impact,
-          Oduma Corp seeks to transform ideas into impactful solutions. With deep local roots and a global
-          outlook, we provide the tools and a platform for innovators to bring their ideas to life.
-        </p>
-        <p class="ab-body">
-          We are dedicated to helping individuals and communities improve their livelihoods by fostering
-          innovation and invention — unlocking new opportunities for personal and economic growth across Africa.
-        </p>
-      </div>
-      <div>
-        <img src="{% static 'images/about1.jpg' %}" alt="Oduma Corp team" class="ab-img">
+{% block content %}
+<div class="dir">
+  <section class="dir-hero" aria-labelledby="dir-title">
+    <div class="dir-wrap">
+      <span class="dir-eyebrow">About us</span>
+      <h1 id="dir-title">Connecting Africa's boldest innovators with investors who believe in them</h1>
+      <p>Oduma Corp is a platform built for the dreamers, builders and backers shaping Africa's future.</p>
+      <div class="dir-hero-row">
+        <dl class="ab-kpis">
+          <div><dt>Innovators</dt><dd>{{ innovator_count }}</dd></div>
+          <div><dt>Investors</dt><dd>{{ investor_count }}</dd></div>
+          <div><dt>Projects</dt><dd>{{ project_count }}</dd></div>
+          <div><dt>To join</dt><dd>Free</dd></div>
+        </dl>
+        <div class="ab-acts">
+          {% if user.is_authenticated %}<a href="{% url 'app' %}" class="dir-btn dir-btn--solid">Go to dashboard</a>{% else %}<a href="{% url 'register' %}" class="dir-btn dir-btn--solid">Get started free</a>{% endif %}
+          <a href="{% url 'contact' %}" class="dir-btn dir-btn--ghost">Contact us</a>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Our Vision -->
-  <div class="ab-section">
-    <div class="ab-grid">
+  <div class="dir-wrap">
+    <section class="ab-split" aria-labelledby="ab-story">
       <div>
-        <img src="{% static 'images/about2.jpg' %}" alt="Precision and focus" class="ab-img">
+        <p class="dir-eyebrow">Our story</p>
+        <h2 id="ab-story">Built from a passion for African innovation</h2>
+        <p>Founded by Austin Oduma, an entrepreneur with a passion for creating positive global impact, Oduma Corp seeks to transform ideas into impactful solutions. With deep local roots and a global outlook, we provide the tools and a platform for innovators to bring their ideas to life.</p>
+        <p>We are dedicated to helping individuals and communities improve their livelihoods by fostering innovation and invention, unlocking new opportunities for personal and economic growth across Africa.</p>
       </div>
-      <div>
-        <p class="ab-eyebrow">Our Vision</p>
-        <h2 class="ab-section-title">Leading Africa's innovation landscape</h2>
-        <p class="ab-body">
-          We envision Oduma Corp as a leading force in Africa's innovation landscape — championing a culture
-          of creativity, invention, and entrepreneurship. We are committed to nurturing local talent and
-          supporting businesses to grow and thrive in a competitive global market.
-        </p>
-        <p class="ab-body">
-          Through our platform, we provide the tools, support, and connections needed to shape a brighter,
-          more inventive future — founded in Kenya and built for all of Africa.
-        </p>
-      </div>
-    </div>
-  </div>
+      <img src="{% static 'images/about1.jpg' %}" alt="The Oduma Corp team at work" loading="lazy">
+    </section>
 
-  <!-- Core Values -->
-  <div class="ab-section">
-    <div style="text-align:center;">
-      <p class="ab-eyebrow">What We Stand For</p>
-      <h2 class="ab-section-title" style="margin-bottom:0;">Our Core Values</h2>
-    </div>
-    <div class="ab-values-grid">
-      <div class="ab-value">
-        <div class="ab-value-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>
-        <h3>Innovation First</h3>
+    <section class="ab-split ab-split--rev" aria-labelledby="ab-vision">
+      <img src="{% static 'images/about2.jpg' %}" alt="" loading="lazy">
+      <div>
+        <p class="dir-eyebrow">Our vision</p>
+        <h2 id="ab-vision">Leading Africa's innovation landscape</h2>
+        <p>We envision Oduma Corp as a leading force in Africa's innovation landscape, championing a culture of creativity, invention and entrepreneurship. We are committed to nurturing local talent and supporting businesses to grow and thrive in a competitive global market.</p>
+        <p>Through our platform, we provide the tools, support and connections needed to shape a brighter, more inventive future, founded in Kenya and built for all of Africa.</p>
+      </div>
+    </section>
+
+    <h2 class="dir-sh" style="margin-top:48px;">What we stand for</h2>
+    <ul class="ab-values">
+      <li class="dir-card ab-value">
+        <span class="ab-value-ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
+        <h3>Innovation first</h3>
         <p>We put creativity at the centre of everything we build and every connection we make.</p>
-      </div>
-      <div class="ab-value">
-        <div class="ab-value-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-        <h3>Trust & Integrity</h3>
+      </li>
+      <li class="dir-card ab-value">
+        <span class="ab-value-ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+        <h3>Trust &amp; integrity</h3>
         <p>Every interaction on our platform is grounded in transparency and mutual respect.</p>
-      </div>
-      <div class="ab-value">
-        <div class="ab-value-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-        <h3>African-led Growth</h3>
+      </li>
+      <li class="dir-card ab-value">
+        <span class="ab-value-ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+        <h3>African-led growth</h3>
         <p>We champion local talent and celebrate the diversity of African ideas on the world stage.</p>
-      </div>
-      <div class="ab-value">
-        <div class="ab-value-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
-        <h3>Impact at Scale</h3>
+      </li>
+      <li class="dir-card ab-value">
+        <span class="ab-value-ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+        <h3>Impact at scale</h3>
         <p>Small ideas can change the world. We give them the platform and partners to do just that.</p>
+      </li>
+    </ul>
+
+    <section class="ab-cta" aria-labelledby="ab-cta-h">
+      <div>
+        <h2 id="ab-cta-h">Ready to join the movement?</h2>
+        <p>Whether you're an innovator with a bold idea or an investor looking for Africa's next big thing, Oduma Corp is for you.</p>
       </div>
-    </div>
+      <div class="ab-acts">
+        {% if user.is_authenticated %}<a href="{% url 'app' %}" class="dir-btn dir-btn--solid">Go to dashboard</a>{% else %}<a href="{% url 'register' %}" class="dir-btn dir-btn--solid">Get started free</a>{% endif %}
+        <a href="{% url 'contact' %}" class="dir-btn dir-btn--ghost">Contact us</a>
+      </div>
+    </section>
   </div>
-
-  <!-- CTA -->
-  <div class="ab-cta">
-    <h2>Ready to join the movement?</h2>
-    <p>Whether you're an innovator with a bold idea or an investor looking for Africa's next big thing — we're for you.</p>
-    <div class="ab-cta-btns">
-      {% if user.is_authenticated %}<a href="{% url 'app' %}" class="ab-btn-white">Go to Dashboard</a>{% else %}<a href="{% url 'register' %}" class="ab-btn-white">Get Started Free</a>{% endif %}
-      <a href="{% url 'contact' %}" class="ab-btn-outline">Contact Us</a>
-    </div>
-  </div>
-
 </div>
 {% endblock %}

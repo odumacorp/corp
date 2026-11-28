@@ -170,7 +170,7 @@
     flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     color: var(--text);
   }
-  .cc-dd-trigger .cc-dd-val.placeholder { color: var(--muted); }
+  .cc-dd-trigger .cc-dd-val.placeholder { color: #5B6475; }
   .cc-dd-chevron {
     width: 16px; height: 16px; flex-shrink: 0; color: #9ca3af;
     transition: transform .18s; pointer-events: none; margin-left: 8px;
@@ -287,12 +287,12 @@
       <div class="cc-field" data-picker-wrap>
         <label class="cc-label">Cover Image</label>
         <div class="cc-cover-upload" onclick="document.getElementById('cc-cover-input').click()">
-          <input type="file" name="cover_image" accept="image/*" id="cc-cover-input" onclick="event.stopPropagation()">
+          <input type="file" name="cover_image" accept="image/*" id="cc-cover-input" aria-label="Upload cover image" onclick="event.stopPropagation()">
           <img id="cc-cover-preview" alt="">
           <div class="cc-cover-placeholder" id="cc-cover-placeholder">
             <svg width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
             Click to upload cover image
-            <span style="display:block;font-size: 1.2rem;margin-top:2px;opacity:.8;">Recommended 1200 × 300 px · JPG or PNG</span>
+            <span style="display:block;font-size: 1.2rem;margin-top:2px;">Recommended 1200 × 300 px · JPG or PNG</span>
           </div>
         </div>
         <button type="button" class="oc-pick-btn"
@@ -305,7 +305,7 @@
 
       <div class="cc-logo-row" data-picker-wrap>
         <div class="cc-logo-upload" onclick="document.getElementById('cc-logo-input').click()">
-          <input type="file" name="logo" accept="image/*" id="cc-logo-input" onclick="event.stopPropagation()">
+          <input type="file" name="logo" accept="image/*" id="cc-logo-input" aria-label="Upload company logo" onclick="event.stopPropagation()">
           <img id="cc-logo-preview" alt="">
           <img id="cc-logo-placeholder" src="{% static 'images/enterprise.png' %}" alt="">
         </div>

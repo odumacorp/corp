@@ -314,61 +314,70 @@
   .nw-btn-label { display: none; }
   .nw-btn.nw-btn--ghost { width: 34px; height: 34px; padding: 0; justify-content: center; }
 }
+
+/* 2026-11 directory theme */
+.nw-shell{max-width:1200px!important;padding:22px 20px 56px!important}
+.nw-kpis{display:flex;gap:10px;margin:0;flex-wrap:wrap}
+.nw-kpis>div{min-width:116px;padding:10px 16px;background:#fff;border:1px solid #E2E6EE;border-radius:16px;box-shadow:0 1px 2px rgba(15,27,51,.05)}
+.nw-kpis dt{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5B6475}
+.nw-kpis dd{margin:2px 0 0;font-size:24px;font-weight:700;color:#0F1B33;letter-spacing:-.02em}
+.nw-kpis .warm dd{color:#B45309}
+.nw-tabs{display:inline-flex!important;gap:4px;padding:5px!important;background:#EBEFF5!important;border:1px solid #E2E6EE!important;border-radius:999px!important;box-shadow:none!important;max-width:100%;margin-bottom:22px}
+.nw-tab{min-height:42px;padding:0 16px!important;border-radius:999px!important;font-family:inherit!important;font-size:14.5px!important;font-weight:700;color:#5B6475;background:transparent;border:0!important;min-width:0;box-shadow:none}
+.nw-tab.active{background:#004AAD!important;color:#fff!important}
+.nw-tab-badge{font-size:12px!important;border-radius:999px!important}
+.nw-sh-title{font-family:inherit!important;font-size:20px!important;font-weight:700!important;color:#0F1B33!important;letter-spacing:-.01em}
+.nw-sh-count{font-size:13px!important;font-weight:700;color:#5B6475!important;background:#EBEFF5;border-radius:999px;padding:2px 10px}
+.nw-sh-link{font-weight:700;color:#004AAD!important}
+.nw-search-bar{border-radius:999px!important;border:1px solid #CFD7E4!important;min-height:50px;box-shadow:0 1px 2px rgba(15,27,51,.05),0 6px 20px rgba(15,27,51,.06)}
+.nw-search-input{font-family:inherit!important;font-size:16px!important}
+.nw-conn-row,.nw-sugg-card,.nw-item-card,.nw-event-row,.nw-pend-row,.nw-pending-banner{border:1px solid #E2E6EE!important;border-radius:20px!important;background:#fff;box-shadow:0 1px 2px rgba(15,27,51,.05),0 6px 20px rgba(15,27,51,.06);transition:transform .25s,box-shadow .25s}
+.nw-conn-row:hover,.nw-sugg-card:hover,.nw-item-card:hover,.nw-event-row:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(15,27,51,.06),0 16px 36px rgba(15,27,51,.12)}
+.nw-conn-name,.nw-sugg-name,.nw-item-name,.nw-event-name,.nw-pend-name{font-family:inherit!important;font-size:16.5px!important;font-weight:700;color:#0F1B33}
+.nw-conn-bio,.nw-sugg-bio,.nw-item-desc,.nw-conn-meta,.nw-sugg-meta,.nw-item-meta,.nw-event-meta,.nw-pend-sub{font-family:inherit!important;font-size:14.5px!important;color:#4A5568}
+.nw-conn-av-init,.nw-sugg-av-init,.nw-pend-av-init{background:#0F1B33!important;font-family:inherit!important}
+.nw-role-pill,.nw-event-type{border-radius:999px!important;background:#E1EAF7!important;color:#003A8C!important;font-size:12.5px!important;font-weight:700}
+.nw-verified-pip{border-radius:999px}
+.nw-btn{min-height:40px;border-radius:999px!important;padding:0 16px!important;font-family:inherit!important;font-size:14.5px!important;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.nw-btn--sm{min-height:36px;padding:0 14px!important;font-size:14px!important}
+.nw-btn--primary{background:#004AAD!important;color:#fff!important;border-color:#004AAD!important}
+.nw-btn--primary:hover{background:#003A8C!important}
+.nw-btn--outline,.nw-btn--ghost{background:#fff!important;border:1.5px solid #CBD3E1!important;color:#0F1B33!important}
+.nw-btn--outline:hover,.nw-btn--ghost:hover{border-color:#004AAD!important;color:#003A8C!important}
+.nw-item-banner{background:linear-gradient(135deg,#DCE6F7,#C9D8F2)!important}
+.nw-event-date{border-radius:16px!important;background:#fff!important;border:1px solid #E2E6EE;color:#0F1B33!important}
+.nw-event-date-mon{color:#B45309!important}
+.nw-empty{border:1.5px dashed #C3CDE0!important;border-radius:20px!important;background:transparent!important}
+.nw-empty-text{font-size:15px!important;color:#5B6475!important}
+@media(max-width:640px){.nw-tabs{display:flex!important;overflow-x:auto}.nw-kpis>div{min-width:0;flex:1}}
 </style>
 
-<div class="nw-shell">
-
-  <nav class="oc-breadcrumbs" aria-label="Breadcrumb">
-    <ol class="oc-breadcrumbs__list">
-      <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-      <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">My Network</span></li>
-    </ol>
-  </nav>
-<button onclick="history.back()" class="oc-back-btn">
-  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-  Back
-</button>
-
-  <!-- ══ HERO ══ -->
-  <div class="nw-hero">
-    {% if user.userprofile.profile_pics %}
-      <img src="{{ user.userprofile.profile_pics.url }}" alt="" class="nw-hero-av">
-    {% else %}
-      <div class="nw-hero-av-init">{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}</div>
-    {% endif %}
-    <div class="nw-hero-info">
-      <div class="nw-hero-name">{{ user.get_full_name|default:user.username }}</div>
-      <div class="nw-hero-sub">{{ user.user_type|capfirst }}{% if user.userprofile.industry %} · {{ user.userprofile.industry }}{% endif %}</div>
-      <div class="nw-stats">
-        <div class="nw-stat">
-          <div class="nw-stat-num">{{ connections_count }}</div>
-          <div class="nw-stat-label">Connections</div>
+{% include '_partials/directory_css.html' %}
+<div class="dir">
+  <section class="dir-hero" aria-labelledby="dir-title">
+    <div class="dir-wrap">
+      <span class="dir-eyebrow">Your network</span>
+      <h1 id="dir-title">My network</h1>
+      <p>The people, groups and companies you're connected to, plus suggestions for who to meet next.</p>
+      <div class="dir-hero-row">
+        <dl class="nw-kpis">
+          <div><dt>Connections</dt><dd>{{ connections_count }}</dd></div>
+          <div><dt>Groups</dt><dd>{{ your_groups|length }}</dd></div>
+          <div><dt>Companies</dt><dd>{{ followed_companies|length }}</dd></div>
+          {% if pending_incoming_count %}<div class="warm"><dt>Requests</dt><dd>{{ pending_incoming_count }}</dd></div>{% endif %}
+        </dl>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a href="{% url 'innovators' %}" class="dir-btn dir-btn--solid">Find innovators</a>
+          <a href="{% url 'investors' %}" class="dir-btn dir-btn--ghost">Find investors</a>
+          <a href="{% url 'edit_profile' %}" class="dir-btn dir-btn--ghost">Edit profile</a>
         </div>
-        <div class="nw-stat">
-          <div class="nw-stat-num">{{ your_groups|length }}</div>
-          <div class="nw-stat-label">Groups</div>
-        </div>
-        <div class="nw-stat">
-          <div class="nw-stat-num">{{ followed_companies|length }}</div>
-          <div class="nw-stat-label">Companies</div>
-        </div>
-        {% if pending_incoming_count %}
-        <div class="nw-stat">
-          <div class="nw-stat-num" style="color:#fbbf24;">{{ pending_incoming_count }}</div>
-          <div class="nw-stat-label">Requests</div>
-        </div>
-        {% endif %}
       </div>
     </div>
-    <div class="nw-hero-actions">
-      <a href="{% url 'innovators' %}" class="nw-hero-btn">Find Innovators</a>
-      <a href="{% url 'investors' %}"  class="nw-hero-btn">Find Investors</a>
-      <a href="{% url 'edit_profile' %}" class="nw-hero-btn">Edit Profile</a>
-    </div>
-  </div>
+  </section>
+<div class="dir-wrap nw-shell">
 
   <!-- ══ TABS ══ -->
-  <div class="nw-tabs" role="tablist">
+  <div class="nw-tabs" role="group" aria-label="Network sections">
     <button class="nw-tab active" onclick="nwTab('connections', this)">
       Connections
       {% if connections_count %}<span class="nw-tab-badge">{{ connections_count }}</span>{% endif %}
@@ -920,6 +929,7 @@
     {% endif %}
   </div><!-- /events -->
 
+</div>
 </div><!-- /shell -->
 
 <script>

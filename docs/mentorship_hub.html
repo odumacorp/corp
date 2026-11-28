@@ -18,7 +18,7 @@
 .mh-hero { background:#eef4ff; border:1.5px solid #c3d4ec; border-radius:16px;
   padding:36px 48px; margin-bottom:32px; }
 .mh-hero h1 { font-family:'Space Grotesk',sans-serif; font-size: 2.7rem; font-weight:800; margin:0 0 8px; color:#0A1628; }
-.mh-hero p { font-size: 1.2rem; margin:0; color:#6b7280; }
+.mh-hero p { font-size: 1.2rem; margin:0; color:#5B6475; }
 .mh-filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px; }
 .mh-filter-btn { padding:6px 16px; border-radius:20px; font-size: 1.2rem; font-weight:600;
   text-decoration:none; border:1.5px solid #d1d5db; color:#374151; background:#fff; transition:all .2s; }
@@ -33,11 +33,11 @@
   font-size: 1.2rem; flex-shrink:0; overflow:hidden; }
 .mh-avatar img { width:100%; height:100%; object-fit:cover; }
 .mh-card-name { font-family:'Space Grotesk',sans-serif; font-weight:800; color:#0A1628; font-size: 1.2rem; }
-.mh-card-role { font-size: 1.2rem; color:#6b7280; }
+.mh-card-role { font-size: 1.2rem; color:#5B6475; }
 .mh-expertise-tag { display:inline-block; background:#e0e8f4; color:#004AAD;
   font-size: 1.2rem; font-weight:700; padding:3px 10px; border-radius:20px; margin-bottom:10px; }
 .mh-bio { font-size: 1.2rem; color:#374151; line-height:1.55; margin-bottom:14px; }
-.mh-avail { font-size: 1.2rem; color:#6b7280; margin-bottom:14px; }
+.mh-avail { font-size: 1.2rem; color:#5B6475; margin-bottom:14px; }
 .mh-btn { background:#004AAD; color:#fff; border:none; padding:8px 20px; border-radius:8px;
   font-size: 1.2rem; font-weight:700; cursor:pointer; transition:background .2s; }
 .mh-btn:hover { background:#003A8C; }
@@ -72,7 +72,8 @@
 
 <div class="mh-wrap">
   <div class="mh-hero">
-    <h1>Mentorship Programme</h1>
+    <p class="ocx-eyebrow">Grow</p>
+    <h1>Mentorship programme</h1>
     <p>Connect with experienced mentors who can guide your innovation journey — from idea to investment.</p>
   </div>
 
@@ -86,7 +87,7 @@
 
   <!-- Mentor cards -->
   <p style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;margin:0 0 18px;">
-    Available Mentors <span style="font-size: 1.2rem;color:#6b7280;font-weight:400;">({{ mentors|length }})</span>
+    Available Mentors <span style="font-size: 1.2rem;color:#5B6475;font-weight:400;">({{ mentors|length }})</span>
   </p>
 
   {% if mentors %}
@@ -113,7 +114,7 @@
       {% if mentor.availability %}
       <div class="mh-avail"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>{{ mentor.availability }}</div>
       {% endif %}
-      <div style="font-size: 1.2rem;color:#6b7280;margin-bottom:14px;">
+      <div style="font-size: 1.2rem;color:#5B6475;margin-bottom:14px;">
         {{ mentor.current_mentees }}/{{ mentor.max_mentees }} mentees
       </div>
       {% if request.user.is_authenticated %}
@@ -129,8 +130,8 @@
     {% endfor %}
   </div>
   {% else %}
-  <div style="background:#f4f7fb;border:1.5px dashed #c3d4ec;border-radius:12px;padding:40px;text-align:center;color:#6b7280;">
-    <p style="margin-bottom:8px;opacity:.4;color:#6b7280;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></p>
+  <div style="background:#f4f7fb;border:1.5px dashed #c3d4ec;border-radius:12px;padding:40px;text-align:center;color:#5B6475;">
+    <p style="margin-bottom:8px;opacity:.4;color:#5B6475;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></p>
     <p style="font-weight:700;">No mentors match this filter.</p>
     <a href="{% url 'mentorship_hub' %}" style="color:#004AAD;font-size: 1.2rem;">Clear filters</a>
   </div>
@@ -154,10 +155,10 @@
         {% for req in my_requests %}
         <tr>
           <td style="font-weight:600;color:#0A1628;">{{ req.mentor.user.get_full_name|default:req.mentor.user.username }}</td>
-          <td style="color:#6b7280;font-size: 1.2rem;">{{ req.project.title|default:"—" }}</td>
+          <td style="color:#5B6475;font-size: 1.2rem;">{{ req.project.title|default:"—" }}</td>
           <td><span class="mh-status-badge mh-status-{{ req.status }}">{{ req.get_status_display }}</span></td>
-          <td style="color:#6b7280;font-size: 1.2rem;">{{ req.created_at|date:"M j, Y" }}</td>
-          <td style="color:#6b7280;font-size: 1.2rem;">{{ req.mentor_note|default:"—"|truncatechars:60 }}</td>
+          <td style="color:#5B6475;font-size: 1.2rem;">{{ req.created_at|date:"M j, Y" }}</td>
+          <td style="color:#5B6475;font-size: 1.2rem;">{{ req.mentor_note|default:"—"|truncatechars:60 }}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -169,7 +170,7 @@
 <!-- Request Modal -->
 <div class="mh-modal-bg" id="mentorModal">
   <div class="mh-modal">
-    <button onclick="closeMentorModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size: 1.8rem;cursor:pointer;color:#6b7280;">✕</button>
+    <button onclick="closeMentorModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size: 1.8rem;cursor:pointer;color:#5B6475;">✕</button>
     <h3 id="modalTitle">Request Mentorship</h3>
     <form method="post" id="mentorForm" action="">
       {% csrf_token %}

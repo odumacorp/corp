@@ -4,34 +4,29 @@
 {% block title %}Proposals &amp; Collaborations — Oduma Corp{% endblock %}
 
 {% block content %}
-<div class="prp-page">
-
-  <div class="prp-head">
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <button onclick="history.back()" class="prp-back-btn">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-        Back
-      </button>
-      <div>
-        <h1 class="prp-title">Proposals &amp; Collaborations</h1>
-        <p class="prp-sub">Manage incoming proposals and collaboration requests.</p>
+{% include '_partials/directory_css.html' %}
+<div class="dir">
+  <section class="dir-hero" aria-labelledby="dir-title">
+    <div class="dir-wrap">
+      <span class="dir-eyebrow">Deals</span>
+      <h1 id="dir-title">Proposals &amp; collaborations</h1>
+      <p>Investment proposals and collaboration requests on your projects, and the ones you've sent.</p>
+      {% if pending_proposals or pending_collabs %}
+      <div class="dir-tags" style="margin:0;">
+        {% if pending_proposals %}<span class="dir-tag" style="background:#FCEBD5;color:#8A4100;">{{ pending_proposals }} new proposal{{ pending_proposals|pluralize }}</span>{% endif %}
+        {% if pending_collabs %}<span class="dir-tag">{{ pending_collabs }} new collaboration{{ pending_collabs|pluralize }}</span>{% endif %}
       </div>
+      {% endif %}
     </div>
-    {% if pending_proposals or pending_collabs %}
-    <div class="prp-badge-row">
-      {% if pending_proposals %}<span class="prp-badge prp-badge--proposal">{{ pending_proposals }} new proposal{{ pending_proposals|pluralize }}</span>{% endif %}
-      {% if pending_collabs %}<span class="prp-badge prp-badge--collab">{{ pending_collabs }} new collaboration{{ pending_collabs|pluralize }}</span>{% endif %}
-    </div>
-    {% endif %}
-  </div>
+  </section>
+<div class="dir-wrap prp-page">
 
-  <!-- Tabs -->
-  <div class="prp-tabs" role="tablist">
-    <button class="prp-tab active" onclick="switchTab('incoming')" id="tab-incoming">
-      Incoming <span class="prp-tab-count">{{ incoming_proposals.count|add:incoming_collabs.count }}</span>
+  <div class="dir-tabs" role="tablist" aria-label="Proposals" style="margin-bottom:8px;">
+    <button type="button" class="dir-tab" role="tab" aria-selected="true" aria-controls="pane-incoming" onclick="switchTab('incoming')" id="tab-incoming">
+      Incoming <small>{{ incoming_proposals.count|add:incoming_collabs.count }}</small>
     </button>
-    <button class="prp-tab" onclick="switchTab('sent')" id="tab-sent">
-      Sent <span class="prp-tab-count">{{ sent_proposals.count|add:sent_collabs.count }}</span>
+    <button type="button" class="dir-tab" role="tab" aria-selected="false" aria-controls="pane-sent" onclick="switchTab('sent')" id="tab-sent">
+      Sent <small>{{ sent_proposals.count|add:sent_collabs.count }}</small>
     </button>
   </div>
 
@@ -216,6 +211,7 @@
   </div>
 
 </div>
+</div>
 
 <style>
   :root {
@@ -296,13 +292,35 @@
   .prp-empty { text-align: center; padding: 48px 24px; background: #fff; border: 1.5px solid var(--prp-border); border-radius: 16px; margin-bottom: 14px; }
   .prp-empty-icon { width: 48px; height: 48px; border-radius: 12px; background: #eef4ff; color: var(--prp-blue); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
   .prp-empty p { font-size: 1.2rem; color: var(--prp-muted); max-width: 360px; margin: 0 auto; line-height: 1.65; }
+
+  /* 2026-11 directory theme */
+  .prp-page { max-width:1200px!important; padding:0 20px 64px!important; }
+  .prp-section-title { font-family:inherit; font-size:20px; font-weight:700; letter-spacing:-.01em; color:#0F1B33; margin:30px 0 14px; }
+  .prp-count { font-size:13px; font-weight:700; color:#5B6475; background:#EBEFF5; padding:2px 10px; }
+  .prp-card { border:1px solid #E2E6EE; border-radius:20px; padding:20px 22px; box-shadow:0 1px 2px rgba(15,27,51,.05),0 6px 20px rgba(15,27,51,.06); transition:transform .25s,box-shadow .25s; }
+  .prp-card:hover { transform:translateY(-2px); box-shadow:0 2px 4px rgba(15,27,51,.06),0 16px 36px rgba(15,27,51,.12); }
+  .prp-card--pending, .prp-card--accepted, .prp-card--declined { background:#fff; }
+  .prp-card--pending { border-left:4px solid #F29D38; }
+  .prp-card--accepted { border-left:4px solid #17734A; }
+  .prp-card--declined { border-left:4px solid #B42318; }
+  .prp-avatar { width:46px; height:46px; font-family:inherit; background:#0F1B33; }
+  .prp-card__name { font-size:16.5px; }
+  .prp-card__role, .prp-card__date { font-size:14px; color:#5B6475; }
+  .prp-card__project, .prp-card__amount { font-size:15px; }
+  .prp-card__msg { font-size:15px; font-style:normal; background:#FBFAF7; border-radius:14px; border-color:#E2E6EE; color:#4A5568; }
+  .prp-status { font-size:13px; }
+  .prp-btn { min-height:40px; border-radius:999px; padding:0 18px; font-family:inherit; font-size:14.5px; }
+  .prp-btn--msg { background:#fff; border:1.5px solid #CBD3E1; }
+  .prp-btn--decline { background:transparent; border:1.5px solid #F0C9C9; color:#9B1C1C; }
+  .prp-empty { border:1.5px dashed #C3CDE0; border-radius:20px; background:transparent; }
+  .prp-empty p { font-size:15px; color:#5B6475; }
 </style>
 
 <script>
 function switchTab(name) {
   ['incoming','sent'].forEach(function(t) {
     document.getElementById('pane-' + t).style.display = t === name ? '' : 'none';
-    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+    document.getElementById('tab-' + t).setAttribute('aria-selected', String(t === name));
   });
   try { sessionStorage.setItem('prp_tab', name); } catch(e) {}
 }
@@ -359,6 +377,7 @@ function closeProposalAction() {
   document.getElementById('prp-action-textarea').value = '';
 }
 
+document.addEventListener('DOMContentLoaded', function () {
 document.getElementById('prp-action-form').addEventListener('submit', function(e) {
   e.preventDefault();
   var msg = document.getElementById('prp-action-textarea').value.trim();
@@ -371,7 +390,7 @@ document.getElementById('prp-action-form').addEventListener('submit', function(e
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      'X-CSRFToken': '{{ csrf_token }}',
     },
     body: JSON.stringify(payload),
   })
@@ -385,6 +404,7 @@ document.getElementById('prp-action-form').addEventListener('submit', function(e
     }
   })
   .catch(function() { alert('Network error. Please try again.'); });
+});
 });
 </script>
 

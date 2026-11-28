@@ -3,16 +3,6 @@
 {% endblock %}
 
 {% block content %}
-<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
-  <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Meetings</span></li>
-  </ol>
-</nav>
-<button onclick="history.back()" class="oc-back-btn">
-  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-  Back
-</button>
 <style>
   :root {
     --blue: #004AAD; --blue-dark: #003490;
@@ -268,33 +258,34 @@
     .mt-page { padding: 16px 12px 48px; }
     .mt-card { flex-direction: column; gap: 10px; }
   }
+
+/* 2026-11 directory theme */
+.mt-page{padding-top:4px!important;padding-bottom:56px!important;max-width:1200px!important}
+.mt-page .mt-card{background:#fff;border:1px solid #E2E6EE;border-radius:20px;box-shadow:0 1px 2px rgba(15,27,51,.05),0 6px 20px rgba(15,27,51,.06);padding:18px 20px;margin-bottom:12px;transition:transform .25s,box-shadow .25s}
+.mt-page .mt-card:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(15,27,51,.06),0 16px 36px rgba(15,27,51,.12)}
+.mt-page .mt-card-icon{border-radius:16px;background:#E1EAF7;color:#004AAD}
+.mt-page .mt-card-title{font-family:inherit;font-size:17px;font-weight:700;color:#0F1B33}
+.mt-page .mt-card-meta{font-family:inherit;font-size:14px;color:#5B6475}
+.mt-page .mt-action-btn{min-height:38px;border-radius:999px;padding:0 16px;font-family:inherit;font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.mt-page .mt-action-btn.join{background:#004AAD;color:#fff}
+.mt-page .mt-action-btn.view{background:#fff;border:1.5px solid #CBD3E1;color:#0F1B33}
+.mt-page .mt-status-pill{border-radius:999px;font-family:inherit;font-weight:700}
+.mt-page .mt-card.ended{opacity:.85}
 </style>
 
-<div class="mt-page">
-
-  <!-- Header -->
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:28px;">
-    <div>
-      <h1 style="font-family:var(--ff-serif);font-size: 2.1rem;color:var(--text);margin:0 0 4px;display:flex;align-items:center;gap:10px;">
-        <i class="fi fi-rr-video-camera" style="color:var(--blue);font-size: 1.8rem;"></i>
-        Video Meetings
-      </h1>
-      <p style="font-family:var(--ff-sans);font-size: 1.2rem;color:var(--muted);margin:0;">
-        Start instant video calls or schedule meetings with your connections.
-      </p>
+{% include '_partials/directory_css.html' %}
+<div class="dir">
+  <section class="dir-hero" aria-labelledby="dir-title">
+    <div class="dir-wrap">
+      <span class="dir-eyebrow">Workspace</span>
+      <h1 id="dir-title">Meetings</h1>
+      <p>Start an instant video call or schedule a meeting with your connections.</p>
+      <button type="button" class="dir-btn dir-btn--solid" onclick="openScheduleModal()" style="height:50px;padding:0 24px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></svg>New meeting</button>
     </div>
-    <button class="mt-new-btn" onclick="openScheduleModal()">
-      <i class="fi fi-rr-video-camera fi-sm"></i> New Meeting
-    </button>
-  </div>
-
-  <!-- Upcoming / Active -->
-  <div style="margin-bottom:36px;">
-    <div class="mt-section-header">
-      <span style="font-size: 1.2rem;"><i class="fi fi-rr-calendar"></i></span>
-      <h2 class="mt-section-title">Upcoming & Active</h2>
-      {% if upcoming %}<span style="font-family:var(--ff-sans);font-size: 1.2rem;color:var(--muted);">{{ upcoming|length }}</span>{% endif %}
-    </div>
+  </section>
+<div class="dir-wrap mt-page">
+  <div>
+    <h2 class="dir-sh">Upcoming &amp; active <small>{{ upcoming|length }}</small></h2>
 
     {% if upcoming %}
       {% for m in upcoming %}
@@ -351,21 +342,14 @@
       </div>
       {% endfor %}
     {% else %}
-      <div class="mt-empty">
-        <div class="mt-empty-icon"><i class="fi fi-rr-video-camera"></i></div>
-        <p>No upcoming meetings. <button onclick="openScheduleModal()" style="background:none;border:none;color:var(--blue);cursor:pointer;font-family:var(--ff-sans);font-size: 1.2rem;padding:0;">Start one now →</button></p>
-      </div>
+      <div class="dir-empty"><h2>No upcoming meetings</h2><p>Start a call or schedule one with your connections.</p><button type="button" class="dir-btn dir-btn--solid" onclick="openScheduleModal()" style="margin-top:8px;">New meeting</button></div>
     {% endif %}
   </div>
 
   <!-- Past -->
   {% if past %}
   <div>
-    <div class="mt-section-header">
-      <span style="font-size: 1.2rem;"><i class="fi fi-rr-time-past"></i></span>
-      <h2 class="mt-section-title">Past Meetings</h2>
-      <span style="font-family:var(--ff-sans);font-size: 1.2rem;color:var(--muted);">{{ past|length }}</span>
-    </div>
+    <h2 class="dir-sh">Past meetings <small>{{ past|length }}</small></h2>
     {% for m in past %}
     <div class="mt-card ended">
       <div class="mt-card-icon ended"><i class="fi fi-rr-video-slash"></i></div>
@@ -393,6 +377,7 @@
   </div>
   {% endif %}
 
+</div>
 </div>
 
 <!-- ── Schedule modal ── -->

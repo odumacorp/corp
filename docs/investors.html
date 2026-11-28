@@ -1,371 +1,99 @@
 {% extends '_partials/base.html' %}
 {% load static %}
-
 {% block title %}Investors | Oduma Corp{% endblock %}
+{% block meta_description %}Investors backing Africa's next wave of innovation on Oduma Corp. Message them or connect.{% endblock %}
+
+{% block extra_head %}
+{% include '_partials/directory_css.html' %}
+{% endblock %}
 
 {% block content %}
-<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
-  <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Investors</span></li>
-  </ol>
-</nav>
-<button onclick="history.back()" class="oc-back-btn">
-  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-  Back
-</button>
-<style>
-:root {
-  --ink:    #0A1628;
-  --blue:   #004AAD;
-  --blue-lt:#e0e8f4;
-  --border: #e4eaf2;
-  --bg:     #f4f6fb;
-  --radius: 14px;
-}
-
-.iv-wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 48px; }
-
-/* ── Hero ───────────────────────────────────────────────────────── */
-.iv-hero {
-  background: linear-gradient(135deg, #EBF2FF 0%, #dce8f8 100%);
-  border-radius: 0 0 16px 16px;
-  padding: 22px 22px 20px;
-  margin-bottom: 18px;
-  position: relative;
-  overflow: hidden;
-}
-.iv-hero::after {
-  content: '';
-  position: absolute; right: -60px; top: -60px;
-  width: 260px; height: 260px; border-radius: 50%;
-  background: rgba(255,255,255,.06);
-  pointer-events: none;
-}
-.iv-hero-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(1.4rem, 3vw, 2rem);
-  font-weight: 800; color: #0A1628; margin: 0 0 6px;
-}
-.iv-hero-sub { font-size: 1.2rem; color: #6b7280; margin: 0 0 14px; }
-
-/* Search */
-.iv-search-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.iv-search-wrap { flex: 1; min-width: 220px; position: relative; }
-.iv-search-wrap svg {
-  position: absolute; left: 14px; top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280; pointer-events: none;
-}
-.iv-search-input {
-  width: 100%; box-sizing: border-box;
-  padding: 11px 14px 11px 42px;
-  background: rgba(255,255,255,.15);
-  border: 1.5px solid rgba(255,255,255,.25);
-  border-radius: 11px;
-  font-size: 1.2rem; font-family: inherit; color: #0A1628; outline: none;
-  transition: border-color .18s, background .18s;
-}
-.iv-search-input::placeholder { color: #9ca3af; }
-.iv-search-input:focus { border-color: #004AAD; background: #fff; }
-.iv-search-btn {
-  padding: 11px 24px;
-  background: #fff; color: var(--blue);
-  border: none; border-radius: 11px;
-  font-size: 1.2rem; font-weight: 700;
-  font-family: inherit; cursor: pointer; white-space: nowrap;
-  transition: background .15s;
-}
-.iv-search-btn:hover { background: #f0f5ff; }
-
-/* ── Industry Categories ─────────────────────────────────────────── */
-.iv-cats-section { margin-bottom: 28px; }
-.iv-cats-header {
-  display: flex; align-items: flex-end; justify-content: space-between;
-  gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
-}
-.iv-cats-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.2rem; font-weight: 800; color: var(--ink); margin: 0 0 3px;
-}
-.iv-cats-sub { font-size: 1.2rem; color: #6b7280; margin: 0; }
-.iv-cats-clear {
-  font-size: 1.2rem; font-weight: 700; color: #ef4444;
-  text-decoration: none; padding: 5px 12px; border-radius: 20px;
-  background: #fff1f1; border: 1px solid #fecaca;
-  transition: background .15s; white-space: nowrap;
-}
-.iv-cats-clear:hover { background: #fee2e2; }
-.iv-cats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 10px;
-}
-.iv-cat-card {
-  display: flex; flex-direction: column; align-items: flex-start;
-  gap: 4px;
-  background: #fff; border: 1.5px solid var(--border);
-  border-radius: 12px; padding: 12px 12px;
-  text-decoration: none; cursor: pointer;
-  transition: border-color .18s, box-shadow .18s, background .18s;
-}
-.iv-cat-card:hover { border-color: var(--blue); box-shadow: 0 4px 16px rgba(0,74,173,.1); }
-.iv-cat-card--active { background: var(--blue); border-color: var(--blue); box-shadow: 0 4px 18px rgba(0,74,173,.28); }
-.iv-cat-icon { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: #4b6cb7; }
-.iv-cat-card--active .iv-cat-icon { color: rgba(255,255,255,.85); }
-.iv-cat-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 800; color: var(--ink); line-height: 1.2; }
-.iv-cat-card--active .iv-cat-name { color: #fff; }
-.iv-cat-count { font-size: 1.1rem; color: #6b7280; font-weight: 600; }
-.iv-cat-card--active .iv-cat-count { color: rgba(255,255,255,.75); }
-
-/* ── Grid ───────────────────────────────────────────────────────── */
-.iv-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-/* ── Card ───────────────────────────────────────────────────────── */
-.iv-card {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-  display: flex; flex-direction: column;
-  transition: border-color .18s, box-shadow .18s;
-}
-.iv-card:hover { border-color: var(--blue); box-shadow: 0 6px 24px rgba(0,74,173,.12); }
-.iv-card-strip { height: 6px; }
-
-.iv-card-profile { display: flex; align-items: flex-start; gap: 14px; padding: 18px 18px 14px; }
-.iv-avatar { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--blue-lt); }
-.iv-avatar-ph {
-  width: 54px; height: 54px; border-radius: 50%;
-  background: linear-gradient(135deg, #004AAD, #3b82f6);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.8rem; font-weight: 800; color: #e7eaee; flex-shrink: 0;
-}
-.iv-card-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--ink); margin: 0 0 4px; line-height: 1.2; }
-.iv-card-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 5px; }
-.iv-tag { font-size: 1.2rem; font-weight: 700; padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
-.iv-tag--industry { background: var(--blue-lt); color: var(--blue); }
-.iv-tag--verified { background: #d1fae5; color: #065f46; }
-.iv-card-company { font-size: 1.2rem; color: #6b7280; }
-
-.iv-card-bio {
-  padding: 0 18px 14px;
-  font-size: 1.2rem; color: #4b5563; line-height: 1.55;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-
-.iv-card-stats {
-  padding: 0 18px 14px;
-  display: flex; gap: 16px;
-}
-.iv-stat { font-size: 1.2rem; color: #6b7280; }
-.iv-stat strong { color: var(--ink); font-weight: 700; }
-
-/* Action buttons */
-.iv-card-actions {
-  padding: 12px 18px 18px;
-  display: flex; gap: 8px; flex-wrap: wrap;
-  margin-top: auto;
-  border-top: 1px solid var(--border);
-}
-.iv-btn {
-  flex: 1; min-width: 80px;
-  padding: 8px 12px;
-  border-radius: 9px; border: none;
-  font-size: 1.2rem; font-weight: 700;
-  font-family: inherit; cursor: pointer; text-align: center;
-  text-decoration: none; display: inline-flex;
-  align-items: center; justify-content: center; gap: 5px;
-  transition: background .15s, color .15s;
-  white-space: nowrap;
-}
-.iv-btn--primary { background: var(--blue); color: #fff; }
-.iv-btn--primary:hover { background: #003A8C; color: #fff; }
-.iv-btn--outline { background: transparent; color: var(--blue); border: 1.5px solid var(--blue-lt); }
-.iv-btn--outline:hover { background: var(--blue-lt); }
-.iv-btn--ghost { background: #f3f4f6; color: #374151; border: 1.5px solid transparent; }
-.iv-btn--ghost:hover { background: #e5e7eb; }
-.iv-btn--danger { background: #fee2e2; color: #dc2626; border: 1.5px solid transparent; }
-.iv-btn--danger:hover { background: #fecaca; }
-
-/* Empty state */
-.iv-empty { text-align: center; padding: 40px 20px; color: #9ca3af; }
-.iv-empty-icon { margin-bottom: 12px; }
-.iv-empty h3 { font-family: 'Space Grotesk', sans-serif; color: var(--ink); margin: 0 0 6px; }
-</style>
-
-<div class="iv-wrap">
-
-  <!-- Hero -->
-  <div class="iv-hero">
-    <h1 class="iv-hero-title">Investors Directory</h1>
-    <p class="iv-hero-sub">Connect with investors backing Africa's next wave of innovation.</p>
-    <form method="get" action="">
-      <div class="iv-search-row">
-        <div class="iv-search-wrap">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input type="text" name="q" class="iv-search-input"
-                 placeholder="Search by name, industry…"
-                 value="{{ request.GET.q }}">
-        </div>
+<div class="dir">
+  <section class="dir-hero" aria-labelledby="dir-title">
+    <div class="dir-wrap">
+      <span class="dir-eyebrow">Directory</span>
+      <h1 id="dir-title">Investors</h1>
+      <p>Investors backing Africa's next wave of innovation. Open a profile, send a message or connect.</p>
+      <form class="dir-search" method="get" action="" role="search">
+        <label><span class="sr-only" style="position:absolute;left:-9999px;">Search investors</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="M21 21l-4.6-4.6"/></svg>
+          <input type="search" name="q" value="{{ q }}" placeholder="Search by name, firm or focus" autocomplete="off">
+        </label>
         {% if selected_industry %}<input type="hidden" name="industry" value="{{ selected_industry }}">{% endif %}
-        <button type="submit" class="iv-search-btn">Search</button>
-      </div>
-    </form>
-  </div>
-
-  <!-- Industry Categories -->
-  <div class="iv-cats-section">
-    <div class="iv-cats-header">
-      <div>
-        <h2 class="iv-cats-title">Browse by Industry</h2>
-        <p class="iv-cats-sub">{{ investors|length }} investor{{ investors|length|pluralize }} found</p>
-      </div>
-      {% if selected_industry %}
-      <a href="?{% if request.GET.q %}q={{ request.GET.q }}{% endif %}" class="iv-cats-clear">✕ Clear filter</a>
-      {% endif %}
+        <button type="submit" class="dir-btn dir-btn--solid">Search</button>
+      </form>
     </div>
-    <div class="iv-cats-grid">
-      <a href="?{% if request.GET.q %}q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if not selected_industry %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
-        <span class="iv-cat-name">All</span>
-        <span class="iv-cat-count">{{ investors|length }} total</span>
-      </a>
-      <a href="?industry=tech{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'tech' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
-        <span class="iv-cat-name">Technology</span>
-        <span class="iv-cat-count">{{ industry_counts.tech|default:0 }} investors</span>
-      </a>
-      <a href="?industry=finance{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'finance' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
-        <span class="iv-cat-name">Finance</span>
-        <span class="iv-cat-count">{{ industry_counts.finance|default:0 }} investors</span>
-      </a>
-      <a href="?industry=health{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'health' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
-        <span class="iv-cat-name">Healthcare</span>
-        <span class="iv-cat-count">{{ industry_counts.health|default:0 }} investors</span>
-      </a>
-      <a href="?industry=edu{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'edu' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
-        <span class="iv-cat-name">Education</span>
-        <span class="iv-cat-count">{{ industry_counts.edu|default:0 }} investors</span>
-      </a>
-      <a href="?industry=energy{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'energy' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
-        <span class="iv-cat-name">Energy</span>
-        <span class="iv-cat-count">{{ industry_counts.energy|default:0 }} investors</span>
-      </a>
-      <a href="?industry=agriculture{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'agriculture' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 22"/><path d="M9.73 16.5c1.18 1.07 2.55 1.4 3.99 1.5 2.08.14 4.28-.25 5.78-1.75 2.53-2.53 1.5-8-.5-12-1.5 3-2 5-5 6.5z"/></svg></span>
-        <span class="iv-cat-name">Agriculture</span>
-        <span class="iv-cat-count">{{ industry_counts.agriculture|default:0 }} investors</span>
-      </a>
-      <a href="?industry=manufacturing{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'manufacturing' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><circle cx="12" cy="12" r="7"/></svg></span>
-        <span class="iv-cat-name">Manufacturing</span>
-        <span class="iv-cat-count">{{ industry_counts.manufacturing|default:0 }} investors</span>
-      </a>
-      <a href="?industry=other{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="iv-cat-card {% if selected_industry == 'other' %}iv-cat-card--active{% endif %}">
-        <span class="iv-cat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
-        <span class="iv-cat-name">Other</span>
-        <span class="iv-cat-count">{{ industry_counts.other|default:0 }} investors</span>
-      </a>
+  </section>
+
+  <div class="dir-wrap">
+    <div class="dir-bar">
+      <p class="dir-count" aria-live="polite">
+        {% if q or selected_industry %}
+          <b>{{ investors|length }}</b> of {{ total_count }} investor{{ total_count|pluralize }}{% if selected_label %} in {{ selected_label }}{% endif %}{% if q %} matching “{{ q }}”{% endif %}
+          · <a href="?">Clear</a>
+        {% else %}
+          <b>{{ total_count }}</b> investor{{ total_count|pluralize }}
+        {% endif %}
+      </p>
     </div>
-  </div>
+    {% if industry_chips %}
+    <nav class="dir-chips" aria-label="Filter by industry">
+      <a class="dir-chip" href="?{% if q %}q={{ q|urlencode }}{% endif %}" aria-current="{% if not selected_industry %}true{% else %}false{% endif %}">All <small>{{ total_count }}</small></a>
+      {% for c in industry_chips %}
+      <a class="dir-chip" href="?industry={{ c.key }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}" aria-current="{% if selected_industry == c.key %}true{% else %}false{% endif %}">{{ c.label }} <small>{{ c.count }}</small></a>
+      {% endfor %}
+    </nav>
+    {% endif %}
 
-  <!-- Grid -->
-  {% if investors %}
-  <div class="iv-grid">
-    {% for investor in investors %}
-    {% if request.user != investor %}
-
-    <div class="iv-card">
-      <div class="iv-card-strip"></div>
-
-      <!-- Profile -->
-      <div class="iv-card-profile">
-        <a href="{% url 'profile_view' username=investor.username %}" style="line-height:0;flex-shrink:0;">
-          {% if investor.userprofile.profile_pics %}
-            <img src="{{ investor.userprofile.profile_pics.url }}" alt="{{ investor.get_full_name }}" class="iv-avatar">
-          {% else %}
-            <div class="iv-avatar-ph">{{ investor.first_name|first|upper }}{{ investor.last_name|first|upper }}</div>
-          {% endif %}
-        </a>
-        <div style="flex:1;min-width:0;">
-          <a href="{% url 'profile_view' username=investor.username %}" style="text-decoration:none;">
-            <div class="iv-card-name">{{ investor.get_full_name|default:investor.username }}</div>
-          </a>
-          <div class="iv-card-meta">
-            {% if investor.userprofile.industry %}
-              <span class="iv-tag iv-tag--industry">{{ investor.userprofile.get_industry_display }}</span>
-            {% endif %}
-            {% if investor.userprofile.verification_status == 'verified' %}
-              <span class="iv-tag iv-tag--verified">✓ Verified</span>
-            {% endif %}
+    {% if investors %}
+    <ul class="dir-grid" style="margin-top:14px;">
+      {% for p in investors %}
+      {% with prof=p.userprofile %}
+      <li class="dir-card">
+        <div class="dir-cover">
+          <span class="ph" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span>
+        </div>
+        <div class="dir-head">
+          <span class="dir-av" aria-hidden="true">{{ p.first_name|first|upper }}{{ p.last_name|first|upper }}{% if prof.profile_pics %}<img src="{{ prof.profile_pics.url }}" alt="" loading="lazy" onerror="this.remove()" style="position:absolute;inset:0;border-radius:50%;">{% endif %}</span>
+          <div class="dir-who">
+            <h2 class="dir-name"><a href="{% url 'profile_view' username=p.username %}">{{ p.get_full_name|default:p.username }}</a>{% if prof.verification_status == 'verified' %}<svg class="ok" viewBox="0 0 24 24" fill="currentColor" aria-label="Verified" role="img"><path d="M12 2l2.4 2.1 3.2-.3.9 3.1 2.8 1.6-1.2 3 1.2 3-2.8 1.6-.9 3.1-3.2-.3L12 22l-2.4-2.1-3.2.3-.9-3.1-2.8-1.6 1.2-3-1.2-3 2.8-1.6.9-3.1 3.2.3z"/><path d="M8.5 12.5l2.3 2.3 4.7-5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endif %}</h2>
+            {% if prof.company %}<p class="dir-company">{{ prof.company }}</p>{% endif %}
           </div>
-          {% if investor.userprofile.company %}
-            <div class="iv-card-company">{{ investor.userprofile.company }}</div>
+        </div>
+        <div class="dir-body">
+          {% if prof.industry %}<div class="dir-tags"><span class="dir-tag">{{ prof.get_industry_display }}</span></div>{% endif %}
+          {% if prof.bio %}<p class="dir-bio">{{ prof.bio }}</p>{% endif %}
+          <p class="dir-meta" style="margin-top:auto;"><span><b>{{ prof.connected_users.count }}</b> connection{{ prof.connected_users.count|pluralize }}</span>{% if prof.location %}<span>{{ prof.location }}</span>{% endif %}</p>
+        </div>
+        <div class="dir-acts">
+          <a class="dir-btn dir-btn--ghost" href="{% url 'profile_view' username=p.username %}">View profile</a>
+          {% if request.user.is_authenticated %}
+          <button type="button" class="dir-btn dir-btn--ghost icon" aria-label="Message {{ p.get_full_name|default:p.username }}"
+            onclick="openQuickChat({{ p.id }},'{{ p.get_full_name|escapejs }}','{{ p.first_name|first|upper }}{{ p.last_name|first|upper }}','{% if prof.profile_pics %}{{ prof.profile_pics.url }}{% endif %}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/></svg>
+          </button>
+          <form method="POST" action="{% url 'connect_investor' p.id %}">
+            {% csrf_token %}
+            {% if request.user.userprofile not in prof.connected_users.all %}
+            <button type="submit" class="dir-btn dir-btn--solid">Connect</button>
+            {% else %}
+            <button type="submit" class="dir-btn dir-btn--quiet">Disconnect</button>
+            {% endif %}
+          </form>
+          {% else %}
+          <a class="dir-btn dir-btn--solid" href="{% url 'register' %}?role=innovator">Join to connect</a>
           {% endif %}
         </div>
-      </div>
-
-      <!-- Bio -->
-      {% if investor.userprofile.bio %}
-        <div class="iv-card-bio">{{ investor.userprofile.bio }}</div>
-      {% endif %}
-
-      <!-- Stats -->
-      <div class="iv-card-stats">
-        <span class="iv-stat"><strong>{{ investor.userprofile.connected_users.count }}</strong> connections</span>
-        {% if investor.userprofile.location %}
-          <span class="iv-stat">{{ investor.userprofile.location }}</span>
-        {% endif %}
-      </div>
-
-      <!-- Actions -->
-      <div class="iv-card-actions">
-        <a href="{% url 'profile_view' username=investor.username %}" class="iv-btn iv-btn--ghost">View Profile</a>
-        {% if request.user.is_authenticated %}
-          <button class="iv-btn iv-btn--outline"
-            onclick="openQuickChat({{ investor.id }},'{{ investor.get_full_name|escapejs }}','{{ investor.first_name|first|upper }}{{ investor.last_name|first|upper }}','{% if investor.userprofile.profile_pics %}{{ investor.userprofile.profile_pics.url }}{% endif %}')">
-            Message
-          </button>
-          {% if user.userprofile not in investor.userprofile.connected_users.all %}
-            <form method="POST" action="{% url 'connect_investor' investor.id %}" style="flex:1;display:flex;">
-              {% csrf_token %}
-              <button type="submit" class="iv-btn iv-btn--primary" style="flex:1;">Connect</button>
-            </form>
-          {% else %}
-            <form method="POST" action="{% url 'connect_investor' investor.id %}" style="flex:1;display:flex;"
-                  onsubmit="return confirm('Disconnect from {{ investor.get_full_name|escapejs }}?')">
-              {% csrf_token %}
-              <button type="submit" class="iv-btn iv-btn--danger" style="flex:1;">Disconnect</button>
-            </form>
-          {% endif %}
-        {% endif %}
-      </div>
+      </li>
+      {% endwith %}
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="dir-empty" style="margin-top:14px;">
+      <h2>No investors found</h2>
+      <p>{% if q or selected_industry %}Try a different search or <a href="?">show everyone</a>.{% else %}Check back soon.{% endif %}</p>
     </div>
-
     {% endif %}
-    {% empty %}
-    {% endfor %}
   </div>
-  {% else %}
-  <div class="iv-empty">
-    <div class="iv-empty-icon">
-      <svg width="40" height="40" fill="none" stroke="#9ca3af" stroke-width="1.5" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-    </div>
-    <h3>No investors found</h3>
-    <p>{% if selected_industry %}No investors in this industry yet. <a href="{% url 'investors' %}" style="color:var(--blue);">Clear filter</a>{% else %}Check back soon.{% endif %}</p>
-  </div>
-  {% endif %}
-
 </div>
 {% endblock %}

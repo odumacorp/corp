@@ -3,6 +3,7 @@
 {% block title %}Edit Profile — Oduma Corp{% endblock %}
 
 {% block extra_head %}
+{% include '_partials/directory_css.html' %}
 <style>
 :root {
   --ink:#0A1628; --blue:#004AAD; --blue-d:#003A8C;
@@ -137,7 +138,7 @@
   display: flex; justify-content: space-between; align-items: center;
 }
 .ep-comp-pct { font-family: var(--ff); font-size: 1.2rem; font-weight: 700; color: #374151; }
-.ep-comp-tip { font-size: 1.2rem; color: #9ca3af; }
+.ep-comp-tip { font-size: 1.2rem; color: #5B6475; }
 
 /* Sidebar links */
 .ep-sidebar-links { padding: 12px 0; }
@@ -207,7 +208,7 @@
   background: #fff;
 }
 .ep-field textarea { resize: vertical; line-height: 1.65; }
-.ep-field .ep-hint { font-size: 1.2rem; color: #9ca3af; }
+.ep-field .ep-hint { font-size: 1.2rem; color: #5B6475; }
 .ep-field-errors { margin-top: 4px; list-style: none; padding: 0; }
 .ep-field-errors li { font-size: 1.2rem; color: #dc2626; }
 .ep-field-foot { display: flex; justify-content: space-between; }
@@ -236,28 +237,29 @@
   transition: background .15s, color .15s;
 }
 .ep-btn-cancel:hover { background: #f3f4f6; color: var(--ink); text-decoration: none; }
+
+/* 2026-11 directory theme */
+.ep-page { max-width:1200px; padding:26px 20px 56px; font-family:'DM Sans',system-ui,sans-serif; }
+.ep-bg-picker-label { color:#3D475A; }
+.ep-bg-match-btn { color:#0F1B33 !important; border-color:#CBD3E1 !important; background:#fff !important; border-radius:999px !important; }
+.ep-bg-match-btn:hover { border-color:#004AAD !important; }
+.ep-bg-swatch:hover { border-color:#004AAD; }
 </style>
 {% endblock %}
 
 {% block content %}
-<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
-  <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><a href="{% url 'profile_view' username=request.user.username %}" class="oc-breadcrumbs__link">Profile</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Edit Profile</span></li>
-  </ol>
-</nav>
-<button onclick="history.back()" class="oc-back-btn">
-  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-  Back
-</button>
-
+<div class="dir" style="padding-bottom:0;">
+  <section class="dir-hero" aria-labelledby="dir-title">
+    <div class="dir-wrap">
+      <span class="dir-eyebrow">Account</span>
+      <h1 id="dir-title">Edit profile</h1>
+      <p>This is what investors and founders see when they open your profile. A full profile gets more replies.</p>
+      <a href="{% url 'profile_view' username=request.user.username %}" class="dir-btn dir-btn--ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>View my profile</a>
+    </div>
+  </section>
+</div>
 <div class="ep-page">
-
-  <div class="ep-topbar">
-    <h1>Edit Profile</h1>
-    <a href="{% url 'profile_view' username=request.user.username %}" class="ep-back">← Back to profile</a>
-  </div>
 
   {% if messages %}
     {% for message in messages %}
@@ -329,7 +331,7 @@
               <button type="button" class="ep-bg-swatch" style="background:linear-gradient(135deg,#0a1628,#004AAD);" data-bg="linear-gradient(135deg,#0a1628,#004AAD)" onclick="epSetBg(this,'linear-gradient(135deg,#0a1628,#004AAD)')" title="Navy gradient"></button>
               <button type="button" class="ep-bg-swatch" style="background:linear-gradient(135deg,#7c3aed,#3b82f6);" data-bg="linear-gradient(135deg,#7c3aed,#3b82f6)" onclick="epSetBg(this,'linear-gradient(135deg,#7c3aed,#3b82f6)')" title="Purple gradient"></button>
               <label class="ep-bg-swatch ep-bg-swatch--custom" title="Custom color">
-                <input type="color" id="ep-bg-custom-color" style="opacity:0;position:absolute;width:0;height:0;" oninput="epSetBg(null, this.value)">
+                <input type="color" id="ep-bg-custom-color" aria-label="Custom card colour" style="opacity:0;position:absolute;width:0;height:0;" oninput="epSetBg(null, this.value)">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
               </label>
             </div>
@@ -497,35 +499,35 @@
           <div class="ep-section-body">
             <div class="ep-grid ep-grid-2">
               <div class="ep-field">
-                <label>Min ticket size (USD)</label>
-                <input type="number" name="ticket_size_min"
+                <label for="ep-ticket_size_min">Min ticket size (USD)</label>
+                <input id="ep-ticket_size_min" type="number" name="ticket_size_min"
                        value="{{ up.ticket_size_min|default:'' }}"
                        placeholder="" data-example="e.g. 10000" min="0">
               </div>
               <div class="ep-field">
-                <label>Max ticket size (USD)</label>
-                <input type="number" name="ticket_size_max"
+                <label for="ep-ticket_size_max">Max ticket size (USD)</label>
+                <input id="ep-ticket_size_max" type="number" name="ticket_size_max"
                        value="{{ up.ticket_size_max|default:'' }}"
                        placeholder="" data-example="e.g. 500000" min="0">
               </div>
             </div>
             <div class="ep-grid ep-grid-1" style="margin-top:14px;">
               <div class="ep-field">
-                <label>Preferred sectors</label>
-                <input type="text" name="preferred_sectors"
+                <label for="ep-preferred_sectors">Preferred sectors</label>
+                <input id="ep-preferred_sectors" type="text" name="preferred_sectors"
                        value="{{ up.preferred_sectors|default:'' }}"
                        placeholder="" data-example="e.g. tech, health, agriculture">
                 <span class="ep-hint">Comma-separated. Used for intelligent project matching.</span>
               </div>
               <div class="ep-field" style="margin-top:14px;">
-                <label>Geography focus</label>
-                <input type="text" name="geography_focus"
+                <label for="ep-geography_focus">Geography focus</label>
+                <input id="ep-geography_focus" type="text" name="geography_focus"
                        value="{{ up.geography_focus|default:'' }}"
                        placeholder="" data-example="e.g. Kenya, East Africa, Pan-African, global">
               </div>
               <div class="ep-field" style="margin-top:14px;">
-                <label>Investment thesis</label>
-                <textarea name="investment_thesis" rows="3"
+                <label for="ep-investment_thesis">Investment thesis</label>
+                <textarea id="ep-investment_thesis" name="investment_thesis" rows="3"
                   placeholder="" data-example="Briefly describe what you look for in a deal…">{{ up.investment_thesis|default:'' }}</textarea>
               </div>
             </div>

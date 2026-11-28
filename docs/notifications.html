@@ -3,6 +3,7 @@
 {% block title %}Notifications | Oduma Corp{% endblock %}
 
 {% block extra_head %}
+{% include '_partials/directory_css.html' %}
 <style>
 :root{--navy:#0A1628;--blue:#004AAD;--blue-d:#003A8C;}
 
@@ -100,33 +101,42 @@
   .nf-item{padding:14px 14px;}
   .nf-icon{width:36px;height:36px;font-size: 1.2rem;}
 }
+
+/* 2026-11 directory theme */
+.nf-page{max-width:1200px!important;padding:22px 20px 56px!important}
+.dir-hero h1 .nf-badge{vertical-align:middle;font-size:14px;letter-spacing:0;background:#FCEBD5;color:#8A4100}
+.nf-tabs{display:inline-flex;gap:4px;padding:5px;background:#EBEFF5;border:1px solid #E2E6EE;border-radius:999px;margin-bottom:20px;max-width:100%}
+.nf-tab{min-height:42px;padding:0 18px;border-radius:999px;font-family:inherit;font-size:15px;color:#5B6475;min-width:0;box-shadow:none}
+.nf-tab.active{background:#004AAD;color:#fff;box-shadow:none}
+.nf-tab-count{font-size:12.5px;height:20px;background:rgba(15,27,51,.08);color:inherit}
+.nf-tab.active .nf-tab-count{background:rgba(255,255,255,.22);color:#fff}
+.nf-item,.ib-tile{border:1px solid #E2E6EE;border-radius:18px;box-shadow:0 1px 2px rgba(15,27,51,.05),0 6px 20px rgba(15,27,51,.06);margin-bottom:10px;padding:16px 20px}
+.nf-item:hover,.ib-tile:hover{box-shadow:0 2px 4px rgba(15,27,51,.06),0 16px 36px rgba(15,27,51,.12);border-color:#C9D6EC;background:#fff}
+.nf-item.unread::before{width:4px;border-radius:0}
+.nf-icon{border-radius:14px;background:#E1EAF7!important;color:#004AAD}
+.nf-body__msg{font-size:15.5px;color:#0F1B33}
+.nf-body__time,.ib-time{font-size:13.5px;color:#5B6475}
+.nf-type-chip,.ib-ctx{font-size:12px;border-radius:999px;padding:3px 10px;background:#E1EAF7;color:#003A8C}
+.ib-name{font-family:inherit;font-size:16px}
+.ib-preview{font-size:14.5px;color:#4A5568}
+.nf-act{font-family:inherit;font-size:14px;min-height:36px;padding:0 14px;border-radius:999px}
+.nf-empty{border:1.5px dashed #C3CDE0;border-radius:20px}
+.nf-empty__title{font-family:inherit;font-size:20px;color:#0F1B33}
+.nf-empty__sub{font-size:15px;color:#5B6475}
+@media(max-width:560px){.nf-tabs{display:flex;overflow-x:auto}.nf-tab{padding:0 14px}}
 </style>
 {% endblock %}
 
 {% block content %}
-<nav class="oc-breadcrumbs" aria-label="Breadcrumb">
-  <ol class="oc-breadcrumbs__list">
-    <li class="oc-breadcrumbs__item"><a href="{% if request.user.is_authenticated %}{% url 'app' %}{% else %}{% url 'index' %}{% endif %}" class="oc-breadcrumbs__link">Home</a><span class="oc-breadcrumbs__sep">›</span></li>
-    <li class="oc-breadcrumbs__item"><span class="oc-breadcrumbs__current">Notifications</span></li>
-  </ol>
-</nav>
-<button onclick="history.back()" class="oc-back-btn">
-  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-  Back
-</button>
-<div class="nf-page">
-
-  <!-- Header -->
-  <div class="nf-header">
-    <div class="nf-header__left">
-      <h1>Notifications
-        {% if unread_count %}
-          <span class="nf-badge" data-count="{{ unread_count }}">{{ unread_count }} new</span>
-        {% endif %}
-      </h1>
-      <p>Stay up to date with your connections, messages, and activity.</p>
+<div class="dir">
+  <section class="dir-hero" aria-labelledby="dir-title">
+    <div class="dir-wrap">
+      <span class="dir-eyebrow">Activity</span>
+      <h1 id="dir-title">Notifications{% if unread_count %} <span class="nf-badge" data-count="{{ unread_count }}">{{ unread_count }} new</span>{% endif %}</h1>
+      <p>Connection requests, messages and everything else happening around you.</p>
     </div>
-  </div>
+  </section>
+<div class="dir-wrap nf-page">
 
   <!-- Tabs -->
   <div class="nf-tabs" role="tablist">
@@ -256,6 +266,7 @@
     {% endif %}
   </div>
 
+</div>
 </div>
 
 <script>

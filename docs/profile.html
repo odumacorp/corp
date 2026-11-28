@@ -19,7 +19,7 @@
 
 /* hero */
 .pf-hero{background:#fff;border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:18px}
-.pf-cover-strip{height:150px;background:radial-gradient(900px 300px at 85% -40%,rgba(255,255,255,.18),transparent 60%),linear-gradient(135deg,#0A5AC4 0%,#004AAD 45%,#00347F 100%)}
+.pf-cover-strip{height:150px;background:radial-gradient(rgba(0,58,140,.10) 1.2px,transparent 1.4px) 0 0/18px 18px,linear-gradient(160deg,#EEF3FC 0%,#DCE6F7 45%,#F5F2EC 80%,#FCEBD5 100%)}
 .pf-hero-inner{padding:0 28px 24px}
 .pf-hero-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:-56px}
 .pf-avatar,.pf-avatar-init{width:116px;height:116px;border-radius:50%;border:5px solid #fff;box-shadow:0 8px 24px rgba(15,27,51,.2);display:block;object-fit:cover;background:var(--ink)}
@@ -328,7 +328,7 @@
               <div class="pf-verif-form-field">
                 <label>ID Document (optional — PDF, JPG, PNG)</label>
                 <div class="pf-file-wrap">
-                  <input type="file" name="id_document" accept=".pdf,.jpg,.jpeg,.png" id="pf-id-doc-input">
+                  <input type="file" name="id_document" accept=".pdf,.jpg,.jpeg,.png" id="pf-id-doc-input" aria-label="ID document (optional)">
                   <div class="pf-file-btn" id="pf-id-doc-btn">
                     <div class="pf-file-icon">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -354,7 +354,7 @@
         <!-- Verification status pill (own profile) -->
         {% if request.user == profile.user %}
         <div class="pf-card" style="padding:18px 22px;">
-          <h3 style="font-family:'Space Grotesk',sans-serif;font-size: 1.2rem;font-weight:800;color:#0A1628;margin:0 0 10px;">Verification</h3>
+          <h3 class="pf-card-title" style="margin:0 0 10px;">Verification</h3>
           {% if profile.verification_status == 'verified' %}
             <span style="background:#d1fae5;color:#065f46;font-size: 1.2rem;font-weight:700;padding:4px 12px;border-radius:20px;">✓ Verified {{ profile.user.user_type|title }}</span>
           {% elif profile.verification_status == 'pending' %}
@@ -363,7 +363,7 @@
           {% elif profile.verification_status == 'rejected' %}
             <span style="background:#fee2e2;color:#991b1b;font-size: 1.2rem;font-weight:700;padding:4px 12px;border-radius:20px;">✗ Rejected</span>
           {% else %}
-            <span style="background:#f3f4f6;color:#6b7280;font-size: 1.2rem;font-weight:700;padding:4px 12px;border-radius:20px;">Unverified</span>
+            <span style="background:#EBEFF5;color:#4A5568;font-size:13px;font-weight:700;padding:4px 12px;border-radius:999px;">Unverified</span>
           {% endif %}
         </div>
 
