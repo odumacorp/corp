@@ -106,6 +106,10 @@ def project_list(request):
         "current_sort": sort,
         "industry_choices": INDUSTRY_CHOICES,
         "industry_counts": industry_counts,
+        "industry_chips": sorted(({'key': k, 'label': dict(INDUSTRY_CHOICES).get(k, k.title()), 'count': n}
+                                  for k, n in industry_counts.items()), key=lambda c: (-c['count'], c['label'])),
+        "all_count": Project.objects.filter(is_hidden=False).count(),
+        "selected_label": dict(INDUSTRY_CHOICES).get(industry, ''),
     }
     return render(request, "project_list.html", context)
 
