@@ -85,6 +85,9 @@ def project_list(request):
     for proj in page_obj:
         imgs = list(proj.images.all())
         proj.main_img = next((i for i in imgs if i.is_main), imgs[0] if imgs else None)
+        # Descriptions are Markdown; drop heading/emphasis marks for the card summary
+        import re as _re
+        proj.summary = _re.sub(r'\s+', ' ', _re.sub(r'[#*_`>]+', ' ', proj.description or '')).strip()
 
     industry_counts = {
         r['industry']: r['cnt']
@@ -1357,6 +1360,9 @@ def innovators_view(request):
         p.industry_key = (prof.industry if prof and prof.industry else '') or (p.first_project.industry if p.first_project else '')
         p.industry_label = labels.get(p.industry_key, '')
         p.like_count = p.first_project.liked_by.count() if p.first_project else 0
+        if p.first_project:
+            import re as _re
+            p.first_project.summary = _re.sub(r'\s+', ' ', _re.sub(r'[#*_`>]+', ' ', p.first_project.description or '')).strip()
 
     counts = {}
     for p in people:

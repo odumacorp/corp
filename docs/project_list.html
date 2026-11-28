@@ -160,7 +160,7 @@
             <span class="dir-tag dir-tag--muted">{{ proj.get_status_display }}</span>
             {% if proj.pipeline_stage and proj.pipeline_stage != 'idea' %}<span class="dir-tag dir-tag--ok">{{ proj.get_pipeline_stage_display }}</span>{% endif %}
           </div>
-          {% if proj.description %}<p class="dir-bio">{{ proj.description|striptags|truncatechars:170 }}</p>{% endif %}
+          {% if proj.summary %}<p class="dir-bio">{{ proj.summary|striptags|truncatechars:170 }}</p>{% endif %}
           <p class="dir-meta" style="margin-top:auto;">
             <span><b>{{ proj.likes_count }}</b> like{{ proj.likes_count|pluralize }}</span>
             {% if proj.avg_rating %}<span><b>{{ proj.avg_rating|floatformat:1 }}</b> ★ rating</span>{% endif %}

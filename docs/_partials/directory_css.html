@@ -131,3 +131,12 @@
 .dir .dir-av--sm{width:46px;height:46px;font-size:17px;border-width:0;box-shadow:none}
 @media (max-width:560px){.dir-row{flex-wrap:wrap}.dir-row-main{flex-basis:calc(100% - 60px)}.dir-row form{flex:1}.dir-row form .dir-btn{width:100%}}
 </style>
+<style>
+/* name always sits below the cover (photos made it unreadable); placeholder icon stays behind photos */
+.dir-head{align-items:flex-start;z-index:2}
+.dir-who{padding-top:34px}
+.dir-head--flat .dir-who{padding-top:0}
+.dir-head--flat{align-items:center}
+.dir-cover img{position:relative;z-index:1}
+.dir-cover .dir-flag{z-index:2}
+</style>

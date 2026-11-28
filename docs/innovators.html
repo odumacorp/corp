@@ -65,7 +65,7 @@
           {% if p.industry_label %}<div class="dir-tags"><span class="dir-tag">{{ p.industry_label }}</span></div>{% endif %}
           {% if prof.bio %}<p class="dir-bio">{{ prof.bio }}</p>{% endif %}
           {% if proj %}
-          <a class="dir-proj" href="{{ proj.get_absolute_url }}"><small>Latest project</small><b>{{ proj.title }}</b><span>{{ proj.description|striptags|truncatechars:160 }}</span></a>
+          <a class="dir-proj" href="{{ proj.get_absolute_url }}"><small>Latest project</small><b>{{ proj.title }}</b><span>{{ proj.summary|striptags|truncatechars:160 }}</span></a>
           {% else %}
           <p class="dir-noproj">No project listed yet.</p>
           {% endif %}
